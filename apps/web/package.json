@@ -11,6 +11,7 @@
   "dependencies": {
     "@anilog/db": "workspace:*",
     "@base-ui/react": "^1.5.0",
+    "@elysiajs/eden": "^1",
     "@hookform/resolvers": "^5.4.0",
     "@tanstack/react-query": "^5.101.0",
     "better-auth": "^1.6.17",
