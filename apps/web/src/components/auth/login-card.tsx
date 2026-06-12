@@ -82,8 +82,8 @@ export function LoginCard({ onSwitchToSignUp }: LoginCardProps) {
           </Button>
         </CardAction>
       </CardHeader>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <CardContent>
+      <CardContent>
+        <form onSubmit={handleSubmit(onSubmit)} id="login-form">
           {error && (
             <Alert variant="destructive" className="mb-4">
               <AlertDescription>{error}</AlertDescription>
@@ -115,14 +115,14 @@ export function LoginCard({ onSwitchToSignUp }: LoginCardProps) {
               <FieldError errors={errors.password ? [errors.password] : []} />
             </Field>
           </FieldGroup>
-        </CardContent>
-      </form>
+        </form>
+      </CardContent>
       <CardFooter className="flex-col gap-2">
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
+        <Button type="submit" form="login-form" className="w-full" disabled={isSubmitting}>
           {isSubmitting && <Loader2 data-icon="inline-start" className="animate-spin" />}
           Sign in
         </Button>
       </CardFooter>
-    </Card>
+    </Card >
   );
 }

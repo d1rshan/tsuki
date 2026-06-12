@@ -84,7 +84,7 @@ export function SignUpCard({ onSwitchToLogin }: SignUpCardProps) {
           </Button>
         </CardAction>
       </CardHeader>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)} id="signup-form">
         <CardContent>
           {error && (
             <Alert variant="destructive" className="mb-4">
@@ -131,7 +131,7 @@ export function SignUpCard({ onSwitchToLogin }: SignUpCardProps) {
         </CardContent>
       </form>
       <CardFooter className="flex-col gap-2">
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
+        <Button type="submit" form="signup-form" className="w-full" disabled={isSubmitting}>
           {isSubmitting && <Loader2 data-icon="inline-start" className="animate-spin" />}
           Create account
         </Button>
