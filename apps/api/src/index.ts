@@ -1,8 +1,7 @@
-import { Elysia, t } from "elysia";
+import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { auth } from "./auth";
-
-const ANILIST_API_URL = "https://graphql.anilist.co";
+import { animeRoutes } from "./modules/anime";
 
 const betterAuth = new Elysia({ name: "better-auth" })
   .mount(auth.handler)
@@ -29,36 +28,8 @@ const app = new Elysia()
     })
   )
   .use(betterAuth)
-  .get("/", () => "AniLog API Proxy Running!")
-  .post("/graphql", async ({ body }) => {
-    try {
-      const response = await fetch(ANILIST_API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(body),
-      });
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error("AniList Proxy Error:", error);
-      return new Response(
-        JSON.stringify({ error: "Failed to fetch from AniList" }),
-        {
-          status: 500,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-    }
-  }, {
-    body: t.Object({
-      query: t.String(),
-      variables: t.Optional(t.Any()),
-    }),
-  })
+  .use(animeRoutes)
+  .get("/", () => "AniLog API Running!")
   .listen(3001);
 
 console.log(

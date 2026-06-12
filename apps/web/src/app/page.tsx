@@ -1,9 +1,22 @@
-import { AnimeCard } from "@/components/anime-card";
-import { getTrendingAnime } from "@/services/anilist";
-import { type Anime } from "@/types/anime";
+import { Suspense } from "react";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { getQueryClient } from "@/lib/query-client";
+import { trendingAnimeOptions } from "@/lib/queries";
+import { HomeClient } from "./home-client";
+
+function TrendingSkeleton() {
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 animate-pulse">
+      {Array.from({ length: 12 }).map((_, i) => (
+        <div key={i} className="aspect-[3/4] rounded-lg bg-muted" />
+      ))}
+    </div>
+  );
+}
 
 export default async function Home() {
-  const trendingAnime: Anime[] = await getTrendingAnime();
+  const queryClient = getQueryClient();
+  void queryClient.prefetchQuery(trendingAnimeOptions);
 
   return (
     <div className="container mx-auto px-4 pt-24">
@@ -11,15 +24,11 @@ export default async function Home() {
         <h1 className="text-3xl font-bold tracking-tight">Trending Now</h1>
       </div>
 
-      {trendingAnime.length === 0 ? (
-        <p className="text-muted-foreground">Failed to load trending anime. Ensure the API proxy is running.</p>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-          {trendingAnime.map((anime) => (
-            <AnimeCard key={anime.id} anime={anime} />
-          ))}
-        </div>
-      )}
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <Suspense fallback={<TrendingSkeleton />}>
+          <HomeClient />
+        </Suspense>
+      </HydrationBoundary>
     </div>
   );
 }
