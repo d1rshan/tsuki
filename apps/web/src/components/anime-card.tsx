@@ -12,7 +12,7 @@ export function AnimeCard({ anime }: AnimeCardProps) {
 
   return (
     <Link href={`/anime/${anime.id}`} className="block group">
-      <div className="relative overflow-hidden rounded-lg bg-muted">
+      <div className="relative overflow-hidden rounded-xl bg-muted border-border">
         <AspectRatio ratio={3 / 4}>
           <Image
             src={anime.coverImage.large}
@@ -23,7 +23,7 @@ export function AnimeCard({ anime }: AnimeCardProps) {
           />
         </AspectRatio>
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-3 pt-8">
-          <h3 className="text-sm font-medium text-white line-clamp-2 leading-snug">
+          <h3 className="text-sm font-semibold">
             {title}
           </h3>
         </div>

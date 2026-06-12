@@ -4,13 +4,13 @@ import { Button } from "./ui/button";
 
 export function Navbar() {
   return (
-    <nav className="fixed top-4 left-1/2 z-50 h-12 w-full max-w-5xl -translate-x-1/2 flex items-center justify-between rounded-full border border-border/30 bg-background/50 px-5 backdrop-blur-md shadow-sm">
-      <Link href="/" className="text-sm font-medium tracking-widest">
+    <nav className="fixed top-4 left-1/2 z-50 h-12 w-full max-w-5xl -translate-x-1/2 flex items-center justify-between rounded-xl border border-border bg-background/50 px-5 backdrop-blur-md">
+      <Link href="/" className="text-md font-bold tracking-tight">
         ANILOG
       </Link>
       <div className="flex items-center gap-1">
-        <Button variant="ghost" size="sm" className="rounded-full">
-          <Link href="/login">Login</Link>
+        <Button variant="ghost" size="sm" className="font-semibold">
+          <Link href="/login">LOGIN</Link>
         </Button>
         <ThemeToggle />
       </div>
