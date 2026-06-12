@@ -1,6 +1,5 @@
 import { type Anime } from "@/types/anime";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/graphql";
+import { urls } from "@/lib/urls";
 
 const TRENDING_ANIME_QUERY = `
   query {
@@ -21,7 +20,7 @@ const TRENDING_ANIME_QUERY = `
 
 export async function getTrendingAnime(): Promise<Anime[]> {
   try {
-    const res = await fetch(API_URL, {
+    const res = await fetch(urls.api.graphql, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query: TRENDING_ANIME_QUERY }),

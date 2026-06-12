@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "@anilog/db": "workspace:*",
+    "@elysiajs/cors": "^1.4.2",
     "better-auth": "^1.6.17",
     "elysia": "latest"
   },
