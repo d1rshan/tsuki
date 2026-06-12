@@ -1,6 +1,7 @@
 {
   "name": "anilog",
   "private": true,
+  "packageManager": "bun@1.3.13",
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
