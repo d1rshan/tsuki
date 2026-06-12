@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -23,10 +22,7 @@ import {
   FieldLabel,
   FieldError,
 } from "@/components/ui/field";
-import {
-  Alert,
-  AlertDescription,
-} from "@/components/ui/alert";
+import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
@@ -40,7 +36,6 @@ interface LoginCardProps {
 
 export function LoginCard({ onSwitchToSignUp }: LoginCardProps) {
   const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
 
   const {
     register,
@@ -55,17 +50,16 @@ export function LoginCard({ onSwitchToSignUp }: LoginCardProps) {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setError(null);
     try {
       const { error: signInError } = await signIn.email(values);
       if (signInError) {
-        setError(signInError.message || "Failed to sign in");
+        toast.error(signInError.message || "Failed to sign in");
       } else {
         router.push("/");
         router.refresh();
       }
     } catch {
-      setError("An unexpected error occurred");
+      toast.error("An unexpected error occurred");
     }
   }
 
@@ -84,11 +78,6 @@ export function LoginCard({ onSwitchToSignUp }: LoginCardProps) {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} id="login-form">
-          {error && (
-            <Alert variant="destructive" className="mb-4">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
           <FieldGroup>
             <Field data-invalid={!!errors.email}>
               <FieldLabel htmlFor="login-email">Email</FieldLabel>
