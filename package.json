@@ -5,9 +5,12 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "lint": "turbo run lint"
+    "lint": "turbo run lint",
+    "db:push": "turbo -F @anilog/db db:push",
+    "db:studio": "turbo -F @anilog/db db:studio"
   },
   "devDependencies": {
+    "dotenv-cli": "^11.0.0",
     "turbo": "^2.0.0"
   },
   "workspaces": [

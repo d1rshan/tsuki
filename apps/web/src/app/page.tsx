@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient } from "@/lib/query-client";
 import { trendingAnimeOptions } from "@/lib/queries";
-import { HomeClient } from "./home-client";
+import { HomeClient } from "@/components/home/home-client";
 
 function TrendingSkeleton() {
   return (

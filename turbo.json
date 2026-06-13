@@ -19,6 +19,15 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "db:push": {
+      "env": [
+        "DATABASE_URL"
+      ],
+      "cache": false
+    },
+    "db:studio": {
+      "cache": false
     }
   }
 }

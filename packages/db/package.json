@@ -2,6 +2,10 @@
   "name": "@anilog/db",
   "version": "1.0.0",
   "main": "src/index.ts",
+  "scripts": {
+    "db:push": "bun x dotenv -e ../../.env -- drizzle-kit push",
+    "db:studio": "bun x dotenv -e ../../.env -- drizzle-kit studio"
+  },
   "dependencies": {
     "drizzle-orm": "^0.45.2",
     "postgres": "^3.4.9"

@@ -2,6 +2,7 @@ import { cors } from "@elysiajs/cors";
 import { Elysia } from "elysia";
 import { auth } from "./auth";
 import { animeRoutes } from "./modules/anime";
+import { urls } from "./lib/urls";
 
 const betterAuth = new Elysia({ name: "better-auth" })
   .mount(auth.handler)
@@ -23,7 +24,7 @@ const betterAuth = new Elysia({ name: "better-auth" })
 export const app = new Elysia()
   .use(
     cors({
-      origin: "http://localhost:3000",
+      origin: urls.web,
       credentials: true,
     })
   )

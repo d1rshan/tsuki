@@ -26,7 +26,7 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
-  email: z.string().email("Invalid email address"),
+  emailOrUsername: z.string().min(1, "Email or username is required"),
   password: z.string().min(1, "Password is required"),
 });
 
@@ -44,14 +44,18 @@ export function LoginCard({ onSwitchToSignUp }: LoginCardProps) {
   } = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
+      emailOrUsername: "",
       password: "",
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const { error: signInError } = await signIn.email(values);
+      const isEmail = values.emailOrUsername.includes("@");
+      const { error: signInError } = isEmail
+        ? await signIn.email({ email: values.emailOrUsername, password: values.password })
+        : await signIn.username({ username: values.emailOrUsername, password: values.password });
+
       if (signInError) {
         toast.error(signInError.message || "Failed to sign in");
       } else {
@@ -68,7 +72,7 @@ export function LoginCard({ onSwitchToSignUp }: LoginCardProps) {
       <CardHeader>
         <CardTitle>Login to your account</CardTitle>
         <CardDescription>
-          Enter your email below to login to your account
+          Enter your email or username below to login to your account
         </CardDescription>
         <CardAction>
           <Button variant="link" onClick={onSwitchToSignUp}>
@@ -79,17 +83,17 @@ export function LoginCard({ onSwitchToSignUp }: LoginCardProps) {
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} id="login-form">
           <FieldGroup>
-            <Field data-invalid={!!errors.email}>
-              <FieldLabel htmlFor="login-email">Email</FieldLabel>
+            <Field data-invalid={!!errors.emailOrUsername}>
+              <FieldLabel htmlFor="login-email">Email or Username</FieldLabel>
               <Input
                 id="login-email"
-                type="email"
+                type="text"
                 placeholder="m@example.com"
-                {...register("email")}
-                aria-invalid={!!errors.email}
+                {...register("emailOrUsername")}
+                aria-invalid={!!errors.emailOrUsername}
                 disabled={isSubmitting}
               />
-              <FieldError errors={errors.email ? [errors.email] : []} />
+              <FieldError errors={errors.emailOrUsername ? [errors.emailOrUsername] : []} />
             </Field>
             <Field data-invalid={!!errors.password}>
               <FieldLabel htmlFor="login-password">Password</FieldLabel>

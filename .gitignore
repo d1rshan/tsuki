@@ -38,3 +38,6 @@ build/
 # bun
 bun.lockb
 bun.lock
+
+docs/
+docs/*

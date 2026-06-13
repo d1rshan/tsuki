@@ -27,6 +27,14 @@ import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
+  username: z
+    .string()
+    .min(3, "Username must be at least 3 characters")
+    .max(30, "Username must be at most 30 characters")
+    .regex(
+      /^[a-zA-Z0-9_.]+$/,
+      "Username can only contain letters, numbers, underscores, and dots",
+    ),
   email: z.string().email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
@@ -46,6 +54,7 @@ export function SignUpCard({ onSwitchToLogin }: SignUpCardProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
+      username: "",
       email: "",
       password: "",
     },
@@ -53,7 +62,12 @@ export function SignUpCard({ onSwitchToLogin }: SignUpCardProps) {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const { error: signUpError } = await signUp.email(values);
+      const { error: signUpError } = await signUp.email({
+        email: values.email,
+        name: values.name,
+        password: values.password,
+        username: values.username,
+      });
       if (signUpError) {
         toast.error(signUpError.message || "Failed to create account");
       } else {
@@ -91,6 +105,17 @@ export function SignUpCard({ onSwitchToLogin }: SignUpCardProps) {
                 disabled={isSubmitting}
               />
               <FieldError errors={errors.name ? [errors.name] : []} />
+            </Field>
+            <Field data-invalid={!!errors.username}>
+              <FieldLabel htmlFor="signup-username">Username</FieldLabel>
+              <Input
+                id="signup-username"
+                placeholder="johndoe"
+                {...register("username")}
+                aria-invalid={!!errors.username}
+                disabled={isSubmitting}
+              />
+              <FieldError errors={errors.username ? [errors.username] : []} />
             </Field>
             <Field data-invalid={!!errors.email}>
               <FieldLabel htmlFor="signup-email">Email</FieldLabel>

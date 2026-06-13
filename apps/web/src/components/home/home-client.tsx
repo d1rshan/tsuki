@@ -2,7 +2,7 @@
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { trendingAnimeOptions } from "@/lib/queries";
-import { AnimeCard } from "@/components/anime-card";
+import { AnimeCard } from "./anime-card";
 
 export function HomeClient() {
   const { data: trendingAnime } = useSuspenseQuery(trendingAnimeOptions);

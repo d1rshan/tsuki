@@ -1,19 +1,19 @@
-"use client";
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 
-import { useState } from "react";
-import { LoginCard } from "@/components/auth/login-card";
-import { SignUpCard } from "@/components/auth/signup-card";
+import { LoginClient } from "@/components/login/login-client";
+import { authClient } from "@/lib/auth-client";
 
-export default function LoginPage() {
-  const [view, setView] = useState<"login" | "signup">("login");
+export default async function LoginPage() {
+  const { data: session } = await authClient.getSession({
+    fetchOptions: {
+      headers: await headers(),
+    },
+  });
 
-  return (
-    <div className="flex min-h-screen items-center justify-center px-4">
-      {view === "login" ? (
-        <LoginCard onSwitchToSignUp={() => setView("signup")} />
-      ) : (
-        <SignUpCard onSwitchToLogin={() => setView("login")} />
-      )}
-    </div>
-  );
+  if (session) {
+    redirect("/");
+  }
+
+  return <LoginClient />;
 }
