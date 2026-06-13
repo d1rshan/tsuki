@@ -1,6 +1,7 @@
 {
   "name": "api",
   "version": "1.0.50",
+  "module": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "bun x dotenv -e ../../.env -- bun run --watch src/index.ts"
@@ -13,6 +14,5 @@
   },
   "devDependencies": {
     "bun-types": "latest"
-  },
-  "module": "src/index.js"
+  }
 }

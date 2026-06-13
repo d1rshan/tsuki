@@ -16,12 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  FieldGroup,
-  Field,
-  FieldLabel,
-  FieldError,
-} from "@/components/ui/field";
+import { FieldGroup, Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
@@ -31,10 +26,7 @@ const formSchema = z.object({
     .string()
     .min(3, "Username must be at least 3 characters")
     .max(30, "Username must be at most 30 characters")
-    .regex(
-      /^[a-zA-Z0-9_.]+$/,
-      "Username can only contain letters, numbers, underscores, and dots",
-    ),
+    .regex(/^[a-zA-Z0-9_.]+$/, "Username can only contain letters, numbers, underscores, and dots"),
   email: z.string().email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
@@ -83,9 +75,7 @@ export function SignUpCard({ onSwitchToLogin }: SignUpCardProps) {
     <Card className="w-full max-w-sm">
       <CardHeader>
         <CardTitle>Create an account</CardTitle>
-        <CardDescription>
-          Enter your details below to create your account
-        </CardDescription>
+        <CardDescription>Enter your details below to create your account</CardDescription>
         <CardAction>
           <Button variant="link" onClick={onSwitchToLogin}>
             Login

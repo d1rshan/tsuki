@@ -22,10 +22,15 @@ export function Navbar() {
             <Link href="/login">LOGIN</Link>
           </Button>
         ) : (
-          <Button variant="ghost" size="sm" className="font-semibold" onClick={async () => {
-            await signOut();
-            router.push("/login");
-          }}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="font-semibold"
+            onClick={async () => {
+              await signOut();
+              router.push("/login");
+            }}
+          >
             LOGOUT
           </Button>
         )}

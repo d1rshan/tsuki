@@ -16,12 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  FieldGroup,
-  Field,
-  FieldLabel,
-  FieldError,
-} from "@/components/ui/field";
+import { FieldGroup, Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
@@ -116,6 +111,6 @@ export function LoginCard({ onSwitchToSignUp }: LoginCardProps) {
           Sign in
         </Button>
       </CardFooter>
-    </Card >
+    </Card>
   );
 }

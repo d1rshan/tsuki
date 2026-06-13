@@ -11,8 +11,6 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  plugins: [
-    username(),
-  ],
+  plugins: [username()],
   trustedOrigins: [urls.web],
 });

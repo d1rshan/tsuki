@@ -3,27 +3,23 @@
   "ui": "tui",
   "tasks": {
     "build": {
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": [
-        ".next/**",
-        "!.next/cache/**"
-      ]
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**"]
     },
-    "lint": {
-      "dependsOn": [
-        "^lint"
-      ]
+    "//#lint:check": {},
+    "//#lint:fix": {
+      "cache": false
+    },
+    "//#format:check": {},
+    "//#format:fix": {
+      "cache": false
     },
     "dev": {
       "cache": false,
       "persistent": true
     },
     "db:push": {
-      "env": [
-        "DATABASE_URL"
-      ],
+      "env": ["DATABASE_URL"],
       "cache": false
     },
     "db:studio": {
