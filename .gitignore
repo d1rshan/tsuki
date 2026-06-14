@@ -41,3 +41,6 @@ bun.lock
 
 docs/
 docs/*
+
+# husky
+.husky/_
