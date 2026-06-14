@@ -1,5 +1,5 @@
 {
-  "name": "anilog",
+  "name": "tsuki",
   "private": true,
   "workspaces": [
     "apps/*",
@@ -13,8 +13,8 @@
     "format:check": "oxfmt --check .",
     "format:fix": "oxfmt --write .",
     "typecheck": "turbo run typecheck",
-    "db:push": "turbo -F @anilog/db db:push",
-    "db:studio": "turbo -F @anilog/db db:studio"
+    "db:push": "turbo -F @tsuki/db db:push",
+    "db:studio": "turbo -F @tsuki/db db:studio"
   },
   "devDependencies": {
     "dotenv-cli": "^11.0.0",

@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AniLog - Anime Letterboxd",
+  title: "Tsuki - Anime Letterboxd",
   description: "Log, rate, and review your favorite anime.",
 };
 

@@ -28,6 +28,6 @@ export const app = new Elysia()
   )
   .use(betterAuth)
   .use(animeRoutes)
-  .get("/", () => "AniLog API Running!");
+  .get("/", () => "Tsuki API Running!");
 
 export type App = typeof app;

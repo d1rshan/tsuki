@@ -8,7 +8,7 @@
     "dev": "bun x dotenv -e ../../.env -- bun run --watch src/index.ts"
   },
   "dependencies": {
-    "@anilog/db": "workspace:*",
+    "@tsuki/db": "workspace:*",
     "@elysiajs/cors": "^1.4.2",
     "better-auth": "^1.6.17",
     "elysia": "latest"
