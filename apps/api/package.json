@@ -4,6 +4,7 @@
   "module": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "typecheck": "tsc --noEmit",
     "dev": "bun x dotenv -e ../../.env -- bun run --watch src/index.ts"
   },
   "dependencies": {

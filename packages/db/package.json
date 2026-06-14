@@ -4,14 +4,14 @@
   "main": "src/index.ts",
   "scripts": {
     "db:push": "bun x dotenv -e ../../.env -- drizzle-kit push",
-    "db:studio": "bun x dotenv -e ../../.env -- drizzle-kit studio"
+    "db:studio": "bun x dotenv -e ../../.env -- drizzle-kit studio",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.2",
     "postgres": "^3.4.9"
   },
   "devDependencies": {
-    "drizzle-kit": "^0.31.10",
-    "typescript": "^6.0.3"
+    "drizzle-kit": "^0.31.10"
   }
 }
