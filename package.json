@@ -15,6 +15,7 @@
     "typecheck": "turbo run typecheck",
     "db:push": "turbo -F @tsuki/db db:push",
     "db:studio": "turbo -F @tsuki/db db:studio",
+    "sync:trending": "bun run apps/api/src/scripts/sync-trending.ts",
     "prepare": "husky"
   },
   "devDependencies": {

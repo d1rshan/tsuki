@@ -1,1 +1,1 @@
-export type { Anime } from "../../../api/src/modules/anime/model";
+export type { AnimeDto as Anime } from "../../../api/src/modules/anime/model";
