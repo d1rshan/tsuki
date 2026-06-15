@@ -20,6 +20,9 @@ const betterAuth = new Elysia({ name: "better-auth" }).mount(auth.handler).macro
 });
 
 export const app = new Elysia()
+  .onRequest(({ request }) => {
+    console.log(`${request.method} ${new URL(request.url).pathname}`);
+  })
   .use(
     cors({
       origin: urls.web,

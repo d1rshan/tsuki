@@ -16,7 +16,7 @@ function TrendingSkeleton() {
 
 export default async function Home() {
   const queryClient = getQueryClient();
-  void queryClient.prefetchQuery(trendingAnimeOptions);
+  await queryClient.prefetchQuery(trendingAnimeOptions);
 
   return (
     <div className="container mx-auto px-4 pt-24">

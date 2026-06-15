@@ -5,6 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "typecheck": "tsc --noEmit",
+    "start": "bun x dotenv -e ../../.env -- bun run src/index.ts",
     "dev": "bun x dotenv -e ../../.env -- bun run --watch src/index.ts"
   },
   "dependencies": {

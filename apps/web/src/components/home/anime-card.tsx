@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Star } from "lucide-react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { getAnimeTitle, getAnimeCoverImage } from "@/lib/anime";
 import { type Anime } from "@/types/anime";
 
 type AnimeCardProps = {
@@ -9,8 +10,8 @@ type AnimeCardProps = {
 };
 
 export function AnimeCard({ anime }: AnimeCardProps) {
-  const title = anime.titleEnglish || anime.titleRomaji || anime.titleNative || "Unknown Title";
-  const coverImage = anime.coverImageExtraLarge || anime.coverImageLarge || "";
+  const title = getAnimeTitle(anime);
+  const coverImage = getAnimeCoverImage(anime);
 
   const metadata = [anime.seasonYear, anime.episodes ? `${anime.episodes} eps` : null]
     .filter(Boolean)

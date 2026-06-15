@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { sql, eq } from "drizzle-orm";
 import { db } from "../db";
 import { anime, trendingAnime } from "../schema";
 
@@ -64,4 +64,10 @@ export const getTrendingAnime = async () => {
   });
 
   return data.map((d) => d.anime);
+};
+
+export const getAnimeById = async (id: number) => {
+  return db.query.anime.findFirst({
+    where: eq(anime.id, id),
+  });
 };

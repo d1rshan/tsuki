@@ -1,7 +1,7 @@
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 import { cron } from "@elysiajs/cron";
 import { animeDal } from "@tsuki/db";
-import { TrendingAnimeResponseModel } from "./model";
+import { AnimeModel, TrendingAnimeResponseModel } from "./model";
 import { anilistClient } from "../../anilist/client";
 import { TRENDING_ANIME_QUERY, type TrendingQueryResponse } from "../../anilist/queries/trending";
 import { toAnimeRow } from "../../anilist/mappers";
@@ -55,6 +55,30 @@ export const animeRoutes = new Elysia({ prefix: "/anime" })
       detail: {
         summary: "Get Trending Anime",
         description: "Retrieves the daily trending anime directly from the database.",
+      },
+    },
+  )
+  .get(
+    "/:id",
+    async ({ params: { id }, set }) => {
+      const anime = await animeDal.getAnimeById(id);
+      if (!anime) {
+        set.status = 404;
+        return "Anime not found";
+      }
+      return anime;
+    },
+    {
+      params: t.Object({
+        id: t.Numeric(),
+      }),
+      response: {
+        200: AnimeModel,
+        404: t.String(),
+      },
+      detail: {
+        summary: "Get Anime by ID",
+        description: "Retrieves a specific anime by its AniList ID.",
       },
     },
   );

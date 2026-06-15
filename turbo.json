@@ -3,11 +3,18 @@
   "ui": "tui",
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**"
+      ]
     },
     "typecheck": {
-      "dependsOn": ["^typecheck"]
+      "dependsOn": [
+        "^typecheck"
+      ]
     },
     "//#lint:check": {},
     "//#lint:fix": {
@@ -21,8 +28,14 @@
       "cache": false,
       "persistent": true
     },
+    "start": {
+      "cache": false,
+      "persistent": true
+    },
     "db:push": {
-      "env": ["DATABASE_URL"],
+      "env": [
+        "DATABASE_URL"
+      ],
       "cache": false
     },
     "db:studio": {
