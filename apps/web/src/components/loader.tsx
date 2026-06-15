@@ -2,10 +2,20 @@
 
 import { motion } from "framer-motion";
 
-export function WaveLoader() {
+import { cn } from "@/lib/utils";
+
+type LoaderProps = {
+  variant?: "overlay" | "inline";
+};
+
+export function Loader({ variant = "inline" }: LoaderProps) {
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-background"
+      className={cn(
+        "flex items-center justify-center",
+        variant === "overlay" && "fixed inset-0 z-50 bg-background",
+        variant === "inline" && "min-h-screen w-full",
+      )}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}

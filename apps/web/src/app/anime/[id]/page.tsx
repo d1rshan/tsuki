@@ -1,15 +1,22 @@
+import { Suspense } from "react";
 import Image from "next/image";
 import { cacheLife, cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
 import { Star } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { Loader } from "@/components/loader";
 import { getAnimeTitle, getAnimeBannerImage, getAnimeCoverImage } from "@/lib/anime";
 import { api } from "@/lib/api";
 
 export default async function AnimePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  return <AnimeContent id={id} />;
+
+  return (
+    <Suspense fallback={<Loader />}>
+      <AnimeContent id={id} />
+    </Suspense>
+  );
 }
 
 async function AnimeContent({ id }: { id: string }) {

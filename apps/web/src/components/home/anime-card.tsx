@@ -25,7 +25,12 @@ export function AnimeCard({ anime }: AnimeCardProps) {
     .join(" • ");
 
   return (
-    <Link href={href} className="block group" onMouseEnter={() => router.prefetch("/anime")}>
+    <Link
+      href={href}
+      prefetch={false}
+      className="block group"
+      onMouseEnter={() => router.prefetch(href)}
+    >
       <div className="relative overflow-hidden rounded-xl ring-1 ring-border/50 bg-muted transition-all duration-300 group-hover:ring-border group-hover:shadow-lg">
         <AspectRatio ratio={3 / 4}>
           {coverImage ? (
