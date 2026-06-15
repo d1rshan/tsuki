@@ -34,3 +34,4 @@ export const app = new Elysia()
   .get("/", () => "Tsuki API Running!");
 
 export type App = typeof app;
+export default app;

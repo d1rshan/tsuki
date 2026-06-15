@@ -13,4 +13,9 @@ export const auth = betterAuth({
   },
   plugins: [username()],
   trustedOrigins: [urls.web],
+  session: {
+    cookieCache: {
+      enabled: true,
+    },
+  },
 });

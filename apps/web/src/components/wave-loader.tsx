@@ -2,10 +2,10 @@
 
 import { motion } from "framer-motion";
 
-export default function Loading() {
+export function WaveLoader() {
   return (
     <motion.div
-      className="flex min-h-screen w-full items-center justify-center"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-background"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
