@@ -8,11 +8,14 @@ import { getAnimeTitle, getAnimeBannerImage, getAnimeCoverImage } from "@/lib/an
 import { api } from "@/lib/api";
 
 export default async function AnimePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return <AnimeContent id={id} />;
+}
+
+async function AnimeContent({ id }: { id: string }) {
   "use cache";
   cacheLife("days");
-  cacheTag(`anime-id`);
-
-  const { id } = await params;
+  cacheTag(`anime-${id}`);
 
   const { data: anime, error } = await api.anime({ id }).get();
 
