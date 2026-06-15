@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Star } from "lucide-react";
 
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -14,8 +13,6 @@ type AnimeCardProps = {
 };
 
 export function AnimeCard({ anime }: AnimeCardProps) {
-  const router = useRouter();
-
   const href = `/anime/${anime.id}`;
   const title = getAnimeTitle(anime);
   const coverImage = getAnimeCoverImage(anime);
@@ -25,12 +22,7 @@ export function AnimeCard({ anime }: AnimeCardProps) {
     .join(" • ");
 
   return (
-    <Link
-      href={href}
-      prefetch={false}
-      className="block group"
-      onMouseEnter={() => router.prefetch(href)}
-    >
+    <Link href={href} className="block group">
       <div className="relative overflow-hidden rounded-xl ring-1 ring-border/50 bg-muted transition-all duration-300 group-hover:ring-border group-hover:shadow-lg">
         <AspectRatio ratio={3 / 4}>
           {coverImage ? (
