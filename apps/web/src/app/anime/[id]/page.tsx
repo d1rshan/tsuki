@@ -13,9 +13,9 @@ export default async function AnimePage({ params }: { params: Promise<{ id: stri
 }
 
 async function AnimeContent({ id }: { id: string }) {
-  "use cache";
+  "use cache: remote";
   cacheLife("days");
-  cacheTag(`anime-${id}`);
+  cacheTag("anime");
 
   const { data: anime, error } = await api.anime({ id }).get();
 

@@ -4,7 +4,7 @@ import { api } from "@/lib/api";
 import { AnimeCard } from "@/components/home/anime-card";
 
 export default async function Home() {
-  "use cache";
+  "use cache: remote";
   cacheLife("days");
   cacheTag("trending-anime");
 
