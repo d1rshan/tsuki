@@ -4,15 +4,15 @@ import { cacheLife, cacheTag } from "next/cache";
 import { api } from "@/lib/api";
 import { AnimeCard } from "@/components/home/anime-card";
 import { Loader } from "@/components/loader";
+import { HomeContent } from "@/components/home/home-content";
 
 export default function Home() {
   return (
     <Suspense fallback={<Loader />}>
       <div className="container mx-auto px-4 pt-24">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">Trending Now</h1>
-        </div>
-        <TrendingGrid />
+        <HomeContent>
+          <TrendingGrid />
+        </HomeContent>
       </div>
     </Suspense>
   );

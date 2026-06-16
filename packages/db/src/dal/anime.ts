@@ -1,4 +1,4 @@
-import { sql, eq } from "drizzle-orm";
+import { sql, eq, ilike, or } from "drizzle-orm";
 import { db } from "../db";
 import { anime, trendingAnime } from "../schema";
 
@@ -69,5 +69,16 @@ export const getTrendingAnime = async () => {
 export const getAnimeById = async (id: number) => {
   return db.query.anime.findFirst({
     where: eq(anime.id, id),
+  });
+};
+
+export const searchAnime = async (query: string, limit = 24) => {
+  if (!query) return [];
+
+  const searchPattern = `%${query}%`;
+  return db.query.anime.findMany({
+    where: or(ilike(anime.titleRomaji, searchPattern), ilike(anime.titleEnglish, searchPattern)),
+    limit,
+    orderBy: (anime, { desc }) => [desc(anime.popularity)],
   });
 };

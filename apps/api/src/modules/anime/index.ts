@@ -4,6 +4,7 @@ import { animeDal } from "@tsuki/db";
 import { AnimeModel, TrendingAnimeResponseModel } from "./model";
 import { anilistClient } from "../../anilist/client";
 import { TRENDING_ANIME_QUERY, type TrendingQueryResponse } from "../../anilist/queries/trending";
+import { ANIME_BY_ID_QUERY, type AnimeByIdResponse } from "../../anilist/queries/anime-by-id";
 import { toAnimeRow } from "../../anilist/mappers";
 
 export async function syncTrendingAnime() {
@@ -59,9 +60,42 @@ export const animeRoutes = new Elysia({ prefix: "/anime" })
     },
   )
   .get(
+    "/search",
+    async ({ query }) => {
+      const q = query.q as string;
+      return await animeDal.searchAnime(q);
+    },
+    {
+      query: t.Object({
+        q: t.String({ description: "Search query string" }),
+      }),
+      response: t.Array(AnimeModel),
+      detail: {
+        summary: "Search Anime",
+        description: "Searches for anime in the database matching the query.",
+      },
+    },
+  )
+  .get(
     "/:id",
     async ({ params: { id }, set }) => {
-      const anime = await animeDal.getAnimeById(id);
+      let anime = await animeDal.getAnimeById(id);
+
+      // Read-through cache: if not in DB, fetch from Anilist, save to DB, then return
+      if (!anime) {
+        try {
+          const data = await anilistClient.request<AnimeByIdResponse>(ANIME_BY_ID_QUERY, { id });
+
+          if (data.Media) {
+            const row = toAnimeRow(data.Media);
+            await animeDal.upsertAnimes([row]);
+            anime = await animeDal.getAnimeById(id);
+          }
+        } catch (error) {
+          console.error(`[API] Failed to fetch anime ${id} from Anilist:`, error);
+        }
+      }
+
       if (!anime) {
         set.status = 404;
         return "Anime not found";

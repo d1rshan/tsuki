@@ -3,8 +3,10 @@ import { Geist, Geist_Mono } from "next/font/google";
 
 import { AuthProvider } from "@/components/auth-provider";
 import { ThemeProvider } from "@/components/theme-provider";
+import { QueryProvider } from "@/components/query-provider";
 import { Navbar } from "@/components/navbar";
 import { Toaster } from "@/components/ui/sonner";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 import "./globals.css";
 
@@ -39,13 +41,17 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider>
-            <div className="relative flex min-h-screen flex-col">
-              <Navbar />
-              <main className="flex-1">{children}</main>
-            </div>
-          </AuthProvider>
-          <Toaster />
+          <QueryProvider>
+            <NuqsAdapter>
+              <AuthProvider>
+                <div className="relative flex min-h-screen flex-col">
+                  <Navbar />
+                  <main className="flex-1">{children}</main>
+                </div>
+              </AuthProvider>
+              <Toaster />
+            </NuqsAdapter>
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>

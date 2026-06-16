@@ -6,15 +6,17 @@ import { cn } from "@/lib/utils";
 
 type LoaderProps = {
   variant?: "overlay" | "inline";
+  className?: string;
 };
 
-export function Loader({ variant = "inline" }: LoaderProps) {
+export function Loader({ variant = "inline", className }: LoaderProps) {
   return (
     <motion.div
       className={cn(
         "flex items-center justify-center",
         variant === "overlay" && "fixed inset-0 z-50 bg-background",
-        variant === "inline" && "min-h-screen w-full",
+        variant === "inline" && "min-h-[200px] w-full",
+        className,
       )}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
