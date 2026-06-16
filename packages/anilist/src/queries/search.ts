@@ -1,6 +1,5 @@
-import { GraphQLClient, gql } from "graphql-request";
-
-export const anilistClient = new GraphQLClient("https://graphql.anilist.co");
+import { gql } from "graphql-request";
+import type { AnilistMedia } from "../types";
 
 export const SEARCH_ANIME_QUERY = gql`
   query SearchAnime($search: String) {
@@ -42,6 +41,6 @@ export const SEARCH_ANIME_QUERY = gql`
 
 export type AnilistSearchResponse = {
   Page?: {
-    media?: any[]; // We can map this to our Anime model
+    media?: AnilistMedia[];
   };
 };

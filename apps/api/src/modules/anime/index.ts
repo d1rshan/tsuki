@@ -2,24 +2,14 @@ import { Elysia, t } from "elysia";
 import { cron } from "@elysiajs/cron";
 import { animeDal } from "@tsuki/db";
 import { AnimeModel, TrendingAnimeResponseModel } from "./model";
-import { anilistClient } from "../../anilist/client";
-import { TRENDING_ANIME_QUERY, type TrendingQueryResponse } from "../../anilist/queries/trending";
-import { ANIME_BY_ID_QUERY, type AnimeByIdResponse } from "../../anilist/queries/anime-by-id";
-import { toAnimeRow } from "../../anilist/mappers";
+import { fetchTrendingAnime, fetchAnimeById } from "@tsuki/anilist";
 
 export async function syncTrendingAnime() {
   console.log("[Sync] Fetching trending anime...");
   try {
-    const data = await anilistClient.request<TrendingQueryResponse>(TRENDING_ANIME_QUERY);
+    const animesData = await fetchTrendingAnime();
 
-    const media = data.Page?.media || [];
-
-    if (media.length === 0) return { success: true, count: 0 };
-
-    const animesData = media.flatMap((anime) => {
-      if (!anime) return [];
-      return [toAnimeRow(anime)];
-    });
+    if (animesData.length === 0) return { success: true, count: 0 };
 
     // Upsert anime into main table
     await animeDal.upsertAnimes(animesData);
@@ -28,8 +18,8 @@ export async function syncTrendingAnime() {
     const animeIds = animesData.map((anime) => anime.id);
     await animeDal.setTrendingAnime(animeIds);
 
-    console.log(`[Sync] Successfully updated ${media.length} trending anime.`);
-    return { success: true, count: media.length };
+    console.log(`[Sync] Successfully updated ${animesData.length} trending anime.`);
+    return { success: true, count: animesData.length };
   } catch (error) {
     console.error("[Sync] Failed to update trending anime:", error);
     throw error;
@@ -84,11 +74,10 @@ export const animeRoutes = new Elysia({ prefix: "/anime" })
       // Read-through cache: if not in DB, fetch from Anilist, save to DB, then return
       if (!anime) {
         try {
-          const data = await anilistClient.request<AnimeByIdResponse>(ANIME_BY_ID_QUERY, { id });
+          const fetchedAnime = await fetchAnimeById(id);
 
-          if (data.Media) {
-            const row = toAnimeRow(data.Media);
-            await animeDal.upsertAnimes([row]);
+          if (fetchedAnime) {
+            await animeDal.upsertAnimes([fetchedAnime]);
             anime = await animeDal.getAnimeById(id);
           }
         } catch (error) {

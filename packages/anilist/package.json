@@ -1,0 +1,15 @@
+{
+  "name": "@tsuki/anilist",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tsuki/db": "workspace:*",
+    "graphql-request": "^7.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20"
+  }
+}
