@@ -10,9 +10,10 @@ import { type Anime } from "@/types/anime";
 
 type AnimeCardProps = {
   anime: Anime;
+  priority?: boolean;
 };
 
-export function AnimeCard({ anime }: AnimeCardProps) {
+export function AnimeCard({ anime, priority = false }: AnimeCardProps) {
   const href = `/anime/${anime.id}`;
   const title = getAnimeTitle(anime);
   const coverImage = getAnimeCoverImage(anime);
@@ -30,6 +31,7 @@ export function AnimeCard({ anime }: AnimeCardProps) {
               src={coverImage}
               alt={title}
               fill
+              priority={priority}
               className="object-cover transition-transform duration-500 group-hover:scale-105"
               sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 16vw"
             />

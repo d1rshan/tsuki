@@ -28,8 +28,8 @@ async function TrendingGrid() {
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-      {trendingAnime.map((anime) => (
-        <AnimeCard key={anime.id} anime={anime} />
+      {trendingAnime.map((anime, index) => (
+        <AnimeCard key={anime.id} anime={anime} priority={index < 6} />
       ))}
     </div>
   );
