@@ -39,7 +39,7 @@ export function HomeContent({ children }: { children: React.ReactNode }) {
 
       {hasSearch ? (
         isLoading ? (
-          <Loader className="min-h-[400px]" />
+          <Loader variant="inline" className="min-h-[400px]" />
         ) : isError ? (
           <SearchErrorState />
         ) : results?.length === 0 ? (
