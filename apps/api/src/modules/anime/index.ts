@@ -1,5 +1,4 @@
 import { Elysia, t } from "elysia";
-import { cron } from "@elysiajs/cron";
 import { animeDal } from "@tsuki/db";
 import { AnimeModel, TrendingAnimeResponseModel } from "./model";
 import { fetchTrendingAnime, fetchAnimeById } from "@tsuki/anilist";
@@ -27,14 +26,26 @@ export async function syncTrendingAnime() {
 }
 
 export const animeRoutes = new Elysia({ prefix: "/anime" })
-  .use(
-    cron({
-      name: "update-trending-anime",
-      pattern: "0 0 * * *", // Runs every day at midnight
-      async run() {
-        await syncTrendingAnime().catch((err) => console.error("[Sync] Cron update failed:", err));
+  .get(
+    "/sync-trending",
+    async ({ headers, set }) => {
+      // Vercel Cron will send the Authorization header with Bearer CRON_SECRET
+      const authHeader = headers.authorization;
+
+      if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+        set.status = 401;
+        return { success: false, error: "Unauthorized" };
+      }
+
+      await syncTrendingAnime();
+      return { success: true };
+    },
+    {
+      detail: {
+        summary: "Sync Trending Anime",
+        description: "Vercel Cron endpoint to fetch and update trending anime from AniList.",
       },
-    }),
+    },
   )
   .get(
     "/trending",

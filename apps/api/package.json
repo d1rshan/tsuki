@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@elysiajs/cors": "^1.4.2",
-    "@elysiajs/cron": "^1.4.2",
     "@tsuki/anilist": "workspace:*",
     "@tsuki/db": "workspace:*",
     "better-auth": "^1.6.17",
