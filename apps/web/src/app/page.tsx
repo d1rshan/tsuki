@@ -2,35 +2,25 @@ import { Suspense } from "react";
 import { cacheLife, cacheTag } from "next/cache";
 
 import { api } from "@/lib/api";
-import { AnimeCard } from "@/components/home/anime-card";
 import { Loader } from "@/components/loader";
-import { HomeContent } from "@/components/home/home-content";
+import { SearchableAnimeGrid } from "@/components/home/searchable-anime-grid";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <Suspense fallback={<Loader />}>
-      <div className="container mx-auto px-4 pt-24">
-        <HomeContent>
-          <TrendingGrid />
-        </HomeContent>
-      </div>
-    </Suspense>
+    <main>
+      <Suspense fallback={<Loader className="mt-24" />}>
+        <TrendingSection />
+      </Suspense>
+    </main>
   );
 }
 
-async function TrendingGrid() {
+async function TrendingSection() {
   "use cache: remote";
   cacheLife("days");
   cacheTag("trending-anime");
 
   const { data: trendingAnime, error } = await api.anime.trending.get();
-  if (error) return <div>ERROR!</div>;
 
-  return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-      {trendingAnime.map((anime, index) => (
-        <AnimeCard key={anime.id} anime={anime} priority={index < 6} />
-      ))}
-    </div>
-  );
+  return <SearchableAnimeGrid initialAnimes={error ? null : (trendingAnime ?? [])} />;
 }
