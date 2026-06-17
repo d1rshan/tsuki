@@ -9,17 +9,27 @@ import { Loader } from "@/components/loader";
 import { getAnimeTitle, getAnimeBannerImage, getAnimeCoverImage } from "@/lib/anime";
 import { api } from "@/lib/api";
 
-export default async function AnimePage({ params }: { params: Promise<{ id: string }> }) {
-  return (
-    <Suspense fallback={<Loader />}>
-      <AnimeContent params={params} />
-    </Suspense>
-  );
-}
-
-async function AnimeContent({ params }: { params: Promise<{ id: string }> }) {
+// export default async function AnimePage({ params }: { params: Promise<{ id: string }> }) {
+//   return (
+//     <Suspense fallback={<Loader />}>
+//       <AnimeContent params={params} />
+//     </Suspense>
+//   );
+// }
+export const instant = {
+  prefetch: "static",
+  // Change this from an object to an array of objects
+  samples: [
+    {
+      params: {
+        id: "1",
+      },
+    },
+  ],
+};
+export default async function AnimeContent({ params }: { params: Promise<{ id: string }> }) {
   "use cache: remote";
-  cacheLife("days");
+  cacheLife("max");
   cacheTag("anime");
 
   const { id } = await params;

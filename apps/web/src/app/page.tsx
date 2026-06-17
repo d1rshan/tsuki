@@ -4,31 +4,31 @@ import { cacheLife, cacheTag } from "next/cache";
 import { Loader } from "@/components/loader";
 import { HomeFeed } from "@/components/home/home-feed";
 import { api } from "@/lib/api";
+import { trendingAnime } from "@tsuki/db";
 
-export default function HomePage() {
-  return (
-    <Suspense fallback={<Loader className="mt-24" />}>
-      <HomeView />
-    </Suspense>
-  );
-}
+// export default function HomePage() {
+//   return (
+//     <Suspense fallback={<Loader className="mt-24" />}>
+//       <HomeView />
+//     </Suspense>
+//   );
+// }
 
-async function HomeView() {
-  const trendingAnime = await getTrendingAnime();
+export const instant = { prefetch: "static" };
 
-  return <HomeFeed initialAnimes={trendingAnime} />;
-}
-
-async function getTrendingAnime() {
+export default async function HomeView() {
   "use cache: remote";
-  cacheLife("days");
+  cacheLife("max");
   cacheTag("trending-anime");
 
   const { data, error } = await api.anime.trending.get();
 
+  let trendingAnime = null;
   if (error) {
-    return null;
+    trendingAnime = null;
   }
 
-  return data ?? [];
+  trendingAnime = data ?? [];
+
+  return <HomeFeed initialAnimes={trendingAnime} />;
 }
