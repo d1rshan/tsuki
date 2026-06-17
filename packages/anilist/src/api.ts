@@ -2,7 +2,7 @@ import { anilistClient } from "./client";
 import { SEARCH_ANIME_QUERY, type AnilistSearchResponse } from "./queries/search";
 import { TRENDING_ANIME_QUERY, type TrendingQueryResponse } from "./queries/trending";
 import { ANIME_BY_ID_QUERY, type AnimeByIdResponse } from "./queries/anime-by-id";
-import { toAnimeRow } from "./mappers";
+import { toAnimeRow, toAnimeCompactRow } from "./mappers";
 
 /**
  * Searches AniList for anime matching the query string.
@@ -16,7 +16,9 @@ export async function fetchAnimeSearch(query: string) {
 
     if (!data.Page?.media) return [];
 
-    return data.Page.media.filter((anime) => anime != null).map((anime) => toAnimeRow(anime!));
+    return data.Page.media
+      .filter((anime) => anime != null)
+      .map((anime) => toAnimeCompactRow(anime!));
   } catch (error) {
     console.error("[AniList] Failed to search anime:", error);
     return [];

@@ -6,10 +6,10 @@ import { Star } from "lucide-react";
 
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { getAnimeTitle, getAnimeCoverImage } from "@/lib/anime";
-import { type Anime } from "@/types/anime";
+import { type AnimeCompact } from "@/types/anime";
 
 type AnimeCardProps = {
-  anime: Anime;
+  anime: AnimeCompact;
   priority?: boolean;
 };
 

@@ -27,6 +27,22 @@ export const AnimeModel = t.Object({
   updatedAt: t.Date(),
 });
 
-export const TrendingAnimeResponseModel = t.Array(AnimeModel);
+export const AnimeCompactModel = t.Omit(AnimeModel, [
+  "description",
+  "coverImageColor",
+  "format",
+  "status",
+  "duration",
+  "season",
+  "meanScore",
+  "popularity",
+  "trending",
+  "genres",
+  "tags",
+  "isAdult",
+  "createdAt",
+  "updatedAt",
+]);
 
-export type AnimeDto = typeof AnimeModel.static;
+export type Anime = typeof AnimeModel.static;
+export type AnimeCompact = typeof AnimeCompactModel.static;

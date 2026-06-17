@@ -11,29 +11,14 @@ export const SEARCH_ANIME_QUERY = gql`
           english
           native
         }
-        description
         coverImage {
           extraLarge
           large
-          color
         }
         bannerImage
-        format
-        status
         episodes
-        duration
-        season
         seasonYear
         averageScore
-        meanScore
-        popularity
-        trending
-        genres
-        tags {
-          name
-          rank
-        }
-        isAdult
       }
     }
   }

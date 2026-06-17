@@ -1,1 +1,1 @@
-export type { AnimeDto as Anime } from "../../../api/src/modules/anime/model";
+export type { Anime, AnimeCompact } from "@tsuki/api/src/modules/anime/model";

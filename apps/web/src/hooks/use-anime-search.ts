@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import { type Anime } from "@/types/anime";
+import { type AnimeCompact } from "@/types/anime";
 import { fetchAnimeSearch } from "@tsuki/anilist";
 
 // Custom hook for debouncing the input query
@@ -32,19 +32,19 @@ export function useAnimeSearch(query: string) {
         fetchAnimeSearch(debouncedQuery),
       ]);
 
-      const mergedAnime = new Map<number, Anime>();
+      const mergedAnime = new Map<number, AnimeCompact>();
 
       // 1. Process Anilist results (lowest priority, DB will overwrite if exists)
       if (anilistResult.status === "fulfilled" && anilistResult.value) {
         anilistResult.value.forEach((anime) => {
-          mergedAnime.set(anime.id, anime as Anime);
+          mergedAnime.set(anime.id, anime as AnimeCompact);
         });
       }
 
       // 2. Process DB results (highest priority)
       if (dbResult.status === "fulfilled" && !dbResult.value.error && dbResult.value.data) {
-        dbResult.value.data.forEach((anime: Anime) => {
-          mergedAnime.set(anime.id, anime);
+        dbResult.value.data.forEach((anime) => {
+          mergedAnime.set(anime.id, anime as AnimeCompact);
         });
       }
 

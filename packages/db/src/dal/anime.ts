@@ -59,7 +59,20 @@ export const getTrendingAnime = async () => {
   const data = await db.query.trendingAnime.findMany({
     orderBy: (trendingAnime, { asc }) => [asc(trendingAnime.position)],
     with: {
-      anime: true,
+      anime: {
+        columns: {
+          id: true,
+          titleRomaji: true,
+          titleEnglish: true,
+          titleNative: true,
+          coverImageExtraLarge: true,
+          coverImageLarge: true,
+          bannerImage: true,
+          seasonYear: true,
+          episodes: true,
+          averageScore: true,
+        },
+      },
     },
   });
 
@@ -80,5 +93,17 @@ export const searchAnime = async (query: string, limit = 24) => {
     where: or(ilike(anime.titleRomaji, searchPattern), ilike(anime.titleEnglish, searchPattern)),
     limit,
     orderBy: (anime, { desc }) => [desc(anime.popularity)],
+    columns: {
+      id: true,
+      titleRomaji: true,
+      titleEnglish: true,
+      titleNative: true,
+      coverImageExtraLarge: true,
+      coverImageLarge: true,
+      bannerImage: true,
+      seasonYear: true,
+      episodes: true,
+      averageScore: true,
+    },
   });
 };

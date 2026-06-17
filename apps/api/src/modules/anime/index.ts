@@ -1,6 +1,6 @@
 import { Elysia, t } from "elysia";
 import { animeDal } from "@tsuki/db";
-import { AnimeModel, TrendingAnimeResponseModel } from "./model";
+import { AnimeModel, AnimeCompactModel } from "./model";
 import { fetchTrendingAnime, fetchAnimeById } from "@tsuki/anilist";
 
 export async function syncTrendingAnime() {
@@ -53,7 +53,7 @@ export const animeRoutes = new Elysia({ prefix: "/anime" })
       return await animeDal.getTrendingAnime();
     },
     {
-      response: TrendingAnimeResponseModel,
+      response: t.Array(AnimeCompactModel),
       detail: {
         summary: "Get Trending Anime",
         description: "Retrieves the daily trending anime directly from the database.",
@@ -70,7 +70,7 @@ export const animeRoutes = new Elysia({ prefix: "/anime" })
       query: t.Object({
         q: t.String({ description: "Search query string" }),
       }),
-      response: t.Array(AnimeModel),
+      response: t.Array(AnimeCompactModel),
       detail: {
         summary: "Search Anime",
         description: "Searches for anime in the database matching the query.",

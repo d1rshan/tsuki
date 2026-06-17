@@ -1,5 +1,5 @@
 {
-  "name": "api",
+  "name": "@tsuki/api",
   "version": "1.0.50",
   "module": "src/index.js",
   "scripts": {

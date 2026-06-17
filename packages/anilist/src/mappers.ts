@@ -26,3 +26,19 @@ export function toAnimeRow(anime: AnilistMedia) {
     isAdult: anime.isAdult ?? false,
   };
 }
+
+// TODO: Partial here?
+export function toAnimeCompactRow(anime: Partial<AnilistMedia> & { id: number }) {
+  return {
+    id: anime.id,
+    titleRomaji: anime.title?.romaji,
+    titleEnglish: anime.title?.english,
+    titleNative: anime.title?.native,
+    coverImageExtraLarge: anime.coverImage?.extraLarge,
+    coverImageLarge: anime.coverImage?.large,
+    bannerImage: anime.bannerImage,
+    seasonYear: anime.seasonYear,
+    episodes: anime.episodes,
+    averageScore: anime.averageScore,
+  };
+}
