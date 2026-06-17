@@ -4,14 +4,16 @@ import { Star } from "lucide-react";
 
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { getAnimeTitle, getAnimeCoverImage } from "@/lib/anime";
+import { cn } from "@/lib/utils";
 import { type AnimeCompact } from "@/types/anime";
 
 type AnimeCardProps = {
   anime: AnimeCompact;
   priority?: boolean;
+  className?: string;
 };
 
-export function AnimeCard({ anime, priority = false }: AnimeCardProps) {
+export function AnimeCard({ anime, priority = false, className }: AnimeCardProps) {
   const href = `/anime/${anime.id}`;
   const title = getAnimeTitle(anime);
   const coverImage = getAnimeCoverImage(anime);
@@ -21,7 +23,7 @@ export function AnimeCard({ anime, priority = false }: AnimeCardProps) {
     .join(" • ");
 
   return (
-    <Link href={href} className="block group">
+    <Link href={href} className={cn("block group", className)}>
       <div className="relative overflow-hidden rounded-xl ring-1 ring-border/50 bg-muted transition-all duration-300 group-hover:ring-border group-hover:shadow-lg">
         <AspectRatio ratio={3 / 4}>
           {coverImage ? (

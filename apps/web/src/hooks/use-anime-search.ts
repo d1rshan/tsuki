@@ -22,7 +22,7 @@ function useDebounce<T>(value: T, delay: number): T {
 export function useAnimeSearch(query: string) {
   const debouncedQuery = useDebounce(query, 500);
 
-  return useQuery({
+  const queryResult = useQuery({
     queryKey: ["anime-search", debouncedQuery],
     queryFn: async () => {
       if (debouncedQuery.length < 3) return [];
@@ -53,4 +53,9 @@ export function useAnimeSearch(query: string) {
     },
     enabled: debouncedQuery.length >= 3,
   });
+
+  return {
+    ...queryResult,
+    isDebouncing: query !== debouncedQuery,
+  };
 }

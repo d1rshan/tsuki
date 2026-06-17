@@ -10,19 +10,19 @@ import { getAnimeTitle, getAnimeBannerImage, getAnimeCoverImage } from "@/lib/an
 import { api } from "@/lib/api";
 
 export default async function AnimePage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-
   return (
     <Suspense fallback={<Loader />}>
-      <AnimeContent id={id} />
+      <AnimeContent params={params} />
     </Suspense>
   );
 }
 
-async function AnimeContent({ id }: { id: string }) {
+async function AnimeContent({ params }: { params: Promise<{ id: string }> }) {
   "use cache: remote";
   cacheLife("days");
   cacheTag("anime");
+
+  const { id } = await params;
 
   const { data: anime, error } = await api.anime({ id }).get();
 

@@ -1,26 +1,34 @@
 import { Suspense } from "react";
 import { cacheLife, cacheTag } from "next/cache";
 
-import { api } from "@/lib/api";
 import { Loader } from "@/components/loader";
-import { SearchableAnimeGrid } from "@/components/home/searchable-anime-grid";
+import { HomeFeed } from "@/components/home/home-feed";
+import { api } from "@/lib/api";
 
 export default function HomePage() {
   return (
-    <main>
-      <Suspense fallback={<Loader className="mt-24" />}>
-        <TrendingSection />
-      </Suspense>
-    </main>
+    <Suspense fallback={<Loader className="mt-24" />}>
+      <HomeView />
+    </Suspense>
   );
 }
 
-async function TrendingSection() {
+async function HomeView() {
+  const trendingAnime = await getTrendingAnime();
+
+  return <HomeFeed initialAnimes={trendingAnime} />;
+}
+
+async function getTrendingAnime() {
   "use cache: remote";
   cacheLife("days");
   cacheTag("trending-anime");
 
-  const { data: trendingAnime, error } = await api.anime.trending.get();
+  const { data, error } = await api.anime.trending.get();
 
-  return <SearchableAnimeGrid initialAnimes={error ? null : (trendingAnime ?? [])} />;
+  if (error) {
+    return null;
+  }
+
+  return data ?? [];
 }
