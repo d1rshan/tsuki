@@ -7,6 +7,7 @@ import { QueryProvider } from "@/components/query-provider";
 import { Navbar } from "@/components/navbar";
 import { Toaster } from "@/components/ui/sonner";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
+import NextTopLoader from "nextjs-toploader";
 
 import "./globals.css";
 
@@ -36,6 +37,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background font-sans`}
       >
+        <NextTopLoader
+          color="#ffffff"
+          height={2}
+          showSpinner={false}
+          shadow="0 0 10px #ffffff,0 0 5px #ffffff"
+        />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

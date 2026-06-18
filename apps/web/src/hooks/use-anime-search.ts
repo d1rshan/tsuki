@@ -27,26 +27,27 @@ export function useAnimeSearch(query: string) {
     queryFn: async () => {
       if (debouncedQuery.length < 3) return [];
 
-      const [dbResult, anilistResult] = await Promise.allSettled([
-        api.anime.search.get({ query: { q: debouncedQuery } }),
-        fetchAnimeSearch(debouncedQuery),
-      ]);
+      // const [dbResult, anilistResult] = await Promise.allSettled([
+      //   api.anime.search.get({ query: { q: debouncedQuery } }),
+      //   fetchAnimeSearch(debouncedQuery),
+      // ]);
+      const anilistResult = await fetchAnimeSearch(debouncedQuery);
 
       const mergedAnime = new Map<number, AnimeCompact>();
 
       // 1. Process Anilist results (lowest priority, DB will overwrite if exists)
-      if (anilistResult.status === "fulfilled" && anilistResult.value) {
-        anilistResult.value.forEach((anime) => {
+      if (anilistResult) {
+        anilistResult.forEach((anime) => {
           mergedAnime.set(anime.id, anime as AnimeCompact);
         });
       }
 
       // 2. Process DB results (highest priority)
-      if (dbResult.status === "fulfilled" && !dbResult.value.error && dbResult.value.data) {
-        dbResult.value.data.forEach((anime) => {
-          mergedAnime.set(anime.id, anime as AnimeCompact);
-        });
-      }
+      // if (dbResult.status === "fulfilled" && !dbResult.value.error && dbResult.value.data) {
+      //   dbResult.value.data.forEach((anime) => {
+      //     mergedAnime.set(anime.id, anime as AnimeCompact);
+      //   });
+      // }
 
       // Return combined, deduplicated list
       return Array.from(mergedAnime.values());

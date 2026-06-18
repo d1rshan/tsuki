@@ -21,27 +21,9 @@ export function HomeSearchWrapper({ children }: { children: ReactNode }) {
   const canSearch = searchQuery.length >= MIN_SEARCH_LENGTH;
 
   return (
-    <div className="container mx-auto flex flex-col gap-12 px-4 py-12 md:gap-16 md:py-24">
-      <SearchInput query={query} setQuery={setQuery} />
-
+    <div className="container mx-auto flex flex-col gap-12 px-4 pb-12 pt-24 md:gap-16 md:pb-24 md:pt-32">
       {isSearching ? <SearchResults searchQuery={searchQuery} canSearch={canSearch} /> : children}
     </div>
-  );
-}
-
-function SearchInput({ query, setQuery }: { query: string; setQuery: (query: string) => void }) {
-  return (
-    <header className="flex justify-end">
-      <div className="relative w-full sm:w-80">
-        <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search anime..."
-          className="bg-muted/50 pl-9 transition-colors focus:bg-background"
-        />
-      </div>
-    </header>
   );
 }
 
