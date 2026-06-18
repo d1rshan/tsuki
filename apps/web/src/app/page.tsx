@@ -1,34 +1,41 @@
-import { Suspense } from "react";
-import { cacheLife, cacheTag } from "next/cache";
+import { ErrorState } from "@/components/states";
+import { AnimeGrid } from "@/components/home/anime-grid";
+import { HomeSearchWrapper } from "@/components/home/home-search-wrapper";
+import { TopTenCarousel } from "@/components/home/top-ten-carousel";
 
-import { Loader } from "@/components/loader";
-import { HomeFeed } from "@/components/home/home-feed";
 import { api } from "@/lib/api";
-import { trendingAnime } from "@tsuki/db";
 
-// export default function HomePage() {
-//   return (
-//     <Suspense fallback={<Loader className="mt-24" />}>
-//       <HomeView />
-//     </Suspense>
-//   );
-// }
+const TOP_TEN_LIMIT = 10;
+const FEATURED_HEADING_CLASS = "text-3xl font-black uppercase tracking-tight md:text-5xl";
 
-export const instant = { prefetch: "static" };
-
-export default async function HomeView() {
+export default async function HomePage() {
   "use cache: remote";
-  cacheLife("max");
-  cacheTag("trending-anime");
 
-  const { data, error } = await api.anime.trending.get();
+  return (
+    <HomeSearchWrapper>
+      <HomeServer />
+    </HomeSearchWrapper>
+  );
+}
 
-  let trendingAnime = null;
+async function HomeServer() {
+  const { data: trendingAnime, error } = await api.anime.trending.get();
+
   if (error) {
-    trendingAnime = null;
+    return <ErrorState message="Failed to load anime" description="Please try again later." />;
   }
 
-  trendingAnime = data ?? [];
+  const topTenAnimes = trendingAnime.slice(0, TOP_TEN_LIMIT);
+  const moreTrendingAnimes = trendingAnime.slice(TOP_TEN_LIMIT);
 
-  return <HomeFeed initialAnimes={trendingAnime} />;
+  return (
+    <>
+      <TopTenCarousel animes={topTenAnimes} />
+
+      <section className="flex flex-col gap-4">
+        <h2 className={FEATURED_HEADING_CLASS}>More Trending</h2>
+        <AnimeGrid animes={moreTrendingAnimes} />
+      </section>
+    </>
+  );
 }

@@ -8,6 +8,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { type AnimeCompact } from "@/types/anime";
+
 import { AnimeCard } from "./anime-card";
 
 type TopTenCarouselProps = {
@@ -46,7 +47,6 @@ export function TopTenCarousel({ animes }: TopTenCarouselProps) {
 
                   <AnimeCard
                     anime={anime}
-                    priority={index < 4}
                     className="relative z-20 ml-8 w-[calc(100%-2rem)] md:ml-10 md:w-[calc(100%-2.5rem)]"
                   />
                 </article>
