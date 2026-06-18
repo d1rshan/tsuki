@@ -30,7 +30,7 @@ export function NavbarAuth() {
     <Link
       href="/login"
       prefetch
-      className="inline-flex h-9 items-center rounded-full px-4 text-[10px] font-black uppercase tracking-[0.2em] text-white/85 transition hover:text-white"
+      className="inline-flex items-center text-[10px] font-black uppercase tracking-[0.2em] text-white/85 transition hover:text-white"
     >
       Login
     </Link>
