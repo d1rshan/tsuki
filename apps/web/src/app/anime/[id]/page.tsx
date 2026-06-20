@@ -6,9 +6,22 @@ import { Badge } from "@/components/ui/badge";
 import { getAnimeTitle, getAnimeBannerImage, getAnimeCoverImage } from "@/lib/anime";
 import { api } from "@/lib/api";
 import { type Anime } from "@/types/anime";
+import { cacheLife } from "next/cache";
 
-export default async function AnimePage({ params }: { params: Promise<{ id: string }> }) {
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+
+export default function AnimePage({ params }: { params: Promise<{ id: string }> }) {
+  return (
+    <Suspense fallback={<AnimePageSkeleton />}>
+      <AnimePageContent params={params} />
+    </Suspense>
+  );
+}
+
+async function AnimePageContent({ params }: { params: Promise<{ id: string }> }) {
   "use cache: remote";
+  cacheLife("max");
 
   const { id } = await params;
   const { data: anime, error } = await api.anime({ id }).get();
@@ -27,6 +40,79 @@ export default async function AnimePage({ params }: { params: Promise<{ id: stri
       <div className="container mx-auto max-w-6xl px-4">
         <AnimeHeader anime={anime} title={title} coverImage={coverImage} />
         <AnimeDetails anime={anime} />
+      </div>
+    </div>
+  );
+}
+
+function AnimePageSkeleton() {
+  return (
+    <div className="pb-16">
+      {/* Banner Skeleton */}
+      <Skeleton className="h-[250px] w-full rounded-none md:h-[350px]" />
+
+      <div className="container mx-auto max-w-6xl px-4">
+        {/* Header Skeleton */}
+        <div className="relative z-10 -mt-20 flex flex-col gap-6 border-b pb-8 md:-mt-32 md:flex-row md:items-end md:gap-8">
+          {/* Poster Skeleton */}
+          <Skeleton className="aspect-[3/4] w-40 shrink-0 rounded-xl md:w-56" />
+
+          {/* Header Info Skeleton */}
+          <div className="flex flex-1 flex-col gap-3 pb-2 md:pb-4">
+            <Skeleton className="h-10 w-3/4 md:h-14 md:w-1/2" />
+            <Skeleton className="h-5 w-1/3" />
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <Skeleton className="h-6 w-16 rounded-full" />
+              <Skeleton className="h-6 w-12 rounded-full" />
+              <Skeleton className="h-6 w-24 rounded-full" />
+              <Skeleton className="h-6 w-20 rounded-full" />
+            </div>
+          </div>
+        </div>
+
+        {/* Details Skeleton */}
+        <div className="mt-8 grid grid-cols-1 gap-12 md:grid-cols-[200px_1fr] lg:grid-cols-[250px_1fr]">
+          {/* Sidebar Skeleton */}
+          <div className="space-y-8">
+            <div className="space-y-3">
+              <Skeleton className="h-4 w-16" />
+              <div className="flex flex-wrap gap-2">
+                <Skeleton className="h-6 w-16" />
+                <Skeleton className="h-6 w-20" />
+                <Skeleton className="h-6 w-14" />
+              </div>
+            </div>
+            <div className="space-y-4">
+              <Skeleton className="h-4 w-16" />
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-1">
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-16" />
+                  <Skeleton className="h-5 w-12" />
+                </div>
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-16" />
+                  <Skeleton className="h-5 w-16" />
+                </div>
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-5 w-14" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Main Content Skeleton */}
+          <div className="min-w-0 space-y-4">
+            <Skeleton className="h-7 w-24" />
+            <div className="space-y-3">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-[95%]" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-[90%]" />
+              <Skeleton className="h-4 w-[85%]" />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
