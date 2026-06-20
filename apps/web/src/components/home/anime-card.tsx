@@ -23,6 +23,7 @@ export function AnimeCard({ anime, className }: { anime: AnimeCompact; className
         "group relative block overflow-hidden rounded-xl bg-muted ring-1 ring-border/50 transition-all duration-300 hover:shadow-lg hover:ring-border",
         className,
       )}
+      prefetch={false}
     >
       <AspectRatio ratio={3 / 4}>
         {coverImage ? (
