@@ -1,17 +1,12 @@
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 
 import { LoginClient } from "@/components/login/login-client";
-import { authClient } from "@/lib/auth-client";
+import { auth } from "@/lib/auth";
 
 export default async function LoginPage() {
-  const { data: session } = await authClient.getSession({
-    fetchOptions: {
-      headers: await headers(),
-    },
-  });
+  const { user } = await auth();
 
-  if (session) {
+  if (user) {
     redirect("/");
   }
 

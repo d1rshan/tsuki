@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
-import { AuthProvider } from "@/components/auth-provider";
+import { Suspense } from "react";
 import { ThemeProvider } from "@/components/theme-provider";
 import { QueryProvider } from "@/components/query-provider";
 import { Navbar } from "@/components/navbar";
@@ -44,12 +44,12 @@ export default function RootLayout({
         >
           <QueryProvider>
             <NuqsAdapter>
-              <AuthProvider>
-                <div className="relative flex min-h-screen flex-col">
+              <div className="relative flex min-h-screen flex-col">
+                <Suspense>
                   <Navbar />
-                  <main className="flex-1">{children}</main>
-                </div>
-              </AuthProvider>
+                </Suspense>
+                <main className="flex-1">{children}</main>
+              </div>
               <Toaster />
             </NuqsAdapter>
           </QueryProvider>
