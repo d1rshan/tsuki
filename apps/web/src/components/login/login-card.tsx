@@ -1,11 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { signIn } from "@/lib/auth-client";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Card,
@@ -25,11 +26,7 @@ const formSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
-interface LoginCardProps {
-  onSwitchToSignUp: () => void;
-}
-
-export function LoginCard({ onSwitchToSignUp }: LoginCardProps) {
+export function LoginCard() {
   const router = useRouter();
 
   const {
@@ -70,9 +67,9 @@ export function LoginCard({ onSwitchToSignUp }: LoginCardProps) {
           Enter your email or username below to login to your account
         </CardDescription>
         <CardAction>
-          <Button variant="link" onClick={onSwitchToSignUp}>
+          <Link href="/login?mode=signup" replace className={buttonVariants({ variant: "link" })}>
             Sign Up
-          </Button>
+          </Link>
         </CardAction>
       </CardHeader>
       <CardContent>

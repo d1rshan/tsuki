@@ -9,6 +9,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 import "./globals.css";
+import { Loader } from "@/components/loader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,7 +46,7 @@ export default function RootLayout({
           <QueryProvider>
             <NuqsAdapter>
               <div className="relative flex min-h-screen flex-col">
-                <Suspense>
+                <Suspense fallback={<Loader variant="overlay" />}>
                   <Navbar />
                 </Suspense>
                 <main className="flex-1">{children}</main>
