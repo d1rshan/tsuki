@@ -5,7 +5,7 @@ import { Star } from "lucide-react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { getAnimeTitle, getAnimeCoverImage } from "@/lib/anime";
 import { cn } from "@/lib/utils";
-import { type AnimeCompact } from "@/types/anime";
+import { type AnimeCompact } from "@/lib/types";
 
 export function AnimeCard({ anime, className }: { anime: AnimeCompact; className?: string }) {
   const href = `/anime/${anime.id}`;

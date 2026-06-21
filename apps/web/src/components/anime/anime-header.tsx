@@ -2,7 +2,7 @@ import Image from "next/image";
 import { Star } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { type Anime } from "@/types/anime";
+import type { Anime } from "@/lib/types";
 
 export function AnimeHeader({
   anime,

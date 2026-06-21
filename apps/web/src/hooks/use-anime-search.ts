@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { api } from "@/lib/api";
-import { type AnimeCompact } from "@/types/anime";
+import { type AnimeCompact } from "@/lib/types";
 import { fetchAnimeSearch } from "@tsuki/anilist";
 
 // Custom hook for debouncing the input query

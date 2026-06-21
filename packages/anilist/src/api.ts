@@ -9,20 +9,13 @@ import { toAnimeRow, toAnimeCompactRow } from "./mappers";
  * Returns an array of formatted Anime rows.
  */
 export async function fetchAnimeSearch(query: string) {
-  try {
-    const data = await anilistClient.request<AnilistSearchResponse>(SEARCH_ANIME_QUERY, {
-      search: query,
-    });
+  const data = await anilistClient.request<AnilistSearchResponse>(SEARCH_ANIME_QUERY, {
+    search: query,
+  });
 
-    if (!data.Page?.media) return [];
+  if (!data.Page?.media) return [];
 
-    return data.Page.media
-      .filter((anime) => anime != null)
-      .map((anime) => toAnimeCompactRow(anime!));
-  } catch (error) {
-    console.error("[AniList] Failed to search anime:", error);
-    return [];
-  }
+  return data.Page.media.filter((anime) => anime != null).map((anime) => toAnimeCompactRow(anime!));
 }
 
 /**
@@ -30,16 +23,11 @@ export async function fetchAnimeSearch(query: string) {
  * Returns an array of formatted Anime rows.
  */
 export async function fetchTrendingAnime() {
-  try {
-    const data = await anilistClient.request<TrendingQueryResponse>(TRENDING_ANIME_QUERY);
+  const data = await anilistClient.request<TrendingQueryResponse>(TRENDING_ANIME_QUERY);
 
-    if (!data.Page?.media) return [];
+  if (!data.Page?.media) return [];
 
-    return data.Page.media.filter((anime) => anime != null).map((anime) => toAnimeRow(anime!));
-  } catch (error) {
-    console.error("[AniList] Failed to fetch trending anime:", error);
-    return [];
-  }
+  return data.Page.media.filter((anime) => anime != null).map((anime) => toAnimeRow(anime!));
 }
 
 /**
@@ -47,14 +35,9 @@ export async function fetchTrendingAnime() {
  * Returns the formatted Anime row, or null if not found.
  */
 export async function fetchAnimeById(id: number) {
-  try {
-    const data = await anilistClient.request<AnimeByIdResponse>(ANIME_BY_ID_QUERY, { id });
+  const data = await anilistClient.request<AnimeByIdResponse>(ANIME_BY_ID_QUERY, { id });
 
-    if (!data.Media) return null;
+  if (!data.Media) return null;
 
-    return toAnimeRow(data.Media);
-  } catch (error) {
-    console.error(`[AniList] Failed to fetch anime ${id}:`, error);
-    return null;
-  }
+  return toAnimeRow(data.Media);
 }

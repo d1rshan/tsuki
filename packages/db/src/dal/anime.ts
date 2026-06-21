@@ -1,8 +1,9 @@
 import { sql, eq, ilike, or } from "drizzle-orm";
+
 import { db } from "../db";
 import { anime, trendingAnime } from "../schema";
 
-export type InsertAnime = typeof anime.$inferInsert;
+type InsertAnime = typeof anime.$inferInsert;
 
 export const upsertAnimes = async (animesData: InsertAnime[]) => {
   if (animesData.length === 0) return;

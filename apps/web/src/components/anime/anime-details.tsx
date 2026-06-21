@@ -1,5 +1,9 @@
+import { Suspense } from "react";
+
 import { Badge } from "@/components/ui/badge";
-import { type Anime } from "@/types/anime";
+import type { Anime } from "@/lib/types";
+import { AnimeActions } from "@/components/anime/anime-actions";
+import { AnimeActionsSkeleton } from "@/components/anime/anime-skeletons";
 
 export function AnimeDetails({ anime }: { anime: Anime }) {
   return (
@@ -30,6 +34,11 @@ export function AnimeDetails({ anime }: { anime: Anime }) {
             <InfoItem label="Duration" value={anime.duration ? `${anime.duration} mins` : null} />
             <InfoItem label="Popularity" value={anime.popularity?.toLocaleString()} />
           </div>
+        </div>
+        <div className="pt-4 border-t">
+          <Suspense fallback={<AnimeActionsSkeleton />}>
+            <AnimeActions animeId={anime.id} />
+          </Suspense>
         </div>
       </div>
 

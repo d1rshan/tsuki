@@ -74,3 +74,12 @@ export function AnimePageSkeleton() {
     </div>
   );
 }
+
+export function AnimeActionsSkeleton() {
+  return (
+    <div className="flex gap-2">
+      <Skeleton className="h-8 flex-1 rounded-xl" />
+      <Skeleton className="h-8 w-8 shrink-0 rounded-xl" />
+    </div>
+  );
+}

@@ -9,5 +9,5 @@ export const auth = cache(async () => {
     },
   });
 
-  return { session: data?.session ?? null, user: data?.user ?? null };
+  return data ?? { session: null, user: null };
 });

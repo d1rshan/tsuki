@@ -1,7 +1,8 @@
-import { Elysia, t } from "elysia";
+import { Elysia, t, status as error } from "elysia";
 import { animeDal } from "@tsuki/db";
-import { AnimeModel, AnimeCompactModel } from "./model";
 import { fetchTrendingAnime, fetchAnimeById } from "@tsuki/anilist";
+
+import { AnimeModel, AnimeCompactModel } from "./model";
 
 export async function syncTrendingAnime() {
   console.log("[Sync] Fetching trending anime...");
@@ -28,13 +29,12 @@ export async function syncTrendingAnime() {
 export const animeRoutes = new Elysia({ prefix: "/anime" })
   .get(
     "/sync-trending",
-    async ({ headers, set }) => {
+    async ({ headers }) => {
       // Vercel Cron will send the Authorization header with Bearer CRON_SECRET
       const authHeader = headers.authorization;
 
       if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-        set.status = 401;
-        return { success: false, error: "Unauthorized" };
+        return error(401, { success: false, error: "Unauthorized" });
       }
 
       await syncTrendingAnime();
@@ -63,7 +63,7 @@ export const animeRoutes = new Elysia({ prefix: "/anime" })
   .get(
     "/search",
     async ({ query }) => {
-      const q = query.q as string;
+      const q = query.q;
       return await animeDal.searchAnime(q);
     },
     {
@@ -79,7 +79,7 @@ export const animeRoutes = new Elysia({ prefix: "/anime" })
   )
   .get(
     "/:id",
-    async ({ params: { id }, set }) => {
+    async ({ params: { id } }) => {
       let anime = await animeDal.getAnimeById(id);
 
       // Read-through cache: if not in DB, fetch from Anilist, save to DB, then return
@@ -97,8 +97,7 @@ export const animeRoutes = new Elysia({ prefix: "/anime" })
       }
 
       if (!anime) {
-        set.status = 404;
-        return "Anime not found";
+        return error(404, "Anime not found");
       }
       return anime;
     },

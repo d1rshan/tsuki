@@ -5,11 +5,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "typecheck": "tsc --noEmit",
-    "start": "bun x dotenv -e ../../.env -- bun run src/index.ts",
-    "dev": "bun x dotenv -e ../../.env -- bun run --watch src/index.ts"
+    "start": "bun --env-file=../../.env run src/index.ts",
+    "dev": "bun --env-file=../../.env run --watch src/index.ts"
   },
   "dependencies": {
-    "@elysiajs/cors": "^1.4.2",
     "@tsuki/anilist": "workspace:*",
     "@tsuki/db": "workspace:*",
     "better-auth": "^1.6.17",

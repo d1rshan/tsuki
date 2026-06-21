@@ -1,6 +1,8 @@
 import { relations } from "drizzle-orm";
 import { pgTable, text, timestamp, boolean, index, integer, jsonb } from "drizzle-orm/pg-core";
 
+import { userAnimeLibrary, userReviews } from "./activity";
+
 export const anime = pgTable("anime", {
   id: integer("id").primaryKey(), // AniList ID
   titleRomaji: text("title_romaji"),
@@ -22,7 +24,7 @@ export const anime = pgTable("anime", {
   popularity: integer("popularity"),
   trending: integer("trending"),
   genres: jsonb("genres").$type<string[]>(),
-  tags: jsonb("tags"), // e.g. [{ name: "Action", rank: 90 }]
+  tags: jsonb("tags").$type<{ name: string; rank: number | null }[]>(), // e.g. [{ name: "Action", rank: 90 }]
   isAdult: boolean("is_adult").default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
@@ -45,6 +47,8 @@ export const trendingAnime = pgTable(
 
 export const animeRelations = relations(anime, ({ many }) => ({
   trending: many(trendingAnime),
+  libraryEntries: many(userAnimeLibrary),
+  reviews: many(userReviews),
 }));
 
 export const trendingAnimeRelations = relations(trendingAnime, ({ one }) => ({

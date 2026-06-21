@@ -1,6 +1,8 @@
 import { relations } from "drizzle-orm";
 import { pgTable, text, timestamp, boolean, index } from "drizzle-orm/pg-core";
 
+import { userAnimeLibrary, userReviews } from "./activity";
+
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
@@ -12,8 +14,8 @@ export const user = pgTable("user", {
     .defaultNow()
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
-  username: text("username").unique(),
-  displayUsername: text("display_username"),
+  username: text("username").notNull().unique(),
+  displayUsername: text("display_username").notNull(),
 });
 
 export const session = pgTable(
@@ -78,6 +80,8 @@ export const verification = pgTable(
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   accounts: many(account),
+  libraryEntries: many(userAnimeLibrary),
+  reviews: many(userReviews),
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({

@@ -7,7 +7,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { type AnimeCompact } from "@/types/anime";
+import { type AnimeCompact } from "@/lib/types";
 
 import { AnimeCard } from "./anime-card";
 

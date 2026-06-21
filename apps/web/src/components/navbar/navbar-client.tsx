@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Search, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Search, X } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import { signOut } from "@/lib/auth-client";
@@ -30,38 +31,6 @@ export function NavbarClient({ username }: { username: string | null }) {
         </div>
       </div>
     </nav>
-  );
-}
-
-function NavbarAuth({ username }: { username: string | null }) {
-  const router = useRouter();
-
-  if (username) {
-    return (
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="font-semibold"
-          onClick={async () => {
-            await signOut();
-            router.push("/");
-          }}
-        >
-          LOGOUT
-        </Button>
-      </div>
-    );
-  }
-
-  return (
-    <Link
-      href="/login"
-      prefetch
-      className="inline-flex items-center text-[10px] font-black uppercase tracking-[0.2em] text-white/85 transition hover:text-white"
-    >
-      Login
-    </Link>
   );
 }
 
@@ -104,5 +73,43 @@ function NavbarSearchButton({ onClick }: { onClick: () => void }) {
     <Button variant="ghost" size="icon" onClick={onClick}>
       <Search className="size-4" />
     </Button>
+  );
+}
+
+function NavbarAuth({ username }: { username: string | null }) {
+  const router = useRouter();
+
+  if (username) {
+    return (
+      <div className="flex items-center gap-2">
+        <Link
+          href={`/profile/${username}`}
+          className="inline-flex items-center text-[10px] font-black uppercase tracking-[0.2em] text-white/85 transition hover:text-white mr-2"
+        >
+          Profile
+        </Link>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="font-semibold text-[10px] uppercase tracking-[0.2em]"
+          onClick={async () => {
+            await signOut();
+            window.location.href = "/";
+          }}
+        >
+          LOGOUT
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <Link
+      href="/login"
+      prefetch
+      className="inline-flex items-center text-[10px] font-black uppercase tracking-[0.2em] text-white/85 transition hover:text-white"
+    >
+      Login
+    </Link>
   );
 }

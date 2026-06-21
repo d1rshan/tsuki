@@ -1,10 +1,8 @@
 "use client";
 
-import { Search } from "lucide-react";
 import { type ReactNode } from "react";
 import { useQueryState } from "nuqs";
 
-import { Input } from "@/components/ui/input";
 import { EmptyState, ErrorState } from "@/components/states";
 import { Loader } from "@/components/loader";
 import { useAnimeSearch } from "@/hooks/use-anime-search";
@@ -14,7 +12,7 @@ import { AnimeGrid } from "./anime-grid";
 const MIN_SEARCH_LENGTH = 3;
 
 export function HomeSearchWrapper({ children }: { children: ReactNode }) {
-  const [query, setQuery] = useQueryState("q", { defaultValue: "" });
+  const [query] = useQueryState("q", { defaultValue: "" });
   const searchQuery = query.trim();
 
   const isSearching = searchQuery.length > 0;
