@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, useOptimistic } from "react";
+import { useRouter } from "next/navigation";
 import { Star, Heart, Check, Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -31,24 +32,30 @@ interface Props {
   animeId: number;
   entry: LibraryEntry | null;
   review: Review | null;
-  username: string;
+  isAuthenticated: boolean;
 }
 
-export function AnimeActionsClient({ animeId, entry, review, username }: Props) {
-  const [_, startTransition] = useTransition();
+export function AnimeActionsClient({ animeId, entry, review, isAuthenticated }: Props) {
+  const router = useRouter();
+
+  const [isPending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
 
   const [optimisticFavorite, setOptimisticFavorite] = useOptimistic(
     entry?.isFavorite || false,
-    (state, newFavorite: boolean) => newFavorite,
+    (_, newFavorite: boolean) => newFavorite,
   );
 
   const toggleFavorite = () => {
+    if (!isAuthenticated) {
+      return router.push("/login");
+    }
+
     startTransition(async () => {
       const nextFavorite = !optimisticFavorite;
       setOptimisticFavorite(nextFavorite);
       try {
-        await logAnimeAction(username, animeId, { isFavorite: nextFavorite });
+        await logAnimeAction(animeId, { isFavorite: nextFavorite });
         toast.success(nextFavorite ? "Added to favorites" : "Removed from favorites");
       } catch {
         toast.error("Failed to update favorite");
@@ -65,7 +72,7 @@ export function AnimeActionsClient({ animeId, entry, review, username }: Props) 
         open={open}
         setOpen={setOpen}
         isFavorite={optimisticFavorite}
-        username={username}
+        isAuthenticated={isAuthenticated}
       />
 
       <Button
@@ -92,16 +99,15 @@ function LogAnimeDialog({
   open,
   setOpen,
   isFavorite,
-  username,
+  isAuthenticated,
 }: Props & {
   open: boolean;
   setOpen: (val: boolean) => void;
   isFavorite: boolean;
-  username: string;
 }) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  // Group all form state together
   const [form, setForm] = useState({
     status: (entry?.status as WatchStatus) || "PLAN_TO_WATCH",
     episodes: entry?.episodesWatched || 0,
@@ -116,7 +122,7 @@ function LogAnimeDialog({
   const handleSave = () => {
     startTransition(async () => {
       try {
-        await logAnimeAction(username, animeId, {
+        await logAnimeAction(animeId, {
           status: form.status,
           rating: form.rating > 0 ? form.rating : undefined,
           episodesWatched: form.episodes,
@@ -124,7 +130,7 @@ function LogAnimeDialog({
         });
 
         if (form.reviewContent.trim()) {
-          await submitReviewAction(username, animeId, form.reviewContent, form.containsSpoilers);
+          await submitReviewAction(animeId, form.reviewContent, form.containsSpoilers);
         }
 
         setOpen(false);
@@ -142,9 +148,17 @@ function LogAnimeDialog({
     review
   );
 
+  const handleOpenClick = (e: React.MouseEvent) => {
+    if (!isAuthenticated) {
+      e.preventDefault();
+      router.push("/login");
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
+        onClick={handleOpenClick}
         render={
           <Button className="flex-1 shadow-md bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-xl transition-all active:scale-[0.98]">
             {hasLog ? <Check className="w-4 h-4 mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
@@ -158,7 +172,6 @@ function LogAnimeDialog({
         </DialogHeader>
 
         <div className="grid gap-6 py-4">
-          {/* Status */}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label className="text-right text-muted-foreground">Status</Label>
             <Select
@@ -185,7 +198,6 @@ function LogAnimeDialog({
             </Select>
           </div>
 
-          {/* Episodes */}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label className="text-right text-muted-foreground">Episodes</Label>
             <div className="col-span-3 flex items-center gap-2">
@@ -206,7 +218,6 @@ function LogAnimeDialog({
             </div>
           </div>
 
-          {/* Rating */}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label className="text-right text-muted-foreground">Rating</Label>
             <div className="col-span-3 flex gap-1">
@@ -229,7 +240,6 @@ function LogAnimeDialog({
             </div>
           </div>
 
-          {/* Review */}
           <div className="flex flex-col gap-3 pt-2 border-t border-white/5">
             <Label className="text-muted-foreground font-medium">Review (Optional)</Label>
             <Textarea

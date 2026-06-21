@@ -1,33 +1,29 @@
 import { auth } from "@/lib/auth";
-import { serverApi } from "@/lib/api";
-import { Button } from "@/components/ui/button";
+import { serverApi } from "@/lib/server-api";
 import { AnimeActionsClient } from "@/components/anime/anime-actions-client";
 
 export async function AnimeActions({ animeId }: { animeId: number }) {
   const { user } = await auth();
 
-  if (!user || !user.username) {
-    // TODO: this should just be !user
-    return (
-      <Button variant="secondary" className="w-full opacity-50 cursor-not-allowed">
-        Login to Log Anime
-      </Button>
-    );
-  }
+  let entry = null;
+  let review = null;
 
-  const api = await serverApi();
-  const res = await api.users.me.activity({ animeId }).get(); // TODO: do we cache this?
+  if (user && user.username) {
+    const api = await serverApi();
+    const res = await api.users.me.activity({ animeId }).get(); // TODO: do we cache this?
 
-  if (res.error) {
-    return null;
+    if (!res.error) {
+      entry = res.data.entry;
+      review = res.data.review;
+    }
   }
 
   return (
     <AnimeActionsClient
       animeId={animeId}
-      entry={res.data.entry}
-      review={res.data.review}
-      username={user.username}
+      entry={entry}
+      review={review}
+      isAuthenticated={!!user?.username}
     />
   );
 }

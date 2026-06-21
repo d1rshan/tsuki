@@ -1,10 +1,11 @@
-import { cacheTag } from "next/cache";
+import { cacheTag, cacheLife } from "next/cache";
 
 import { api } from "@/lib/api";
 
 export async function getProfileOverview(username: string) {
   "use cache";
   cacheTag(`profile-${username}`, `profile-${username}-overview`, "profile");
+  cacheLife("max");
 
   const res = await api.users({ username }).overview.get();
 
@@ -18,6 +19,7 @@ export async function getProfileOverview(username: string) {
 export async function getProfileLibrary(username: string) {
   "use cache";
   cacheTag(`profile-${username}`, `profile-${username}-library`, "profile");
+  cacheLife("max");
 
   const res = await api.users({ username }).library.get();
 
@@ -31,6 +33,7 @@ export async function getProfileLibrary(username: string) {
 export async function getProfileReviews(username: string) {
   "use cache";
   cacheTag(`profile-${username}`, `profile-${username}-reviews`, "profile");
+  cacheLife("max");
 
   const res = await api.users({ username }).reviews.get();
 

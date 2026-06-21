@@ -1,12 +1,12 @@
 "use server";
 
-import { revalidateTag } from "next/cache";
+import { updateTag } from "next/cache";
 
-import { serverApi } from "@/lib/api";
+import { auth } from "@/lib/auth";
+import { serverApi } from "@/lib/server-api";
 import type { WatchStatus } from "@tsuki/api/src/modules/activity/model";
 
 export async function logAnimeAction(
-  username: string,
   animeId: number,
   data: {
     status?: WatchStatus;
@@ -15,6 +15,9 @@ export async function logAnimeAction(
     isFavorite?: boolean;
   },
 ) {
+  const { user } = await auth();
+  if (!user || !user.username) throw new Error("Unauthorized");
+
   const api = await serverApi();
   const { error } = await api.users.me.library({ animeId }).post(data);
   if (error) {
@@ -22,12 +25,14 @@ export async function logAnimeAction(
     throw new Error("Failed to log anime: " + JSON.stringify(error));
   }
 
-  revalidateTag(`profile-${username}-library`, "max");
-  revalidateTag(`profile-${username}-overview`, "max");
-  revalidateTag(`activity-${username}-${animeId}`, "max");
+  updateTag(`profile-${user.username}-library`);
+  updateTag(`profile-${user.username}-overview`);
 }
 
-export async function deleteLogAction(username: string, animeId: number) {
+export async function deleteLogAction(animeId: number) {
+  const { user } = await auth();
+  if (!user || !user.username) throw new Error("Unauthorized");
+
   const api = await serverApi();
   const { error } = await api.users.me.library({ animeId }).delete();
   if (error) {
@@ -35,17 +40,18 @@ export async function deleteLogAction(username: string, animeId: number) {
     throw new Error("Failed to delete log: " + JSON.stringify(error));
   }
 
-  revalidateTag(`profile-${username}-library`, "max");
-  revalidateTag(`profile-${username}-overview`, "max");
-  revalidateTag(`activity-${username}-${animeId}`, "max");
+  updateTag(`profile-${user.username}-library`);
+  updateTag(`profile-${user.username}-overview`);
 }
 
 export async function submitReviewAction(
-  username: string,
   animeId: number,
   content: string,
   containsSpoilers: boolean,
 ) {
+  const { user } = await auth();
+  if (!user || !user.username) throw new Error("Unauthorized");
+
   const api = await serverApi();
   const { error } = await api.users.me.reviews({ animeId }).post({ content, containsSpoilers });
   if (error) {
@@ -53,9 +59,8 @@ export async function submitReviewAction(
     throw new Error("Failed to submit review: " + JSON.stringify(error));
   }
 
-  revalidateTag(`profile-${username}-reviews`, "max");
-  revalidateTag(`profile-${username}-overview`, "max");
-  revalidateTag(`activity-${username}-${animeId}`, "max");
+  updateTag(`profile-${user.username}-reviews`);
+  updateTag(`profile-${user.username}-overview`);
 }
 
 // TODO: not sure about this revalidation
