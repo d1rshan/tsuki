@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import { signOut } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 import { useNavbarSearch } from "./use-navbar-search";
 
@@ -18,7 +19,7 @@ export function NavbarClient({ username }: { username: string | null }) {
   return (
     <nav className="fixed inset-x-0 top-0 z-50 pointer-events-none pt-4 md:pt-6">
       <div className="container mx-auto px-4 xl:max-w-5xl">
-        <div className="pointer-events-auto relative flex h-12 w-full items-center justify-between rounded-xl border border-white/10 bg-background/55 px-3 shadow-2xl backdrop-blur-2xl transition-all duration-300 md:h-14 md:px-6">
+        <div className="pointer-events-auto relative flex h-12 w-full items-center justify-between rounded-xl border border-black/5 dark:border-white/10 bg-background dark:bg-background/55 px-3 shadow-2xl dark:backdrop-blur-2xl transition-all duration-300 md:h-14 md:px-6">
           {isOpen && isHomePage ? (
             <NavbarSearchInput query={query} setQuery={setQuery} onClose={closeSearch} />
           ) : (
@@ -27,14 +28,14 @@ export function NavbarClient({ username }: { username: string | null }) {
                 <NavbarLogo />
                 <NavbarLinks username={username} />
               </div>
+              {/* Right Side: Auth & Search Action */}
               <div className="flex items-center gap-2">
                 <NavbarAuth username={username} />
-                {isHomePage && (
-                  <>
-                    <div className="hidden h-4 w-[1px] bg-border mx-1 sm:block" />
-                    <NavbarSearchButton onClick={openSearch} />
-                  </>
-                )}
+
+                <div className="hidden h-4 w-[1px] bg-border mx-1 sm:block" />
+
+                <ThemeToggle />
+                {isHomePage && <NavbarSearchButton onClick={openSearch} />}
               </div>
             </>
           )}
@@ -114,7 +115,7 @@ function NavbarAuth({ username }: { username: string | null }) {
         variant="ghost"
         size="sm"
         disabled={isLoggingOut}
-        className="font-black text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground"
+        className="font-black text-xs uppercase tracking-widest text-muted-foreground hover:!bg-transparent hover:text-foreground"
         onClick={async () => {
           setIsLoggingOut(true);
           try {
@@ -165,7 +166,12 @@ function NavbarSearchInput({ query, setQuery, onClose }: NavbarSearchInputProps)
 
 function NavbarSearchButton({ onClick }: { onClick: () => void }) {
   return (
-    <Button variant="ghost" size="icon" onClick={onClick}>
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={onClick}
+      className="text-muted-foreground hover:!bg-transparent hover:text-foreground"
+    >
       <Search className="size-4" />
     </Button>
   );

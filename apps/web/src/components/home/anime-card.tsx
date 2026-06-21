@@ -20,7 +20,7 @@ export function AnimeCard({ anime, className }: { anime: AnimeCompact; className
     <Link
       href={href}
       className={cn(
-        "group relative block overflow-hidden rounded-xl bg-muted ring-1 ring-border/50 transition-all duration-300 hover:shadow-lg hover:ring-border",
+        "group relative block overflow-hidden rounded-xl bg-muted ring-1 ring-border/50 transition-all duration-300 hover:ring-border",
         className,
       )}
       prefetch={false}
@@ -49,9 +49,7 @@ export function AnimeCard({ anime, className }: { anime: AnimeCompact; className
       )}
 
       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-4 pt-12">
-        <h3 className="line-clamp-1 text-sm font-semibold text-white transition-colors group-hover:text-primary">
-          {title}
-        </h3>
+        <h3 className="line-clamp-1 text-sm font-semibold text-white transition-colors">{title}</h3>
         {metadata && (
           <p className="line-clamp-1 mt-0.5 text-xs font-medium text-white/80">{metadata}</p>
         )}
