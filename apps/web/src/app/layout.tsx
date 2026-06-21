@@ -46,7 +46,7 @@ export default function RootLayout({
           <QueryProvider>
             <NuqsAdapter>
               <div className="relative flex min-h-screen flex-col">
-                <Suspense fallback={<Loader variant="overlay" />}>
+                <Suspense fallback={<Loader />}>
                   <Navbar />
                 </Suspense>
                 <main className="flex-1">{children}</main>

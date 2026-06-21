@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Search, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -77,8 +76,6 @@ function NavbarSearchButton({ onClick }: { onClick: () => void }) {
 }
 
 function NavbarAuth({ username }: { username: string | null }) {
-  const router = useRouter();
-
   if (username) {
     return (
       <div className="flex items-center gap-2">

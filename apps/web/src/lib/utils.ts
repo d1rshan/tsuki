@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// TODO: move this 
+// TODO: move this
 export function formatStatus(status: string): string {
   return status.toLowerCase().replace(/_/g, " ");
 }
