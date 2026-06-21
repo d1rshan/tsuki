@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { type AnimeCompact } from "@/lib/types";
 import { fetchAnimeSearch } from "@tsuki/anilist";
 
@@ -19,12 +19,12 @@ function useDebounce<T>(value: T, delay: number): T {
 }
 
 export function useAnimeSearch(query: string) {
-  const debouncedQuery = useDebounce(query, 500);
+  const debouncedQuery = useDebounce(query, 250);
 
   const queryResult = useQuery({
     queryKey: ["anime-search", debouncedQuery],
     queryFn: async () => {
-      if (debouncedQuery.length < 3) return [];
+      if (debouncedQuery.length === 0) return [];
 
       // const [dbResult, anilistResult] = await Promise.allSettled([
       //   api.anime.search.get({ query: { q: debouncedQuery } }),
@@ -51,7 +51,8 @@ export function useAnimeSearch(query: string) {
       // Return combined, deduplicated list
       return Array.from(mergedAnime.values());
     },
-    enabled: debouncedQuery.length >= 3,
+    enabled: debouncedQuery.length > 0,
+    placeholderData: keepPreviousData,
   });
 
   return {
