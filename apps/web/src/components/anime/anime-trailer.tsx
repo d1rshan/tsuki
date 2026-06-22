@@ -11,12 +11,13 @@ export function AnimeTrailer({ trailerId }: { trailerId: string }) {
       </div>
 
       <Backlight blur={25} className="w-full">
-        <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-muted/50 shadow-2xl">
+        <div className="relative aspect-video w-full overflow-hidden rounded-xl shadow-2xl">
           <iframe
-            src={`https://www.youtube.com/embed/${trailerId}?autoplay=1&rel=0`}
+            key={trailerId}
+            src={`https://www.youtube.com/embed/${trailerId}?rel=0`}
             title="Anime Trailer"
             className="absolute inset-0 h-full w-full border-0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
           />
         </div>
