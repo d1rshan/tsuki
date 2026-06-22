@@ -56,6 +56,20 @@ export function AnimePageSkeleton() {
                 </div>
               </div>
             </div>
+            {/* Where to Watch Skeleton */}
+            <div className="space-y-3">
+              <Skeleton className="h-4 w-28" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+            </div>
+
+            {/* Anime Actions Skeleton */}
+            <div className="pt-4 border-t">
+              <AnimeActionsSkeleton />
+            </div>
           </div>
 
           {/* Main Content Skeleton */}
@@ -67,6 +81,15 @@ export function AnimePageSkeleton() {
               <Skeleton className="h-4 w-full" />
               <Skeleton className="h-4 w-[90%]" />
               <Skeleton className="h-4 w-[85%]" />
+            </div>
+
+            {/* Trailer Skeleton */}
+            <div className="pt-8 space-y-4">
+              <div className="flex items-center gap-2">
+                <Skeleton className="size-5 rounded-full" />
+                <Skeleton className="h-7 w-20" />
+              </div>
+              <Skeleton className="aspect-video w-full rounded-xl" />
             </div>
           </div>
         </div>

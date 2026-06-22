@@ -15,6 +15,9 @@ export type AnilistMedia = {
   popularity: number | null;
   trending: number | null;
   genres: (string | null)[] | null;
-  tags: { name: string; rank: number | null }[] | null;
+  trailer: { id: string; site: string; thumbnail: string } | null;
+  externalLinks:
+    | { url: string; site: string; type: string; color: string | null; icon: string | null }[]
+    | null;
   isAdult: boolean | null;
 };

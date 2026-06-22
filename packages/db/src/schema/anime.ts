@@ -24,7 +24,11 @@ export const anime = pgTable("anime", {
   popularity: integer("popularity"),
   trending: integer("trending"),
   genres: jsonb("genres").$type<string[]>(),
-  tags: jsonb("tags").$type<{ name: string; rank: number | null }[]>(), // e.g. [{ name: "Action", rank: 90 }]
+  trailer: jsonb("trailer").$type<{ id: string; site: string; thumbnail: string }>(),
+  externalLinks:
+    jsonb("external_links").$type<
+      { url: string; site: string; type: string; color: string | null; icon: string | null }[]
+    >(),
   isAdult: boolean("is_adult").default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")

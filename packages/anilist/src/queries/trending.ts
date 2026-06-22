@@ -29,9 +29,17 @@ export const TRENDING_ANIME_QUERY = gql`
         popularity
         trending
         genres
-        tags {
-          name
-          rank
+        trailer {
+          id
+          site
+          thumbnail
+        }
+        externalLinks {
+          url
+          site
+          type
+          color
+          icon
         }
         isAdult
       }

@@ -22,7 +22,8 @@ export function toAnimeRow(anime: AnilistMedia) {
     popularity: anime.popularity,
     trending: anime.trending,
     genres: anime.genres?.filter((g): g is string => g != null) ?? null,
-    tags: anime.tags,
+    trailer: anime.trailer,
+    externalLinks: anime.externalLinks,
     isAdult: anime.isAdult ?? false,
   };
 }

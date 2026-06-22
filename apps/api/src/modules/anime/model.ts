@@ -21,11 +21,21 @@ export const AnimeModel = t.Object({
   popularity: t.Nullable(t.Number()),
   trending: t.Nullable(t.Number()),
   genres: t.Nullable(t.Array(t.String())),
-  tags: t.Nullable(
+  trailer: t.Nullable(
+    t.Object({
+      id: t.String(),
+      site: t.String(),
+      thumbnail: t.String(),
+    }),
+  ),
+  externalLinks: t.Nullable(
     t.Array(
       t.Object({
-        name: t.String(),
-        rank: t.Nullable(t.Number()),
+        url: t.String(),
+        site: t.String(),
+        type: t.String(),
+        color: t.Nullable(t.String()),
+        icon: t.Nullable(t.String()),
       }),
     ),
   ),
@@ -45,7 +55,8 @@ export const AnimeCompactModel = t.Omit(AnimeModel, [
   "popularity",
   "trending",
   "genres",
-  "tags",
+  "trailer",
+  "externalLinks",
   "isAdult",
   "createdAt",
   "updatedAt",
