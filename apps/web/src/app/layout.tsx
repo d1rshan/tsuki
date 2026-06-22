@@ -5,11 +5,11 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 import { ThemeProvider } from "@/components/theme-provider";
 import { QueryProvider } from "@/components/query-provider";
+import { AuthProvider } from "@/components/auth-provider";
 import { Navbar } from "@/components/navbar";
 import { Toaster } from "@/components/ui/sonner";
 
 import "./globals.css";
-import { Loader } from "@/components/loader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,12 +45,14 @@ export default function RootLayout({
         >
           <QueryProvider>
             <NuqsAdapter>
-              <div className="relative flex min-h-screen flex-col">
-                <Suspense fallback={<Loader />}>
-                  <Navbar />
-                </Suspense>
-                <main className="flex-1">{children}</main>
-              </div>
+              <AuthProvider>
+                <div className="relative flex min-h-screen flex-col">
+                  <Suspense>
+                    <Navbar />
+                  </Suspense>
+                  <main className="flex-1">{children}</main>
+                </div>
+              </AuthProvider>
               <Toaster />
             </NuqsAdapter>
           </QueryProvider>
