@@ -27,7 +27,7 @@ export function Navbar() {
   }, [pathname]);
 
   return (
-    <nav className="fixed inset-x-0 top-0 z-50 pointer-events-none pt-4 md:pt-6">
+    <nav className="fixed inset-x-0 top-0 z-40 pointer-events-none pt-4 md:pt-6">
       <div className="container mx-auto px-4 xl:max-w-5xl">
         <div className="pointer-events-auto relative flex h-12 w-full items-center justify-between rounded-xl border border-black/5 dark:border-white/10 bg-background dark:bg-background/55 px-3 shadow-2xl dark:backdrop-blur-2xl transition-all duration-300 md:h-14 md:px-6">
           {isOpen && isHomePage ? (
