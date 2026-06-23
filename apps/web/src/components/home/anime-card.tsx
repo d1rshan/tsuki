@@ -42,14 +42,14 @@ export function AnimeCard({ anime, className }: { anime: AnimeCompact; className
       </AspectRatio>
 
       {anime.averageScore && (
-        <div className="absolute right-2 top-2 flex items-center gap-1 rounded-md bg-black/30 backdrop-blur-md px-1.5 py-0.5 text-xs font-medium text-white shadow-sm ring-1 ring-white/20">
-          <Star className="h-3 w-3 fill-current text-yellow-400" />
-          {anime.averageScore}%
+        <div className="absolute right-2 top-2 flex items-center gap-1 rounded-md bg-background/60 px-1.5 py-0.5 text-xs font-medium text-foreground backdrop-blur-md transition-opacity group-hover:opacity-100">
+          <Star className="size-3 fill-primary text-primary" />
+          <span className="tracking-tight">{anime.averageScore}%</span>
         </div>
       )}
 
-      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-4 pt-12">
-        <h3 className="line-clamp-1 text-sm font-semibold text-white transition-colors">{title}</h3>
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-4 pt-16">
+        <h3 className="line-clamp-1 text-sm font-bold text-white transition-colors">{title}</h3>
         {metadata && (
           <p className="line-clamp-1 mt-0.5 text-xs font-medium text-white/80">{metadata}</p>
         )}
