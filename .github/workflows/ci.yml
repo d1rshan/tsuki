@@ -33,3 +33,8 @@ jobs:
 
       - name: Build
         run: bun run build
+
+      - name: Notify Vercel
+        uses: vercel/repository-dispatch/actions/status@v1
+        with:
+          name: tsuki-ci
