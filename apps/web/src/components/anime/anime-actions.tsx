@@ -46,7 +46,7 @@ export function AnimeActions({ animeId }: { animeId: number }) {
   const isAuthenticated = !!session?.user;
 
   const { data: userActivity, isLoading: isActivityLoading } = useQuery({
-    queryKey: ["anime-activity", animeId],
+    queryKey: ["anime-activity", animeId], // TODO: centralize query keys gng
     queryFn: () => api.users.me.activity({ animeId }).get(),
     enabled: isAuthenticated,
   });

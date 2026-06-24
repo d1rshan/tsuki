@@ -58,7 +58,7 @@ export function AnimeDetails({ anime }: { anime: Anime }) {
                     <img
                       src={link.icon}
                       alt={link.site}
-                      className="size-4 rounded-sm object-contain"
+                      className="size-4 rounded-sm bg-primary p-0.5 dark:bg-transparent dark:p-0 object-contain"
                     />
                   )}
                   <span className="group-hover:underline group-hover:decoration-dashed group-hover:underline-offset-4">
