@@ -7,8 +7,7 @@ type BacklightProps = {
 };
 
 export function Backlight({ blur = 20, children, className }: BacklightProps) {
-  const rawId = useId();
-  const id = rawId.replace(/:/g, "");
+  const id = useId();
 
   return (
     <div className={className}>

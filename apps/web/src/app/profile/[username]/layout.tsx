@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { ProfileTabs } from "@/components/profile/profile-tabs";
 import { ProfileHeader } from "@/components/profile/profile-header";
 import { ProfileHeaderSkeleton } from "@/components/profile/profile-skeletons";
+
 import { getProfileOverview } from "./queries";
 
 export default async function ProfileLayout({
