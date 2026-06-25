@@ -2,9 +2,9 @@ name: Format, Lint, Typecheck & Build
 
 on:
   push:
-    branches: ["main"]
+    branches: ["arc/dev"]
   pull_request:
-    branches: ["main"]
+    branches: ["arc/dev"]
 
 jobs:
   ci:
