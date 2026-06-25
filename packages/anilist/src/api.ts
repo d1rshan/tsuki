@@ -23,11 +23,14 @@ export async function fetchAnimeSearch(query: string) {
  * Returns an array of formatted Anime rows.
  */
 export async function fetchTrendingAnime() {
-  const data = await anilistClient.request<TrendingQueryResponse>(TRENDING_ANIME_QUERY);
+  const [page1, page2] = await Promise.all([
+    anilistClient.request<TrendingQueryResponse>(TRENDING_ANIME_QUERY, { page: 1, perPage: 50 }),
+    anilistClient.request<TrendingQueryResponse>(TRENDING_ANIME_QUERY, { page: 2, perPage: 20 }),
+  ]);
 
-  if (!data.Page?.media) return [];
+  const media = [...(page1.Page?.media || []), ...(page2.Page?.media || [])];
 
-  return data.Page.media.filter((anime) => anime != null).map((anime) => toAnimeRow(anime!));
+  return media.filter((anime) => anime != null).map((anime) => toAnimeRow(anime!));
 }
 
 /**

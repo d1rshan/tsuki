@@ -2,8 +2,8 @@ import { gql } from "graphql-request";
 import type { AnilistMedia } from "../types";
 
 export const TRENDING_ANIME_QUERY = gql`
-  query {
-    Page(page: 1, perPage: 50) {
+  query ($page: Int = 1, $perPage: Int = 50) {
+    Page(page: $page, perPage: $perPage) {
       media(type: ANIME, sort: TRENDING_DESC) {
         id
         title {
