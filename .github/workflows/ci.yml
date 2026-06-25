@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: ["arc/dev"]
 
+permissions:
+  statuses: write
+
 jobs:
   ci:
     runs-on: ubuntu-latest
