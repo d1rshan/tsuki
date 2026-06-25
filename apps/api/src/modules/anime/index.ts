@@ -4,59 +4,18 @@ import { fetchTrendingAnime, fetchAnimeById } from "@tsuki/anilist";
 
 import { AnimeModel, AnimeCompactModel } from "./model";
 
-export async function syncTrendingAnime() {
-  console.log("[Sync] Fetching trending anime...");
-  try {
-    const animesData = await fetchTrendingAnime();
-
-    if (animesData.length === 0) return { success: true, count: 0 };
-
-    // Upsert anime into main table
-    await animeDal.upsertAnimes(animesData);
-
-    // Update trending list
-    const animeIds = animesData.map((anime) => anime.id);
-    await animeDal.setTrendingAnime(animeIds);
-
-    console.log(`[Sync] Successfully updated ${animesData.length} trending anime.`);
-    return { success: true, count: animesData.length };
-  } catch (error) {
-    console.error("[Sync] Failed to update trending anime:", error);
-    throw error;
-  }
-}
-
 export const animeRoutes = new Elysia({ prefix: "/anime" })
-  .get(
-    "/sync-trending",
-    async ({ headers }) => {
-      // Vercel Cron will send the Authorization header with Bearer CRON_SECRET
-      const authHeader = headers.authorization;
-
-      if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-        return error(401, { success: false, error: "Unauthorized" });
-      }
-
-      await syncTrendingAnime();
-      return { success: true };
-    },
-    {
-      detail: {
-        summary: "Sync Trending Anime",
-        description: "Vercel Cron endpoint to fetch and update trending anime from AniList.",
-      },
-    },
-  )
   .get(
     "/trending",
     async () => {
-      return await animeDal.getTrendingAnime();
+      const data = await fetchTrendingAnime();
+      return data;
     },
     {
       response: t.Array(AnimeCompactModel),
       detail: {
         summary: "Get Trending Anime",
-        description: "Retrieves the daily trending anime directly from the database.",
+        description: "Retrieves the daily trending anime directly from AniList.",
       },
     },
   )

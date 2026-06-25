@@ -37,27 +37,7 @@ export const anime = pgTable("anime", {
     .notNull(),
 });
 
-export const trendingAnime = pgTable(
-  "trending_anime",
-  {
-    animeId: integer("anime_id")
-      .primaryKey()
-      .references(() => anime.id, { onDelete: "cascade" }),
-    position: integer("position").notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-  },
-  (table) => [index("trending_anime_position_idx").on(table.position)],
-);
-
 export const animeRelations = relations(anime, ({ many }) => ({
-  trending: many(trendingAnime),
   libraryEntries: many(userAnimeLibrary),
   reviews: many(userReviews),
-}));
-
-export const trendingAnimeRelations = relations(trendingAnime, ({ one }) => ({
-  anime: one(anime, {
-    fields: [trendingAnime.animeId],
-    references: [anime.id],
-  }),
 }));

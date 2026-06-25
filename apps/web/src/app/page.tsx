@@ -1,3 +1,4 @@
+import { cacheLife } from "next/cache";
 import { ErrorState } from "@/components/states";
 import { AnimeGrid } from "@/components/home/anime-grid";
 import { HomeSearchWrapper } from "@/components/home/home-search-wrapper";
@@ -10,6 +11,7 @@ const FEATURED_HEADING_CLASS = "text-3xl font-black uppercase tracking-tight md:
 
 export default async function HomePage() {
   "use cache: remote";
+  cacheLife("days");
 
   return (
     <HomeSearchWrapper>

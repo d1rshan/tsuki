@@ -1,10 +1,4 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "bunVersion": "1.x",
-  "crons": [
-    {
-      "path": "/anime/sync-trending",
-      "schedule": "0 0 * * *"
-    }
-  ]
+  "bunVersion": "1.x"
 }
