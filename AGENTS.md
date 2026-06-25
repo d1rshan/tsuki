@@ -17,6 +17,6 @@ Tsuki is an anime tracking platform (like Letterboxd for anime), built as a Turb
 - **import order** — four groups separated by a blank line: external libraries → monorepo packages → path-aliased imports (`@/`) → local relative imports.
 
 - for next.js:
-<!-- BEGIN:nextjs-agent-rules -->
-This version has breaking changes — APIs, conventions, and file structure may differ from training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
-<!-- END:nextjs-agent-rules -->
+  <!-- BEGIN:nextjs-agent-rules -->
+  This version has breaking changes — APIs, conventions, and file structure may differ from training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
+  <!-- END:nextjs-agent-rules -->

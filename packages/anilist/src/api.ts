@@ -24,8 +24,8 @@ export async function fetchAnimeSearch(query: string) {
  */
 export async function fetchTrendingAnime() {
   const [page1, page2] = await Promise.all([
-    anilistClient.request<TrendingQueryResponse>(TRENDING_ANIME_QUERY, { page: 1, perPage: 50 }),
-    anilistClient.request<TrendingQueryResponse>(TRENDING_ANIME_QUERY, { page: 2, perPage: 20 }),
+    anilistClient.request<TrendingQueryResponse>(TRENDING_ANIME_QUERY, { page: 1, perPage: 35 }),
+    anilistClient.request<TrendingQueryResponse>(TRENDING_ANIME_QUERY, { page: 2, perPage: 35 }),
   ]);
 
   const media = [...(page1.Page?.media || []), ...(page2.Page?.media || [])];

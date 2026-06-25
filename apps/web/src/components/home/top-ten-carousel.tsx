@@ -67,7 +67,7 @@ export function TopTenCarousel({ animes }: TopTenCarouselProps) {
                         : "right-[calc(64%-0.75rem)] sm:right-[calc(68%-1.25rem)]",
                     )}
                     style={{
-                      width: 0,
+                      minWidth: "1px",
                       height: "1em",
                       fontSize: "clamp(5.5rem, 11vw, 8.5rem)",
                     }}
@@ -77,12 +77,11 @@ export function TopTenCarousel({ animes }: TopTenCarouselProps) {
                         x="0"
                         y="100%"
                         textAnchor="end"
-                        fill="var(--background)"
-                        stroke="var(--muted-foreground)"
+                        fill="currentColor"
                         strokeWidth="4px"
                         strokeLinejoin="round"
                         paintOrder="stroke fill"
-                        className="font-black tracking-[-0.08em]"
+                        className="text-background stroke-muted-foreground font-black tracking-[-0.08em]"
                       >
                         {rank}
                       </text>
