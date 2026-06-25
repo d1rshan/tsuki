@@ -1,7 +1,7 @@
 import { sql, eq, ilike, or } from "drizzle-orm";
 
 import { db } from "../db";
-import { anime, trendingAnime } from "../schema";
+import { anime } from "../schema";
 
 type InsertAnime = typeof anime.$inferInsert;
 
@@ -39,46 +39,6 @@ export const upsertAnimes = async (animesData: InsertAnime[]) => {
         updatedAt: sql`now()`,
       },
     });
-};
-
-export const setTrendingAnime = async (animeIds: number[]) => {
-  if (animeIds.length === 0) return;
-
-  // We perform this in a transaction: delete all existing trending, then insert new.
-  return db.transaction(async (tx) => {
-    await tx.delete(trendingAnime);
-
-    const trendingData = animeIds.map((id, index) => ({
-      animeId: id,
-      position: index + 1,
-    }));
-
-    await tx.insert(trendingAnime).values(trendingData);
-  });
-};
-
-export const getTrendingAnime = async () => {
-  const data = await db.query.trendingAnime.findMany({
-    orderBy: (trendingAnime, { asc }) => [asc(trendingAnime.position)],
-    with: {
-      anime: {
-        columns: {
-          id: true,
-          titleRomaji: true,
-          titleEnglish: true,
-          titleNative: true,
-          coverImageExtraLarge: true,
-          coverImageLarge: true,
-          bannerImage: true,
-          seasonYear: true,
-          episodes: true,
-          averageScore: true,
-        },
-      },
-    },
-  });
-
-  return data.map((d) => d.anime);
 };
 
 export const getAnimeById = async (id: number) => {
