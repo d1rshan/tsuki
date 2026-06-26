@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Star } from "lucide-react";
 
-import { formatStatus } from "@/lib/utils";
+import { formatEnum } from "@/lib/utils";
 import type { LibraryEntry } from "@/lib/types";
 import { getAnimeCoverImage, getAnimeTitle } from "@/lib/anime";
 import { ProfileAnimeCard } from "@/components/profile/profile-anime-card";
@@ -81,7 +81,7 @@ function RecentLogItem({ entry }: { entry: LibraryEntry }) {
 
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-medium text-muted-foreground">
           {entry.status && (
-            <span className="capitalize text-foreground/70">{formatStatus(entry.status)}</span>
+            <span className="capitalize text-foreground/70">{formatEnum(entry.status)}</span>
           )}
           {entry.episodesWatched > 0 && (
             <span className="flex items-center gap-1.5">

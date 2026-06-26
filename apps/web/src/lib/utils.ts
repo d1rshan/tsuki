@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// TODO: move this
-export function formatStatus(status: string): string {
-  return status.toLowerCase().replace(/_/g, " ");
+// eg: NOT_YET_RELEASED -> not yet released
+export function formatEnum(value: string): string {
+  return value.toLowerCase().replace(/_/g, " ");
 }

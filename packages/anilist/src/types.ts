@@ -1,3 +1,5 @@
+export type MediaStatus = "FINISHED" | "RELEASING" | "NOT_YET_RELEASED" | "CANCELLED" | "HIATUS";
+
 export type AnilistMedia = {
   id: number;
   title: { romaji: string | null; english: string | null; native: string | null };
@@ -5,7 +7,7 @@ export type AnilistMedia = {
   coverImage: { extraLarge: string | null; large: string | null; color: string | null };
   bannerImage: string | null;
   format: string | null;
-  status: string | null;
+  status: MediaStatus | null;
   episodes: number | null;
   duration: number | null;
   season: string | null;

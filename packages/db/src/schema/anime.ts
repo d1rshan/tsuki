@@ -1,7 +1,15 @@
 import { relations } from "drizzle-orm";
-import { pgTable, text, timestamp, boolean, index, integer, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, integer, jsonb, pgEnum } from "drizzle-orm/pg-core";
 
 import { userAnimeLibrary, userReviews } from "./activity";
+
+export const mediaStatusEnum = pgEnum("media_status", [
+  "FINISHED",
+  "RELEASING",
+  "NOT_YET_RELEASED",
+  "CANCELLED",
+  "HIATUS",
+]);
 
 export const anime = pgTable("anime", {
   id: integer("id").primaryKey(), // AniList ID
@@ -14,7 +22,7 @@ export const anime = pgTable("anime", {
   coverImageColor: text("cover_image_color"),
   bannerImage: text("banner_image"),
   format: text("format"),
-  status: text("status"),
+  status: mediaStatusEnum("status"),
   episodes: integer("episodes"),
   duration: integer("duration"),
   season: text("season"),

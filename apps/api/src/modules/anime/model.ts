@@ -1,5 +1,13 @@
 import { t } from "elysia";
 
+const MediaStatusEnum = t.Union([
+  t.Literal("FINISHED"),
+  t.Literal("RELEASING"),
+  t.Literal("NOT_YET_RELEASED"),
+  t.Literal("CANCELLED"),
+  t.Literal("HIATUS"),
+]);
+
 export const AnimeModel = t.Object({
   id: t.Number({ description: "AniList ID of the anime" }),
   titleRomaji: t.Nullable(t.String()),
@@ -11,7 +19,7 @@ export const AnimeModel = t.Object({
   coverImageColor: t.Nullable(t.String()),
   bannerImage: t.Nullable(t.String()),
   format: t.Nullable(t.String()),
-  status: t.Nullable(t.String()),
+  status: t.Nullable(MediaStatusEnum),
   episodes: t.Nullable(t.Number()),
   duration: t.Nullable(t.Number()),
   season: t.Nullable(t.String()),

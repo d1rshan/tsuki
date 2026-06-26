@@ -35,7 +35,7 @@ export const LibraryAnimeModel = t.Object({
 export const LibraryEntryResponseModel = t.Object({
   userId: t.String(),
   animeId: t.Number(),
-  status: t.Nullable(t.String()),
+  status: t.Nullable(WatchStatusEnum),
   rating: t.Nullable(t.Number()),
   episodesWatched: t.Number(),
   isFavorite: t.Boolean(),

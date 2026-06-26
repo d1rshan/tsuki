@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Star } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { formatEnum } from "@/lib/utils";
 import type { Anime } from "@/lib/types";
 
 export function AnimeHeader({
@@ -50,8 +51,8 @@ export function AnimeHeader({
           )}
           {anime.format && <Badge variant="secondary">{anime.format}</Badge>}
           {anime.status && (
-            <Badge variant="outline" className="text-muted-foreground">
-              {anime.status}
+            <Badge variant="outline" className="uppercase text-muted-foreground">
+              {formatEnum(anime.status)}
             </Badge>
           )}
           {anime.season && anime.seasonYear && (
