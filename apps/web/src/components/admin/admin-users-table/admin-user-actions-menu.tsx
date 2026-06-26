@@ -122,7 +122,7 @@ export function AdminUserActionsMenu({ user }: AdminUserActionsMenuProps) {
               Ban User
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem onClick={handleImpersonate} disabled={isSelf}>
+          <DropdownMenuItem onClick={handleImpersonate} disabled={!canBanOrUnban}>
             Impersonate
           </DropdownMenuItem>
         </DropdownMenuGroup>

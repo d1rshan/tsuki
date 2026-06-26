@@ -47,7 +47,6 @@ const adminRolesObj = {
     user: [
       "create",
       "list",
-      "set-role",
       "ban",
       "impersonate",
       "delete",
