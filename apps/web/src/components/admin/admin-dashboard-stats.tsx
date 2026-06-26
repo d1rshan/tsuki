@@ -19,31 +19,6 @@ type StatCardProps = {
   description: string;
 };
 
-function StatCard({ title, value, icon: Icon, trendValue, trendText, description }: StatCardProps) {
-  return (
-    <Card className="@container/card">
-      <CardHeader>
-        <CardDescription>{title}</CardDescription>
-        <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-          {value}
-        </CardTitle>
-        <CardAction>
-          <Badge variant="outline">
-            <Icon className="size-4 mr-1" />
-            {trendValue}
-          </Badge>
-        </CardAction>
-      </CardHeader>
-      <CardFooter className="flex-col items-start gap-1.5 text-sm">
-        <div className="line-clamp-1 flex gap-2 font-medium">
-          {trendText} <Icon className="size-4" />
-        </div>
-        <div className="text-muted-foreground">{description}</div>
-      </CardFooter>
-    </Card>
-  );
-}
-
 export function AdminDashboardStats({ totalUsers }: { totalUsers: number }) {
   return (
     <div className="grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs md:grid-cols-2 lg:grid-cols-4 dark:*:data-[slot=card]:bg-card">
@@ -80,5 +55,30 @@ export function AdminDashboardStats({ totalUsers }: { totalUsers: number }) {
         description="0 incidents reported"
       />
     </div>
+  );
+}
+
+function StatCard({ title, value, icon: Icon, trendValue, trendText, description }: StatCardProps) {
+  return (
+    <Card className="@container/card">
+      <CardHeader>
+        <CardDescription>{title}</CardDescription>
+        <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+          {value}
+        </CardTitle>
+        <CardAction>
+          <Badge variant="outline">
+            <Icon className="size-4 mr-1" />
+            {trendValue}
+          </Badge>
+        </CardAction>
+      </CardHeader>
+      <CardFooter className="flex-col items-start gap-1.5 text-sm">
+        <div className="line-clamp-1 flex gap-2 font-medium">
+          {trendText} <Icon className="size-4" />
+        </div>
+        <div className="text-muted-foreground">{description}</div>
+      </CardFooter>
+    </Card>
   );
 }

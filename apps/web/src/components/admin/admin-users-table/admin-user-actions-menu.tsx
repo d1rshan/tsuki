@@ -17,11 +17,11 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { type UserData } from "./index";
 
-type AdminUserRowActionsProps = {
+type AdminUserActionsMenuProps = {
   user: UserData;
 };
 
-export function AdminUserRowActions({ user }: AdminUserRowActionsProps) {
+export function AdminUserActionsMenu({ user }: AdminUserActionsMenuProps) {
   const router = useRouter();
 
   const handleCopyId = () => {

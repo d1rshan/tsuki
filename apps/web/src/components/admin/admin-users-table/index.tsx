@@ -14,7 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { authClient } from "@/lib/auth-client";
-import { AdminUserRowActions } from "./admin-user-row-actions";
+import { AdminUserActionsMenu } from "./admin-user-actions-menu";
 
 export type UserData = typeof authClient.$Infer.Session.user;
 
@@ -26,7 +26,7 @@ export function AdminUsersTable({ users }: { users: UserData[] }) {
           <AdminUsersTableHeader />
           <TableBody>
             {users.map((user) => (
-              <UserTableRow key={user.id} user={user} />
+              <AdminUserTableRow key={user.id} user={user} />
             ))}
             {users.length === 0 && <AdminUsersTableEmptyState />}
           </TableBody>
@@ -41,8 +41,6 @@ export function AdminUsersTable({ users }: { users: UserData[] }) {
     </div>
   );
 }
-
-// --- SUB-COMPONENTS ---
 
 function AdminUsersTableHeader() {
   return (
@@ -60,7 +58,7 @@ function AdminUsersTableHeader() {
   );
 }
 
-function UserTableRow({ user }: { user: UserData }) {
+function AdminUserTableRow({ user }: { user: UserData }) {
   return (
     <TableRow className={user.banned ? "opacity-60 bg-destructive/5" : ""}>
       <TableCell>
@@ -112,7 +110,7 @@ function UserTableRow({ user }: { user: UserData }) {
         </div>
       </TableCell>
       <TableCell className="text-right">
-        <AdminUserRowActions user={user} />
+        <AdminUserActionsMenu user={user} />
       </TableCell>
     </TableRow>
   );
