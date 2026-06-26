@@ -1,4 +1,4 @@
-import { TrendingDown, TrendingUp, ShieldCheck, type LucideIcon } from "lucide-react";
+import { TrendingUp, type LucideIcon } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -29,30 +29,6 @@ export function AdminDashboardStats({ totalUsers }: { totalUsers: number }) {
         trendValue="+12.5%"
         trendText="Trending up this month"
         description="Registered users on the platform"
-      />
-      <StatCard
-        title="Active Sessions"
-        value="1,248"
-        icon={TrendingDown}
-        trendValue="-2%"
-        trendText="Slight dip this hour"
-        description="Normal daily fluctuation"
-      />
-      <StatCard
-        title="New Signups"
-        value="142"
-        icon={TrendingUp}
-        trendValue="+18%"
-        trendText="Strong weekly growth"
-        description="Driven by recent marketing"
-      />
-      <StatCard
-        title="Server Uptime"
-        value="99.99%"
-        icon={ShieldCheck}
-        trendValue="Stable"
-        trendText="Systems operational"
-        description="0 incidents reported"
       />
     </div>
   );

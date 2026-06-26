@@ -23,6 +23,21 @@ type AdminUserActionsMenuProps = {
 
 export function AdminUserActionsMenu({ user }: AdminUserActionsMenuProps) {
   const queryClient = useQueryClient();
+  const { data: session } = authClient.useSession();
+
+  const currentUserRole = session?.user?.role;
+  const isSelf = session?.user?.id === user.id;
+
+  // Proper RBAC hierarchy:
+  // 1. You cannot modify yourself.
+  // 2. Only an 'owner' can change someone's role.
+  // 3. An 'admin' can only ban/unban regular users (not other admins or owners).
+  const canModifyRole = !isSelf && currentUserRole === "owner";
+
+  const canBanOrUnban =
+    !isSelf &&
+    (currentUserRole === "owner" ||
+      (currentUserRole === "admin" && user.role !== "admin" && user.role !== "owner"));
 
   const handleCopyId = () => {
     navigator.clipboard.writeText(user.id);
@@ -81,21 +96,35 @@ export function AdminUserActionsMenu({ user }: AdminUserActionsMenuProps) {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          {user.role !== "admin" ? (
-            <DropdownMenuItem onClick={() => handleSetRole("admin")}>Make Admin</DropdownMenuItem>
+          {user.role !== "admin" && user.role !== "owner" ? (
+            <DropdownMenuItem onClick={() => handleSetRole("admin")} disabled={!canModifyRole}>
+              Make Admin
+            </DropdownMenuItem>
           ) : (
-            <DropdownMenuItem onClick={() => handleSetRole("user")}>Remove Admin</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleSetRole("user")} disabled={!canModifyRole}>
+              Remove Admin
+            </DropdownMenuItem>
           )}
           {user.banned ? (
-            <DropdownMenuItem onClick={handleUnban} className="text-green-600">
+            <DropdownMenuItem
+              onClick={handleUnban}
+              disabled={!canBanOrUnban}
+              className={canBanOrUnban ? "text-green-600" : ""}
+            >
               Unban User
             </DropdownMenuItem>
           ) : (
-            <DropdownMenuItem onClick={handleBan} className="text-red-600">
+            <DropdownMenuItem
+              onClick={handleBan}
+              disabled={!canBanOrUnban}
+              className={canBanOrUnban ? "text-red-600" : ""}
+            >
               Ban User
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem onClick={handleImpersonate}>Impersonate</DropdownMenuItem>
+          <DropdownMenuItem onClick={handleImpersonate} disabled={isSelf}>
+            Impersonate
+          </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

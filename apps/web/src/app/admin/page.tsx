@@ -3,7 +3,15 @@ import { headers } from "next/headers";
 import { authClient } from "@/lib/auth-client";
 import { AdminDashboardStats } from "@/components/admin/admin-dashboard-stats";
 
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+
 export default async function AdminDashboardPage() {
+  const { user } = await auth();
+  if (!user || (user.role !== "admin" && user.role !== "owner")) {
+    redirect("/");
+  }
+
   const { data } = await authClient.admin.listUsers({
     query: { limit: 1 },
     fetchOptions: {

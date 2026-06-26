@@ -188,7 +188,7 @@ function NavbarLinks({
         </LinkComponent>
       )}
 
-      {role === "admin" && (
+      {(role === "admin" || role === "owner") && (
         <LinkComponent href="/admin" isActive={!!pathname?.startsWith("/admin")}>
           Admin
         </LinkComponent>

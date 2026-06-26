@@ -1,7 +1,15 @@
 import { Suspense } from "react";
 import { AdminUsersTable } from "@/components/admin/admin-users-table";
 
-export default function AdminUsersPage() {
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+
+export default async function AdminUsersPage() {
+  const { user } = await auth();
+  if (!user || (user.role !== "admin" && user.role !== "owner")) {
+    redirect("/");
+  }
+
   return (
     <div className="flex w-full flex-col gap-6 overflow-x-hidden">
       <div className="flex flex-col gap-1">
