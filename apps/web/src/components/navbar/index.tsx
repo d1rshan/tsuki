@@ -162,7 +162,7 @@ function NavbarLinks({ username, isMobile }: { username: string | null; isMobile
 
   return (
     <>
-      <LinkComponent href="/" isActive={pathname === "/"}>
+      <LinkComponent href="/" isActive={pathname === "/" || pathname.includes("anime")}>
         Discover
       </LinkComponent>
 
