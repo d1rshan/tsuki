@@ -1,7 +1,15 @@
 import { AdminSidebar } from "@/components/admin/sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const { user } = await auth();
+
+  if (!user || user.role !== "admin") {
+    redirect("/");
+  }
+
   return (
     <SidebarProvider
       style={

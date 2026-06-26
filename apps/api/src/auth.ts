@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
+
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { username } from "better-auth/plugins";
+import { admin, username } from "better-auth/plugins";
 import { db } from "@tsuki/db";
 
 import { urls } from "./lib/urls";
@@ -12,7 +13,7 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  plugins: [username()],
+  plugins: [username(), admin()],
   trustedOrigins: [urls.web],
   session: {
     cookieCache: {
