@@ -10,11 +10,11 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { authClient } from "@/lib/auth-client";
+
 import { type UserData } from "./index";
 
 type AdminUserActionsMenuProps = {
@@ -75,9 +75,8 @@ export function AdminUserActionsMenu({ user }: AdminUserActionsMenuProps) {
         <span className="sr-only">Open menu</span>
         <MoreHorizontal className="h-4 w-4" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="start">
         <DropdownMenuGroup>
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem onClick={handleCopyId}>Copy user ID</DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
