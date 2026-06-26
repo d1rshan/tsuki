@@ -94,7 +94,7 @@ export function AdminUsersTable() {
         columns={columns}
         data={users}
         searchKey="email"
-        searchPlaceholder="Search users by username or email..."
+        searchPlaceholder="Username or email..."
         searchValue={inputValue}
         onSearchChange={setInputValue}
         manualPagination={true}
