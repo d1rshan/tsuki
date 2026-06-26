@@ -15,13 +15,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { authClient } from "@/lib/auth-client";
+import { type UserData } from "./users-table";
 
 type UserRowActionsProps = {
-  user: {
-    id: string;
-    role: string | null;
-    banned: boolean | null;
-  };
+  user: UserData;
 };
 
 export function UserRowActions({ user }: UserRowActionsProps) {

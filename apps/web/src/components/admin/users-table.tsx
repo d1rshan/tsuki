@@ -16,19 +16,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { authClient } from "@/lib/auth-client";
 import { UserRowActions } from "./user-row-actions";
 
-export type UserData = {
-  id: string;
-  email: string;
-  username: string;
-  displayUsername: string;
-  image: string | null;
-  emailVerified: boolean;
-  createdAt: string | Date;
-  role: string | null;
-  banned: boolean | null;
-};
+export type UserData = typeof authClient.$Infer.Session.user;
 
 export function UsersTable({ users }: { users: UserData[] }) {
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
@@ -107,9 +98,9 @@ export function UsersTable({ users }: { users: UserData[] }) {
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <Avatar className="h-9 w-9 border border-muted/50">
-                      {user.image && <AvatarImage src={user.image} alt={user.username} />}
+                      {user.image && <AvatarImage src={user.image} alt={user.username ?? ""} />}
                       <AvatarFallback className="bg-muted/50 text-muted-foreground text-xs">
-                        {user.displayUsername.charAt(0).toUpperCase()}
+                        {(user.displayUsername || user.name || "U").charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <span className="font-medium leading-none">

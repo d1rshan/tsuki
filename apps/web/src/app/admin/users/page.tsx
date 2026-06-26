@@ -1,9 +1,17 @@
-import { userDal } from "@tsuki/db";
+import { headers } from "next/headers";
 
+import { authClient } from "@/lib/auth-client";
 import { UsersTable } from "@/components/admin/users-table";
 
 export default async function AdminUsersPage() {
-  const users = await userDal.getAllUsers();
+  const { data } = await authClient.admin.listUsers({
+    query: { limit: 100 },
+    fetchOptions: {
+      headers: await headers(),
+    },
+  });
+
+  const users = data?.users ?? [];
 
   return (
     <div className="flex flex-col gap-6">
