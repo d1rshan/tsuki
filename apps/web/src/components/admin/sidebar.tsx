@@ -53,6 +53,7 @@ export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>)
                       tooltip={item.title}
                       isActive={isActive}
                       render={<Link href={item.url} />}
+                      className="hover:bg-muted hover:text-muted-foreground"
                     >
                       <item.icon />
                       <span>{item.title}</span>
