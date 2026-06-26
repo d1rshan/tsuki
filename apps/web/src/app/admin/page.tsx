@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 
 import { authClient } from "@/lib/auth-client";
-import { DashboardStats } from "@/components/admin/dashboard-stats";
+import { AdminDashboardStats } from "@/components/admin/admin-dashboard-stats";
 
 export default async function AdminDashboardPage() {
   const { data } = await authClient.admin.listUsers({
@@ -19,7 +19,7 @@ export default async function AdminDashboardPage() {
         <h1 className="text-2xl font-black uppercase tracking-tighter">OVERVIEW</h1>
       </div>
 
-      <DashboardStats totalUsers={totalUsers} />
+      <AdminDashboardStats totalUsers={totalUsers} />
     </div>
   );
 }

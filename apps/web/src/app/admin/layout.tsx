@@ -1,4 +1,4 @@
-import { AdminSidebar } from "@/components/admin/sidebar";
+import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";

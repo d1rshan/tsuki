@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 
 import { authClient } from "@/lib/auth-client";
-import { UsersTable } from "@/components/admin/users-table";
+import { AdminUsersTable } from "@/components/admin/admin-users-table";
 
 export default async function AdminUsersPage() {
   const { data } = await authClient.admin.listUsers({
@@ -19,7 +19,7 @@ export default async function AdminUsersPage() {
         <h1 className="text-2xl font-black uppercase tracking-tighter">USERS</h1>
       </div>
 
-      <UsersTable users={users} />
+      <AdminUsersTable users={users} />
     </div>
   );
 }

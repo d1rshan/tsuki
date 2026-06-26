@@ -15,13 +15,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { authClient } from "@/lib/auth-client";
-import { type UserData } from "./users-table";
+import { type UserData } from "./index";
 
-type UserRowActionsProps = {
+type AdminUserRowActionsProps = {
   user: UserData;
 };
 
-export function UserRowActions({ user }: UserRowActionsProps) {
+export function AdminUserRowActions({ user }: AdminUserRowActionsProps) {
   const router = useRouter();
 
   const handleCopyId = () => {
