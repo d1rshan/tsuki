@@ -17,10 +17,8 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { AdminUserActionsMenu } from "./admin-user-actions-menu";
 
-// Replace this with the actual UserData import from wherever it's centrally located if needed
-// For now, importing from index.tsx or using the same type definition
+import { AdminUserActionsMenu } from "./admin-user-actions-menu";
 import type { UserData } from "./index";
 
 export const columns: ColumnDef<UserData>[] = [
