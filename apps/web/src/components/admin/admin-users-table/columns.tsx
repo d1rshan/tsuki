@@ -3,7 +3,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import {
-  ArrowUpDown,
   Ban,
   Calendar,
   CheckCircle2,
@@ -44,34 +43,12 @@ export const columns: ColumnDef<UserData>[] = [
   },
   {
     accessorKey: "name",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="-ml-4"
-        >
-          Name
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: "Name",
     cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
   },
   {
     accessorKey: "email",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="-ml-4"
-        >
-          Email
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: "Email",
     cell: ({ row }) => {
       return (
         <div className="flex items-center gap-2 text-muted-foreground">

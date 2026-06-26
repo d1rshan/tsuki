@@ -4,7 +4,7 @@ import * as React from "react";
 import type {
   ColumnDef,
   ColumnFiltersState,
-  SortingState,
+  PaginationState,
   VisibilityState,
 } from "@tanstack/react-table";
 import {
@@ -12,7 +12,6 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
-  getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import { ChevronDown } from "lucide-react";
@@ -39,6 +38,12 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   searchKey?: string;
   searchPlaceholder?: string;
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
+  pageCount?: number;
+  pagination?: PaginationState;
+  onPaginationChange?: React.Dispatch<React.SetStateAction<PaginationState>>;
+  manualPagination?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -46,25 +51,31 @@ export function DataTable<TData, TValue>({
   data,
   searchKey = "email",
   searchPlaceholder = "Search...",
+  searchValue,
+  onSearchChange,
+  pageCount,
+  pagination,
+  onPaginationChange,
+  manualPagination,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
 
   const table = useReactTable({
     data,
     columns,
+    pageCount,
+    manualPagination,
+    onPaginationChange,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     state: {
-      sorting,
       columnFilters,
       columnVisibility,
+      ...(pagination !== undefined && { pagination }),
     },
   });
 
@@ -74,8 +85,18 @@ export function DataTable<TData, TValue>({
         {searchKey && (
           <Input
             placeholder={searchPlaceholder}
-            value={(table.getColumn(searchKey)?.getFilterValue() as string) ?? ""}
-            onChange={(event) => table.getColumn(searchKey)?.setFilterValue(event.target.value)}
+            value={
+              searchValue !== undefined
+                ? searchValue
+                : ((table.getColumn(searchKey)?.getFilterValue() as string) ?? "")
+            }
+            onChange={(event) => {
+              if (onSearchChange) {
+                onSearchChange(event.target.value);
+              } else {
+                table.getColumn(searchKey)?.setFilterValue(event.target.value);
+              }
+            }}
             className="max-w-sm"
           />
         )}
@@ -144,8 +165,9 @@ export function DataTable<TData, TValue>({
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
-          Showing {table.getRowModel().rows.length} of {table.getFilteredRowModel().rows.length}{" "}
-          row(s).
+          {manualPagination
+            ? `Page ${table.getState().pagination.pageIndex + 1}`
+            : `Showing ${table.getRowModel().rows.length} of ${table.getFilteredRowModel().rows.length} row(s).`}
         </div>
         <div className="space-x-2">
           <Button
