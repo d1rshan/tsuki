@@ -38,7 +38,7 @@ export function AdminUsersTable() {
   }, [debouncedInputValue, q, setQ, setPage]);
 
   const {
-    data: users = [],
+    data: { users = [], total = 0 } = {},
     isFetching,
     isError,
     error,
@@ -58,7 +58,10 @@ export function AdminUsersTable() {
         throw new Error(res.error.message || "Failed to fetch users");
       }
 
-      return res.data?.users ?? [];
+      return {
+        users: res.data?.users ?? [],
+        total: res.data?.total ?? 0,
+      };
     },
     // Keep previous data while fetching new pages so table doesn't flicker empty
     placeholderData: (prev) => prev,
@@ -70,7 +73,7 @@ export function AdminUsersTable() {
     }
   }, [isError, error]);
 
-  const hasMore = users.length === limit;
+  const pageCount = Math.ceil(total / limit);
 
   const pagination = {
     pageIndex: page - 1,
@@ -95,8 +98,7 @@ export function AdminUsersTable() {
         searchValue={inputValue}
         onSearchChange={setInputValue}
         manualPagination={true}
-        // if hasMore is true, we allow next page by setting pageCount to -1
-        pageCount={hasMore ? -1 : page}
+        pageCount={pageCount}
         pagination={pagination}
         onPaginationChange={handlePaginationChange}
       />
