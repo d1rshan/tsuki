@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQueryState, parseAsInteger, parseAsString } from "nuqs";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -23,13 +23,19 @@ export function AdminUsersTable() {
     parseAsInteger.withDefault(10).withOptions({ history: "push" }),
   );
 
-  const [q, setQ] = useQueryState(
-    "q",
-    parseAsString.withDefault("").withOptions({ throttleMs: 1000 }),
-  );
+  const [q, setQ] = useQueryState("q", parseAsString.withDefault(""));
 
-  // Debounce the search query for React Query fetching so we don't spam the API on every keystroke
-  const debouncedQ = useDebounce(q, 500);
+  // Local state for the input field to keep the UI snappy
+  const [inputValue, setInputValue] = useState(q);
+  const debouncedInputValue = useDebounce(inputValue, 500);
+
+  // Sync debounced local state to URL and reset page if search changes
+  useEffect(() => {
+    if (debouncedInputValue !== q) {
+      setQ(debouncedInputValue || null);
+      setPage(1);
+    }
+  }, [debouncedInputValue, q, setQ, setPage]);
 
   const {
     data: users = [],
@@ -37,14 +43,14 @@ export function AdminUsersTable() {
     isError,
     error,
   } = useQuery({
-    queryKey: ["admin-users", page, limit, debouncedQ],
+    queryKey: ["admin-users", page, limit, q],
     queryFn: async () => {
       const offset = (page - 1) * limit;
       const res = await authClient.admin.listUsers({
         query: {
           limit,
           offset,
-          ...(debouncedQ ? { searchValue: debouncedQ } : {}),
+          ...(q ? { searchValue: q } : {}),
         },
       });
 
@@ -64,11 +70,6 @@ export function AdminUsersTable() {
     }
   }, [isError, error]);
 
-  // Reset pagination when debounced search query changes to avoid double-fetching edge case
-  useEffect(() => {
-    setPage(1);
-  }, [debouncedQ, setPage]);
-
   const hasMore = users.length === limit;
 
   const pagination = {
@@ -84,10 +85,6 @@ export function AdminUsersTable() {
     setLimit(newPagination.pageSize);
   };
 
-  const handleSearchChange = (val: string) => {
-    setQ(val || null);
-  };
-
   return (
     <div className={`transition-opacity duration-200 ${isFetching ? "opacity-50" : "opacity-100"}`}>
       <DataTable
@@ -95,8 +92,8 @@ export function AdminUsersTable() {
         data={users}
         searchKey="email"
         searchPlaceholder="Search users by username or email..."
-        searchValue={q}
-        onSearchChange={handleSearchChange}
+        searchValue={inputValue}
+        onSearchChange={setInputValue}
         manualPagination={true}
         // if hasMore is true, we allow next page by setting pageCount to -1
         pageCount={hasMore ? -1 : page}
