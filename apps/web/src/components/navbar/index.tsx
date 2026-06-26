@@ -27,6 +27,10 @@ export function Navbar() {
     setMobileMenuOpen(false);
   }, [pathname]);
 
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
+
   return (
     <nav className="fixed inset-x-0 top-0 z-40 pointer-events-none pt-4 md:pt-6">
       <div className="container mx-auto px-4 xl:max-w-5xl">

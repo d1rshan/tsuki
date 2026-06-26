@@ -1,4 +1,5 @@
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
+import { AdminSiteHeader } from "@/components/admin/admin-site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
@@ -20,7 +21,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       }
     >
       <AdminSidebar variant="inset" />
-      <SidebarInset className="p-4 md:p-6 lg:p-8">{children}</SidebarInset>
+      <SidebarInset>
+        <AdminSiteHeader />
+        <div className="p-4 md:p-6 lg:p-8">{children}</div>
+      </SidebarInset>
     </SidebarProvider>
   );
 }
