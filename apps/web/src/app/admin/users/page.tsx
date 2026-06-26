@@ -1,6 +1,6 @@
 import { userDal } from "@tsuki/db";
 
-import { UsersClient } from "./users-client";
+import { UsersTable } from "@/components/admin/users-table";
 
 export default async function AdminUsersPage() {
   const users = await userDal.getAllUsers();
@@ -11,7 +11,7 @@ export default async function AdminUsersPage() {
         <h1 className="text-2xl font-black uppercase tracking-tighter">USERS</h1>
       </div>
 
-      <UsersClient users={users} />
+      <UsersTable users={users} />
     </div>
   );
 }

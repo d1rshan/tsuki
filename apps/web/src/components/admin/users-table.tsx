@@ -2,18 +2,7 @@
 
 import * as React from "react";
 import { format } from "date-fns";
-import {
-  User,
-  Mail,
-  Calendar,
-  ShieldCheck,
-  ShieldAlert,
-  Copy,
-  CheckCircle2,
-  MoreHorizontal,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { User, Mail, Calendar, ShieldCheck, ShieldAlert, Copy, CheckCircle2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,18 +16,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { authClient } from "@/lib/auth-client";
+import { UserRowActions } from "./user-row-actions";
 
-type UserData = {
+export type UserData = {
   id: string;
   email: string;
   username: string;
@@ -50,77 +30,25 @@ type UserData = {
   banned: boolean | null;
 };
 
-export function UsersClient({ users }: { users: UserData[] }) {
-  const router = useRouter();
+export function UsersTable({ users }: { users: UserData[] }) {
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
   const [copied, setCopied] = React.useState(false);
 
   const toggleAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedIds(new Set(users.map((u) => u.id)));
-    } else {
-      setSelectedIds(new Set());
-    }
+    setSelectedIds(checked ? new Set(users.map((u) => u.id)) : new Set());
   };
 
   const toggleOne = (id: string, checked: boolean) => {
     const next = new Set(selectedIds);
-    if (checked) next.add(id);
-    else next.delete(id);
+    checked ? next.add(id) : next.delete(id);
     setSelectedIds(next);
   };
 
   const copySelectedIds = () => {
     if (selectedIds.size === 0) return;
-    const ids = Array.from(selectedIds).join(", ");
-    navigator.clipboard.writeText(ids);
+    navigator.clipboard.writeText(Array.from(selectedIds).join(", "));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleCopyId = (id: string) => {
-    navigator.clipboard.writeText(id);
-    toast("User ID copied to clipboard");
-  };
-
-  const handleSetRole = async (userId: string, role: "user" | "admin") => {
-    try {
-      await authClient.admin.setRole({ userId, role });
-      toast.success(`Role updated to ${role}`);
-      router.refresh();
-    } catch (e: any) {
-      toast.error(e.message || "Failed to update role");
-    }
-  };
-
-  const handleBan = async (userId: string) => {
-    try {
-      await authClient.admin.banUser({ userId, banReason: "Admin action" });
-      toast.success("User banned");
-      router.refresh();
-    } catch (e: any) {
-      toast.error(e.message || "Failed to ban user");
-    }
-  };
-
-  const handleUnban = async (userId: string) => {
-    try {
-      await authClient.admin.unbanUser({ userId });
-      toast.success("User unbanned");
-      router.refresh();
-    } catch (e: any) {
-      toast.error(e.message || "Failed to unban user");
-    }
-  };
-
-  const handleImpersonate = async (userId: string) => {
-    try {
-      await authClient.admin.impersonateUser({ userId });
-      toast.success("Impersonating user...");
-      window.location.href = "/";
-    } catch (e: any) {
-      toast.error(e.message || "Failed to impersonate user");
-    }
   };
 
   return (
@@ -207,16 +135,14 @@ export function UsersClient({ users }: { users: UserData[] }) {
                       variant="secondary"
                       className="bg-green-500/10 text-green-600 hover:bg-green-500/20 border-green-500/20 shadow-none font-medium"
                     >
-                      <ShieldCheck className="mr-1 h-3 w-3" />
-                      Verified
+                      <ShieldCheck className="mr-1 h-3 w-3" /> Verified
                     </Badge>
                   ) : (
                     <Badge
                       variant="outline"
                       className="text-amber-600 border-amber-500/20 bg-amber-500/10 hover:bg-amber-500/20 shadow-none font-medium"
                     >
-                      <ShieldAlert className="mr-1 h-3 w-3" />
-                      Unverified
+                      <ShieldAlert className="mr-1 h-3 w-3" /> Unverified
                     </Badge>
                   )}
                 </TableCell>
@@ -227,52 +153,7 @@ export function UsersClient({ users }: { users: UserData[] }) {
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      render={<Button variant="ghost" className="h-8 w-8 p-0" />}
-                    >
-                      <span className="sr-only">Open menu</span>
-                      <MoreHorizontal className="h-4 w-4" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuGroup>
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => handleCopyId(user.id)}>
-                          Copy user ID
-                        </DropdownMenuItem>
-                      </DropdownMenuGroup>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuGroup>
-                        {user.role !== "admin" ? (
-                          <DropdownMenuItem onClick={() => handleSetRole(user.id, "admin")}>
-                            Make Admin
-                          </DropdownMenuItem>
-                        ) : (
-                          <DropdownMenuItem onClick={() => handleSetRole(user.id, "user")}>
-                            Remove Admin
-                          </DropdownMenuItem>
-                        )}
-                        {user.banned ? (
-                          <DropdownMenuItem
-                            onClick={() => handleUnban(user.id)}
-                            className="text-green-600"
-                          >
-                            Unban User
-                          </DropdownMenuItem>
-                        ) : (
-                          <DropdownMenuItem
-                            onClick={() => handleBan(user.id)}
-                            className="text-red-600"
-                          >
-                            Ban User
-                          </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem onClick={() => handleImpersonate(user.id)}>
-                          Impersonate
-                        </DropdownMenuItem>
-                      </DropdownMenuGroup>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <UserRowActions user={user} />
                 </TableCell>
               </TableRow>
             ))}
