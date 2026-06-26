@@ -1,7 +1,7 @@
 "use client";
 
 import { MoreHorizontal } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,7 @@ type AdminUserActionsMenuProps = {
 };
 
 export function AdminUserActionsMenu({ user }: AdminUserActionsMenuProps) {
-  const router = useRouter();
+  const queryClient = useQueryClient();
 
   const handleCopyId = () => {
     navigator.clipboard.writeText(user.id);
@@ -33,7 +33,7 @@ export function AdminUserActionsMenu({ user }: AdminUserActionsMenuProps) {
     try {
       await authClient.admin.setRole({ userId: user.id, role });
       toast.success(`Role updated to ${role}`);
-      router.refresh();
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
     } catch (e: any) {
       toast.error(e.message || "Failed to update role");
     }
@@ -43,7 +43,7 @@ export function AdminUserActionsMenu({ user }: AdminUserActionsMenuProps) {
     try {
       await authClient.admin.banUser({ userId: user.id, banReason: "Admin action" });
       toast.success("User banned");
-      router.refresh();
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
     } catch (e: any) {
       toast.error(e.message || "Failed to ban user");
     }
@@ -53,7 +53,7 @@ export function AdminUserActionsMenu({ user }: AdminUserActionsMenuProps) {
     try {
       await authClient.admin.unbanUser({ userId: user.id });
       toast.success("User unbanned");
-      router.refresh();
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
     } catch (e: any) {
       toast.error(e.message || "Failed to unban user");
     }

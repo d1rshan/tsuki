@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   User,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ export const columns: ColumnDef<UserData>[] = [
   {
     accessorKey: "displayUsername",
     header: "User",
+    enableHiding: false,
     cell: ({ row }) => {
       const user = row.original;
       return (
@@ -50,11 +52,20 @@ export const columns: ColumnDef<UserData>[] = [
     accessorKey: "email",
     header: "Email",
     cell: ({ row }) => {
+      const email = row.getValue("email") as string;
       return (
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Mail className="h-4 w-4" />
-          <span>{row.getValue("email")}</span>
-        </div>
+        <button
+          onClick={() => {
+            navigator.clipboard.writeText(email);
+            toast.success("Email copied to clipboard");
+          }}
+          className="group flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer text-left"
+        >
+          <Mail className="h-4 w-4 shrink-0" />
+          <span className="truncate group-hover:underline group-hover:decoration-dashed group-hover:underline-offset-4">
+            {email}
+          </span>
+        </button>
       );
     },
   },
@@ -122,6 +133,7 @@ export const columns: ColumnDef<UserData>[] = [
   },
   {
     id: "actions",
+    enableHiding: false,
     cell: ({ row }) => <AdminUserActionsMenu user={row.original} />,
   },
 ];
