@@ -45,43 +45,46 @@ export function AdminUserActionsMenu({ user }: AdminUserActionsMenuProps) {
   };
 
   const handleSetRole = async (role: "user" | "admin") => {
-    try {
-      await authClient.admin.setRole({ userId: user.id, role });
-      toast.success(`Role updated to ${role}`);
-      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
-    } catch (e: any) {
-      toast.error(e.message || "Failed to update role");
+    const { error } = await authClient.admin.setRole({ userId: user.id, role });
+    if (error) {
+      toast.error(error.message || "Failed to update role");
+      return;
     }
+    toast.success(`Role updated to ${role}`);
+    queryClient.invalidateQueries({ queryKey: ["admin-users"] });
   };
 
   const handleBan = async () => {
-    try {
-      await authClient.admin.banUser({ userId: user.id, banReason: "Admin action" });
-      toast.success("User banned");
-      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
-    } catch (e: any) {
-      toast.error(e.message || "Failed to ban user");
+    const { error } = await authClient.admin.banUser({
+      userId: user.id,
+      banReason: "Admin action",
+    });
+    if (error) {
+      toast.error(error.message || "Failed to ban user");
+      return;
     }
+    toast.success("User banned");
+    queryClient.invalidateQueries({ queryKey: ["admin-users"] });
   };
 
   const handleUnban = async () => {
-    try {
-      await authClient.admin.unbanUser({ userId: user.id });
-      toast.success("User unbanned");
-      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
-    } catch (e: any) {
-      toast.error(e.message || "Failed to unban user");
+    const { error } = await authClient.admin.unbanUser({ userId: user.id });
+    if (error) {
+      toast.error(error.message || "Failed to unban user");
+      return;
     }
+    toast.success("User unbanned");
+    queryClient.invalidateQueries({ queryKey: ["admin-users"] });
   };
 
   const handleImpersonate = async () => {
-    try {
-      await authClient.admin.impersonateUser({ userId: user.id });
-      toast.success("Impersonating user...");
-      window.location.href = "/";
-    } catch (e: any) {
-      toast.error(e.message || "Failed to impersonate user");
+    const { error } = await authClient.admin.impersonateUser({ userId: user.id });
+    if (error) {
+      toast.error(error.message || "Failed to impersonate user");
+      return;
     }
+    toast.success("Impersonating user...");
+    window.location.href = "/";
   };
 
   return (
