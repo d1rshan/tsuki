@@ -6,63 +6,9 @@ import { db } from "@tsuki/db";
 
 import { urls } from "./lib/urls";
 
-import { createAccessControl } from "better-auth/plugins/access";
+import { ac, adminRolesObj } from "./permissions";
 
-const statement = {
-  user: [
-    "create",
-    "list",
-    "set-role",
-    "ban",
-    "impersonate",
-    "impersonate-admins",
-    "delete",
-    "set-password",
-    "set-email",
-    "get",
-    "update",
-  ],
-  session: ["list", "revoke", "delete"],
-} as const;
-const ac = createAccessControl(statement);
-
-const adminRolesObj = {
-  owner: ac.newRole({
-    user: [
-      "create",
-      "list",
-      "set-role",
-      "ban",
-      "impersonate",
-      "impersonate-admins",
-      "delete",
-      "set-password",
-      "set-email",
-      "get",
-      "update",
-    ],
-    session: ["list", "revoke", "delete"],
-  }),
-  admin: ac.newRole({
-    user: [
-      "create",
-      "list",
-      "ban",
-      "impersonate",
-      "delete",
-      "set-password",
-      "set-email",
-      "get",
-      "update",
-    ],
-    session: ["list", "revoke", "delete"],
-  }),
-  user: ac.newRole({
-    user: [],
-    session: [],
-  }),
-};
-
+// TODO: extract out auth as a new package to avoid roundtrip for server side checks in web app
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
@@ -74,6 +20,7 @@ export const auth = betterAuth({
     username(),
     admin({
       adminRoles: ["admin", "owner"],
+      ac,
       roles: adminRolesObj,
     }),
   ],
