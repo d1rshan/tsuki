@@ -6,7 +6,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Star, Heart, Check, Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-import { useSession } from "@/lib/auth-client";
+import { useSession } from "@tsuki/auth/client";
 import { api } from "@/lib/api";
 import type { LibraryEntry, Review } from "@/lib/types";
 import { cn } from "@/lib/utils";

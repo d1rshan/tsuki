@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "@/lib/auth-client";
+import { useSession } from "@tsuki/auth/client";
 import { Loader } from "@/components/loader";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {

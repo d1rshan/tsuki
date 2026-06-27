@@ -1,13 +1,11 @@
 import { headers } from "next/headers";
 import { cache } from "react";
-import { authClient } from "@/lib/auth-client";
+import { auth as serverAuth } from "@tsuki/auth/server";
 
 export const auth = cache(async () => {
-  const { data } = await authClient.getSession({
-    fetchOptions: {
-      headers: await headers(),
-    },
+  const session = await serverAuth.api.getSession({
+    headers: await headers(),
   });
 
-  return data ?? { session: null, user: null };
+  return session ?? { session: null, user: null };
 });

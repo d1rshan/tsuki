@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { type Updater, type PaginationState } from "@tanstack/react-table";
 import { toast } from "sonner";
 
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@tsuki/auth/client";
 import { DataTable } from "@/components/ui/data-table";
 import { useDebounce } from "@/hooks/use-debounce";
 

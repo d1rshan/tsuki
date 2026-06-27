@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ESNext", "DOM"],
+    "moduleDetection": "force",
+    "allowImportingTsExtensions": true,
+    "types": ["node"]
+  }
+}
