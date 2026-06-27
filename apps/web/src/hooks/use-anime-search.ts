@@ -1,22 +1,9 @@
-import { useState, useEffect } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { type AnimeCompact } from "@/lib/types";
 import { fetchAnimeSearch } from "@tsuki/anilist";
 
-// Custom hook for debouncing the input query
-function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+import { type AnimeCompact } from "@/lib/types";
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => clearTimeout(timer);
-  }, [value, delay]);
-
-  return debouncedValue;
-}
+import { useDebounce } from "./use-debounce";
 
 export function useAnimeSearch(query: string) {
   const debouncedQuery = useDebounce(query, 250);

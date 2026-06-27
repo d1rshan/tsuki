@@ -16,6 +16,7 @@ import { useNavbarSearch } from "./use-navbar-search";
 export function Navbar() {
   const { data: session } = useSession();
   const username = session?.user?.username ?? null;
+  const role = session?.user?.role ?? null;
 
   const { query, setQuery, isOpen, openSearch, closeSearch, isHomePage } = useNavbarSearch();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -25,6 +26,10 @@ export function Navbar() {
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [pathname]);
+
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
 
   return (
     <nav className="fixed inset-x-0 top-0 z-40 pointer-events-none pt-4 md:pt-6">
@@ -37,7 +42,7 @@ export function Navbar() {
               <div className="mr-auto flex items-center gap-6 md:gap-8">
                 <NavbarLogo />
                 <div className="hidden items-center gap-6 sm:flex">
-                  <NavbarLinks username={username} />
+                  <NavbarLinks username={username} role={role} />
                 </div>
               </div>
               {/* Right Side: Auth & Search Action */}
@@ -77,7 +82,7 @@ export function Navbar() {
         {mobileMenuOpen && !isOpen && (
           <div className="pointer-events-auto absolute left-4 right-4 top-[calc(100%+0.5rem)] rounded-xl border border-black/5 dark:border-white/10 bg-background/95 p-3 shadow-2xl backdrop-blur-2xl dark:bg-background/80 sm:hidden">
             <div className="flex flex-col gap-1">
-              <NavbarLinks username={username} isMobile />
+              <NavbarLinks username={username} role={role} isMobile />
               <div className="my-2 h-px w-full bg-border" />
               <div className="flex items-center justify-between px-1">
                 <NavbarAuth username={username} isMobile />
@@ -156,7 +161,15 @@ function MobileNavLink({
   );
 }
 
-function NavbarLinks({ username, isMobile }: { username: string | null; isMobile?: boolean }) {
+function NavbarLinks({
+  username,
+  role,
+  isMobile,
+}: {
+  username: string | null;
+  role: string | null;
+  isMobile?: boolean;
+}) {
   const pathname = usePathname();
   const LinkComponent = isMobile ? MobileNavLink : NavLink;
 
@@ -172,6 +185,12 @@ function NavbarLinks({ username, isMobile }: { username: string | null; isMobile
           isActive={!!pathname?.startsWith(`/profile/${username}`)}
         >
           Profile
+        </LinkComponent>
+      )}
+
+      {(role === "admin" || role === "owner") && (
+        <LinkComponent href="/admin" isActive={!!pathname?.startsWith("/admin")}>
+          Admin
         </LinkComponent>
       )}
     </>
@@ -197,7 +216,7 @@ function NavbarAuth({ username, isMobile }: { username: string | null; isMobile?
           try {
             await signOut();
             window.location.href = "/";
-          } catch (e) {
+          } catch {
             setIsLoggingOut(false);
           }
         }}
