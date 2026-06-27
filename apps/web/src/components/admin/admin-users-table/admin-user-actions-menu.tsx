@@ -39,6 +39,11 @@ export function AdminUserActionsMenu({ user }: AdminUserActionsMenuProps) {
     (currentUserRole === "owner" ||
       (currentUserRole === "admin" && user.role !== "admin" && user.role !== "owner"));
 
+  const canImpersonate =
+    !isSelf &&
+    (currentUserRole === "owner" ||
+      (currentUserRole === "admin" && user.role !== "admin" && user.role !== "owner"));
+
   const handleCopyId = () => {
     navigator.clipboard.writeText(user.id);
     toast("User ID copied to clipboard");
@@ -125,7 +130,7 @@ export function AdminUserActionsMenu({ user }: AdminUserActionsMenuProps) {
               Ban User
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem onClick={handleImpersonate} disabled={!canBanOrUnban}>
+          <DropdownMenuItem onClick={handleImpersonate} disabled={!canImpersonate}>
             Impersonate
           </DropdownMenuItem>
         </DropdownMenuGroup>
