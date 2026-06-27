@@ -216,7 +216,7 @@ function NavbarAuth({ username, isMobile }: { username: string | null; isMobile?
           try {
             await signOut();
             window.location.href = "/";
-          } catch (e) {
+          } catch {
             setIsLoggingOut(false);
           }
         }}

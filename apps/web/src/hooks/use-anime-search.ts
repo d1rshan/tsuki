@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { type AnimeCompact } from "@/lib/types";
 import { fetchAnimeSearch } from "@tsuki/anilist";
+
+import { type AnimeCompact } from "@/lib/types";
 
 import { useDebounce } from "./use-debounce";
 
