@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useQueryState, parseAsInteger, parseAsString } from "nuqs";
 import { useQuery } from "@tanstack/react-query";
+import { type Updater, type PaginationState } from "@tanstack/react-table";
 import { toast } from "sonner";
 
 import { authClient } from "@/lib/auth-client";
@@ -80,7 +81,7 @@ export function AdminUsersTable() {
     pageSize: limit,
   };
 
-  const handlePaginationChange = (updaterOrValue: any) => {
+  const handlePaginationChange = (updaterOrValue: Updater<PaginationState>) => {
     const newPagination =
       typeof updaterOrValue === "function" ? updaterOrValue(pagination) : updaterOrValue;
 
