@@ -7,16 +7,20 @@ import { Search, Menu, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
-import { signOut, useSession } from "@tsuki/auth/client";
+import { signOut } from "@tsuki/auth/client";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 import { useNavbarSearch } from "./use-navbar-search";
 
-export function Navbar() {
-  const { data: session } = useSession();
-  const username = session?.user?.username ?? null;
-  const role = session?.user?.role ?? null;
+type UserData = {
+  username?: string | null;
+  role?: string | null;
+};
+
+export function Navbar({ user }: { user: UserData | null }) {
+  const username = user?.username ?? null;
+  const role = user?.role ?? null;
 
   const { query, setQuery, isOpen, openSearch, closeSearch, isHomePage } = useNavbarSearch();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

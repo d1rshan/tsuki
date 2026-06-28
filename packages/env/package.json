@@ -1,0 +1,14 @@
+{
+  "name": "@tsuki/env",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.ts",
+  "dependencies": {
+    "@t3-oss/env-nextjs": "^0.11.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "typescript": "^5"
+  }
+}

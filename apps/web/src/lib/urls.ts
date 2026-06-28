@@ -1,7 +1,6 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+import { env } from "@tsuki/env";
 
 export const urls = {
-  api: API_URL,
-  app: APP_URL,
+  api: env.NEXT_PUBLIC_API_URL,
+  app: env.NEXT_PUBLIC_APP_URL,
 } as const;

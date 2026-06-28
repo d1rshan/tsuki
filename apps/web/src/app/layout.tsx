@@ -5,9 +5,9 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 import { ThemeProvider } from "@/components/theme-provider";
 import { QueryProvider } from "@/components/query-provider";
-import { AuthProvider } from "@/components/auth-provider";
 import { Navbar } from "@/components/navbar";
 import { Toaster } from "@/components/ui/sonner";
+import { auth } from "@/lib/auth";
 
 import "./globals.css";
 
@@ -27,11 +27,12 @@ export const metadata: Metadata = {
   description: "Log, rate, and review your favorite anime.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { user } = await auth();
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -45,14 +46,12 @@ export default function RootLayout({
         >
           <QueryProvider>
             <NuqsAdapter>
-              <AuthProvider>
-                <div className="relative flex min-h-screen flex-col">
-                  <Suspense>
-                    <Navbar />
-                  </Suspense>
-                  <main className="flex-1">{children}</main>
-                </div>
-              </AuthProvider>
+              <div className="relative flex min-h-screen flex-col">
+                <Suspense>
+                  <Navbar user={user} />
+                </Suspense>
+                <main className="flex-1">{children}</main>
+              </div>
               <Toaster />
             </NuqsAdapter>
           </QueryProvider>
