@@ -16,6 +16,7 @@ const statement = {
   ],
   session: ["list", "revoke", "delete"],
 } as const;
+
 export const ac = createAccessControl(statement);
 
 export const adminRolesObj = {

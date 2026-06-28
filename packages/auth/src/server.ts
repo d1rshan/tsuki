@@ -5,6 +5,7 @@ import { admin, username } from "better-auth/plugins";
 import { db } from "@tsuki/db";
 
 import { ac, adminRolesObj } from "./permissions";
+
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
