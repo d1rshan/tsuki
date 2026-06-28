@@ -7,7 +7,7 @@ import { Search, Menu, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
-import { signOut, useSession } from "@/lib/auth-client";
+import { signOut, useSession } from "@tsuki/auth/client";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
 

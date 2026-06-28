@@ -10,8 +10,8 @@
   },
   "dependencies": {
     "@tsuki/anilist": "workspace:*",
+    "@tsuki/auth": "workspace:*",
     "@tsuki/db": "workspace:*",
-    "better-auth": "^1.6.17",
     "elysia": "latest",
     "graphql": "^16.14.2",
     "graphql-request": "^7.4.0"

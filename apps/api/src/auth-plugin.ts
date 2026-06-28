@@ -1,5 +1,5 @@
 import { Elysia, status as error } from "elysia";
-import { auth } from "./auth";
+import { auth } from "@tsuki/auth/server";
 
 export const authPlugin = new Elysia({ name: "better-auth" }).mount(auth.handler).macro({
   auth: {

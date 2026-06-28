@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+
 import { urls } from "./src/lib/urls";
 
 const nextConfig: NextConfig = {

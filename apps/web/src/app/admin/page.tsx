@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@tsuki/auth/client";
 import { AdminDashboardStats } from "@/components/admin/admin-dashboard-stats";
 
 import { auth } from "@/lib/auth";
