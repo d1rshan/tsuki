@@ -22,7 +22,8 @@ export const auth = betterAuth({
       roles: adminRolesObj,
     }),
   ],
-  trustedOrigins: [env.WEB_URL || env.NEXT_PUBLIC_APP_URL],
+  baseURL: `${env.NEXT_PUBLIC_APP_URL}/api/auth`,
+  trustedOrigins: [env.NEXT_PUBLIC_APP_URL],
   session: {
     cookieCache: {
       enabled: true,
