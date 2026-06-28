@@ -10,8 +10,8 @@ export const env = createEnv({
     WEB_URL: z.string().url().optional(), // Used by Elysia for CORS
   },
   client: {
-    NEXT_PUBLIC_APP_URL: z.string().url(),
-    NEXT_PUBLIC_API_URL: z.string().url(),
+    NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
+    NEXT_PUBLIC_API_URL: z.string().url().default("http://localhost:3001"),
   },
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
