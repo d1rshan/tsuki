@@ -21,7 +21,7 @@ export const auth = betterAuth({
     }),
   ],
   trustedOrigins: [
-    process.env.NEXT_PUBLIC_APP_URL || process.env.WEB_URL || "http://localhost:3000",
+    process.env.WEB_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
   ],
   session: {
     cookieCache: {
