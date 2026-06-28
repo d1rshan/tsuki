@@ -14,6 +14,14 @@
     "@tsuki/db": "workspace:*",
     "better-auth": "^1.6.17"
   },
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@types/node": "^20",
     "typescript": "^5"
