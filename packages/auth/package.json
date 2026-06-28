@@ -1,7 +1,6 @@
 {
   "name": "@tsuki/auth",
   "version": "1.0.0",
-  "main": "src/server.ts",
   "exports": {
     "./server": "./src/server.ts",
     "./client": "./src/client.ts",
