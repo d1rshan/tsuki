@@ -12,6 +12,9 @@ permissions:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: "postgresql://dummy"
+      BETTER_AUTH_SECRET: "dummy"
 
     steps:
       - name: Checkout repository
