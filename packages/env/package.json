@@ -4,7 +4,7 @@
   "private": true,
   "main": "src/index.ts",
   "dependencies": {
-    "@t3-oss/env-nextjs": "^0.11.1",
+    "@t3-oss/env-core": "^0.13.11",
     "zod": "^4.4.3"
   },
   "devDependencies": {
