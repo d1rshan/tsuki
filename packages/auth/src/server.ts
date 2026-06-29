@@ -1,3 +1,4 @@
+import { env } from "@tsuki/env";
 import { betterAuth } from "better-auth";
 
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
@@ -21,15 +22,14 @@ export const auth = betterAuth({
       roles: adminRolesObj,
     }),
   ],
-  trustedOrigins: [
-    process.env.WEB_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-  ],
+  baseURL: `${env.NEXT_PUBLIC_APP_URL}/api/auth`,
+  trustedOrigins: [env.NEXT_PUBLIC_APP_URL],
   session: {
     cookieCache: {
       enabled: true,
     },
   },
   advanced: {
-    useSecureCookies: process.env.NODE_ENV === "production",
+    useSecureCookies: env.NODE_ENV === "production",
   },
 });

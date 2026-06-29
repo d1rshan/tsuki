@@ -5,8 +5,7 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 import { ThemeProvider } from "@/components/theme-provider";
 import { QueryProvider } from "@/components/query-provider";
-import { AuthProvider } from "@/components/auth-provider";
-import { Navbar } from "@/components/navbar";
+import { NavbarServerWrapper } from "@/components/navbar/navbar-server-wrapper";
 import { Toaster } from "@/components/ui/sonner";
 
 import "./globals.css";
@@ -45,14 +44,12 @@ export default function RootLayout({
         >
           <QueryProvider>
             <NuqsAdapter>
-              <AuthProvider>
-                <div className="relative flex min-h-screen flex-col">
-                  <Suspense>
-                    <Navbar />
-                  </Suspense>
-                  <main className="flex-1">{children}</main>
-                </div>
-              </AuthProvider>
+              <div className="relative flex min-h-screen flex-col">
+                <Suspense fallback={null}>
+                  <NavbarServerWrapper />
+                </Suspense>
+                <main className="flex-1">{children}</main>
+              </div>
               <Toaster />
             </NuqsAdapter>
           </QueryProvider>

@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-import { urls } from "./src/lib/urls";
+import { env } from "@tsuki/env";
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
@@ -13,11 +13,11 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/auth/:path*",
-        destination: `${urls.api}/api/auth/:path*`,
+        destination: `${env.NEXT_PUBLIC_API_URL}/api/auth/:path*`,
       },
       {
         source: "/api/:path*",
-        destination: `${urls.api}/:path*`,
+        destination: `${env.NEXT_PUBLIC_API_URL}/:path*`,
       },
     ];
   },

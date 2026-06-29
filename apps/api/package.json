@@ -5,13 +5,14 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "typecheck": "tsc --noEmit",
-    "start": "bun --env-file=../../.env run src/index.ts",
-    "dev": "bun --env-file=../../.env run --watch src/index.ts"
+    "start": "bun run src/index.ts",
+    "dev": "bun run --watch src/index.ts"
   },
   "dependencies": {
     "@tsuki/anilist": "workspace:*",
     "@tsuki/auth": "workspace:*",
     "@tsuki/db": "workspace:*",
+    "@tsuki/env": "workspace:*",
     "elysia": "latest",
     "graphql": "^16.14.2",
     "graphql-request": "^7.4.0"
