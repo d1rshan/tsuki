@@ -13,7 +13,7 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     env:
-      DATABASE_URL: "postgresql://dummy"
+      DATABASE_URL: "postgresql://dummy:dummy@localhost.neon.tech/dummy"
       BETTER_AUTH_SECRET: "dummy"
 
     steps:
@@ -39,8 +39,3 @@ jobs:
 
       - name: Build
         run: bun run build
-
-      - name: Notify Vercel
-        uses: vercel/repository-dispatch/actions/status@v1
-        with:
-          name: tsuki-ci
