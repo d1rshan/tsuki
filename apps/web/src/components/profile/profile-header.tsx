@@ -1,26 +1,96 @@
 import Image from "next/image";
 import type { UserOverview } from "@/lib/types";
 
+import { Button } from "@/components/ui/button";
+import { Edit2, Link as LinkIcon } from "lucide-react";
+import Link from "next/link";
+import { EditProfileDialog } from "./edit-profile-dialog";
+
 type User = UserOverview["user"];
 type Stats = UserOverview["stats"];
+type Profile = UserOverview["profile"];
 
-export function ProfileHeader({ user, stats }: { user: User; stats: Stats }) {
+export function ProfileHeader({
+  user,
+  stats,
+  profile,
+  isOwner,
+}: {
+  user: User;
+  stats: Stats;
+  profile: Profile;
+  isOwner: boolean;
+}) {
+  const banner = profile?.bannerImage;
+  const accentColor = profile?.accentColor || "hsl(var(--primary))";
+
   return (
     <>
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-64 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/15 to-transparent -z-10 pointer-events-none" />
-      <div className="flex flex-col items-center text-center gap-6 mb-12">
-        <ProfileAvatar user={user} />
-        <UserInfo user={user} stats={stats} />
+      <div
+        className="absolute top-0 left-0 w-full h-64 md:h-80 -z-10 pointer-events-none bg-cover bg-center"
+        style={{
+          backgroundImage: banner
+            ? `url(${banner})`
+            : `radial-gradient(ellipse at top, ${accentColor}33, transparent)`,
+          backgroundColor: banner ? "transparent" : "hsl(var(--background))",
+        }}
+      >
+        {banner && (
+          <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
+        )}
+      </div>
+
+      <div className="flex flex-col items-center text-center gap-6 mb-12 px-4">
+        <ProfileAvatar user={user} accentColor={accentColor} />
+
+        <div className="flex flex-col items-center max-w-2xl">
+          <UserInfo user={user} stats={stats} />
+
+          {profile?.bio && (
+            <p className="mt-4 text-muted-foreground max-w-lg leading-relaxed whitespace-pre-wrap">
+              {profile.bio}
+            </p>
+          )}
+
+          {profile?.socialLinks && Object.keys(profile.socialLinks).length > 0 && (
+            <div className="flex flex-wrap gap-3 mt-4 justify-center">
+              {Object.entries(profile.socialLinks).map(([platform, url]) => (
+                <a
+                  key={platform}
+                  href={url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors bg-secondary/50 px-3 py-1.5 rounded-full"
+                >
+                  <LinkIcon className="w-3.5 h-3.5" />
+                  <span className="capitalize">{platform}</span>
+                </a>
+              ))}
+            </div>
+          )}
+
+          {isOwner && (
+            <div className="mt-6">
+              <EditProfileDialog profile={profile} />
+            </div>
+          )}
+        </div>
       </div>
     </>
   );
 }
 
-function ProfileAvatar({ user }: { user: User }) {
+function ProfileAvatar({ user, accentColor }: { user: User; accentColor: string }) {
   return (
-    <div className="relative group">
-      <div className="absolute -inset-1 bg-primary/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition duration-500" />
-      <div className="relative w-32 h-32 md:w-40 md:h-40 shrink-0 overflow-hidden rounded-full ring-1 ring-border/50 shadow-xl bg-background">
+    <div className="relative group mt-12 md:mt-16">
+      <div
+        className="absolute -inset-1 rounded-full blur-md opacity-0 group-hover:opacity-100 transition duration-500"
+        style={{ backgroundColor: `${accentColor}80` }}
+      />
+      <div
+        className="relative w-32 h-32 md:w-40 md:h-40 shrink-0 overflow-hidden rounded-full ring-2 shadow-xl bg-background"
+        style={{ borderColor: accentColor }}
+      >
         {user.image ? (
           <Image
             src={user.image}

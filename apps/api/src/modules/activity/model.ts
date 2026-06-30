@@ -69,6 +69,15 @@ export const UserOverviewResponseModel = t.Object({
     image: t.Nullable(t.String()),
     createdAt: t.Date(),
   }),
+  profile: t.Nullable(
+    t.Object({
+      bio: t.Nullable(t.String()),
+      bannerImage: t.Nullable(t.String()),
+      accentColor: t.Nullable(t.String()),
+      socialLinks: t.Nullable(t.Record(t.String(), t.String())),
+      isPrivate: t.Boolean(),
+    }),
+  ),
   stats: t.Object({
     totalAnime: t.Number(),
     episodesWatched: t.Number(),

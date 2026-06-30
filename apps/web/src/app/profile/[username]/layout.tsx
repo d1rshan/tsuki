@@ -29,10 +29,20 @@ export default async function ProfileLayout({
   );
 }
 
+import { auth } from "@/lib/auth";
+
 async function ProfileHeaderWrapper({ username }: { username: string }) {
   const { data: profile, error } = await getProfileOverview(username);
+  const { user: currentUser } = await auth();
 
   if (error) return notFound();
 
-  return <ProfileHeader user={profile.user} stats={profile.stats} />;
+  return (
+    <ProfileHeader
+      user={profile.user}
+      stats={profile.stats}
+      profile={profile.profile}
+      isOwner={currentUser?.id === profile.user.id}
+    />
+  );
 }
