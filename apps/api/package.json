@@ -13,9 +13,7 @@
     "@tsuki/auth": "workspace:*",
     "@tsuki/db": "workspace:*",
     "@tsuki/env": "workspace:*",
-    "elysia": "latest",
-    "graphql": "^16.14.2",
-    "graphql-request": "^7.4.0"
+    "elysia": "latest"
   },
   "devDependencies": {
     "bun-types": "latest"

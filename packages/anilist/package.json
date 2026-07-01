@@ -6,7 +6,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@tsuki/db": "workspace:*",
     "graphql-request": "^7.4.0"
   },
   "devDependencies": {
