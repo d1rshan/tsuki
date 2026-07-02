@@ -13,6 +13,7 @@ export function ProfileTabs() {
 
   const tabs = [
     { name: "Overview", href: `/profile/${username}` },
+    { name: "Favorites", href: `/profile/${username}/favorites` },
     { name: "Library", href: `/profile/${username}/library` },
     { name: "Reviews", href: `/profile/${username}/reviews` },
   ];

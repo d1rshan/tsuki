@@ -17,7 +17,7 @@ export default async function ProfileLayout({
   const { username } = await params;
 
   return (
-    <div className="min-h-screen py-10 md:py-16">
+    <div className="min-h-screen pt-20 pb-10 md:pt-28 md:pb-16">
       <div className="max-w-5xl mx-auto px-4 md:px-6">
         <Suspense fallback={<ProfileHeaderSkeleton />}>
           <ProfileHeaderWrapper username={username} />

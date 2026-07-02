@@ -1,8 +1,8 @@
 "use server";
 
-import { revalidateTag } from "next/cache";
+import { updateTag } from "next/cache";
 
-import { api } from "@/lib/api";
+import { serverApi } from "@/lib/server-api";
 
 export async function updateProfile(
   data: {
@@ -14,13 +14,14 @@ export async function updateProfile(
   username: string,
 ) {
   try {
+    const api = await serverApi();
     const res = await api.users["me"].profile.put(data);
 
     if (res.error) {
       return { success: false, error: "Failed to update profile. Please check your inputs." };
     }
 
-    revalidateTag(`profile-${username}`, "max");
+    updateTag(`profile-${username}`);
     return { success: true, error: null };
   } catch (error) {
     console.error("Failed to update profile", error);

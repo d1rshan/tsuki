@@ -28,7 +28,7 @@ export function ProfileHeader({
       {/* Banner */}
       {banner ? (
         <div className="w-full h-48 md:h-64 relative rounded-2xl overflow-hidden mb-6 shadow-sm border">
-          <Image src={banner} alt="Banner" fill priority className="object-cover" />
+          <Image src={banner} alt="Banner" fill priority unoptimized className="object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-background/30 to-transparent" />
         </div>
       ) : (
