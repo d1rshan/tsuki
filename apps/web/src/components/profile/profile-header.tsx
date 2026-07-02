@@ -30,13 +30,13 @@ export function ProfileHeader({
           <div className="absolute inset-0 bg-gradient-to-t from-background/30 to-transparent" />
         </div>
       ) : (
-        <div className="w-full h-24 md:h-32 rounded-2xl bg-muted/40 mb-6 border border-dashed" />
+        <div className="w-full h-32 md:h-48 rounded-2xl bg-gradient-to-tr from-muted/50 via-muted/20 to-muted/50 mb-6" />
       )}
 
       <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start px-2">
         {/* Avatar */}
         <div className="relative -mt-16 md:-mt-20 ml-2 md:ml-6 shrink-0">
-          <div className="w-24 h-24 md:w-32 md:h-32 relative rounded-2xl overflow-hidden ring-4 ring-background shadow-sm bg-muted border">
+          <div className="w-24 h-24 md:w-32 md:h-32 relative rounded-full overflow-hidden ring-4 ring-background shadow-sm bg-muted border">
             {user.image ? (
               <Image
                 src={user.image}
