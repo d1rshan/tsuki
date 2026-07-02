@@ -30,8 +30,8 @@ export function ProfileTabs() {
             className={cn(
               "px-5 py-2 text-sm font-semibold transition-all duration-300 rounded-xl",
               isActive
-                ? "bg-foreground text-background shadow-md"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+                ? "bg-primary text-primary-foreground shadow-md"
+                : "text-muted-foreground hover:text-primary hover:bg-primary/10",
             )}
           >
             {tab.name}

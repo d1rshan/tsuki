@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -44,6 +44,7 @@ const formSchema = z.object({
 type Profile = UserOverview["profile"];
 
 export function EditProfileDialog({ profile }: { profile: Profile }) {
+  const router = useRouter();
   const params = useParams();
   const username = params.username as string;
   const [isOpen, setIsOpen] = useState(false);
@@ -60,6 +61,8 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
     control,
     formState: { errors, isSubmitting },
     reset,
+    watch,
+    setValue,
   } = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -74,6 +77,8 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
     control,
     name: "socialLinks",
   });
+
+  const accentColorValue = watch("accentColor");
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -104,6 +109,7 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
 
       toast.success("Profile updated successfully");
       setIsOpen(false);
+      router.refresh();
     } catch {
       toast.error("An unexpected error occurred.");
     }
@@ -121,7 +127,11 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger
         render={
-          <Button variant="outline" size="sm" className="gap-2 rounded-full">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2 rounded-full border-border/50 hover:border-primary/50 hover:bg-primary/10 hover:text-primary transition-colors"
+          >
             <Edit2 className="w-4 h-4" />
             Edit Profile
           </Button>
@@ -167,7 +177,10 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
                 <Input
                   id="accentColorPicker"
                   type="color"
-                  {...register("accentColor")}
+                  value={accentColorValue || "#000000"}
+                  onChange={(e) =>
+                    setValue("accentColor", e.target.value, { shouldValidate: true })
+                  }
                   className="w-12 h-12 p-1 cursor-pointer"
                   disabled={isSubmitting}
                 />
@@ -176,7 +189,13 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
                   type="text"
                   placeholder="#000000"
                   className="font-mono uppercase flex-1"
-                  {...register("accentColor")}
+                  value={accentColorValue || ""}
+                  onChange={(e) =>
+                    setValue("accentColor", e.target.value, {
+                      shouldValidate: true,
+                      shouldDirty: true,
+                    })
+                  }
                   aria-invalid={!!errors.accentColor}
                   disabled={isSubmitting}
                 />

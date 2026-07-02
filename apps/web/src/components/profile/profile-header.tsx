@@ -63,7 +63,7 @@ export function ProfileHeader({
               <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
                 {user.displayUsername || user.name}
               </h1>
-              <p className="text-muted-foreground font-medium text-sm mt-0.5">@{user.username}</p>
+              <p className="text-primary font-medium text-sm mt-0.5">@{user.username}</p>
             </div>
             {isOwner && (
               <div className="shrink-0">
@@ -87,7 +87,7 @@ export function ProfileHeader({
                   href={url as string}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
                 >
                   <LinkIcon className="w-4 h-4" />
                   <span className="capitalize">{platform}</span>
@@ -115,7 +115,7 @@ export function ProfileHeader({
 function StatItem({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wider">
+      <span className="text-[11px] text-primary/80 font-semibold uppercase tracking-wider">
         {label}
       </span>
       <span className="text-xl font-bold tracking-tight text-foreground">{value}</span>
