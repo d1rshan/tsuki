@@ -4,7 +4,7 @@ import { updateTag } from "next/cache";
 
 import { auth } from "@/lib/auth";
 import { serverApi } from "@/lib/server-api";
-import type { WatchStatus } from "@tsuki/api/src/modules/activity/model";
+import type { WatchStatus } from "@tsuki/api/src/modules/users/model";
 
 export async function logAnimeAction(
   animeId: number,

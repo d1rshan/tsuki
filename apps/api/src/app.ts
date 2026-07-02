@@ -2,7 +2,7 @@ import { Elysia } from "elysia";
 
 import { authPlugin } from "./auth-plugin";
 import { animeRoutes } from "./modules/anime";
-import { activityRoutes } from "./modules/activity";
+import { userRoutes } from "./modules/users";
 
 export const app = new Elysia()
   .onError(({ code, error: err, set }) => {
@@ -32,7 +32,7 @@ export const app = new Elysia()
   })
   .use(authPlugin)
   .use(animeRoutes)
-  .use(activityRoutes)
+  .use(userRoutes)
   .get("/", () => "Tsuki API Running!");
 
 export type App = typeof app;

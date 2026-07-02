@@ -5,6 +5,9 @@ import { useParams } from "next/navigation";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { Edit2, Plus, Trash2, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+
 import {
   Dialog,
   DialogContent,
@@ -15,11 +18,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Edit2, Plus, Trash2, Loader2 } from "lucide-react";
-import type { UserOverview } from "@/lib/types";
-import { updateProfile } from "./actions";
 import { FieldGroup, Field, FieldLabel, FieldError } from "@/components/ui/field";
-import { toast } from "sonner";
+import type { UserOverview } from "@/lib/types";
+
+import { updateProfile } from "./actions";
 
 const formSchema = z.object({
   bio: z.string().max(500, "Bio must be at most 500 characters").optional(),
@@ -49,7 +51,7 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
   // Convert Record<string, string> to array for react-hook-form
   const initialSocialLinks = Object.entries(profile?.socialLinks ?? {}).map(([platform, url]) => ({
     platform,
-    url,
+    url: url as string,
   }));
 
   const {
@@ -102,7 +104,7 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
 
       toast.success("Profile updated successfully");
       setIsOpen(false);
-    } catch (error) {
+    } catch {
       toast.error("An unexpected error occurred.");
     }
   }

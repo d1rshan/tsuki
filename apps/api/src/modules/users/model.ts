@@ -68,13 +68,7 @@ export const ProfileModel = t.Object({
   isPrivate: t.Boolean(),
 });
 
-export const UpdateProfileModel = t.Object({
-  bio: t.Optional(t.Union([t.String(), t.Null()])),
-  bannerImage: t.Optional(t.Union([t.String(), t.Null()])),
-  accentColor: t.Optional(t.Union([t.String(), t.Null()])),
-  socialLinks: t.Optional(t.Union([t.Record(t.String(), t.String()), t.Null()])),
-  isPrivate: t.Optional(t.Boolean()),
-});
+export const UpdateProfileModel = t.Partial(ProfileModel);
 
 export const UserOverviewResponseModel = t.Object({
   user: t.Object({

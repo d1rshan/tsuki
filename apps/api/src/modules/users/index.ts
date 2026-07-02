@@ -1,4 +1,5 @@
 import { Elysia, t, status as error } from "elysia";
+
 import { activityDal, userDal, profileDal } from "@tsuki/db";
 
 import { authPlugin } from "../../auth-plugin";
@@ -13,7 +14,7 @@ import {
   UpdateProfileModel,
 } from "./model";
 
-export const activityRoutes = new Elysia({ prefix: "/users" })
+export const userRoutes = new Elysia({ prefix: "/users" })
   .use(authPlugin)
   // --- PUBLIC ROUTES (Read-only) ---
   .get(

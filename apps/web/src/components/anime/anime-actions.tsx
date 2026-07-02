@@ -29,7 +29,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { logAnimeAction, submitReviewAction } from "@/app/actions/activity";
-import type { WatchStatus } from "@tsuki/api/src/modules/activity/model";
+import type { WatchStatus } from "@tsuki/api/src/modules/users/model";
 
 const WATCH_STATUSES: { value: WatchStatus; label: string }[] = [
   { value: "WATCHING", label: "Watching" },

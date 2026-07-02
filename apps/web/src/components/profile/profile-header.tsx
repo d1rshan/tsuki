@@ -1,6 +1,7 @@
 import Image from "next/image";
-import type { UserOverview } from "@/lib/types";
 import { Link as LinkIcon } from "lucide-react";
+
+import type { UserOverview } from "@/lib/types";
 
 import { EditProfileDialog } from "./edit-profile-dialog";
 import { ProfileTabs } from "./profile-tabs";
@@ -83,7 +84,7 @@ export function ProfileHeader({
               {Object.entries(profile.socialLinks).map(([platform, url]) => (
                 <a
                   key={platform}
-                  href={url}
+                  href={url as string}
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
