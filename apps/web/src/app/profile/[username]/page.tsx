@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
 import { FavoritesSection, RecentActivitySection } from "@/components/profile/profile-overview";
 import { getProfileOverview } from "./queries";
@@ -9,6 +10,21 @@ export default async function ProfileOverviewPage({
   params: Promise<{ username: string }>;
 }) {
   const { username } = await params;
+
+  return (
+    <Suspense
+      fallback={
+        <div className="py-20 flex justify-center">
+          <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <OverviewContent username={username} />
+    </Suspense>
+  );
+}
+
+async function OverviewContent({ username }: { username: string }) {
   const { data: profile, error } = await getProfileOverview(username);
 
   if (error) return notFound();
