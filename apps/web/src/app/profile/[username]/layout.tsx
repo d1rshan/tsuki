@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { ProfileHeader } from "@/components/profile/profile-header";
+import { ProfileHeaderSkeleton } from "@/components/profile/profile-skeletons";
 import { auth } from "@/lib/auth";
 
 import { getProfileOverview } from "./queries";
@@ -18,13 +19,7 @@ export default async function ProfileLayout({
   return (
     <div className="min-h-screen py-10 md:py-16">
       <div className="max-w-5xl mx-auto px-4 md:px-6">
-        <Suspense
-          fallback={
-            <div className="h-64 md:h-80 w-full flex items-center justify-center">
-              <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-            </div>
-          }
-        >
+        <Suspense fallback={<ProfileHeaderSkeleton />}>
           <ProfileHeaderWrapper username={username} />
         </Suspense>
 
