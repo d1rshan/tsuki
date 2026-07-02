@@ -19,7 +19,7 @@ export function ProfileTabs() {
   ];
 
   return (
-    <div className="flex items-center gap-2 p-1.5 bg-muted/30 backdrop-blur-md border border-border/50 rounded-2xl w-fit shadow-sm">
+    <div className="flex items-center gap-2 p-1.5 bg-muted/30 backdrop-blur-md border border-border/50 rounded-2xl w-fit shadow-sm overflow-x-auto max-w-full">
       {tabs.map((tab) => {
         const isActive = pathname === tab.href;
         return (

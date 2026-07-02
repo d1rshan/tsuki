@@ -37,7 +37,7 @@ export function ProfileHeader({
 
       <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start px-2">
         {/* Avatar */}
-        <div className="relative -mt-16 md:-mt-20 ml-2 md:ml-6 shrink-0">
+        <div className="relative -mt-16 md:-mt-20 ml-2 md:ml-6 shrink-0 flex justify-between items-end md:block">
           <div className="w-24 h-24 md:w-32 md:h-32 relative rounded-full overflow-hidden ring-4 ring-background shadow-sm bg-muted border">
             {user.image ? (
               <Image
@@ -54,19 +54,27 @@ export function ProfileHeader({
               </div>
             )}
           </div>
+
+          {/* On mobile, put Edit Profile here next to avatar */}
+          {isOwner && (
+            <div className="md:hidden shrink-0 mb-2">
+              <EditProfileDialog profile={profile} />
+            </div>
+          )}
         </div>
 
         {/* Info */}
         <div className="flex-1 flex flex-col w-full pt-1">
-          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+          <div className="flex flex-row items-start justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground truncate">
                 {user.displayUsername || user.name}
               </h1>
-              <p className="text-primary font-medium text-sm mt-0.5">@{user.username}</p>
+              <p className="text-primary font-medium text-sm mt-0.5 truncate">@{user.username}</p>
             </div>
+            {/* On desktop, put Edit Profile here */}
             {isOwner && (
-              <div className="shrink-0">
+              <div className="hidden md:block shrink-0">
                 <EditProfileDialog profile={profile} />
               </div>
             )}
@@ -96,13 +104,20 @@ export function ProfileHeader({
             </div>
           )}
 
-          <div className="mt-8 mb-2">
+          {/* Mobile Stats (Rendered above tabs on small screens) */}
+          <div className="flex md:hidden flex-row flex-wrap gap-6 w-full pt-6">
+            <StatItem label="Anime" value={stats.totalAnime} />
+            <StatItem label="Episodes" value={stats.episodesWatched} />
+            <StatItem label="Mean Score" value={stats.meanScore.toFixed(1)} />
+          </div>
+
+          <div className="mt-8 mb-2 w-full">
             <ProfileTabs />
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="flex flex-row md:flex-col justify-start md:justify-center gap-6 md:gap-5 w-full md:w-auto md:min-w-[120px] pt-6 md:pt-2 shrink-0 md:border-l md:pl-6 border-border/50">
+        {/* Desktop Stats */}
+        <div className="hidden md:flex flex-col justify-start md:justify-center gap-5 md:min-w-[120px] pt-6 md:pt-2 shrink-0 border-l pl-6 border-border/50">
           <StatItem label="Anime" value={stats.totalAnime} />
           <StatItem label="Episodes" value={stats.episodesWatched} />
           <StatItem label="Mean Score" value={stats.meanScore.toFixed(1)} />
