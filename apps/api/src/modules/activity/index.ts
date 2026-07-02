@@ -10,6 +10,7 @@ import {
   ReviewResponseModel,
   UserOverviewResponseModel,
   UserActivityResponseModel,
+  UpdateProfileModel,
 } from "./model";
 
 export const activityRoutes = new Elysia({ prefix: "/users" })
@@ -210,13 +211,7 @@ export const activityRoutes = new Elysia({ prefix: "/users" })
     },
     {
       auth: true,
-      body: t.Object({
-        bio: t.Optional(t.Union([t.String(), t.Null()])),
-        bannerImage: t.Optional(t.Union([t.String(), t.Null()])),
-        accentColor: t.Optional(t.Union([t.String(), t.Null()])),
-        socialLinks: t.Optional(t.Union([t.Record(t.String(), t.String()), t.Null()])),
-        isPrivate: t.Optional(t.Boolean()),
-      }),
+      body: UpdateProfileModel,
       detail: {
         summary: "Update User Profile",
         description: "Updates the authenticated user's profile settings.",
