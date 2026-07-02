@@ -17,10 +17,14 @@ import { Edit2, Plus, Trash2, Loader2 } from "lucide-react";
 import type { UserOverview } from "@/lib/types";
 import { api } from "@/lib/api";
 
+import { useParams } from "next/navigation";
+import { updateProfile } from "./actions";
+
 type Profile = UserOverview["profile"];
 
 export function EditProfileDialog({ profile }: { profile: Profile }) {
-  const router = useRouter();
+  const params = useParams();
+  const username = params.username as string;
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [form, setForm] = useState({
@@ -44,16 +48,26 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
     const socialLinks = Object.fromEntries(form.socialLinks.filter(([, url]) => url));
 
     try {
-      await api.users["me"].profile.put({
-        bio: form.bio || null,
-        bannerImage: form.bannerImage || null,
-        accentColor: form.accentColor || null,
-        socialLinks: Object.keys(socialLinks).length ? socialLinks : null,
-      });
+      const res = await updateProfile(
+        {
+          bio: form.bio || null,
+          bannerImage: form.bannerImage || null,
+          accentColor: form.accentColor || null,
+          socialLinks: Object.keys(socialLinks).length ? socialLinks : null,
+        },
+        username,
+      );
+
+      if (!res.success) {
+        console.error(res.error);
+        alert(res.error); // Basic error handling, a toast would be better in a full app
+        return;
+      }
+
       setIsOpen(false);
-      router.refresh();
     } catch (error) {
       console.error("Failed to update profile", error);
+      alert("An unexpected error occurred.");
     } finally {
       setIsLoading(false);
     }

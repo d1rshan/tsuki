@@ -3,6 +3,7 @@ import { Suspense } from "react";
 
 import { ProfileTabs } from "@/components/profile/profile-tabs";
 import { ProfileHeader } from "@/components/profile/profile-header";
+import { auth } from "@/lib/auth";
 
 import { getProfileOverview } from "./queries";
 
@@ -37,8 +38,6 @@ export default async function ProfileLayout({
     </div>
   );
 }
-
-import { auth } from "@/lib/auth";
 
 async function ProfileHeaderWrapper({ username }: { username: string }) {
   const { data: profile, error } = await getProfileOverview(username);
