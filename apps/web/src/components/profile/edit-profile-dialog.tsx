@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useForm, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import {
   Dialog,
   DialogContent,
@@ -12,13 +15,29 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Edit2, Plus, Trash2, Loader2 } from "lucide-react";
 import type { UserOverview } from "@/lib/types";
-import { api } from "@/lib/api";
-
-import { useParams } from "next/navigation";
 import { updateProfile } from "./actions";
+import { FieldGroup, Field, FieldLabel, FieldError } from "@/components/ui/field";
+import { toast } from "sonner";
+
+const formSchema = z.object({
+  bio: z.string().max(500, "Bio must be at most 500 characters").optional(),
+  bannerImage: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  accentColor: z
+    .string()
+    .regex(/^#[0-9A-Fa-f]{6}$/, "Must be a valid hex color code")
+    .optional()
+    .or(z.literal("")),
+  socialLinks: z
+    .array(
+      z.object({
+        platform: z.string().min(1, "Platform is required"),
+        url: z.string().url("Must be a valid URL"),
+      }),
+    )
+    .optional(),
+});
 
 type Profile = UserOverview["profile"];
 
@@ -26,55 +45,78 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
   const params = useParams();
   const username = params.username as string;
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [form, setForm] = useState({
-    bio: profile?.bio || "",
-    bannerImage: profile?.bannerImage || "",
-    accentColor: profile?.accentColor || "#1f1f1f",
-    socialLinks: Object.entries(profile?.socialLinks ?? {}),
+
+  // Convert Record<string, string> to array for react-hook-form
+  const initialSocialLinks = Object.entries(profile?.socialLinks ?? {}).map(([platform, url]) => ({
+    platform,
+    url,
+  }));
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      bio: profile?.bio || "",
+      bannerImage: profile?.bannerImage || "",
+      accentColor: profile?.accentColor || "#1f1f1f",
+      socialLinks: initialSocialLinks,
+    },
   });
 
-  const update =
-    (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-      setForm((f) => ({ ...f, [field]: e.target.value }));
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "socialLinks",
+  });
 
-  const setSocialLinks = (fn: (links: [string, string][]) => [string, string][]) =>
-    setForm((f) => ({ ...f, socialLinks: fn(f.socialLinks) }));
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    const socialLinks = Object.fromEntries(form.socialLinks.filter(([, url]) => url));
-
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
+      const socialLinksRecord = values.socialLinks?.reduce(
+        (acc, curr) => {
+          if (curr.platform && curr.url) {
+            acc[curr.platform.toLowerCase()] = curr.url;
+          }
+          return acc;
+        },
+        {} as Record<string, string>,
+      );
+
       const res = await updateProfile(
         {
-          bio: form.bio || null,
-          bannerImage: form.bannerImage || null,
-          accentColor: form.accentColor || null,
-          socialLinks: Object.keys(socialLinks).length ? socialLinks : null,
+          bio: values.bio || null,
+          bannerImage: values.bannerImage || null,
+          accentColor: values.accentColor || null,
+          socialLinks: Object.keys(socialLinksRecord || {}).length ? socialLinksRecord! : null,
         },
         username,
       );
 
       if (!res.success) {
-        console.error(res.error);
-        alert(res.error); // Basic error handling, a toast would be better in a full app
+        toast.error(res.error);
         return;
       }
 
+      toast.success("Profile updated successfully");
       setIsOpen(false);
     } catch (error) {
-      console.error("Failed to update profile", error);
-      alert("An unexpected error occurred.");
-    } finally {
-      setIsLoading(false);
+      toast.error("An unexpected error occurred.");
+    }
+  }
+
+  // Handle dialog open state to reset form
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open) {
+      reset(); // Reset to default values when closed
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger
         render={
           <Button variant="outline" size="sm" className="gap-2 rounded-full">
@@ -88,105 +130,131 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
           <DialogTitle>Edit Profile</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6 mt-4">
-          <div className="space-y-2">
-            <Label htmlFor="bio">Bio</Label>
-            <Textarea
-              id="bio"
-              placeholder="Tell us about yourself..."
-              value={form.bio}
-              onChange={update("bio")}
-              className="resize-none"
-              rows={3}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="bannerImage">Banner Image URL</Label>
-            <Input
-              id="bannerImage"
-              type="url"
-              placeholder="https://example.com/banner.jpg"
-              value={form.bannerImage}
-              onChange={update("bannerImage")}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="accentColor">Accent Color</Label>
-            <div className="flex items-center gap-3">
-              <Input
-                id="accentColor"
-                type="color"
-                value={form.accentColor}
-                onChange={update("accentColor")}
-                className="w-12 h-12 p-1 cursor-pointer"
+        <form onSubmit={handleSubmit(onSubmit)} id="edit-profile-form" className="mt-4">
+          <FieldGroup>
+            <Field data-invalid={!!errors.bio}>
+              <FieldLabel htmlFor="bio">Bio</FieldLabel>
+              <Textarea
+                id="bio"
+                placeholder="Tell us about yourself..."
+                {...register("bio")}
+                className="resize-none"
+                rows={3}
+                aria-invalid={!!errors.bio}
+                disabled={isSubmitting}
               />
-              <Input
-                type="text"
-                value={form.accentColor}
-                onChange={update("accentColor")}
-                placeholder="#000000"
-                className="font-mono uppercase flex-1"
-                pattern="^#[0-9A-Fa-f]{6}$"
-              />
-            </div>
-          </div>
+              <FieldError errors={errors.bio ? [errors.bio] : []} />
+            </Field>
 
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label>Social Links</Label>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setSocialLinks((l) => [...l, ["", ""]])}
-              >
-                <Plus className="w-4 h-4 mr-1" /> Add Link
-              </Button>
-            </div>
-            {form.socialLinks.map(([platform, url], index) => (
-              <div key={index} className="flex items-center gap-2">
+            <Field data-invalid={!!errors.bannerImage}>
+              <FieldLabel htmlFor="bannerImage">Banner Image URL</FieldLabel>
+              <Input
+                id="bannerImage"
+                type="url"
+                placeholder="https://example.com/banner.jpg"
+                {...register("bannerImage")}
+                aria-invalid={!!errors.bannerImage}
+                disabled={isSubmitting}
+              />
+              <FieldError errors={errors.bannerImage ? [errors.bannerImage] : []} />
+            </Field>
+
+            <Field data-invalid={!!errors.accentColor}>
+              <FieldLabel htmlFor="accentColor">Accent Color</FieldLabel>
+              <div className="flex items-center gap-3">
                 <Input
-                  placeholder="Platform"
-                  value={platform}
-                  onChange={(e) =>
-                    setSocialLinks((l) =>
-                      l.map((link, i) => (i === index ? [e.target.value, link[1]] : link)),
-                    )
-                  }
-                  className="w-1/3"
+                  id="accentColorPicker"
+                  type="color"
+                  {...register("accentColor")}
+                  className="w-12 h-12 p-1 cursor-pointer"
+                  disabled={isSubmitting}
                 />
                 <Input
-                  placeholder="URL (e.g. https://x.com/...)"
-                  type="url"
-                  value={url}
-                  onChange={(e) =>
-                    setSocialLinks((l) =>
-                      l.map((link, i) => (i === index ? [link[0], e.target.value] : link)),
-                    )
-                  }
-                  className="flex-1"
+                  id="accentColor"
+                  type="text"
+                  placeholder="#000000"
+                  className="font-mono uppercase flex-1"
+                  {...register("accentColor")}
+                  aria-invalid={!!errors.accentColor}
+                  disabled={isSubmitting}
                 />
+              </div>
+              <FieldError errors={errors.accentColor ? [errors.accentColor] : []} />
+            </Field>
+
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center justify-between">
+                <FieldLabel className="mb-0">Social Links</FieldLabel>
                 <Button
                   type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="text-destructive"
-                  onClick={() => setSocialLinks((l) => l.filter((_, i) => i !== index))}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => append({ platform: "", url: "" })}
+                  disabled={isSubmitting}
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Plus className="w-4 h-4 mr-1" /> Add Link
                 </Button>
               </div>
-            ))}
-          </div>
 
-          <div className="flex justify-end gap-2 pt-4">
-            <Button type="button" variant="ghost" onClick={() => setIsOpen(false)}>
+              {fields.map((field, index) => (
+                <div key={field.id} className="flex items-start gap-2">
+                  <Field data-invalid={!!errors.socialLinks?.[index]?.platform} className="w-1/3">
+                    <Input
+                      placeholder="Platform"
+                      {...register(`socialLinks.${index}.platform`)}
+                      aria-invalid={!!errors.socialLinks?.[index]?.platform}
+                      disabled={isSubmitting}
+                    />
+                    <FieldError
+                      errors={
+                        errors.socialLinks?.[index]?.platform
+                          ? [errors.socialLinks?.[index]?.platform]
+                          : []
+                      }
+                    />
+                  </Field>
+                  <Field data-invalid={!!errors.socialLinks?.[index]?.url} className="flex-1">
+                    <Input
+                      placeholder="URL (e.g. https://x.com/...)"
+                      type="url"
+                      {...register(`socialLinks.${index}.url`)}
+                      aria-invalid={!!errors.socialLinks?.[index]?.url}
+                      disabled={isSubmitting}
+                    />
+                    <FieldError
+                      errors={
+                        errors.socialLinks?.[index]?.url ? [errors.socialLinks?.[index]?.url] : []
+                      }
+                    />
+                  </Field>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="text-destructive shrink-0 mt-0.5"
+                    onClick={() => remove(index)}
+                    disabled={isSubmitting}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </FieldGroup>
+
+          <div className="flex justify-end gap-2 pt-6">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setIsOpen(false)}
+              disabled={isSubmitting}
+            >
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+            <Button type="submit" form="edit-profile-form" disabled={isSubmitting}>
+              {isSubmitting && (
+                <Loader2 data-icon="inline-start" className="w-4 h-4 mr-2 animate-spin" />
+              )}
               Save Changes
             </Button>
           </div>

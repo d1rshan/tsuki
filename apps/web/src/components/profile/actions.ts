@@ -19,7 +19,7 @@ export async function updateProfile(
       return { success: false, error: "Failed to update profile. Please check your inputs." };
     }
 
-    revalidateTag(`profile-${username}`);
+    revalidateTag(`profile-${username}`, "max");
     return { success: true, error: null };
   } catch (error) {
     console.error("Failed to update profile", error);
