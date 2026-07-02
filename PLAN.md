@@ -30,12 +30,12 @@ READ THIS ENTIRE FILE AND AT END OF THIS FILE ADD TODOS FOR YOUR GUIDANCE AND TH
 
 ## TODOs
 
-- [ ] Analyze the current profile page code (pages, components, and layout).
-- [ ] Redo the profile page UI/UX entirely, removing all skeletons.
-- [ ] Ensure proper use of Suspense/PPR with Next.js 16 cache components (using 'use cache').
-- [ ] Group related components logically in `src/components/profile/*`, prioritizing readability without creating too many files.
-- [ ] Make checkpoints (commits) during the process.
-- [ ] Run the `requesting-code-review` skill against the `arc/dev` branch and address all issues.
-- [ ] Run the `simplify` skill on the profile components to ensure clean code.
-- [ ] Run the `ponytail-review` skill to check for over-engineering and apply recommendations.
-- [ ] Run a final code review using the `requesting-code-review` skill to finish off.
+- [x] Analyze the current profile page code (pages, components, and layout).
+- [x] Redo the profile page UI/UX entirely, removing all skeletons.
+- [x] Ensure proper use of Suspense/PPR with Next.js 16 cache components (using 'use cache').
+- [x] Group related components logically in `src/components/profile/*`, prioritizing readability without creating too many files.
+- [x] Make checkpoints (commits) during the process.
+- [x] Run the `requesting-code-review` skill against the `arc/dev` branch and address all issues.
+- [x] Run the `simplify` skill on the profile components to ensure clean code.
+- [x] Run the `ponytail-review` skill to check for over-engineering and apply recommendations.
+- [x] Run a final code review using the `requesting-code-review` skill to finish off.
