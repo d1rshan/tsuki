@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
-import { ProfileTabs } from "@/components/profile/profile-tabs";
 import { ProfileHeader } from "@/components/profile/profile-header";
 import { auth } from "@/lib/auth";
 
@@ -28,10 +27,6 @@ export default async function ProfileLayout({
         >
           <ProfileHeaderWrapper username={username} />
         </Suspense>
-
-        <div className="mt-6 mb-8">
-          <ProfileTabs />
-        </div>
 
         {children}
       </div>

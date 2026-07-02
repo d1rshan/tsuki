@@ -3,6 +3,7 @@ import type { UserOverview } from "@/lib/types";
 import { Link as LinkIcon } from "lucide-react";
 
 import { EditProfileDialog } from "./edit-profile-dialog";
+import { ProfileTabs } from "./profile-tabs";
 
 type User = UserOverview["user"];
 type Stats = UserOverview["stats"];
@@ -93,6 +94,10 @@ export function ProfileHeader({
               ))}
             </div>
           )}
+
+          <div className="mt-8 mb-2">
+            <ProfileTabs />
+          </div>
         </div>
 
         {/* Stats */}

@@ -18,27 +18,25 @@ export function ProfileTabs() {
   ];
 
   return (
-    <div className="flex justify-center w-full">
-      <div className="inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground">
-        {tabs.map((tab) => {
-          const isActive = pathname === tab.href;
-          return (
-            <Link
-              key={tab.name}
-              href={tab.href}
-              prefetch={true}
-              className={cn(
-                "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 md:px-8 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
-                isActive
-                  ? "bg-background text-foreground shadow"
-                  : "hover:text-foreground/80 hover:bg-muted/50",
-              )}
-            >
-              {tab.name}
-            </Link>
-          );
-        })}
-      </div>
+    <div className="flex items-center gap-2 p-1.5 bg-muted/30 backdrop-blur-md border border-border/50 rounded-2xl w-fit shadow-sm">
+      {tabs.map((tab) => {
+        const isActive = pathname === tab.href;
+        return (
+          <Link
+            key={tab.name}
+            href={tab.href}
+            prefetch={true}
+            className={cn(
+              "px-5 py-2 text-sm font-semibold transition-all duration-300 rounded-xl",
+              isActive
+                ? "bg-foreground text-background shadow-md"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+            )}
+          >
+            {tab.name}
+          </Link>
+        );
+      })}
     </div>
   );
 }
