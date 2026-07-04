@@ -5,11 +5,11 @@ import { type AnimeCompact } from "@/lib/types";
 
 import { useDebounce } from "./use-debounce";
 
-export function useAnimeSearch(query: string) {
+export function useAnimeSearch(query: string, includeNsfw: boolean = false) {
   const debouncedQuery = useDebounce(query, 250);
 
   const queryResult = useQuery({
-    queryKey: ["anime-search", debouncedQuery],
+    queryKey: ["anime-search", debouncedQuery, includeNsfw],
     queryFn: async () => {
       if (debouncedQuery.length === 0) return [];
 
@@ -17,7 +17,8 @@ export function useAnimeSearch(query: string) {
       //   api.anime.search.get({ query: { q: debouncedQuery } }),
       //   fetchAnimeSearch(debouncedQuery),
       // ]);
-      const anilistResult = await fetchAnimeSearch(debouncedQuery);
+
+      const anilistResult = await fetchAnimeSearch(debouncedQuery, includeNsfw ? undefined : false);
 
       const mergedAnime = new Map<number, AnimeCompact>();
 

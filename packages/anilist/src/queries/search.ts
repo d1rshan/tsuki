@@ -2,9 +2,9 @@ import { gql } from "graphql-request";
 import type { AnilistMedia } from "../types";
 
 export const SEARCH_ANIME_QUERY = gql`
-  query SearchAnime($search: String) {
+  query SearchAnime($search: String, $isAdult: Boolean) {
     Page(page: 1, perPage: 24) {
-      media(search: $search, type: ANIME, sort: SEARCH_MATCH) {
+      media(search: $search, type: ANIME, sort: SEARCH_MATCH, isAdult: $isAdult) {
         id
         title {
           romaji
