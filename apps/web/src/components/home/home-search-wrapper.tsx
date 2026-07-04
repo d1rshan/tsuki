@@ -17,11 +17,9 @@ export function HomeSearchWrapper({ children }: { children: ReactNode }) {
   const [includeNsfw, setIncludeNsfw] = useQueryState("nsfw", parseAsBoolean.withDefault(false));
   const searchQuery = query.trim();
 
-  const isSearching = searchQuery.length > 0;
-
   return (
     <div className="container mx-auto flex flex-col gap-12 px-4 pb-12 pt-24 md:gap-16 md:pb-24 md:pt-32">
-      {isSearching ? (
+      {searchQuery.length > 0 ? (
         <SearchResults
           searchQuery={searchQuery}
           includeNsfw={includeNsfw}
@@ -73,7 +71,7 @@ function SearchResults({
         </div>
       </div>
 
-      {isLoading ? (
+      {isLoading || (animes.length === 0 && isPending) ? (
         <Loader variant="inline" className="h-64" />
       ) : isError ? (
         <ErrorState message="Failed to search anime" description="Please try again in a moment." />
@@ -82,8 +80,6 @@ function SearchResults({
           title="No results found"
           description={`We couldn't find anything for "${searchQuery}".`}
         />
-      ) : animes.length === 0 && isPending ? (
-        <Loader variant="inline" className="h-64" />
       ) : (
         <div className="relative">
           <div
