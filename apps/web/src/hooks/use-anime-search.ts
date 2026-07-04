@@ -18,7 +18,7 @@ export function useAnimeSearch(query: string, includeNsfw: boolean = false) {
       //   fetchAnimeSearch(debouncedQuery),
       // ]);
 
-      const anilistResult = await fetchAnimeSearch(debouncedQuery, includeNsfw ? undefined : false);
+      const anilistResult = await fetchAnimeSearch(debouncedQuery, includeNsfw);
 
       const mergedAnime = new Map<number, AnimeCompact>();
 

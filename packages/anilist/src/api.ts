@@ -8,11 +8,9 @@ import { toAnimeRow, toAnimeCompactRow } from "./mappers";
  * Searches AniList for anime matching the query string.
  * Returns an array of formatted Anime rows.
  */
-export async function fetchAnimeSearch(query: string, isAdult?: boolean) {
-  const data = await anilistClient.request<AnilistSearchResponse>(SEARCH_ANIME_QUERY, {
-    search: query,
-    isAdult,
-  });
+export async function fetchAnimeSearch(query: string, includeNsfw: boolean = false) {
+  const variables = includeNsfw ? { search: query } : { search: query, isAdult: false };
+  const data = await anilistClient.request<AnilistSearchResponse>(SEARCH_ANIME_QUERY, variables);
 
   if (!data.Page?.media) return [];
 
