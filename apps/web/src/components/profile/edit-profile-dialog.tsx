@@ -179,7 +179,10 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
                   type="color"
                   value={accentColorValue || "#000000"}
                   onChange={(e) =>
-                    setValue("accentColor", e.target.value, { shouldValidate: true })
+                    setValue("accentColor", e.target.value, {
+                      shouldValidate: true,
+                      shouldDirty: true,
+                    })
                   }
                   className="w-12 h-12 p-1 cursor-pointer"
                   disabled={isSubmitting}
@@ -189,13 +192,7 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
                   type="text"
                   placeholder="#000000"
                   className="font-mono uppercase flex-1"
-                  value={accentColorValue || ""}
-                  onChange={(e) =>
-                    setValue("accentColor", e.target.value, {
-                      shouldValidate: true,
-                      shouldDirty: true,
-                    })
-                  }
+                  {...register("accentColor")}
                   aria-invalid={!!errors.accentColor}
                   disabled={isSubmitting}
                 />

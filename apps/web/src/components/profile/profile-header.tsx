@@ -94,7 +94,7 @@ export function ProfileHeader({
                   key={platform}
                   href={url as string}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
                 >
                   <LinkIcon className="w-4 h-4" />

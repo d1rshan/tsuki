@@ -21,7 +21,7 @@ export const updateUserProfile = async (
     })
     .onConflictDoUpdate({
       target: userProfile.userId,
-      set: data,
+      set: { ...data, updatedAt: new Date() },
     })
     .returning();
 };
