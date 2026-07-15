@@ -61,9 +61,9 @@ export const UserActivityResponseModel = t.Object({
 });
 
 export const ProfileModel = t.Object({
-  bio: t.Nullable(t.String()),
-  bannerImage: t.Nullable(t.String()),
-  accentColor: t.Nullable(t.String()),
+  bio: t.Nullable(t.String({ maxLength: 500 })),
+  bannerImage: t.Nullable(t.String({ pattern: "^https?://" })),
+  accentColor: t.Nullable(t.String({ pattern: "^#[0-9a-fA-F]{6}$" })),
   socialLinks: t.Nullable(t.Record(t.String(), t.String({ pattern: "^https?://" }))),
 });
 
