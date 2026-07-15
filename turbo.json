@@ -11,11 +11,18 @@
   ],
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**"
+      ]
     },
     "typecheck": {
-      "dependsOn": ["^typecheck"]
+      "dependsOn": [
+        "^typecheck"
+      ]
     },
     "//#lint:check": {},
     "//#lint:fix": {
@@ -34,8 +41,11 @@
       "persistent": true
     },
     "db:push": {
-      "env": ["DATABASE_URL"],
-      "cache": false
+      "env": [
+        "DATABASE_URL"
+      ],
+      "cache": false,
+      "interactive": true
     },
     "db:studio": {
       "cache": false
