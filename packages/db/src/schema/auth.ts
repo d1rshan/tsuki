@@ -30,7 +30,6 @@ export const userProfile = pgTable("user_profile", {
   bannerImage: text("banner_image"),
   accentColor: text("accent_color"),
   socialLinks: jsonb("social_links").$type<Record<string, string>>().default({}),
-  isPrivate: boolean("is_private").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()

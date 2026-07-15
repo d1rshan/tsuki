@@ -10,7 +10,6 @@ export const updateUserProfile = async (
     bannerImage?: string | null;
     accentColor?: string | null;
     socialLinks?: Record<string, string> | null;
-    isPrivate?: boolean;
   },
 ) => {
   return db

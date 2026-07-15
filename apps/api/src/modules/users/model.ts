@@ -65,7 +65,6 @@ export const ProfileModel = t.Object({
   bannerImage: t.Nullable(t.String()),
   accentColor: t.Nullable(t.String()),
   socialLinks: t.Nullable(t.Record(t.String(), t.String())),
-  isPrivate: t.Boolean(),
 });
 
 export const UpdateProfileModel = t.Partial(ProfileModel);
