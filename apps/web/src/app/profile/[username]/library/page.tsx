@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 
 import { LibrarySection } from "@/components/profile/profile-library";
 import { getProfileLibrary } from "../queries";
@@ -10,21 +9,6 @@ export default async function ProfileLibraryPage({
   params: Promise<{ username: string }>;
 }) {
   const { username } = await params;
-
-  return (
-    <Suspense
-      fallback={
-        <div className="py-20 flex justify-center">
-          <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-        </div>
-      }
-    >
-      <LibraryContent username={username} />
-    </Suspense>
-  );
-}
-
-async function LibraryContent({ username }: { username: string }) {
   const { data: library, error } = await getProfileLibrary(username);
 
   if (error) {
