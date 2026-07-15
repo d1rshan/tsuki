@@ -64,7 +64,7 @@ export const ProfileModel = t.Object({
   bio: t.Nullable(t.String()),
   bannerImage: t.Nullable(t.String()),
   accentColor: t.Nullable(t.String()),
-  socialLinks: t.Nullable(t.Record(t.String(), t.String())),
+  socialLinks: t.Nullable(t.Record(t.String(), t.String({ pattern: "^https?://" }))),
 });
 
 export const UpdateProfileModel = t.Partial(ProfileModel);
