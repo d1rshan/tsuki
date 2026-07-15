@@ -30,6 +30,9 @@
     "*.{js,ts,jsx,tsx,mjs,cjs}": [
       "oxlint",
       "oxfmt --write"
+    ],
+    "*.{json,md,css}": [
+      "oxfmt --write"
     ]
   },
   "packageManager": "bun@1.3.13"

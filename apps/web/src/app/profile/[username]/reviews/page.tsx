@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+
 import { ReviewItem } from "@/components/profile/profile-reviews";
 import { getProfileReviews } from "../queries";
 
@@ -15,8 +16,8 @@ export default async function ProfileReviewsPage({
   }
 
   return (
-    <div className="max-w-3xl space-y-12 pb-16">
-      <h2 className="text-2xl font-bold tracking-tight mb-8">Reviews</h2>
+    <div className="max-w-3xl space-y-8 pb-16">
+      <h2 className="text-2xl font-bold tracking-tight">Reviews</h2>
 
       {reviews.length === 0 && (
         <div className="text-center py-20 text-muted-foreground">

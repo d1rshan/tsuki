@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+
 import { LibrarySection } from "@/components/profile/profile-library";
 import { getProfileLibrary } from "../queries";
 

@@ -1,5 +1,6 @@
 import { Elysia, t, status as error } from "elysia";
-import { activityDal, userDal } from "@tsuki/db";
+
+import { activityDal, userDal, profileDal } from "@tsuki/db";
 
 import { authPlugin } from "../../auth-plugin";
 
@@ -10,9 +11,10 @@ import {
   ReviewResponseModel,
   UserOverviewResponseModel,
   UserActivityResponseModel,
+  UpdateProfileModel,
 } from "./model";
 
-export const activityRoutes = new Elysia({ prefix: "/users" })
+export const userRoutes = new Elysia({ prefix: "/users" })
   .use(authPlugin)
   // --- PUBLIC ROUTES (Read-only) ---
   .get(
@@ -59,9 +61,10 @@ export const activityRoutes = new Elysia({ prefix: "/users" })
       const user = await userDal.getUserByUsername(username);
       if (!user) return error(404, { success: false, error: "User not found" });
 
-      const [library, reviews] = await Promise.all([
+      const [library, reviews, profile] = await Promise.all([
         activityDal.getUserLibrary(user.id),
         activityDal.getUserReviews(user.id),
+        profileDal.getProfileByUserId(user.id),
       ]);
 
       const favorites = library.filter((entry) => entry.isFavorite);
@@ -84,6 +87,7 @@ export const activityRoutes = new Elysia({ prefix: "/users" })
           image: user.image,
           createdAt: user.createdAt,
         },
+        profile: profile || null,
         stats: {
           totalAnime: library.length,
           episodesWatched,
@@ -198,5 +202,20 @@ export const activityRoutes = new Elysia({ prefix: "/users" })
         500: t.String(),
       },
       detail: { summary: "Submit Review" },
+    },
+  )
+  .put(
+    "/me/profile",
+    async ({ body, user }) => {
+      const updatedProfile = await profileDal.updateUserProfile(user.id, body);
+      return { success: true, profile: updatedProfile[0] };
+    },
+    {
+      auth: true,
+      body: UpdateProfileModel,
+      detail: {
+        summary: "Update User Profile",
+        description: "Updates the authenticated user's profile settings.",
+      },
     },
   );

@@ -60,6 +60,15 @@ export const UserActivityResponseModel = t.Object({
   review: t.Nullable(ReviewResponseModel),
 });
 
+export const ProfileModel = t.Object({
+  bio: t.Nullable(t.String({ maxLength: 500 })),
+  bannerImage: t.Nullable(t.String({ pattern: "^https?://" })),
+  accentColor: t.Nullable(t.String({ pattern: "^#[0-9a-fA-F]{6}$" })),
+  socialLinks: t.Nullable(t.Record(t.String(), t.String({ pattern: "^https?://" }))),
+});
+
+export const UpdateProfileModel = t.Partial(ProfileModel);
+
 export const UserOverviewResponseModel = t.Object({
   user: t.Object({
     id: t.String(),
@@ -69,6 +78,7 @@ export const UserOverviewResponseModel = t.Object({
     image: t.Nullable(t.String()),
     createdAt: t.Date(),
   }),
+  profile: t.Nullable(ProfileModel),
   stats: t.Object({
     totalAnime: t.Number(),
     episodesWatched: t.Number(),
