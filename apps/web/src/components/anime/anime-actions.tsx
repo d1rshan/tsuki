@@ -165,8 +165,21 @@ function LogAnimeDialog({
     }
   };
 
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (newOpen) {
+      setForm({
+        status: (entry?.status as WatchStatus) || "PLAN_TO_WATCH",
+        episodes: entry?.episodesWatched || 0,
+        rating: entry?.rating || 0,
+        reviewContent: review?.content || "",
+        containsSpoilers: review?.containsSpoilers || false,
+      });
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger
         onClick={handleOpenClick}
         render={
