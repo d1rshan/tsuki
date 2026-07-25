@@ -72,7 +72,7 @@ export function AnimeDetails({ anime }: { anime: Anime }) {
         )}
         <div className="pt-4 border-t">
           <Suspense fallback={<AnimeActionsSkeleton />}>
-            <AnimeActions animeId={anime.id} />
+            <AnimeActions animeId={anime.id} totalEpisodes={anime.episodes} />
           </Suspense>
         </div>
       </div>

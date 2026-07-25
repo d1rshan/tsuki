@@ -39,7 +39,23 @@ const WATCH_STATUSES: { value: WatchStatus; label: string }[] = [
   { value: "DROPPED", label: "Dropped" },
 ];
 
-export function AnimeActions({ animeId }: { animeId: number }) {
+function clampEpisodes(value: number, totalEpisodes?: number | null) {
+  const normalizedValue = Number.isNaN(value) ? 0 : Math.max(0, value);
+
+  if (typeof totalEpisodes !== "number" || totalEpisodes <= 0) {
+    return normalizedValue;
+  }
+
+  return Math.min(normalizedValue, totalEpisodes);
+}
+
+export function AnimeActions({
+  animeId,
+  totalEpisodes,
+}: {
+  animeId: number;
+  totalEpisodes?: number | null;
+}) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { data: session, isPending: isSessionPending } = useSession();
@@ -85,6 +101,7 @@ export function AnimeActions({ animeId }: { animeId: number }) {
         disabled={isLoading}
         isFavorite={entry?.isFavorite ?? false}
         isAuthenticated={isAuthenticated}
+        totalEpisodes={totalEpisodes}
       />
       <FavoriteButton
         isFavorite={entry?.isFavorite ?? false}
@@ -104,6 +121,7 @@ function LogAnimeDialog({
   disabled,
   isFavorite,
   isAuthenticated,
+  totalEpisodes,
 }: {
   animeId: number;
   entry: LibraryEntry | null;
@@ -113,13 +131,15 @@ function LogAnimeDialog({
   disabled?: boolean;
   isFavorite: boolean;
   isAuthenticated: boolean;
+  totalEpisodes?: number | null;
 }) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const initialEpisodes = entry?.episodesWatched?.toString() ?? "";
 
   const [form, setForm] = useState({
     status: (entry?.status as WatchStatus) || "PLAN_TO_WATCH",
-    episodes: entry?.episodesWatched || 0,
+    episodes: initialEpisodes,
     rating: entry?.rating || 0,
     reviewContent: review?.content || "",
     containsSpoilers: review?.containsSpoilers || false,
@@ -140,7 +160,7 @@ function LogAnimeDialog({
       await logAnimeAction(animeId, {
         status: form.status,
         rating: form.rating > 0 ? form.rating : undefined,
-        episodesWatched: form.episodes,
+        episodesWatched: clampEpisodes(parseInt(form.episodes, 10) || 0, totalEpisodes),
         isFavorite,
       });
 
@@ -170,7 +190,7 @@ function LogAnimeDialog({
     if (newOpen) {
       setForm({
         status: (entry?.status as WatchStatus) || "PLAN_TO_WATCH",
-        episodes: entry?.episodesWatched || 0,
+        episodes: entry?.episodesWatched?.toString() ?? "",
         rating: entry?.rating || 0,
         reviewContent: review?.content || "",
         containsSpoilers: review?.containsSpoilers || false,
@@ -201,6 +221,7 @@ function LogAnimeDialog({
           <StatusSection value={form.status} onChange={(val) => updateForm({ status: val })} />
           <EpisodesSection
             value={form.episodes}
+            totalEpisodes={totalEpisodes}
             onChange={(val) => updateForm({ episodes: val })}
           />
           <RatingSection value={form.rating} onChange={(val) => updateForm({ rating: val })} />
@@ -257,21 +278,42 @@ function StatusSection({
   );
 }
 
-function EpisodesSection({ value, onChange }: { value: number; onChange: (val: number) => void }) {
+function EpisodesSection({
+  value,
+  totalEpisodes,
+  onChange,
+}: {
+  value: string;
+  totalEpisodes?: number | null;
+  onChange: (val: string) => void;
+}) {
+  const hasEpisodeLimit = typeof totalEpisodes === "number" && totalEpisodes > 0;
+  const inputMax = hasEpisodeLimit ? totalEpisodes : undefined;
+
   return (
     <div className="grid grid-cols-4 items-center gap-4">
       <Label className="text-right text-muted-foreground">Episodes</Label>
-      <div className="col-span-3 flex items-center gap-2">
+      <div className="col-span-3 flex flex-wrap items-center gap-2">
         <Input
           type="number"
           min={0}
+          max={inputMax}
           value={value}
-          onChange={(e) => onChange(parseInt(e.target.value) || 0)}
+          onChange={(e) => {
+            const nextValue = e.target.value;
+
+            if (nextValue === "") {
+              onChange("");
+              return;
+            }
+
+            onChange(clampEpisodes(parseInt(nextValue, 10) || 0, totalEpisodes).toString());
+          }}
           className="w-24 bg-background/50"
         />
-        <Button variant="outline" size="sm" onClick={() => onChange(value + 1)}>
-          +
-        </Button>
+        {hasEpisodeLimit && (
+          <span className="text-sm text-muted-foreground">/ {totalEpisodes}</span>
+        )}
       </div>
     </div>
   );
