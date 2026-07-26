@@ -185,12 +185,11 @@ function NavbarLinks({
 
   return (
     <>
-      <LinkComponent href="/" isActive={pathname === "/" || pathname.includes("anime")}>
+      <LinkComponent
+        href="/"
+        isActive={pathname === "/" || pathname.includes("anime") || pathname.includes("manga")}
+      >
         Discover
-      </LinkComponent>
-
-      <LinkComponent href="/manga" isActive={!!pathname?.startsWith("/manga")}>
-        Manga
       </LinkComponent>
 
       {username && (

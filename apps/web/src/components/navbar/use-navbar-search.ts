@@ -1,15 +1,18 @@
 import { useState, useCallback } from "react";
-import { useQueryState } from "nuqs";
+import { useQueryState, parseAsStringEnum } from "nuqs";
 import { usePathname } from "next/navigation";
 import { useHotkey } from "@/hooks/use-hotkey";
+import type { MediaType } from "@/components/media-type-toggle";
 
 export function useNavbarSearch() {
   const pathname = usePathname();
-  const isHomePage = pathname === "/";
-  const isMangaPage = pathname === "/manga";
-  const isSearchablePage = isHomePage || isMangaPage;
+  const isSearchablePage = pathname === "/";
 
   const [query, setQuery] = useQueryState("q", { defaultValue: "" });
+  const [mediaType] = useQueryState(
+    "type",
+    parseAsStringEnum<MediaType>(["anime", "manga"]).withDefault("anime"),
+  );
 
   // Track intentional manual opening
   const [isUserOpen, setIsUserOpen] = useState(false);
@@ -45,6 +48,6 @@ export function useNavbarSearch() {
     openSearch: () => setIsUserOpen(true),
     closeSearch,
     isSearchablePage,
-    mediaType: isMangaPage ? ("manga" as const) : ("anime" as const),
+    mediaType,
   };
 }

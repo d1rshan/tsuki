@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { LibrarySection, MangaLibrarySection } from "@/components/profile/profile-library";
+import { ProfileMediaToggle } from "@/components/profile/profile-media-toggle";
 import { getProfileLibrary, getProfileMangaLibrary } from "../queries";
 
 export default async function ProfileLibraryPage({
@@ -17,63 +18,43 @@ export default async function ProfileLibraryPage({
   }
 
   // Group by status
-  const watching = library.filter((e) => e.status === "WATCHING");
-  const completed = library.filter((e) => e.status === "COMPLETED");
-  const planToWatch = library.filter((e) => e.status === "PLAN_TO_WATCH");
-  const paused = library.filter((e) => e.status === "PAUSED");
-  const dropped = library.filter((e) => e.status === "DROPPED");
-
   const sections = [
-    { title: "Watching", entries: watching },
-    { title: "Completed", entries: completed },
-    { title: "Plan to Watch", entries: planToWatch },
-    { title: "Paused", entries: paused },
-    { title: "Dropped", entries: dropped },
+    { title: "Watching", entries: library.filter((e) => e.status === "WATCHING") },
+    { title: "Completed", entries: library.filter((e) => e.status === "COMPLETED") },
+    { title: "Plan to Watch", entries: library.filter((e) => e.status === "PLAN_TO_WATCH") },
+    { title: "Paused", entries: library.filter((e) => e.status === "PAUSED") },
+    { title: "Dropped", entries: library.filter((e) => e.status === "DROPPED") },
   ];
-
-  const reading = mangaLibrary.filter((e) => e.status === "READING");
-  const mangaCompleted = mangaLibrary.filter((e) => e.status === "COMPLETED");
-  const planToRead = mangaLibrary.filter((e) => e.status === "PLAN_TO_READ");
-  const mangaPaused = mangaLibrary.filter((e) => e.status === "PAUSED");
-  const mangaDropped = mangaLibrary.filter((e) => e.status === "DROPPED");
 
   const mangaSections = [
-    { title: "Reading", entries: reading },
-    { title: "Completed", entries: mangaCompleted },
-    { title: "Plan to Read", entries: planToRead },
-    { title: "Paused", entries: mangaPaused },
-    { title: "Dropped", entries: mangaDropped },
+    { title: "Reading", entries: mangaLibrary.filter((e) => e.status === "READING") },
+    { title: "Completed", entries: mangaLibrary.filter((e) => e.status === "COMPLETED") },
+    { title: "Plan to Read", entries: mangaLibrary.filter((e) => e.status === "PLAN_TO_READ") },
+    { title: "Paused", entries: mangaLibrary.filter((e) => e.status === "PAUSED") },
+    { title: "Dropped", entries: mangaLibrary.filter((e) => e.status === "DROPPED") },
   ];
 
-  return (
-    <div>
-      {library.length === 0 && mangaLibrary.length === 0 && (
-        <div className="text-center py-20 text-muted-foreground">
-          <p>This user's library is empty.</p>
-        </div>
-      )}
+  const animeContent =
+    library.length === 0 ? (
+      <div className="text-center py-20 text-muted-foreground">
+        <p>This user's anime library is empty.</p>
+      </div>
+    ) : (
+      sections.map((section) => (
+        <LibrarySection key={section.title} title={section.title} entries={section.entries} />
+      ))
+    );
 
-      {library.length > 0 && (
-        <div className="mb-4">
-          <h2 className="text-3xl font-black uppercase tracking-tight mb-6">Anime</h2>
-          {sections.map((section) => (
-            <LibrarySection key={section.title} title={section.title} entries={section.entries} />
-          ))}
-        </div>
-      )}
+  const mangaContent =
+    mangaLibrary.length === 0 ? (
+      <div className="text-center py-20 text-muted-foreground">
+        <p>This user's manga library is empty.</p>
+      </div>
+    ) : (
+      mangaSections.map((section) => (
+        <MangaLibrarySection key={section.title} title={section.title} entries={section.entries} />
+      ))
+    );
 
-      {mangaLibrary.length > 0 && (
-        <div>
-          <h2 className="text-3xl font-black uppercase tracking-tight mb-6">Manga</h2>
-          {mangaSections.map((section) => (
-            <MangaLibrarySection
-              key={section.title}
-              title={section.title}
-              entries={section.entries}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
+  return <ProfileMediaToggle anime={animeContent} manga={mangaContent} />;
 }
