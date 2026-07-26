@@ -6,6 +6,8 @@ import { useHotkey } from "@/hooks/use-hotkey";
 export function useNavbarSearch() {
   const pathname = usePathname();
   const isHomePage = pathname === "/";
+  const isMangaPage = pathname === "/manga";
+  const isSearchablePage = isHomePage || isMangaPage;
 
   const [query, setQuery] = useQueryState("q", { defaultValue: "" });
 
@@ -13,7 +15,7 @@ export function useNavbarSearch() {
   const [isUserOpen, setIsUserOpen] = useState(false);
 
   // Derived state: perfectly in sync without useEffect!
-  const isOpen = isHomePage && (isUserOpen || query.length > 0);
+  const isOpen = isSearchablePage && (isUserOpen || query.length > 0);
 
   const closeSearch = useCallback(() => {
     setIsUserOpen(false);
@@ -29,7 +31,7 @@ export function useNavbarSearch() {
   }, [isOpen, closeSearch]);
 
   useHotkey("mod+k", () => {
-    if (isHomePage) toggleSearch();
+    if (isSearchablePage) toggleSearch();
   });
 
   useHotkey("escape", () => {
@@ -42,6 +44,7 @@ export function useNavbarSearch() {
     isOpen,
     openSearch: () => setIsUserOpen(true),
     closeSearch,
-    isHomePage,
+    isSearchablePage,
+    mediaType: isMangaPage ? ("manga" as const) : ("anime" as const),
   };
 }

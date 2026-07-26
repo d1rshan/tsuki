@@ -44,4 +44,32 @@ export async function getProfileReviews(username: string) {
   return { data: res.data, error: null, status: res.status } as const;
 }
 
+export async function getProfileMangaLibrary(username: string) {
+  "use cache";
+  cacheTag(`profile-${username}`, `profile-${username}-manga-library`, "profile");
+  cacheLife("max");
+
+  const res = await api.users({ username })["manga-library"].get();
+
+  if (res.error) {
+    return { data: null, error: res.error, status: res.status } as const;
+  }
+
+  return { data: res.data, error: null, status: res.status } as const;
+}
+
+export async function getProfileMangaReviews(username: string) {
+  "use cache";
+  cacheTag(`profile-${username}`, `profile-${username}-manga-reviews`, "profile");
+  cacheLife("max");
+
+  const res = await api.users({ username })["manga-reviews"].get();
+
+  if (res.error) {
+    return { data: null, error: res.error, status: res.status } as const;
+  }
+
+  return { data: res.data, error: null, status: res.status } as const;
+}
+
 // TODO: not sure about this data fetching pattern

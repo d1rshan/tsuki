@@ -3,20 +3,38 @@ import Link from "next/link";
 import { Star } from "lucide-react";
 
 import { formatEnum } from "@/lib/utils";
-import type { LibraryEntry } from "@/lib/types";
+import type { LibraryEntry, MangaLibraryEntry } from "@/lib/types";
 import { getAnimeCoverImage, getAnimeTitle } from "@/lib/anime";
+import { getMangaCoverImage, getMangaTitle } from "@/lib/manga";
 import { ProfileAnimeCard } from "@/components/profile/profile-anime-card";
+import { ProfileMangaCard } from "@/components/profile/profile-manga-card";
 
 export function FavoritesSection({ favorites }: { favorites: LibraryEntry[] }) {
   if (favorites.length === 0) return null;
 
   return (
     <section className="space-y-6">
-      <h2 className="text-2xl font-bold tracking-tight">Favorites</h2>
+      <h2 className="text-2xl font-bold tracking-tight">Anime Favorites</h2>
       <div className="grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
         {favorites.map((entry) => {
           if (!entry.anime) return null;
           return <ProfileAnimeCard key={entry.animeId} anime={entry.anime} />;
+        })}
+      </div>
+    </section>
+  );
+}
+
+export function MangaFavoritesSection({ favorites }: { favorites: MangaLibraryEntry[] }) {
+  if (favorites.length === 0) return null;
+
+  return (
+    <section className="space-y-6">
+      <h2 className="text-2xl font-bold tracking-tight">Manga Favorites</h2>
+      <div className="grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
+        {favorites.map((entry) => {
+          if (!entry.manga) return null;
+          return <ProfileMangaCard key={entry.mangaId} manga={entry.manga} />;
         })}
       </div>
     </section>
@@ -33,7 +51,7 @@ export function RecentActivitySection({
   return (
     <section className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold tracking-tight">Recent Activity</h2>
+        <h2 className="text-2xl font-bold tracking-tight">Recent Anime Activity</h2>
         <Link
           href={`/profile/${username}/library`}
           className="group flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
@@ -53,6 +71,85 @@ export function RecentActivitySection({
         )}
       </div>
     </section>
+  );
+}
+
+export function RecentMangaActivitySection({
+  recentLogs,
+  username,
+}: {
+  recentLogs: MangaLibraryEntry[];
+  username: string;
+}) {
+  return (
+    <section className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold tracking-tight">Recent Manga Activity</h2>
+        <Link
+          href={`/profile/${username}/library`}
+          className="group flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+        >
+          View Library
+          <span className="transition-transform group-hover:translate-x-1">&rarr;</span>
+        </Link>
+      </div>
+
+      <div className="grid gap-x-12 gap-y-8 md:grid-cols-2">
+        {recentLogs.length > 0 ? (
+          recentLogs.map((entry) => <RecentMangaLogItem key={entry.mangaId} entry={entry} />)
+        ) : (
+          <div className="col-span-full py-12 text-center text-sm font-medium text-muted-foreground">
+            No recent activity.
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function RecentMangaLogItem({ entry }: { entry: MangaLibraryEntry }) {
+  if (!entry.manga) return null;
+
+  const cover = getMangaCoverImage(entry.manga);
+  const title = getMangaTitle(entry.manga);
+
+  return (
+    <Link
+      href={`/manga/${entry.mangaId}`}
+      className="group flex items-start gap-4 p-2 -m-2 rounded-2xl transition-colors hover:bg-muted/50"
+    >
+      <div className="relative w-16 aspect-[3/4] shrink-0 overflow-hidden rounded-lg bg-muted shadow-sm transition-transform duration-500 group-hover:shadow-md group-hover:scale-105">
+        {cover ? (
+          <Image src={cover} alt={title} fill sizes="64px" className="object-cover" />
+        ) : (
+          <div className="h-full w-full bg-gradient-to-br from-muted to-muted/50" />
+        )}
+      </div>
+      <div className="flex flex-1 flex-col py-1">
+        <h3 className="line-clamp-2 text-base font-semibold text-foreground/90 transition-colors group-hover:text-primary">
+          {title}
+        </h3>
+
+        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-medium text-muted-foreground">
+          {entry.status && (
+            <span className="capitalize text-foreground/70">{formatEnum(entry.status)}</span>
+          )}
+          {entry.chaptersRead > 0 && (
+            <span className="flex items-center gap-1.5">
+              <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
+              Ch {entry.chaptersRead}
+            </span>
+          )}
+          {entry.rating && (
+            <span className="flex items-center gap-1 text-amber-500">
+              <span className="w-1 h-1 rounded-full bg-muted-foreground/30 text-muted-foreground" />
+              <Star className="ml-1.5 h-3.5 w-3.5 fill-current" />
+              {entry.rating}
+            </span>
+          )}
+        </div>
+      </div>
+    </Link>
   );
 }
 

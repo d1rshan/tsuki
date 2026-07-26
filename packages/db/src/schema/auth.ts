@@ -1,7 +1,7 @@
 import { relations } from "drizzle-orm";
 import { pgTable, text, timestamp, boolean, index, jsonb } from "drizzle-orm/pg-core";
 
-import { userAnimeLibrary, userReviews } from "./activity";
+import { userAnimeLibrary, userReviews, userMangaLibrary, userMangaReviews } from "./activity";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -101,6 +101,8 @@ export const userRelations = relations(user, ({ many, one }) => ({
   accounts: many(account),
   libraryEntries: many(userAnimeLibrary),
   reviews: many(userReviews),
+  mangaLibraryEntries: many(userMangaLibrary),
+  mangaReviews: many(userMangaReviews),
   profile: one(userProfile, {
     fields: [user.id],
     references: [userProfile.userId],

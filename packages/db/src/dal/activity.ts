@@ -1,10 +1,12 @@
 import { eq, and } from "drizzle-orm";
 
 import { db } from "../db";
-import { userAnimeLibrary, userReviews } from "../schema";
+import { userAnimeLibrary, userReviews, userMangaLibrary, userMangaReviews } from "../schema";
 
 type InsertLibraryEntry = typeof userAnimeLibrary.$inferInsert;
 type InsertReview = typeof userReviews.$inferInsert;
+type InsertMangaLibraryEntry = typeof userMangaLibrary.$inferInsert;
+type InsertMangaReview = typeof userMangaReviews.$inferInsert;
 
 export const upsertLibraryEntry = async (entry: InsertLibraryEntry) => {
   const [result] = await db
@@ -81,6 +83,100 @@ export const getUserReviews = async (userId: string) => {
     where: eq(userReviews.userId, userId),
     with: {
       anime: {
+        columns: {
+          id: true,
+          titleRomaji: true,
+          titleEnglish: true,
+          titleNative: true,
+          coverImageExtraLarge: true,
+          coverImageLarge: true,
+          coverImageColor: true,
+        },
+      },
+    },
+    orderBy: (reviews, { desc }) => [desc(reviews.createdAt)],
+  });
+};
+
+export const upsertMangaLibraryEntry = async (entry: InsertMangaLibraryEntry) => {
+  const [result] = await db
+    .insert(userMangaLibrary)
+    .values(entry)
+    .onConflictDoUpdate({
+      target: [userMangaLibrary.userId, userMangaLibrary.mangaId],
+      set: {
+        status: entry.status,
+        rating: entry.rating,
+        chaptersRead: entry.chaptersRead,
+        isFavorite: entry.isFavorite,
+      },
+    })
+    .returning();
+  return result;
+};
+
+export const deleteMangaLibraryEntry = async (userId: string, mangaId: number) => {
+  return db
+    .delete(userMangaLibrary)
+    .where(and(eq(userMangaLibrary.userId, userId), eq(userMangaLibrary.mangaId, mangaId)));
+};
+
+export const getUserMangaLibrary = async (userId: string) => {
+  return db.query.userMangaLibrary.findMany({
+    where: eq(userMangaLibrary.userId, userId),
+    with: {
+      manga: {
+        columns: {
+          id: true,
+          titleRomaji: true,
+          titleEnglish: true,
+          titleNative: true,
+          coverImageExtraLarge: true,
+          coverImageLarge: true,
+          coverImageColor: true,
+          chapters: true,
+          format: true,
+        },
+      },
+    },
+    orderBy: (library, { desc }) => [desc(library.updatedAt)],
+  });
+};
+
+export const getMangaLibraryEntry = async (userId: string, mangaId: number) => {
+  return db.query.userMangaLibrary.findFirst({
+    where: and(eq(userMangaLibrary.userId, userId), eq(userMangaLibrary.mangaId, mangaId)),
+  });
+};
+
+export const createMangaReview = async (review: InsertMangaReview) => {
+  const [result] = await db.insert(userMangaReviews).values(review).returning();
+  return result;
+};
+
+export const updateMangaReview = async (
+  id: string,
+  data: { content?: string; containsSpoilers?: boolean },
+) => {
+  const [result] = await db
+    .update(userMangaReviews)
+    .set(data)
+    .where(eq(userMangaReviews.id, id))
+    .returning();
+  return result;
+};
+
+export const getReviewForManga = async (userId: string, mangaId: number) => {
+  return db.query.userMangaReviews.findFirst({
+    where: and(eq(userMangaReviews.userId, userId), eq(userMangaReviews.mangaId, mangaId)),
+  });
+};
+
+export const getUserMangaReviews = async (userId: string) => {
+  return db.query.userMangaReviews.findMany({
+    where: eq(userMangaReviews.userId, userId),
+    with: {
+      manga: {
         columns: {
           id: true,
           titleRomaji: true,

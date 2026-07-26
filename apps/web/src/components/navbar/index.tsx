@@ -22,7 +22,8 @@ export function Navbar({ user }: { user: UserData | null }) {
   const username = user?.username ?? null;
   const role = user?.role ?? null;
 
-  const { query, setQuery, isOpen, openSearch, closeSearch, isHomePage } = useNavbarSearch();
+  const { query, setQuery, isOpen, openSearch, closeSearch, isSearchablePage, mediaType } =
+    useNavbarSearch();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
 
@@ -39,8 +40,13 @@ export function Navbar({ user }: { user: UserData | null }) {
     <nav className="fixed inset-x-0 top-0 z-40 pointer-events-none pt-4 md:pt-6">
       <div className="container mx-auto px-4 xl:max-w-5xl">
         <div className="pointer-events-auto relative flex h-12 w-full items-center justify-between rounded-xl border border-black/5 dark:border-white/10 bg-background dark:bg-background/55 px-3 shadow-2xl dark:backdrop-blur-2xl transition-all duration-300 md:h-14 md:px-6">
-          {isOpen && isHomePage ? (
-            <NavbarSearchInput query={query} setQuery={setQuery} onClose={closeSearch} />
+          {isOpen && isSearchablePage ? (
+            <NavbarSearchInput
+              query={query}
+              setQuery={setQuery}
+              onClose={closeSearch}
+              mediaType={mediaType}
+            />
           ) : (
             <>
               <div className="mr-auto flex items-center gap-6 md:gap-8">
@@ -57,7 +63,7 @@ export function Navbar({ user }: { user: UserData | null }) {
                   <ThemeToggle />
                 </div>
 
-                {isHomePage && (
+                {isSearchablePage && (
                   <Button
                     variant="ghost"
                     size="icon"
@@ -183,6 +189,10 @@ function NavbarLinks({
         Discover
       </LinkComponent>
 
+      <LinkComponent href="/manga" isActive={!!pathname?.startsWith("/manga")}>
+        Manga
+      </LinkComponent>
+
       {username && (
         <LinkComponent
           href={`/profile/${username}`}
@@ -251,9 +261,10 @@ interface NavbarSearchInputProps {
   query: string;
   setQuery: (val: string) => void;
   onClose: () => void;
+  mediaType: "anime" | "manga";
 }
 
-function NavbarSearchInput({ query, setQuery, onClose }: NavbarSearchInputProps) {
+function NavbarSearchInput({ query, setQuery, onClose, mediaType }: NavbarSearchInputProps) {
   return (
     <div className="flex h-full w-full items-center gap-3">
       <Search className="size-5 text-muted-foreground" />
@@ -261,7 +272,7 @@ function NavbarSearchInput({ query, setQuery, onClose }: NavbarSearchInputProps)
         autoFocus
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search anime..."
+        placeholder={`Search ${mediaType}...`}
         className="h-full flex-1 bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground"
       />
       <button onClick={onClose} className="transition-opacity hover:opacity-80">

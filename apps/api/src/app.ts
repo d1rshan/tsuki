@@ -2,6 +2,7 @@ import { Elysia } from "elysia";
 
 import { authPlugin } from "./auth-plugin";
 import { animeRoutes } from "./modules/anime";
+import { mangaRoutes } from "./modules/manga";
 import { userRoutes } from "./modules/users";
 
 export const app = new Elysia()
@@ -32,6 +33,7 @@ export const app = new Elysia()
   })
   .use(authPlugin)
   .use(animeRoutes)
+  .use(mangaRoutes)
   .use(userRoutes)
   .get("/", () => "Tsuki API Running!");
 

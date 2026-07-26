@@ -1,0 +1,414 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Star, Heart, Check, Plus, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+
+import { useSession } from "@tsuki/auth/client";
+import { api } from "@/lib/api";
+import type { MangaLibraryEntry, MangaReview } from "@/lib/types";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { logMangaAction, submitMangaReviewAction } from "@/app/actions/activity";
+import type { ReadStatus } from "@tsuki/api/src/modules/users/model";
+
+const READ_STATUSES: { value: ReadStatus; label: string }[] = [
+  { value: "READING", label: "Reading" },
+  { value: "COMPLETED", label: "Completed" },
+  { value: "PLAN_TO_READ", label: "Plan to Read" },
+  { value: "PAUSED", label: "Paused" },
+  { value: "DROPPED", label: "Dropped" },
+];
+
+function clampChapters(value: number, totalChapters?: number | null) {
+  const normalizedValue = Number.isNaN(value) ? 0 : Math.max(0, value);
+
+  if (typeof totalChapters !== "number" || totalChapters <= 0) {
+    return normalizedValue;
+  }
+
+  return Math.min(normalizedValue, totalChapters);
+}
+
+export function MangaActions({
+  mangaId,
+  totalChapters,
+}: {
+  mangaId: number;
+  totalChapters?: number | null;
+}) {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const { data: session, isPending: isSessionPending } = useSession();
+  const isAuthenticated = !!session?.user;
+
+  const { data: userActivity, isLoading: isActivityLoading } = useQuery({
+    queryKey: ["manga-activity", mangaId],
+    queryFn: () => api.users.me["manga-activity"]({ mangaId }).get(),
+    enabled: isAuthenticated,
+  });
+
+  const entry = userActivity?.data?.entry ?? null;
+  const review = userActivity?.data?.review ?? null;
+
+  const [open, setOpen] = useState(false);
+
+  const toggleMutation = useMutation({
+    mutationFn: (isFavorite: boolean) => logMangaAction(mangaId, { isFavorite }),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["manga-activity", mangaId] });
+      toast.success(variables ? "Added to favorites" : "Removed from favorites");
+    },
+    onError: () => {
+      toast.error("Failed to update favorite");
+    },
+  });
+
+  const handleToggle = () => {
+    if (!isAuthenticated) return router.push("/login");
+    toggleMutation.mutate(!(entry?.isFavorite ?? false));
+  };
+
+  const isLoading = isSessionPending || (isAuthenticated && isActivityLoading);
+
+  return (
+    <div className="flex gap-2">
+      <LogMangaDialog
+        mangaId={mangaId}
+        entry={entry}
+        review={review}
+        open={open}
+        setOpen={setOpen}
+        disabled={isLoading}
+        isFavorite={entry?.isFavorite ?? false}
+        isAuthenticated={isAuthenticated}
+        totalChapters={totalChapters}
+      />
+      <FavoriteButton
+        isFavorite={entry?.isFavorite ?? false}
+        disabled={isLoading || toggleMutation.isPending}
+        onClick={handleToggle}
+      />
+    </div>
+  );
+}
+
+function LogMangaDialog({
+  mangaId,
+  entry,
+  review,
+  open,
+  setOpen,
+  disabled,
+  isFavorite,
+  isAuthenticated,
+  totalChapters,
+}: {
+  mangaId: number;
+  entry: MangaLibraryEntry | null;
+  review: MangaReview | null;
+  open: boolean;
+  setOpen: (val: boolean) => void;
+  disabled?: boolean;
+  isFavorite: boolean;
+  isAuthenticated: boolean;
+  totalChapters?: number | null;
+}) {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const initialChapters = entry?.chaptersRead?.toString() ?? "";
+
+  const [form, setForm] = useState({
+    status: (entry?.status as ReadStatus) || "PLAN_TO_READ",
+    chapters: initialChapters,
+    rating: entry?.rating || 0,
+    reviewContent: review?.content || "",
+    containsSpoilers: review?.containsSpoilers || false,
+  });
+
+  const updateForm = (updates: Partial<typeof form>) =>
+    setForm((prev) => ({ ...prev, ...updates }));
+
+  const hasLog = !!(
+    entry?.status ||
+    (entry?.rating && entry.rating > 0) ||
+    (entry?.chaptersRead && entry.chaptersRead > 0) ||
+    review
+  );
+
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      await logMangaAction(mangaId, {
+        status: form.status,
+        rating: form.rating > 0 ? form.rating : undefined,
+        chaptersRead: clampChapters(parseInt(form.chapters, 10) || 0, totalChapters),
+        isFavorite,
+      });
+
+      if (form.reviewContent.trim()) {
+        await submitMangaReviewAction(mangaId, form.reviewContent, form.containsSpoilers);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["manga-activity", mangaId] });
+      setOpen(false);
+      toast.success("Successfully logged manga!");
+    },
+    onError: () => {
+      toast.error("Failed to log manga");
+    },
+  });
+
+  const handleOpenClick = (e: React.MouseEvent) => {
+    if (!isAuthenticated) {
+      e.preventDefault();
+      router.push("/login");
+    }
+  };
+
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (newOpen) {
+      setForm({
+        status: (entry?.status as ReadStatus) || "PLAN_TO_READ",
+        chapters: entry?.chaptersRead?.toString() ?? "",
+        rating: entry?.rating || 0,
+        reviewContent: review?.content || "",
+        containsSpoilers: review?.containsSpoilers || false,
+      });
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger
+        onClick={handleOpenClick}
+        render={
+          <Button
+            disabled={disabled}
+            className="flex-1 shadow-md bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-xl transition-all active:scale-[0.98]"
+          />
+        }
+      >
+        {hasLog ? <Check className="w-4 h-4 mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
+        {hasLog ? "Edit Log" : "Log / Add to List"}
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px] rounded-xl border-white/10 bg-background/80 backdrop-blur-xl">
+        <DialogHeader>
+          <DialogTitle className="text-xl">Log Manga</DialogTitle>
+        </DialogHeader>
+
+        <div className="grid gap-6 py-4">
+          <StatusSection value={form.status} onChange={(val) => updateForm({ status: val })} />
+          <ChaptersSection
+            value={form.chapters}
+            totalChapters={totalChapters}
+            onChange={(val) => updateForm({ chapters: val })}
+          />
+          <RatingSection value={form.rating} onChange={(val) => updateForm({ rating: val })} />
+
+          <ReviewSection
+            content={form.reviewContent}
+            containsSpoilers={form.containsSpoilers}
+            onContentChange={(val) => updateForm({ reviewContent: val })}
+            onSpoilersChange={(val) => updateForm({ containsSpoilers: val })}
+          />
+        </div>
+
+        <div className="flex justify-end gap-2 mt-4">
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
+          <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
+            {saveMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+            Save
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function StatusSection({
+  value,
+  onChange,
+}: {
+  value: ReadStatus;
+  onChange: (val: ReadStatus) => void;
+}) {
+  return (
+    <div className="grid grid-cols-4 items-center gap-4">
+      <Label className="text-right text-muted-foreground">Status</Label>
+      <Select
+        value={value}
+        onValueChange={(val) => onChange(val as ReadStatus)}
+        items={READ_STATUSES}
+      >
+        <SelectTrigger className="col-span-3 bg-background/50">
+          <SelectValue placeholder="Select status" />
+        </SelectTrigger>
+        <SelectContent>
+          {READ_STATUSES.map((s) => (
+            <SelectItem key={s.value} value={s.value}>
+              {s.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+
+function ChaptersSection({
+  value,
+  totalChapters,
+  onChange,
+}: {
+  value: string;
+  totalChapters?: number | null;
+  onChange: (val: string) => void;
+}) {
+  const hasChapterLimit = typeof totalChapters === "number" && totalChapters > 0;
+  const inputMax = hasChapterLimit ? totalChapters : undefined;
+
+  return (
+    <div className="grid grid-cols-4 items-center gap-4">
+      <Label className="text-right text-muted-foreground">Chapters</Label>
+      <div className="col-span-3 flex flex-wrap items-center gap-2">
+        <Input
+          type="number"
+          min={0}
+          max={inputMax}
+          value={value}
+          onChange={(e) => {
+            const nextValue = e.target.value;
+
+            if (nextValue === "") {
+              onChange("");
+              return;
+            }
+
+            onChange(clampChapters(parseInt(nextValue, 10) || 0, totalChapters).toString());
+          }}
+          className="w-24 bg-background/50"
+        />
+        {hasChapterLimit && (
+          <span className="text-sm text-muted-foreground">/ {totalChapters}</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function RatingSection({ value, onChange }: { value: number; onChange: (val: number) => void }) {
+  return (
+    <div className="grid grid-cols-4 items-center gap-4">
+      <Label className="text-right text-muted-foreground">Rating</Label>
+      <div className="col-span-3 flex gap-1">
+        {Array.from({ length: 10 }, (_, i) => i + 1).map((star) => (
+          <button
+            key={star}
+            onClick={() => onChange(star)}
+            className="transition-transform hover:scale-110 active:scale-95 focus-visible:outline-2 focus-visible:outline-ring"
+          >
+            <Star
+              className={cn(
+                "w-5 h-5",
+                value >= star
+                  ? "fill-yellow-500 text-yellow-500"
+                  : "text-muted-foreground hover:text-yellow-500/50",
+              )}
+            />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ReviewSection({
+  content,
+  containsSpoilers,
+  onContentChange,
+  onSpoilersChange,
+}: {
+  content: string;
+  containsSpoilers: boolean;
+  onContentChange: (val: string) => void;
+  onSpoilersChange: (val: boolean) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-3 pt-2 border-t border-white/5">
+      <Label className="text-muted-foreground font-medium">Review (Optional)</Label>
+      <Textarea
+        placeholder="What did you think about this manga?"
+        className="resize-none h-24 bg-background/50 focus-visible:ring-primary/50"
+        value={content}
+        onChange={(e) => onContentChange(e.target.value)}
+      />
+      {content.trim() !== "" && (
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="spoilers"
+            className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+            checked={containsSpoilers}
+            onChange={(e) => onSpoilersChange(e.target.checked)}
+          />
+          <Label
+            htmlFor="spoilers"
+            className="text-sm font-normal text-muted-foreground cursor-pointer"
+          >
+            This review contains spoilers
+          </Label>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function FavoriteButton({
+  isFavorite,
+  disabled,
+  onClick,
+}: {
+  isFavorite: boolean;
+  disabled?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <Button
+      variant={isFavorite ? "secondary" : "outline"}
+      size="icon"
+      disabled={disabled}
+      onClick={onClick}
+      className="rounded-xl shrink-0 border-white/10"
+    >
+      <Heart
+        className={cn(
+          "w-5 h-5 transition-all active:scale-75",
+          isFavorite && "fill-red-500 text-red-500",
+        )}
+      />
+    </Button>
+  );
+}

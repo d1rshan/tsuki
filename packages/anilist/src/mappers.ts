@@ -1,4 +1,4 @@
-import type { AnilistMedia } from "./types";
+import type { AnilistMedia, AnilistMediaManga } from "./types";
 
 export function toAnimeRow(anime: AnilistMedia) {
   return {
@@ -41,5 +41,48 @@ export function toAnimeCompactRow(anime: Partial<AnilistMedia> & { id: number })
     seasonYear: anime.seasonYear,
     episodes: anime.episodes,
     averageScore: anime.averageScore,
+  };
+}
+
+export function toMangaRow(manga: AnilistMediaManga) {
+  return {
+    id: manga.id,
+    titleRomaji: manga.title.romaji,
+    titleEnglish: manga.title.english,
+    titleNative: manga.title.native,
+    description: manga.description,
+    coverImageExtraLarge: manga.coverImage.extraLarge,
+    coverImageLarge: manga.coverImage.large,
+    coverImageColor: manga.coverImage.color,
+    bannerImage: manga.bannerImage,
+    format: manga.format,
+    status: manga.status,
+    chapters: manga.chapters,
+    volumes: manga.volumes,
+    season: manga.season,
+    seasonYear: manga.seasonYear,
+    averageScore: manga.averageScore,
+    meanScore: manga.meanScore,
+    popularity: manga.popularity,
+    trending: manga.trending,
+    genres: manga.genres?.filter((g): g is string => g != null) ?? null,
+    trailer: manga.trailer,
+    externalLinks: manga.externalLinks,
+    isAdult: manga.isAdult ?? false,
+  };
+}
+
+export function toMangaCompactRow(manga: Partial<AnilistMediaManga> & { id: number }) {
+  return {
+    id: manga.id,
+    titleRomaji: manga.title?.romaji,
+    titleEnglish: manga.title?.english,
+    titleNative: manga.title?.native,
+    coverImageExtraLarge: manga.coverImage?.extraLarge,
+    coverImageLarge: manga.coverImage?.large,
+    bannerImage: manga.bannerImage,
+    seasonYear: manga.seasonYear,
+    chapters: manga.chapters,
+    averageScore: manga.averageScore,
   };
 }
