@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-export function MediaPageSkeleton({ showTrailer = false }: { showTrailer?: boolean }) {
+export function MediaPageSkeleton() {
   return (
     <div className="pb-16">
       {/* Banner Skeleton */}
@@ -83,15 +83,14 @@ export function MediaPageSkeleton({ showTrailer = false }: { showTrailer?: boole
               <Skeleton className="h-4 w-[85%]" />
             </div>
 
-            {showTrailer && (
-              <div className="pt-8 space-y-4">
-                <div className="flex items-center gap-2">
-                  <Skeleton className="size-5 rounded-full" />
-                  <Skeleton className="h-7 w-20" />
-                </div>
-                <Skeleton className="aspect-video w-full rounded-xl" />
+            {/* Trailer Skeleton */}
+            <div className="pt-8 space-y-4">
+              <div className="flex items-center gap-2">
+                <Skeleton className="size-5 rounded-full" />
+                <Skeleton className="h-7 w-20" />
               </div>
-            )}
+              <Skeleton className="aspect-video w-full rounded-xl" />
+            </div>
           </div>
         </div>
       </div>

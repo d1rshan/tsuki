@@ -25,7 +25,7 @@ async function getCachedAnime(id: string) {
 
 export default function AnimePage({ params }: { params: Promise<{ id: string }> }) {
   return (
-    <Suspense fallback={<MediaPageSkeleton showTrailer />}>
+    <Suspense fallback={<MediaPageSkeleton />}>
       <AnimePageContent params={params} />
     </Suspense>
   );
