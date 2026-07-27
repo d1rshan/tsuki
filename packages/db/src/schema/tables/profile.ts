@@ -1,4 +1,3 @@
-import { relations } from "drizzle-orm";
 import { pgTable, text, timestamp, jsonb } from "drizzle-orm/pg-core";
 
 import { user } from "./auth";
@@ -17,10 +16,3 @@ export const userProfile = pgTable("user_profile", {
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
 });
-
-export const userProfileRelations = relations(userProfile, ({ one }) => ({
-  user: one(user, {
-    fields: [userProfile.userId],
-    references: [user.id],
-  }),
-}));

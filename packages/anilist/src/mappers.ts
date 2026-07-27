@@ -1,88 +1,80 @@
-import type { AnilistMedia, AnilistMediaManga } from "./types";
+import type { AnilistMedia, AnilistMediaCompact, FuzzyDate } from "./types";
 
-export function toAnimeRow(anime: AnilistMedia) {
+/** AniList list fields are nullable and may contain nulls. */
+function compact<T>(list: (T | null)[] | null | undefined): T[] | null {
+  if (!list) return null;
+  return list.filter((item): item is T => item != null);
+}
+
+/** AniList returns `{ year: null, month: null, day: null }` for unknown dates. */
+function normalizeDate(date: FuzzyDate | null | undefined): FuzzyDate | null {
+  if (!date) return null;
+  if (date.year == null && date.month == null && date.day == null) return null;
+  return date;
+}
+
+/** Maps a full AniList `Media` onto a `media` row. */
+export function toMediaRow(media: AnilistMedia) {
   return {
-    id: anime.id,
-    titleRomaji: anime.title.romaji,
-    titleEnglish: anime.title.english,
-    titleNative: anime.title.native,
-    description: anime.description,
-    coverImageExtraLarge: anime.coverImage.extraLarge,
-    coverImageLarge: anime.coverImage.large,
-    coverImageColor: anime.coverImage.color,
-    bannerImage: anime.bannerImage,
-    format: anime.format,
-    status: anime.status,
-    episodes: anime.episodes,
-    duration: anime.duration,
-    season: anime.season,
-    seasonYear: anime.seasonYear,
-    averageScore: anime.averageScore,
-    meanScore: anime.meanScore,
-    popularity: anime.popularity,
-    trending: anime.trending,
-    genres: anime.genres?.filter((g): g is string => g != null) ?? null,
-    trailer: anime.trailer,
-    externalLinks: anime.externalLinks,
-    isAdult: anime.isAdult ?? false,
+    id: media.id,
+    idMal: media.idMal,
+    type: media.type,
+    titleRomaji: media.title.romaji,
+    titleEnglish: media.title.english,
+    titleNative: media.title.native,
+    synonyms: compact(media.synonyms),
+    description: media.description,
+    coverImageExtraLarge: media.coverImage.extraLarge,
+    coverImageLarge: media.coverImage.large,
+    coverImageMedium: media.coverImage.medium,
+    coverImageColor: media.coverImage.color,
+    bannerImage: media.bannerImage,
+    format: media.format,
+    status: media.status,
+    source: media.source,
+    countryOfOrigin: media.countryOfOrigin,
+    episodes: media.episodes,
+    duration: media.duration,
+    chapters: media.chapters,
+    volumes: media.volumes,
+    startDate: normalizeDate(media.startDate),
+    endDate: normalizeDate(media.endDate),
+    season: media.season,
+    seasonYear: media.seasonYear,
+    averageScore: media.averageScore,
+    meanScore: media.meanScore,
+    popularity: media.popularity,
+    trending: media.trending,
+    favourites: media.favourites,
+    genres: compact(media.genres),
+    tags: compact(media.tags),
+    trailer: media.trailer,
+    externalLinks: compact(media.externalLinks),
+    siteUrl: media.siteUrl,
+    isAdult: media.isAdult ?? false,
   };
 }
 
-// TODO: Partial here?
-export function toAnimeCompactRow(anime: Partial<AnilistMedia> & { id: number }) {
+/** Maps the trimmed AniList selection used by search results and grids. */
+export function toMediaCompactRow(media: AnilistMediaCompact) {
   return {
-    id: anime.id,
-    titleRomaji: anime.title?.romaji,
-    titleEnglish: anime.title?.english,
-    titleNative: anime.title?.native,
-    coverImageExtraLarge: anime.coverImage?.extraLarge,
-    coverImageLarge: anime.coverImage?.large,
-    bannerImage: anime.bannerImage,
-    seasonYear: anime.seasonYear,
-    episodes: anime.episodes,
-    averageScore: anime.averageScore,
+    id: media.id,
+    type: media.type,
+    titleRomaji: media.title.romaji,
+    titleEnglish: media.title.english,
+    titleNative: media.title.native,
+    coverImageExtraLarge: media.coverImage.extraLarge,
+    coverImageLarge: media.coverImage.large,
+    coverImageMedium: media.coverImage.medium,
+    coverImageColor: media.coverImage.color,
+    bannerImage: media.bannerImage,
+    format: media.format,
+    episodes: media.episodes,
+    chapters: media.chapters,
+    seasonYear: media.seasonYear,
+    averageScore: media.averageScore,
   };
 }
 
-export function toMangaRow(manga: AnilistMediaManga) {
-  return {
-    id: manga.id,
-    titleRomaji: manga.title.romaji,
-    titleEnglish: manga.title.english,
-    titleNative: manga.title.native,
-    description: manga.description,
-    coverImageExtraLarge: manga.coverImage.extraLarge,
-    coverImageLarge: manga.coverImage.large,
-    coverImageColor: manga.coverImage.color,
-    bannerImage: manga.bannerImage,
-    format: manga.format,
-    status: manga.status,
-    chapters: manga.chapters,
-    volumes: manga.volumes,
-    season: manga.season,
-    seasonYear: manga.seasonYear,
-    averageScore: manga.averageScore,
-    meanScore: manga.meanScore,
-    popularity: manga.popularity,
-    trending: manga.trending,
-    genres: manga.genres?.filter((g): g is string => g != null) ?? null,
-    trailer: manga.trailer,
-    externalLinks: manga.externalLinks,
-    isAdult: manga.isAdult ?? false,
-  };
-}
-
-export function toMangaCompactRow(manga: Partial<AnilistMediaManga> & { id: number }) {
-  return {
-    id: manga.id,
-    titleRomaji: manga.title?.romaji,
-    titleEnglish: manga.title?.english,
-    titleNative: manga.title?.native,
-    coverImageExtraLarge: manga.coverImage?.extraLarge,
-    coverImageLarge: manga.coverImage?.large,
-    bannerImage: manga.bannerImage,
-    seasonYear: manga.seasonYear,
-    chapters: manga.chapters,
-    averageScore: manga.averageScore,
-  };
-}
+export type MediaRow = ReturnType<typeof toMediaRow>;
+export type MediaCompactRow = ReturnType<typeof toMediaCompactRow>;

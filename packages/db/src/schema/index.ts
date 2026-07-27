@@ -1,7 +1,6 @@
+// Ordered by dependency: types and enums define the vocabulary, tables use it,
+// relations wire the tables together.
+export * from "./types";
 export * from "./enums";
-export * from "./auth";
-export * from "./profile";
-export * from "./anime";
-export * from "./manga";
-export * from "./library";
-export * from "./reviews";
+export * from "./tables";
+export * from "./relations";
