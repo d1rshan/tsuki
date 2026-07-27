@@ -16,6 +16,7 @@ export type ReviewQueryOptions = {
 export const getReview = async (userId: string, mediaId: number) => {
   return db.query.reviews.findFirst({
     where: and(eq(reviews.userId, userId), eq(reviews.mediaId, mediaId)),
+    with: { media: { columns: MEDIA_COMPACT_COLUMNS } },
   });
 };
 

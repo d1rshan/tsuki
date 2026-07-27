@@ -1,7 +1,11 @@
 {
   "name": "@tsuki/api",
   "version": "1.0.50",
-  "module": "src/index.js",
+  "main": "src/app.ts",
+  "exports": {
+    ".": "./src/app.ts",
+    "./types": "./src/types.ts"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "typecheck": "tsc --noEmit",

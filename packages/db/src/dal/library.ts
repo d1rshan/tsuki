@@ -16,6 +16,7 @@ export type LibraryQueryOptions = {
 export const getEntry = async (userId: string, mediaId: number) => {
   return db.query.libraryEntries.findFirst({
     where: and(eq(libraryEntries.userId, userId), eq(libraryEntries.mediaId, mediaId)),
+    with: { media: { columns: MEDIA_COMPACT_COLUMNS } },
   });
 };
 
