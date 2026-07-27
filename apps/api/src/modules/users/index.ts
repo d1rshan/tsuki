@@ -215,6 +215,11 @@ export const userRoutes = new Elysia({ prefix: "/users" })
   )
   .post(
     "/me/library/:animeId",
+    // TODO: requires the anime row to already exist (FK on user_anime_library.anime_id).
+    // Holds today only because AnimeActions renders solely on /anime/[id], which warms
+    // the row via GET /anime/:id. A quick-log entry point anywhere else (search results,
+    // profile grid) breaks it — the insert then 500s. Fix: ensureAnimeExists(animeId)
+    // here, reusing the read-through cache from modules/anime. Same for manga below.
     async ({ params: { animeId }, body, user }) => {
       const entry = await activityDal.upsertLibraryEntry({
         userId: user.id,
@@ -251,6 +256,8 @@ export const userRoutes = new Elysia({ prefix: "/users" })
 
   .post(
     "/me/manga-library/:mangaId",
+    // TODO: same missing precondition as POST /me/library/:animeId above — needs
+    // ensureMangaExists(mangaId) before the upsert.
     async ({ params: { mangaId }, body, user }) => {
       const entry = await activityDal.upsertMangaLibraryEntry({
         userId: user.id,
@@ -287,6 +294,7 @@ export const userRoutes = new Elysia({ prefix: "/users" })
 
   .post(
     "/me/reviews/:animeId",
+    // TODO: same missing precondition as POST /me/library/:animeId (FK on user_reviews.anime_id).
     async ({ params: { animeId }, body, user }) => {
       const existing = await activityDal.getReviewForAnime(user.id, animeId);
 
@@ -322,6 +330,7 @@ export const userRoutes = new Elysia({ prefix: "/users" })
   )
   .post(
     "/me/manga-reviews/:mangaId",
+    // TODO: same missing precondition as POST /me/library/:animeId (FK on user_manga_reviews.manga_id).
     async ({ params: { mangaId }, body, user }) => {
       const existing = await activityDal.getReviewForManga(user.id, mangaId);
 
