@@ -54,19 +54,6 @@ export const getMediaById = async (type: MediaType, id: number) => {
   });
 };
 
-/**
- * Trending rows we already hold, most trending first. `syncedAt` comes back so
- * callers can decide whether a refresh from AniList is due.
- */
-export const getTrendingMedia = async (type: MediaType, limit = 70) => {
-  return db.query.media.findMany({
-    where: eq(media.type, type),
-    limit,
-    orderBy: [desc(media.trending)],
-    columns: { ...MEDIA_COMPACT_COLUMNS, syncedAt: true },
-  });
-};
-
 export const searchMedia = async (type: MediaType, query: string, limit = 24) => {
   if (!query) return [];
 

@@ -10,7 +10,7 @@ export const mediaRoutes = new Elysia({ prefix: "/media" })
     response: { 200: t.Array(MediaCompactModel) },
     detail: {
       summary: "Get trending media",
-      description: "Daily trending anime or manga from AniList, cached on the way through.",
+      description: "Current trending anime or manga, read live from AniList.",
     },
   })
   // TODO: no consumer yet — the web app searches AniList directly from the

@@ -48,7 +48,6 @@ export const MEDIA_FIELDS = gql`
     averageScore
     meanScore
     popularity
-    trending
     favourites
     genres
     tags {

@@ -44,7 +44,6 @@ export function toMediaRow(media: AnilistMedia) {
     averageScore: media.averageScore,
     meanScore: media.meanScore,
     popularity: media.popularity,
-    trending: media.trending,
     favourites: media.favourites,
     genres: compact(media.genres),
     tags: compact(media.tags),

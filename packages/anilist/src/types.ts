@@ -116,7 +116,6 @@ export type AnilistMedia = {
   averageScore: number | null;
   meanScore: number | null;
   popularity: number | null;
-  trending: number | null;
   favourites: number | null;
   genres: (string | null)[] | null;
   tags: (MediaTag | null)[] | null;
