@@ -12,6 +12,7 @@ export const MEDIA_BY_ID_QUERY = gql`
   }
 `;
 
+/** AniList answers an unknown id with HTTP 404 and `data: { Media: null }`. */
 export type MediaByIdResponse = {
-  Media?: AnilistMedia;
+  Media?: AnilistMedia | null;
 };

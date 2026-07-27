@@ -125,17 +125,20 @@ export type AnilistMedia = {
   isAdult: boolean | null;
 };
 
-/** The trimmed selection used for search results and grids. */
+/**
+ * The trimmed selection used for search results and grids. `coverImage.medium`
+ * is deliberately absent — MEDIA_COMPACT_FIELDS does not request it, and no
+ * compact consumer renders it.
+ */
 export type AnilistMediaCompact = Pick<
   AnilistMedia,
   | "id"
   | "type"
   | "title"
-  | "coverImage"
   | "bannerImage"
   | "format"
   | "episodes"
   | "chapters"
   | "seasonYear"
   | "averageScore"
->;
+> & { coverImage: Omit<MediaCoverImage, "medium"> };

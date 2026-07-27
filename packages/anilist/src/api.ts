@@ -1,7 +1,7 @@
 import { ClientError } from "graphql-request";
 
 import { anilistClient } from "./client";
-import { toMediaRow, toMediaCompactRow } from "./mappers";
+import { toMediaRow, toMediaCompactRow, type MediaRow } from "./mappers";
 import { MEDIA_BY_ID_QUERY, type MediaByIdResponse } from "./queries/media-by-id";
 import { SEARCH_MEDIA_QUERY, type SearchMediaResponse } from "./queries/search";
 import { TRENDING_MEDIA_QUERY, type TrendingMediaResponse } from "./queries/trending";
@@ -25,7 +25,17 @@ export async function fetchMediaSearch(
   return data.Page.media.filter((media) => media != null).map(toMediaCompactRow);
 }
 
-/** Fetches the current trending media of the given type — two pages, 70 items. */
+/**
+ * Fetches the current trending media of the given type — two pages, 70 items,
+ * most trending first.
+ *
+ * AniList applies no tiebreaker to `TRENDING_DESC` and the pages are fetched
+ * independently, so a title tied at the page boundary can come back on both.
+ * Ties there are routine: the tail of the list clusters into groups of six or
+ * seven sharing a score. Deduping keeps the same title out of the carousel
+ * twice and, more importantly, keeps `upsertMedia` from targeting one conflict
+ * row twice in a single statement, which Postgres rejects outright.
+ */
 export async function fetchTrendingMedia(type: MediaType) {
   const [page1, page2] = await Promise.all([
     anilistClient.request<TrendingMediaResponse>(TRENDING_MEDIA_QUERY, {
@@ -40,9 +50,16 @@ export async function fetchTrendingMedia(type: MediaType) {
     }),
   ]);
 
-  const media = [...(page1.Page?.media ?? []), ...(page2.Page?.media ?? [])];
+  // A Map keeps first-seen order, so the higher-ranked position wins.
+  const byId = new Map<number, MediaRow>();
+  for (const item of [...(page1.Page?.media ?? []), ...(page2.Page?.media ?? [])]) {
+    if (item == null) continue;
 
-  return media.filter((item) => item != null).map(toMediaRow);
+    const row = toMediaRow(item);
+    byId.set(row.id, row);
+  }
+
+  return [...byId.values()];
 }
 
 /**

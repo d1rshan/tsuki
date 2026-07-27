@@ -32,6 +32,11 @@ export const libraryEntries = pgTable(
     /** Denormalised from media.type — kept honest by the composite FK below. */
     mediaType: mediaTypeEnum("media_type").notNull(),
     status: listStatusEnum("status"),
+    /**
+     * 1–10, enforced by `library_entries_score_range` below. Null means unscored.
+     * Not the same scale as `media.averageScore` / `media.meanScore`, which come
+     * from AniList as 0–100.
+     */
     score: integer("score"),
     /** Episodes watched or chapters read. */
     progress: integer("progress").default(0).notNull(),

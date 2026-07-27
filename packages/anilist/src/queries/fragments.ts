@@ -88,7 +88,6 @@ export const MEDIA_COMPACT_FIELDS = gql`
     coverImage {
       extraLarge
       large
-      medium
       color
     }
     bannerImage

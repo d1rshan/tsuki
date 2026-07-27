@@ -1,9 +1,15 @@
 import type { AnilistMedia, AnilistMediaCompact, FuzzyDate } from "./types";
 
-/** AniList list fields are nullable and may contain nulls. */
+/**
+ * AniList list fields are nullable and may contain nulls. An absent list and a
+ * list that held nothing usable both come back as null, so "none" has one
+ * representation rather than two.
+ */
 function compact<T>(list: (T | null)[] | null | undefined): T[] | null {
   if (!list) return null;
-  return list.filter((item): item is T => item != null);
+
+  const items = list.filter((item): item is T => item != null);
+  return items.length > 0 ? items : null;
 }
 
 /** AniList returns `{ year: null, month: null, day: null }` for unknown dates. */
@@ -64,7 +70,6 @@ export function toMediaCompactRow(media: AnilistMediaCompact) {
     titleNative: media.title.native,
     coverImageExtraLarge: media.coverImage.extraLarge,
     coverImageLarge: media.coverImage.large,
-    coverImageMedium: media.coverImage.medium,
     coverImageColor: media.coverImage.color,
     bannerImage: media.bannerImage,
     format: media.format,
