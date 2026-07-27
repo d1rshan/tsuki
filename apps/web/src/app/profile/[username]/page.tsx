@@ -1,7 +1,10 @@
 import { notFound } from "next/navigation";
 
-import { FavoritesSection, RecentActivitySection } from "@/components/profile/profile-overview";
-import { getProfileOverview } from "./queries";
+import {
+  FavoritesSection,
+  RecentActivitySection,
+} from "@/modules/profile/components/profile-overview";
+import { getProfileOverview } from "@/modules/profile/queries";
 
 export default async function ProfileOverviewPage({
   params,
@@ -9,24 +12,16 @@ export default async function ProfileOverviewPage({
   params: Promise<{ username: string }>;
 }) {
   const { username } = await params;
-  const { data: profile, error } = await getProfileOverview(username);
+  const { data, error } = await getProfileOverview(username);
 
-  if (error) return notFound();
-
-  const { favorites, recentLogs, mangaFavorites, recentMangaLogs } = profile;
+  if (error || !data) return notFound();
 
   return (
     <div className="space-y-16 pb-16">
-      <FavoritesSection title="Anime Favorites" favorites={favorites} />
+      <FavoritesSection title="Favorites" favorites={data.favorites} />
       <RecentActivitySection
-        title="Recent Anime Activity"
-        recentLogs={recentLogs}
-        username={username}
-      />
-      <FavoritesSection title="Manga Favorites" favorites={mangaFavorites} />
-      <RecentActivitySection
-        title="Recent Manga Activity"
-        recentLogs={recentMangaLogs}
+        title="Recent Activity"
+        recentLogs={data.recentLogs}
         username={username}
       />
     </div>

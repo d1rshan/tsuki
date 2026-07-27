@@ -2,13 +2,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 
-import { getMediaCoverImage, getMediaTitle, mediaHref, toMediaReview } from "@/lib/media";
-import { SpoilerBlock } from "@/components/spoiler-block";
-import type { MangaReview, Review } from "@/lib/types";
+import type { Review } from "@tsuki/api/types";
 
-export function ReviewItem({ review }: { review: Review | MangaReview }) {
-  const { mediaType, mediaId, media, content, containsSpoilers, createdAt, updatedAt } =
-    toMediaReview(review);
+import { SpoilerBlock } from "@/components/spoiler-block";
+import { getMediaCoverImage, getMediaTitle, mediaHref } from "@/modules/media/config";
+
+export function ReviewItem({ review }: { review: Review }) {
+  const { mediaType, mediaId, media, content, containsSpoilers, createdAt, updatedAt } = review;
 
   if (!media) return null;
 

@@ -1,5 +1,5 @@
-import { AdminSidebar } from "@/components/admin/admin-sidebar";
-import { AdminSiteHeader } from "@/components/admin/admin-site-header";
+import { AdminSidebar } from "@/modules/admin/components/admin-sidebar";
+import { AdminSiteHeader } from "@/modules/admin/components/admin-site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";

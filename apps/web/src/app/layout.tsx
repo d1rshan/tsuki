@@ -5,7 +5,7 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 import { ThemeProvider } from "@/components/theme-provider";
 import { QueryProvider } from "@/components/query-provider";
-import { NavbarServerWrapper } from "@/components/navbar/navbar-server-wrapper";
+import { NavbarServerWrapper } from "@/components/layout/navbar/navbar-server-wrapper";
 import { Toaster } from "@/components/ui/sonner";
 
 import "./globals.css";

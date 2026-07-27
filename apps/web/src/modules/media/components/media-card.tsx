@@ -3,33 +3,25 @@ import Link from "next/link";
 import { Star } from "lucide-react";
 
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import {
-  MEDIA,
-  getMediaCoverImage,
-  getMediaTitle,
-  getMediaUnitCount,
-  mediaHref,
-  type MediaType,
-} from "@/lib/media";
+import { MEDIA, getMediaCoverImage, getMediaTitle, mediaHref } from "../config";
 import { cn } from "@/lib/utils";
-import { type AnimeCompact, type MangaCompact } from "@/lib/types";
+import type { MediaCompact, MediaType } from "@tsuki/api/types";
 
 export function MediaCard({
   media,
   mediaType,
   className,
 }: {
-  media: AnimeCompact | MangaCompact;
+  media: MediaCompact;
   mediaType: MediaType;
   className?: string;
 }) {
   const title = getMediaTitle(media);
   const coverImage = getMediaCoverImage(media);
-  const unitCount = getMediaUnitCount(media);
 
   const metadata = [
     media.seasonYear,
-    unitCount ? `${unitCount} ${MEDIA[mediaType].unitShort}` : null,
+    media.unitCount ? `${media.unitCount} ${MEDIA[mediaType].unitShort}` : null,
   ]
     .filter(Boolean)
     .join(" • ");

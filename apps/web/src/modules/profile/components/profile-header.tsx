@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Link as LinkIcon } from "lucide-react";
 
-import type { UserOverview } from "@/lib/types";
+import type { UserOverview } from "@tsuki/api/types";
 
 import { EditProfileDialog } from "./edit-profile-dialog";
 import { ProfileTabs } from "./profile-tabs";
@@ -106,11 +106,11 @@ export function ProfileHeader({
 
           {/* Mobile Stats (Rendered above tabs on small screens) */}
           <div className="flex md:hidden flex-row flex-wrap gap-6 w-full pt-6">
-            <StatItem label="Anime" value={stats.totalAnime} />
-            <StatItem label="Episodes" value={stats.episodesWatched} />
-            <StatItem label="Mean Score" value={stats.meanScore.toFixed(1)} />
-            <StatItem label="Manga" value={stats.totalManga} />
-            <StatItem label="Chapters" value={stats.chaptersRead} />
+            <StatItem label="Anime" value={stats.anime.total} />
+            <StatItem label="Episodes" value={stats.anime.progress} />
+            <StatItem label="Mean Score" value={stats.anime.meanScore.toFixed(1)} />
+            <StatItem label="Manga" value={stats.manga.total} />
+            <StatItem label="Chapters" value={stats.manga.progress} />
           </div>
 
           <div className="mt-8 mb-2 w-full">
@@ -120,11 +120,11 @@ export function ProfileHeader({
 
         {/* Desktop Stats */}
         <div className="hidden md:flex flex-col justify-start md:justify-center gap-5 md:min-w-[120px] pt-6 md:pt-2 shrink-0 border-l pl-6 border-border/50">
-          <StatItem label="Anime" value={stats.totalAnime} />
-          <StatItem label="Episodes" value={stats.episodesWatched} />
-          <StatItem label="Mean Score" value={stats.meanScore.toFixed(1)} />
-          <StatItem label="Manga" value={stats.totalManga} />
-          <StatItem label="Chapters" value={stats.chaptersRead} />
+          <StatItem label="Anime" value={stats.anime.total} />
+          <StatItem label="Episodes" value={stats.anime.progress} />
+          <StatItem label="Mean Score" value={stats.anime.meanScore.toFixed(1)} />
+          <StatItem label="Manga" value={stats.manga.total} />
+          <StatItem label="Chapters" value={stats.manga.progress} />
         </div>
       </div>
     </div>

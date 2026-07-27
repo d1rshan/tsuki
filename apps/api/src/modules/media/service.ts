@@ -82,10 +82,35 @@ export async function ensureMediaExists(type: MediaType, id: number) {
   return (await getMedia(type, id)) != null;
 }
 
+const TRENDING_LIMIT = 70;
+const TRENDING_TTL_MS = 6 * 60 * 60 * 1000;
+
+/**
+ * Read-through, same as getMedia: serve what we hold and refresh from AniList
+ * only when it goes stale.
+ *
+ * AniList is regularly unreachable (Cloudflare 522s, connection resets), and we
+ * already persist every trending row we fetch, so a failed refresh falls back to
+ * the cached ranking rather than failing the whole discover page.
+ */
 export async function getTrending(type: MediaType) {
-  const rows = await fetchTrendingMedia(type);
-  await mediaDal.upsertMedia(rows);
-  return rows.map((row) => toMediaCompact(row));
+  const cached = await mediaDal.getTrendingMedia(type, TRENDING_LIMIT);
+  const syncedAt = cached[0]?.syncedAt;
+  const isFresh = syncedAt != null && Date.now() - syncedAt.getTime() < TRENDING_TTL_MS;
+
+  if (cached.length > 0 && isFresh) return cached.map(toMediaCompact);
+
+  try {
+    await mediaDal.upsertMedia(await fetchTrendingMedia(type));
+    const refreshed = await mediaDal.getTrendingMedia(type, TRENDING_LIMIT);
+    return refreshed.map(toMediaCompact);
+  } catch (error) {
+    if (cached.length > 0) {
+      console.error(`[media] trending refresh failed for ${type}, serving cached:`, error);
+      return cached.map(toMediaCompact);
+    }
+    throw error;
+  }
 }
 
 export async function search(type: MediaType, query: string) {

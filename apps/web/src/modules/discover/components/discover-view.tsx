@@ -2,38 +2,32 @@
 
 import { useQueryState, parseAsBoolean, parseAsStringEnum } from "nuqs";
 
+import type { MediaCompact, MediaType } from "@tsuki/api/types";
+
 import { cn } from "@/lib/utils";
-import { type MediaType } from "@/lib/media";
 import { EmptyState, ErrorState } from "@/components/states";
 import { Loader } from "@/components/loader";
-import { useMediaSearch } from "@/hooks/use-media-search";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { MediaTypeToggle } from "@/components/media-type-toggle";
-import { MediaGrid } from "@/components/media/media-grid";
-import { TopTenCarousel } from "@/components/media/top-ten-carousel";
-import type { AnimeCompact, MangaCompact } from "@/lib/types";
+import { MEDIA_TYPES } from "@/modules/media/config";
+import { useMediaSearch } from "@/modules/media/hooks/use-media-search";
+import { MediaTypeToggle } from "@/modules/media/components/media-type-toggle";
+import { MediaGrid } from "@/modules/media/components/media-grid";
+import { TopTenCarousel } from "@/modules/media/components/top-ten-carousel";
 
 const TOP_TEN_LIMIT = 10;
 const FEATURED_HEADING_CLASS = "text-3xl font-black uppercase tracking-tight md:text-5xl";
 
-export function DiscoverView({
-  trendingAnime,
-  trendingManga,
-}: {
-  trendingAnime: AnimeCompact[];
-  trendingManga: MangaCompact[];
-}) {
+export function DiscoverView({ trending }: { trending: Record<MediaType, MediaCompact[]> }) {
   const [query] = useQueryState("q", { defaultValue: "" });
   const [includeNsfw, setIncludeNsfw] = useQueryState("nsfw", parseAsBoolean.withDefault(false));
   const [type, setType] = useQueryState(
     "type",
-    parseAsStringEnum<MediaType>(["anime", "manga"]).withDefault("anime"),
+    parseAsStringEnum<MediaType>([...MEDIA_TYPES]).withDefault("anime"),
   );
   const searchQuery = query.trim();
 
-  const trending: (AnimeCompact | MangaCompact)[] =
-    type === "anime" ? trendingAnime : trendingManga;
+  const items = trending[type];
 
   return (
     <div className="container mx-auto flex flex-col gap-12 px-4 pb-12 pt-24 md:gap-16 md:pb-24 md:pt-32">
@@ -48,13 +42,13 @@ export function DiscoverView({
       ) : (
         <>
           <TopTenCarousel
-            items={trending.slice(0, TOP_TEN_LIMIT)}
+            items={items.slice(0, TOP_TEN_LIMIT)}
             mediaType={type}
             actions={<MediaTypeToggle value={type} onChange={setType} />}
           />
           <section className="flex flex-col gap-4">
             <h2 className={FEATURED_HEADING_CLASS}>More Trending</h2>
-            <MediaGrid items={trending.slice(TOP_TEN_LIMIT)} mediaType={type} />
+            <MediaGrid items={items.slice(TOP_TEN_LIMIT)} mediaType={type} />
           </section>
         </>
       )}

@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 
-import { LoginCard } from "@/components/login/login-card";
-import { SignUpCard } from "@/components/login/signup-card";
+import { LoginCard } from "@/modules/auth/components/login-card";
+import { SignUpCard } from "@/modules/auth/components/signup-card";
 
 export default async function LoginPage({
   searchParams,

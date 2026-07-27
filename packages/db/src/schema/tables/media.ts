@@ -80,5 +80,6 @@ export const media = pgTable(
     // composite foreign keys on library_entries and reviews.
     unique("media_id_type_unique").on(table.id, table.type),
     index("media_type_popularity_idx").on(table.type, table.popularity),
+    index("media_type_trending_idx").on(table.type, table.trending.desc()),
   ],
 );

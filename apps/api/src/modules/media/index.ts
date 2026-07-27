@@ -13,6 +13,12 @@ export const mediaRoutes = new Elysia({ prefix: "/media" })
       description: "Daily trending anime or manga from AniList, cached on the way through.",
     },
   })
+  // TODO: no consumer yet — the web app searches AniList directly from the
+  // browser (see modules/media/hooks/use-media-search). This only matches media
+  // already cached locally, so it returns fewer results than that path. Not dead
+  // code; kept as the server-side search entry point. Decide later whether this
+  // should fall through to AniList like /:type/:id does, and whether the client
+  // should route through it so searches warm the cache.
   .get(
     "/:type/search",
     ({ params: { type }, query }) => mediaService.search(toDbMediaType(type), query.q),

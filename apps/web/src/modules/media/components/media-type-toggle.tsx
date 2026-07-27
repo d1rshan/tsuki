@@ -1,7 +1,9 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { type MediaType } from "@/lib/media";
+import type { MediaType } from "@tsuki/api/types";
+
+import { MEDIA, MEDIA_TYPES } from "../config";
 
 export function MediaTypeToggle({
   value,
@@ -10,10 +12,7 @@ export function MediaTypeToggle({
   value: MediaType;
   onChange: (value: MediaType) => void;
 }) {
-  const options: { value: MediaType; label: string }[] = [
-    { value: "anime", label: "Anime" },
-    { value: "manga", label: "Manga" },
-  ];
+  const options = MEDIA_TYPES.map((value) => ({ value, label: MEDIA[value].label }));
 
   return (
     <div className="flex items-center gap-2 p-1.5 bg-muted/30 backdrop-blur-md border border-border/50 rounded-2xl w-fit shadow-sm">

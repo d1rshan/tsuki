@@ -7,10 +7,9 @@ import { Star, Heart, Check, Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { useSession } from "@tsuki/auth/client";
-import type { ReadStatus, WatchStatus } from "@tsuki/api/src/modules/users/model";
+import type { LibraryEntry, ListStatus, MediaType, Review } from "@tsuki/api/types";
+
 import { api } from "@/lib/api";
-import { MEDIA, toMediaEntry, type MediaStatus, type MediaType } from "@/lib/media";
-import type { LibraryEntry, MangaLibraryEntry, MangaReview, Review } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,63 +29,9 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  logAnimeAction,
-  logMangaAction,
-  submitMangaReviewAction,
-  submitReviewAction,
-} from "@/app/actions/activity";
-
-type Entry = LibraryEntry | MangaLibraryEntry;
-
-type LogInput = {
-  status: MediaStatus;
-  rating?: number;
-  /** Episodes watched or chapters read. */
-  progress: number;
-  isFavorite: boolean;
-};
-
-/**
- * The only place anime and manga genuinely diverge: which endpoint to hit and
- * which progress field the payload uses.
- */
-const ADAPTERS: Record<
-  MediaType,
-  {
-    fetchActivity: (id: number) => Promise<{
-      data?: { entry: Entry | null; review: Review | MangaReview | null } | null;
-    }>;
-    log: (id: number, input: LogInput) => Promise<void>;
-    setFavorite: (id: number, isFavorite: boolean) => Promise<void>;
-    submitReview: (id: number, content: string, containsSpoilers: boolean) => Promise<void>;
-  }
-> = {
-  anime: {
-    fetchActivity: (id) => api.users.me.activity({ animeId: id }).get(),
-    log: (id, input) =>
-      logAnimeAction(id, {
-        status: input.status as WatchStatus,
-        rating: input.rating,
-        episodesWatched: input.progress,
-        isFavorite: input.isFavorite,
-      }),
-    setFavorite: (id, isFavorite) => logAnimeAction(id, { isFavorite }),
-    submitReview: submitReviewAction,
-  },
-  manga: {
-    fetchActivity: (id) => api.users.me["manga-activity"]({ mangaId: id }).get(),
-    log: (id, input) =>
-      logMangaAction(id, {
-        status: input.status as ReadStatus,
-        rating: input.rating,
-        chaptersRead: input.progress,
-        isFavorite: input.isFavorite,
-      }),
-    setFavorite: (id, isFavorite) => logMangaAction(id, { isFavorite }),
-    submitReview: submitMangaReviewAction,
-  },
-};
+import { logMediaAction, submitReviewAction } from "../actions";
+import { MEDIA } from "../config";
+import { mediaKeys } from "../query-keys";
 
 function clampProgress(value: number, total?: number | null) {
   const normalizedValue = Number.isNaN(value) ? 0 : Math.max(0, value);
@@ -113,11 +58,11 @@ export function MediaActions({
   const { data: session, isPending: isSessionPending } = useSession();
   const isAuthenticated = !!session?.user;
 
-  const queryKey = [`${mediaType}-activity`, mediaId]; // TODO: centralize query keys gng
+  const queryKey = mediaKeys.activity(mediaType, mediaId);
 
   const { data: userActivity, isLoading: isActivityLoading } = useQuery({
     queryKey,
-    queryFn: () => ADAPTERS[mediaType].fetchActivity(mediaId),
+    queryFn: () => api.me.library({ type: mediaType })({ id: mediaId }).get(),
     enabled: isAuthenticated,
   });
 
@@ -127,7 +72,7 @@ export function MediaActions({
   const [open, setOpen] = useState(false);
 
   const toggleMutation = useMutation({
-    mutationFn: (isFavorite: boolean) => ADAPTERS[mediaType].setFavorite(mediaId, isFavorite),
+    mutationFn: (isFavorite: boolean) => logMediaAction(mediaType, mediaId, { isFavorite }),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey });
       toast.success(variables ? "Added to favorites" : "Removed from favorites");
@@ -181,8 +126,8 @@ function LogMediaDialog({
 }: {
   mediaType: MediaType;
   mediaId: number;
-  entry: Entry | null;
-  review: Review | MangaReview | null;
+  entry: LibraryEntry | null;
+  review: Review | null;
   open: boolean;
   setOpen: (val: boolean) => void;
   disabled?: boolean;
@@ -193,12 +138,11 @@ function LogMediaDialog({
   const router = useRouter();
   const queryClient = useQueryClient();
   const config = MEDIA[mediaType];
-  const normalized = entry ? toMediaEntry(entry) : null;
 
   const initialForm = () => ({
-    status: normalized?.status || config.defaultStatus,
-    progress: normalized?.progress ? normalized.progress.toString() : "",
-    rating: normalized?.rating || 0,
+    status: entry?.status || config.defaultStatus,
+    progress: entry?.progress ? entry.progress.toString() : "",
+    score: entry?.score || 0,
     reviewContent: review?.content || "",
     containsSpoilers: review?.containsSpoilers || false,
   });
@@ -209,27 +153,27 @@ function LogMediaDialog({
     setForm((prev) => ({ ...prev, ...updates }));
 
   const hasLog = !!(
-    normalized?.status ||
-    (normalized?.rating && normalized.rating > 0) ||
-    (normalized?.progress && normalized.progress > 0) ||
+    entry?.status ||
+    (entry?.score && entry.score > 0) ||
+    (entry?.progress && entry.progress > 0) ||
     review
   );
 
   const saveMutation = useMutation({
     mutationFn: async () => {
-      await ADAPTERS[mediaType].log(mediaId, {
+      await logMediaAction(mediaType, mediaId, {
         status: form.status,
-        rating: form.rating > 0 ? form.rating : undefined,
+        score: form.score > 0 ? form.score : null,
         progress: clampProgress(parseInt(form.progress, 10) || 0, total),
         isFavorite,
       });
 
       if (form.reviewContent.trim()) {
-        await ADAPTERS[mediaType].submitReview(mediaId, form.reviewContent, form.containsSpoilers);
+        await submitReviewAction(mediaType, mediaId, form.reviewContent, form.containsSpoilers);
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`${mediaType}-activity`, mediaId] });
+      queryClient.invalidateQueries({ queryKey: mediaKeys.activity(mediaType, mediaId) });
       setOpen(false);
       toast.success(`Successfully logged ${mediaType}!`);
     },
@@ -281,7 +225,7 @@ function LogMediaDialog({
             total={total}
             onChange={(val) => updateForm({ progress: val })}
           />
-          <RatingSection value={form.rating} onChange={(val) => updateForm({ rating: val })} />
+          <RatingSection value={form.score} onChange={(val) => updateForm({ score: val })} />
 
           <ReviewSection
             mediaType={mediaType}
@@ -311,14 +255,14 @@ function StatusSection({
   value,
   onChange,
 }: {
-  statuses: readonly { value: MediaStatus; label: string }[];
-  value: MediaStatus;
-  onChange: (val: MediaStatus) => void;
+  statuses: readonly { value: ListStatus; label: string }[];
+  value: ListStatus;
+  onChange: (val: ListStatus) => void;
 }) {
   return (
     <div className="grid grid-cols-4 items-center gap-4">
       <Label className="text-right text-muted-foreground">Status</Label>
-      <Select value={value} onValueChange={(val) => onChange(val as MediaStatus)} items={statuses}>
+      <Select value={value} onValueChange={(val) => onChange(val as ListStatus)} items={statuses}>
         <SelectTrigger className="col-span-3 bg-background/50">
           <SelectValue placeholder="Select status" />
         </SelectTrigger>

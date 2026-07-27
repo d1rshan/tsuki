@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { AdminUsersTable } from "@/components/admin/admin-users-table";
+import { AdminUsersTable } from "@/modules/admin/components/admin-users-table";
 
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";

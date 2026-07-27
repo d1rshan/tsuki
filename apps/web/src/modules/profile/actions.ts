@@ -15,7 +15,7 @@ export async function updateProfile(
 ) {
   try {
     const api = await serverApi();
-    const res = await api.users["me"].profile.put(data);
+    const res = await api.me.profile.put(data);
 
     if (res.error) {
       return { success: false, error: "Failed to update profile. Please check your inputs." };

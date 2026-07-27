@@ -7,14 +7,13 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { type AnimeCompact, type MangaCompact } from "@/lib/types";
-import { type MediaType } from "@/lib/media";
+import type { MediaCompact, MediaType } from "@tsuki/api/types";
 import { cn } from "@/lib/utils";
 
 import { MediaCard } from "./media-card";
 
 type TopTenCarouselProps = {
-  items: (AnimeCompact | MangaCompact)[];
+  items: MediaCompact[];
   mediaType: MediaType;
   actions?: React.ReactNode;
 };

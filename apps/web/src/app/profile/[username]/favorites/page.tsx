@@ -1,9 +1,34 @@
-import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { notFound } from "next/navigation";
 
-import { FavoritesSection } from "@/components/profile/profile-overview";
-import { ProfileMediaToggle } from "@/components/profile/profile-media-toggle";
-import { getProfileLibrary, getProfileMangaLibrary } from "../queries";
+import type { LibraryEntry, MediaType } from "@tsuki/api/types";
+
+import { MEDIA } from "@/modules/media/config";
+import { FavoritesSection } from "@/modules/profile/components/profile-overview";
+import { ProfileMediaToggle } from "@/modules/profile/components/profile-media-toggle";
+import { getProfileLibrary } from "@/modules/profile/queries";
+
+function FavoritesForType({
+  entries,
+  mediaType,
+}: {
+  entries: LibraryEntry[];
+  mediaType: MediaType;
+}) {
+  const favorites = entries.filter((entry) => entry.mediaType === mediaType && entry.isFavorite);
+
+  if (favorites.length === 0) {
+    return (
+      <div className="text-center py-20 text-muted-foreground">
+        <p className="text-sm font-medium">
+          No favorite {MEDIA[mediaType].label.toLowerCase()} yet.
+        </p>
+      </div>
+    );
+  }
+
+  return <FavoritesSection title={`${MEDIA[mediaType].label} Favorites`} favorites={favorites} />;
+}
 
 export default async function ProfileFavoritesPage({
   params,
@@ -26,33 +51,14 @@ export default async function ProfileFavoritesPage({
 }
 
 async function FavoritesContent({ username }: { username: string }) {
-  const [{ data: library, error }, { data: mangaLibrary, error: mangaError }] = await Promise.all([
-    getProfileLibrary(username),
-    getProfileMangaLibrary(username),
-  ]);
+  const { data, error } = await getProfileLibrary(username);
 
-  if (error || !library || mangaError || !mangaLibrary) return notFound();
+  if (error || !data) return notFound();
 
-  const favorites = library.filter((entry) => entry.isFavorite);
-  const mangaFavorites = mangaLibrary.filter((entry) => entry.isFavorite);
-
-  const animeContent =
-    favorites.length === 0 ? (
-      <div className="text-center py-20 text-muted-foreground">
-        <p className="text-sm font-medium">No favorite anime yet.</p>
-      </div>
-    ) : (
-      <FavoritesSection title="Anime Favorites" favorites={favorites} />
-    );
-
-  const mangaContent =
-    mangaFavorites.length === 0 ? (
-      <div className="text-center py-20 text-muted-foreground">
-        <p className="text-sm font-medium">No favorite manga yet.</p>
-      </div>
-    ) : (
-      <FavoritesSection title="Manga Favorites" favorites={mangaFavorites} />
-    );
-
-  return <ProfileMediaToggle anime={animeContent} manga={mangaContent} />;
+  return (
+    <ProfileMediaToggle
+      anime={<FavoritesForType entries={data} mediaType="anime" />}
+      manga={<FavoritesForType entries={data} mediaType="manga" />}
+    />
+  );
 }

@@ -3,8 +3,8 @@
 import type { ReactNode } from "react";
 import { useQueryState, parseAsStringEnum } from "nuqs";
 
-import { type MediaType } from "@/lib/media";
-import { MediaTypeToggle } from "@/components/media-type-toggle";
+import type { MediaType } from "@tsuki/api/types";
+import { MediaTypeToggle } from "@/modules/media/components/media-type-toggle";
 
 export function ProfileMediaToggle({ anime, manga }: { anime: ReactNode; manga: ReactNode }) {
   const [type, setType] = useQueryState(

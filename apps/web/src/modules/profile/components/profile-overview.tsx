@@ -2,31 +2,39 @@ import Image from "next/image";
 import Link from "next/link";
 import { Star } from "lucide-react";
 
-import { formatEnum } from "@/lib/utils";
-import type { LibraryEntry, MangaLibraryEntry } from "@/lib/types";
+import type { LibraryEntry } from "@tsuki/api/types";
+
 import {
   MEDIA,
   getMediaCoverImage,
   getMediaTitle,
   mediaHref,
-  toMediaEntry,
-  type MediaEntry,
-} from "@/lib/media";
-import { ProfileMediaCard } from "@/components/profile/profile-media-card";
+  statusLabel,
+} from "@/modules/media/config";
 
-type Entries = (LibraryEntry | MangaLibraryEntry)[];
+import { ProfileMediaCard } from "./profile-media-card";
 
-export function FavoritesSection({ title, favorites }: { title: string; favorites: Entries }) {
+export function FavoritesSection({
+  title,
+  favorites,
+}: {
+  title: string;
+  favorites: LibraryEntry[];
+}) {
   if (favorites.length === 0) return null;
 
   return (
     <section className="space-y-6">
       <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
       <div className="grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
-        {favorites.map(toMediaEntry).map((entry) => {
+        {favorites.map((entry) => {
           if (!entry.media) return null;
           return (
-            <ProfileMediaCard key={entry.mediaId} media={entry.media} mediaType={entry.mediaType} />
+            <ProfileMediaCard
+              key={`${entry.mediaType}-${entry.mediaId}`}
+              media={entry.media}
+              mediaType={entry.mediaType}
+            />
           );
         })}
       </div>
@@ -40,7 +48,7 @@ export function RecentActivitySection({
   username,
 }: {
   title: string;
-  recentLogs: Entries;
+  recentLogs: LibraryEntry[];
   username: string;
 }) {
   return (
@@ -58,9 +66,9 @@ export function RecentActivitySection({
 
       <div className="grid gap-x-12 gap-y-8 md:grid-cols-2">
         {recentLogs.length > 0 ? (
-          recentLogs
-            .map(toMediaEntry)
-            .map((entry) => <RecentLogItem key={entry.mediaId} entry={entry} />)
+          recentLogs.map((entry) => (
+            <RecentLogItem key={`${entry.mediaType}-${entry.mediaId}`} entry={entry} />
+          ))
         ) : (
           <div className="col-span-full py-12 text-center text-sm font-medium text-muted-foreground">
             No recent activity.
@@ -71,7 +79,7 @@ export function RecentActivitySection({
   );
 }
 
-function RecentLogItem({ entry }: { entry: MediaEntry }) {
+function RecentLogItem({ entry }: { entry: LibraryEntry }) {
   if (!entry.media) return null;
 
   const cover = getMediaCoverImage(entry.media);
@@ -96,7 +104,7 @@ function RecentLogItem({ entry }: { entry: MediaEntry }) {
 
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-medium text-muted-foreground">
           {entry.status && (
-            <span className="capitalize text-foreground/70">{formatEnum(entry.status)}</span>
+            <span className="text-foreground/70">{statusLabel(entry.mediaType, entry.status)}</span>
           )}
           {entry.progress > 0 && (
             <span className="flex items-center gap-1.5">
@@ -104,11 +112,11 @@ function RecentLogItem({ entry }: { entry: MediaEntry }) {
               {MEDIA[entry.mediaType].unitAbbrev} {entry.progress}
             </span>
           )}
-          {entry.rating && (
+          {entry.score && (
             <span className="flex items-center gap-1 text-amber-500">
               <span className="w-1 h-1 rounded-full bg-muted-foreground/30 text-muted-foreground" />
               <Star className="ml-1.5 h-3.5 w-3.5 fill-current" />
-              {entry.rating}
+              {entry.score}
             </span>
           )}
         </div>

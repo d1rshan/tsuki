@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { treaty } from "@elysiajs/eden";
 
-import type { App } from "@tsuki/api/src/app";
+import type { App } from "@tsuki/api";
 
 import { env } from "@tsuki/env";
 

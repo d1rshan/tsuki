@@ -1,15 +1,16 @@
 import { Suspense } from "react";
 import { ExternalLink } from "lucide-react";
 
-import type { Anime, Manga } from "@/lib/types";
-import { type MediaType } from "@/lib/media";
-import { Badge } from "@/components/ui/badge";
-import { MediaActions } from "@/components/media/media-actions";
-import { MediaActionsSkeleton } from "@/components/media/media-skeletons";
-import { MediaTrailer } from "@/components/media/media-trailer";
+import type { Media } from "@tsuki/api/types";
 
-export function MediaDetails({ media, mediaType }: { media: Anime | Manga; mediaType: MediaType }) {
-  const isAnime = "episodes" in media;
+import { Badge } from "@/components/ui/badge";
+
+import { MediaActions } from "./media-actions";
+import { MediaActionsSkeleton } from "./media-skeletons";
+import { MediaTrailer } from "./media-trailer";
+
+export function MediaDetails({ media }: { media: Media }) {
+  const isAnime = media.type === "anime";
 
   // Anime links are dominated by streaming services, so we surface only those.
   // Manga has no streaming link type, so all links are shown.
@@ -17,8 +18,6 @@ export function MediaDetails({ media, mediaType }: { media: Anime | Manga; media
     ? media.externalLinks?.filter((link) => link.type === "STREAMING")
     : media.externalLinks;
   const linksHeading = isAnime ? "Where to Watch" : "More Info";
-
-  const total = isAnime ? media.episodes : media.chapters;
 
   return (
     <div className="mt-8 grid grid-cols-1 gap-12 md:grid-cols-[200px_1fr] lg:grid-cols-[250px_1fr]">
@@ -94,7 +93,7 @@ export function MediaDetails({ media, mediaType }: { media: Anime | Manga; media
         )}
         <div className="pt-4 border-t">
           <Suspense fallback={<MediaActionsSkeleton />}>
-            <MediaActions mediaType={mediaType} mediaId={media.id} total={total} />
+            <MediaActions mediaType={media.type} mediaId={media.id} total={media.unitCount} />
           </Suspense>
         </div>
       </div>

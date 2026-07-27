@@ -2,24 +2,19 @@ import Link from "next/link";
 import Image from "next/image";
 import { Star } from "lucide-react";
 
-import {
-  MEDIA,
-  getMediaCoverImage,
-  getMediaTitle,
-  mediaHref,
-  type LibraryMedia,
-  type MediaType,
-} from "@/lib/media";
+import type { MediaCompact, MediaType } from "@tsuki/api/types";
+
+import { MEDIA, getMediaCoverImage, getMediaTitle, mediaHref } from "@/modules/media/config";
 
 interface ProfileMediaCardProps {
-  media: LibraryMedia;
+  media: MediaCompact;
   mediaType: MediaType;
-  rating?: number | null;
+  score?: number | null;
   /** Episodes watched or chapters read. */
   progress?: number | null;
 }
 
-export function ProfileMediaCard({ media, mediaType, rating, progress }: ProfileMediaCardProps) {
+export function ProfileMediaCard({ media, mediaType, score, progress }: ProfileMediaCardProps) {
   const cover = getMediaCoverImage(media);
   const title = getMediaTitle(media);
 
@@ -42,11 +37,11 @@ export function ProfileMediaCard({ media, mediaType, rating, progress }: Profile
         </div>
       )}
 
-      {rating ? (
+      {score ? (
         <div className="absolute top-2 right-2 z-10">
           <div className="bg-black/80 px-1.5 py-0.5 rounded-md flex items-center gap-1 text-[10px] font-semibold text-white shadow-sm">
             <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" />
-            {rating}
+            {score}
           </div>
         </div>
       ) : null}

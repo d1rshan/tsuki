@@ -3,14 +3,14 @@ import { Star } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { formatEnum } from "@/lib/utils";
-import type { Anime, Manga } from "@/lib/types";
+import type { Media } from "@tsuki/api/types";
 
 export function MediaHeader({
   media,
   title,
   coverImage,
 }: {
-  media: Anime | Manga;
+  media: Media;
   title: string;
   coverImage: string | null;
 }) {

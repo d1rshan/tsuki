@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 
 import { authClient } from "@tsuki/auth/client";
-import { AdminDashboardStats } from "@/components/admin/admin-dashboard-stats";
+import { AdminDashboardStats } from "@/modules/admin/components/admin-dashboard-stats";
 
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";

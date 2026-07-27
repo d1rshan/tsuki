@@ -1,8 +1,33 @@
 import { notFound } from "next/navigation";
 
-import { ReviewItem } from "@/components/profile/profile-reviews";
-import { ProfileMediaToggle } from "@/components/profile/profile-media-toggle";
-import { getProfileReviews, getProfileMangaReviews } from "../queries";
+import type { MediaType, Review } from "@tsuki/api/types";
+
+import { MEDIA } from "@/modules/media/config";
+import { ReviewItem } from "@/modules/profile/components/profile-reviews";
+import { ProfileMediaToggle } from "@/modules/profile/components/profile-media-toggle";
+import { getProfileReviews } from "@/modules/profile/queries";
+
+function ReviewsForType({ reviews, mediaType }: { reviews: Review[]; mediaType: MediaType }) {
+  const forType = reviews.filter((review) => review.mediaType === mediaType);
+
+  if (forType.length === 0) {
+    return (
+      <div className="text-center py-20 text-muted-foreground">
+        <p className="text-sm font-medium">
+          This user hasn&apos;t written any {MEDIA[mediaType].label.toLowerCase()} reviews yet.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-10">
+      {forType.map((review) => (
+        <ReviewItem key={review.id} review={review} />
+      ))}
+    </div>
+  );
+}
 
 export default async function ProfileReviewsPage({
   params,
@@ -10,44 +35,16 @@ export default async function ProfileReviewsPage({
   params: Promise<{ username: string }>;
 }) {
   const { username } = await params;
-  const [{ data: reviews, error }, { data: mangaReviews, error: mangaError }] = await Promise.all([
-    getProfileReviews(username),
-    getProfileMangaReviews(username),
-  ]);
+  const { data, error } = await getProfileReviews(username);
 
-  if (error || mangaError) {
-    return notFound();
-  }
-
-  const animeContent =
-    reviews.length === 0 ? (
-      <div className="text-center py-20 text-muted-foreground">
-        <p className="text-sm font-medium">This user hasn't written any anime reviews yet.</p>
-      </div>
-    ) : (
-      <div className="flex flex-col gap-10">
-        {reviews.map((review) => (
-          <ReviewItem key={review.id} review={review} />
-        ))}
-      </div>
-    );
-
-  const mangaContent =
-    mangaReviews.length === 0 ? (
-      <div className="text-center py-20 text-muted-foreground">
-        <p className="text-sm font-medium">This user hasn't written any manga reviews yet.</p>
-      </div>
-    ) : (
-      <div className="flex flex-col gap-10">
-        {mangaReviews.map((review) => (
-          <ReviewItem key={review.id} review={review} />
-        ))}
-      </div>
-    );
+  if (error || !data) return notFound();
 
   return (
     <div className="max-w-3xl pb-16">
-      <ProfileMediaToggle anime={animeContent} manga={mangaContent} />
+      <ProfileMediaToggle
+        anime={<ReviewsForType reviews={data} mediaType="anime" />}
+        manga={<ReviewsForType reviews={data} mediaType="manga" />}
+      />
     </div>
   );
 }

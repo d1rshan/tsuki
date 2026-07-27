@@ -19,9 +19,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { FieldGroup, Field, FieldLabel, FieldError } from "@/components/ui/field";
-import type { UserOverview } from "@/lib/types";
+import type { UserOverview } from "@tsuki/api/types";
 
-import { updateProfile } from "./actions";
+import { updateProfile } from "../actions";
 
 const formSchema = z.object({
   bio: z.string().max(500, "Bio must be at most 500 characters").optional(),
