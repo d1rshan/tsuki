@@ -7,8 +7,10 @@ import { Star, Heart, Check, Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { useSession } from "@tsuki/auth/client";
+import type { ReadStatus, WatchStatus } from "@tsuki/api/src/modules/users/model";
 import { api } from "@/lib/api";
-import type { LibraryEntry, Review } from "@/lib/types";
+import { MEDIA, toMediaEntry, type MediaStatus, type MediaType } from "@/lib/media";
+import type { LibraryEntry, MangaLibraryEntry, MangaReview, Review } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,42 +30,94 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { logAnimeAction, submitReviewAction } from "@/app/actions/activity";
-import type { WatchStatus } from "@tsuki/api/src/modules/users/model";
+import {
+  logAnimeAction,
+  logMangaAction,
+  submitMangaReviewAction,
+  submitReviewAction,
+} from "@/app/actions/activity";
 
-const WATCH_STATUSES: { value: WatchStatus; label: string }[] = [
-  { value: "WATCHING", label: "Watching" },
-  { value: "COMPLETED", label: "Completed" },
-  { value: "PLAN_TO_WATCH", label: "Plan to Watch" },
-  { value: "PAUSED", label: "Paused" },
-  { value: "DROPPED", label: "Dropped" },
-];
+type Entry = LibraryEntry | MangaLibraryEntry;
 
-function clampEpisodes(value: number, totalEpisodes?: number | null) {
+type LogInput = {
+  status: MediaStatus;
+  rating?: number;
+  /** Episodes watched or chapters read. */
+  progress: number;
+  isFavorite: boolean;
+};
+
+/**
+ * The only place anime and manga genuinely diverge: which endpoint to hit and
+ * which progress field the payload uses.
+ */
+const ADAPTERS: Record<
+  MediaType,
+  {
+    fetchActivity: (id: number) => Promise<{
+      data?: { entry: Entry | null; review: Review | MangaReview | null } | null;
+    }>;
+    log: (id: number, input: LogInput) => Promise<void>;
+    setFavorite: (id: number, isFavorite: boolean) => Promise<void>;
+    submitReview: (id: number, content: string, containsSpoilers: boolean) => Promise<void>;
+  }
+> = {
+  anime: {
+    fetchActivity: (id) => api.users.me.activity({ animeId: id }).get(),
+    log: (id, input) =>
+      logAnimeAction(id, {
+        status: input.status as WatchStatus,
+        rating: input.rating,
+        episodesWatched: input.progress,
+        isFavorite: input.isFavorite,
+      }),
+    setFavorite: (id, isFavorite) => logAnimeAction(id, { isFavorite }),
+    submitReview: submitReviewAction,
+  },
+  manga: {
+    fetchActivity: (id) => api.users.me["manga-activity"]({ mangaId: id }).get(),
+    log: (id, input) =>
+      logMangaAction(id, {
+        status: input.status as ReadStatus,
+        rating: input.rating,
+        chaptersRead: input.progress,
+        isFavorite: input.isFavorite,
+      }),
+    setFavorite: (id, isFavorite) => logMangaAction(id, { isFavorite }),
+    submitReview: submitMangaReviewAction,
+  },
+};
+
+function clampProgress(value: number, total?: number | null) {
   const normalizedValue = Number.isNaN(value) ? 0 : Math.max(0, value);
 
-  if (typeof totalEpisodes !== "number" || totalEpisodes <= 0) {
+  if (typeof total !== "number" || total <= 0) {
     return normalizedValue;
   }
 
-  return Math.min(normalizedValue, totalEpisodes);
+  return Math.min(normalizedValue, total);
 }
 
-export function AnimeActions({
-  animeId,
-  totalEpisodes,
+export function MediaActions({
+  mediaType,
+  mediaId,
+  total,
 }: {
-  animeId: number;
-  totalEpisodes?: number | null;
+  mediaType: MediaType;
+  mediaId: number;
+  /** Total episodes/chapters, used to cap progress. */
+  total?: number | null;
 }) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { data: session, isPending: isSessionPending } = useSession();
   const isAuthenticated = !!session?.user;
 
+  const queryKey = [`${mediaType}-activity`, mediaId]; // TODO: centralize query keys gng
+
   const { data: userActivity, isLoading: isActivityLoading } = useQuery({
-    queryKey: ["anime-activity", animeId], // TODO: centralize query keys gng
-    queryFn: () => api.users.me.activity({ animeId }).get(),
+    queryKey,
+    queryFn: () => ADAPTERS[mediaType].fetchActivity(mediaId),
     enabled: isAuthenticated,
   });
 
@@ -73,9 +127,9 @@ export function AnimeActions({
   const [open, setOpen] = useState(false);
 
   const toggleMutation = useMutation({
-    mutationFn: (isFavorite: boolean) => logAnimeAction(animeId, { isFavorite }),
+    mutationFn: (isFavorite: boolean) => ADAPTERS[mediaType].setFavorite(mediaId, isFavorite),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["anime-activity", animeId] });
+      queryClient.invalidateQueries({ queryKey });
       toast.success(variables ? "Added to favorites" : "Removed from favorites");
     },
     onError: () => {
@@ -92,8 +146,9 @@ export function AnimeActions({
 
   return (
     <div className="flex gap-2">
-      <LogAnimeDialog
-        animeId={animeId}
+      <LogMediaDialog
+        mediaType={mediaType}
+        mediaId={mediaId}
         entry={entry}
         review={review}
         open={open}
@@ -101,7 +156,7 @@ export function AnimeActions({
         disabled={isLoading}
         isFavorite={entry?.isFavorite ?? false}
         isAuthenticated={isAuthenticated}
-        totalEpisodes={totalEpisodes}
+        total={total}
       />
       <FavoriteButton
         isFavorite={entry?.isFavorite ?? false}
@@ -112,8 +167,9 @@ export function AnimeActions({
   );
 }
 
-function LogAnimeDialog({
-  animeId,
+function LogMediaDialog({
+  mediaType,
+  mediaId,
   entry,
   review,
   open,
@@ -121,60 +177,64 @@ function LogAnimeDialog({
   disabled,
   isFavorite,
   isAuthenticated,
-  totalEpisodes,
+  total,
 }: {
-  animeId: number;
-  entry: LibraryEntry | null;
-  review: Review | null;
+  mediaType: MediaType;
+  mediaId: number;
+  entry: Entry | null;
+  review: Review | MangaReview | null;
   open: boolean;
   setOpen: (val: boolean) => void;
   disabled?: boolean;
   isFavorite: boolean;
   isAuthenticated: boolean;
-  totalEpisodes?: number | null;
+  total?: number | null;
 }) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const initialEpisodes = entry?.episodesWatched?.toString() ?? "";
+  const config = MEDIA[mediaType];
+  const normalized = entry ? toMediaEntry(entry) : null;
 
-  const [form, setForm] = useState({
-    status: (entry?.status as WatchStatus) || "PLAN_TO_WATCH",
-    episodes: initialEpisodes,
-    rating: entry?.rating || 0,
+  const initialForm = () => ({
+    status: normalized?.status || config.defaultStatus,
+    progress: normalized?.progress ? normalized.progress.toString() : "",
+    rating: normalized?.rating || 0,
     reviewContent: review?.content || "",
     containsSpoilers: review?.containsSpoilers || false,
   });
+
+  const [form, setForm] = useState(initialForm);
 
   const updateForm = (updates: Partial<typeof form>) =>
     setForm((prev) => ({ ...prev, ...updates }));
 
   const hasLog = !!(
-    entry?.status ||
-    (entry?.rating && entry.rating > 0) ||
-    (entry?.episodesWatched && entry.episodesWatched > 0) ||
+    normalized?.status ||
+    (normalized?.rating && normalized.rating > 0) ||
+    (normalized?.progress && normalized.progress > 0) ||
     review
   );
 
   const saveMutation = useMutation({
     mutationFn: async () => {
-      await logAnimeAction(animeId, {
+      await ADAPTERS[mediaType].log(mediaId, {
         status: form.status,
         rating: form.rating > 0 ? form.rating : undefined,
-        episodesWatched: clampEpisodes(parseInt(form.episodes, 10) || 0, totalEpisodes),
+        progress: clampProgress(parseInt(form.progress, 10) || 0, total),
         isFavorite,
       });
 
       if (form.reviewContent.trim()) {
-        await submitReviewAction(animeId, form.reviewContent, form.containsSpoilers);
+        await ADAPTERS[mediaType].submitReview(mediaId, form.reviewContent, form.containsSpoilers);
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["anime-activity", animeId] });
+      queryClient.invalidateQueries({ queryKey: [`${mediaType}-activity`, mediaId] });
       setOpen(false);
-      toast.success("Successfully logged anime!");
+      toast.success(`Successfully logged ${mediaType}!`);
     },
     onError: () => {
-      toast.error("Failed to log anime");
+      toast.error(`Failed to log ${mediaType}`);
     },
   });
 
@@ -187,15 +247,7 @@ function LogAnimeDialog({
 
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
-    if (newOpen) {
-      setForm({
-        status: (entry?.status as WatchStatus) || "PLAN_TO_WATCH",
-        episodes: entry?.episodesWatched?.toString() ?? "",
-        rating: entry?.rating || 0,
-        reviewContent: review?.content || "",
-        containsSpoilers: review?.containsSpoilers || false,
-      });
-    }
+    if (newOpen) setForm(initialForm());
   };
 
   return (
@@ -214,19 +266,25 @@ function LogAnimeDialog({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] rounded-xl border-white/10 bg-background/80 backdrop-blur-xl">
         <DialogHeader>
-          <DialogTitle className="text-xl">Log Anime</DialogTitle>
+          <DialogTitle className="text-xl">Log {config.label}</DialogTitle>
         </DialogHeader>
 
         <div className="grid gap-6 py-4">
-          <StatusSection value={form.status} onChange={(val) => updateForm({ status: val })} />
-          <EpisodesSection
-            value={form.episodes}
-            totalEpisodes={totalEpisodes}
-            onChange={(val) => updateForm({ episodes: val })}
+          <StatusSection
+            statuses={config.statuses}
+            value={form.status}
+            onChange={(val) => updateForm({ status: val })}
+          />
+          <ProgressSection
+            label={config.unitLong}
+            value={form.progress}
+            total={total}
+            onChange={(val) => updateForm({ progress: val })}
           />
           <RatingSection value={form.rating} onChange={(val) => updateForm({ rating: val })} />
 
           <ReviewSection
+            mediaType={mediaType}
             content={form.reviewContent}
             containsSpoilers={form.containsSpoilers}
             onContentChange={(val) => updateForm({ reviewContent: val })}
@@ -249,25 +307,23 @@ function LogAnimeDialog({
 }
 
 function StatusSection({
+  statuses,
   value,
   onChange,
 }: {
-  value: WatchStatus;
-  onChange: (val: WatchStatus) => void;
+  statuses: readonly { value: MediaStatus; label: string }[];
+  value: MediaStatus;
+  onChange: (val: MediaStatus) => void;
 }) {
   return (
     <div className="grid grid-cols-4 items-center gap-4">
       <Label className="text-right text-muted-foreground">Status</Label>
-      <Select
-        value={value}
-        onValueChange={(val) => onChange(val as WatchStatus)}
-        items={WATCH_STATUSES}
-      >
+      <Select value={value} onValueChange={(val) => onChange(val as MediaStatus)} items={statuses}>
         <SelectTrigger className="col-span-3 bg-background/50">
           <SelectValue placeholder="Select status" />
         </SelectTrigger>
         <SelectContent>
-          {WATCH_STATUSES.map((s) => (
+          {statuses.map((s) => (
             <SelectItem key={s.value} value={s.value}>
               {s.label}
             </SelectItem>
@@ -278,26 +334,27 @@ function StatusSection({
   );
 }
 
-function EpisodesSection({
+function ProgressSection({
+  label,
   value,
-  totalEpisodes,
+  total,
   onChange,
 }: {
+  label: string;
   value: string;
-  totalEpisodes?: number | null;
+  total?: number | null;
   onChange: (val: string) => void;
 }) {
-  const hasEpisodeLimit = typeof totalEpisodes === "number" && totalEpisodes > 0;
-  const inputMax = hasEpisodeLimit ? totalEpisodes : undefined;
+  const hasLimit = typeof total === "number" && total > 0;
 
   return (
     <div className="grid grid-cols-4 items-center gap-4">
-      <Label className="text-right text-muted-foreground">Episodes</Label>
+      <Label className="text-right text-muted-foreground">{label}</Label>
       <div className="col-span-3 flex flex-wrap items-center gap-2">
         <Input
           type="number"
           min={0}
-          max={inputMax}
+          max={hasLimit ? total : undefined}
           value={value}
           onChange={(e) => {
             const nextValue = e.target.value;
@@ -307,13 +364,11 @@ function EpisodesSection({
               return;
             }
 
-            onChange(clampEpisodes(parseInt(nextValue, 10) || 0, totalEpisodes).toString());
+            onChange(clampProgress(parseInt(nextValue, 10) || 0, total).toString());
           }}
           className="w-24 bg-background/50"
         />
-        {hasEpisodeLimit && (
-          <span className="text-sm text-muted-foreground">/ {totalEpisodes}</span>
-        )}
+        {hasLimit && <span className="text-sm text-muted-foreground">/ {total}</span>}
       </div>
     </div>
   );
@@ -346,11 +401,13 @@ function RatingSection({ value, onChange }: { value: number; onChange: (val: num
 }
 
 function ReviewSection({
+  mediaType,
   content,
   containsSpoilers,
   onContentChange,
   onSpoilersChange,
 }: {
+  mediaType: MediaType;
   content: string;
   containsSpoilers: boolean;
   onContentChange: (val: string) => void;
@@ -360,7 +417,7 @@ function ReviewSection({
     <div className="flex flex-col gap-3 pt-2 border-t border-white/5">
       <Label className="text-muted-foreground font-medium">Review (Optional)</Label>
       <Textarea
-        placeholder="What did you think about this anime?"
+        placeholder={`What did you think about this ${mediaType}?`}
         className="resize-none h-24 bg-background/50 focus-visible:ring-primary/50"
         value={content}
         onChange={(e) => onContentChange(e.target.value)}

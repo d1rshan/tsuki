@@ -1,19 +1,24 @@
 import { useState, useCallback } from "react";
-import { useQueryState } from "nuqs";
+import { useQueryState, parseAsStringEnum } from "nuqs";
 import { usePathname } from "next/navigation";
 import { useHotkey } from "@/hooks/use-hotkey";
+import type { MediaType } from "@/lib/media";
 
 export function useNavbarSearch() {
   const pathname = usePathname();
-  const isHomePage = pathname === "/";
+  const isSearchablePage = pathname === "/";
 
   const [query, setQuery] = useQueryState("q", { defaultValue: "" });
+  const [mediaType] = useQueryState(
+    "type",
+    parseAsStringEnum<MediaType>(["anime", "manga"]).withDefault("anime"),
+  );
 
   // Track intentional manual opening
   const [isUserOpen, setIsUserOpen] = useState(false);
 
   // Derived state: perfectly in sync without useEffect!
-  const isOpen = isHomePage && (isUserOpen || query.length > 0);
+  const isOpen = isSearchablePage && (isUserOpen || query.length > 0);
 
   const closeSearch = useCallback(() => {
     setIsUserOpen(false);
@@ -29,7 +34,7 @@ export function useNavbarSearch() {
   }, [isOpen, closeSearch]);
 
   useHotkey("mod+k", () => {
-    if (isHomePage) toggleSearch();
+    if (isSearchablePage) toggleSearch();
   });
 
   useHotkey("escape", () => {
@@ -42,6 +47,7 @@ export function useNavbarSearch() {
     isOpen,
     openSearch: () => setIsUserOpen(true),
     closeSearch,
-    isHomePage,
+    isSearchablePage,
+    mediaType,
   };
 }

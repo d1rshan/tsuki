@@ -2,24 +2,30 @@ import Link from "next/link";
 import Image from "next/image";
 import { Star } from "lucide-react";
 
-import { getAnimeCoverImage, getAnimeTitle } from "@/lib/anime";
-import type { LibraryEntry } from "@/lib/types";
+import {
+  MEDIA,
+  getMediaCoverImage,
+  getMediaTitle,
+  mediaHref,
+  type LibraryMedia,
+  type MediaType,
+} from "@/lib/media";
 
-type Anime = NonNullable<LibraryEntry["anime"]>;
-
-interface ProfileAnimeCardProps {
-  anime: Anime;
+interface ProfileMediaCardProps {
+  media: LibraryMedia;
+  mediaType: MediaType;
   rating?: number | null;
-  episodesWatched?: number | null;
+  /** Episodes watched or chapters read. */
+  progress?: number | null;
 }
 
-export function ProfileAnimeCard({ anime, rating, episodesWatched }: ProfileAnimeCardProps) {
-  const cover = getAnimeCoverImage(anime);
-  const title = getAnimeTitle(anime);
+export function ProfileMediaCard({ media, mediaType, rating, progress }: ProfileMediaCardProps) {
+  const cover = getMediaCoverImage(media);
+  const title = getMediaTitle(media);
 
   return (
     <Link
-      href={`/anime/${anime.id}`}
+      href={mediaHref(mediaType, media.id)}
       className="group relative aspect-[3/4] flex flex-col overflow-hidden rounded-xl bg-muted/30 outline-none transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5 hover:ring-1 hover:ring-primary/50 focus-visible:ring-1 focus-visible:ring-primary"
     >
       {cover ? (
@@ -51,8 +57,10 @@ export function ProfileAnimeCard({ anime, rating, episodesWatched }: ProfileAnim
         <span className="line-clamp-2 text-sm font-semibold text-white drop-shadow-sm transition-colors duration-300">
           {title}
         </span>
-        {episodesWatched != null ? (
-          <div className="mt-1 text-xs text-white/80 font-medium">Ep. {episodesWatched}</div>
+        {progress != null ? (
+          <div className="mt-1 text-xs text-white/80 font-medium">
+            {MEDIA[mediaType].unitAbbrev}. {progress}
+          </div>
         ) : null}
       </div>
     </Link>

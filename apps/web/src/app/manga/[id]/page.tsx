@@ -9,12 +9,10 @@ import { MediaHeader } from "@/components/media/media-header";
 import { MediaDetails } from "@/components/media/media-details";
 import { MediaPageSkeleton } from "@/components/media/media-skeletons";
 
-// TODO: we hv to do smth for this too!, same with profile queries.ts
-
-async function getCachedAnime(id: string) {
+async function getCachedManga(id: string) {
   "use cache: remote";
   cacheLife("max");
-  const { data, error } = await api.anime({ id }).get();
+  const { data, error } = await api.manga({ id }).get();
 
   if (error) {
     return { data: null, error: { status: error.status, message: error.value } };
@@ -23,30 +21,30 @@ async function getCachedAnime(id: string) {
   return { data, error: null };
 }
 
-export default function AnimePage({ params }: { params: Promise<{ id: string }> }) {
+export default function MangaPage({ params }: { params: Promise<{ id: string }> }) {
   return (
     <Suspense fallback={<MediaPageSkeleton />}>
-      <AnimePageContent params={params} />
+      <MangaPageContent params={params} />
     </Suspense>
   );
 }
 
-async function AnimePageContent({ params }: { params: Promise<{ id: string }> }) {
+async function MangaPageContent({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { data: anime, error } = await getCachedAnime(id);
+  const { data: manga, error } = await getCachedManga(id);
 
   if (error) return notFound();
 
-  const title = getMediaTitle(anime);
-  const coverImage = getMediaCoverImage(anime);
-  const bannerImage = getMediaBannerImage(anime);
+  const title = getMediaTitle(manga);
+  const coverImage = getMediaCoverImage(manga);
+  const bannerImage = getMediaBannerImage(manga);
 
   return (
     <div className="pb-16">
       <MediaBanner bannerImage={bannerImage} title={title} />
       <div className="container mx-auto max-w-6xl px-4">
-        <MediaHeader media={anime} title={title} coverImage={coverImage} />
-        <MediaDetails media={anime} mediaType="anime" />
+        <MediaHeader media={manga} title={title} coverImage={coverImage} />
+        <MediaDetails media={manga} mediaType="manga" />
       </div>
     </div>
   );

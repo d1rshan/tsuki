@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-export function AnimePageSkeleton() {
+export function MediaPageSkeleton() {
   return (
     <div className="pb-16">
       {/* Banner Skeleton */}
@@ -56,7 +56,7 @@ export function AnimePageSkeleton() {
                 </div>
               </div>
             </div>
-            {/* Where to Watch Skeleton */}
+            {/* External Links Skeleton */}
             <div className="space-y-3">
               <Skeleton className="h-4 w-28" />
               <div className="space-y-2">
@@ -66,9 +66,9 @@ export function AnimePageSkeleton() {
               </div>
             </div>
 
-            {/* Anime Actions Skeleton */}
+            {/* Actions Skeleton */}
             <div className="pt-4 border-t">
-              <AnimeActionsSkeleton />
+              <MediaActionsSkeleton />
             </div>
           </div>
 
@@ -98,7 +98,7 @@ export function AnimePageSkeleton() {
   );
 }
 
-export function AnimeActionsSkeleton() {
+export function MediaActionsSkeleton() {
   return (
     <div className="flex gap-2">
       <Skeleton className="h-8 flex-1 rounded-xl" />

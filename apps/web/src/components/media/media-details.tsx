@@ -1,26 +1,36 @@
 import { Suspense } from "react";
 import { ExternalLink } from "lucide-react";
 
-import type { Anime } from "@/lib/types";
+import type { Anime, Manga } from "@/lib/types";
+import { type MediaType } from "@/lib/media";
 import { Badge } from "@/components/ui/badge";
-import { AnimeActions } from "@/components/anime/anime-actions";
-import { AnimeActionsSkeleton } from "@/components/anime/anime-skeletons";
-import { AnimeTrailer } from "@/components/anime/anime-trailer";
+import { MediaActions } from "@/components/media/media-actions";
+import { MediaActionsSkeleton } from "@/components/media/media-skeletons";
+import { MediaTrailer } from "@/components/media/media-trailer";
 
-export function AnimeDetails({ anime }: { anime: Anime }) {
-  const streamingLinks = anime.externalLinks?.filter((link) => link.type === "STREAMING");
+export function MediaDetails({ media, mediaType }: { media: Anime | Manga; mediaType: MediaType }) {
+  const isAnime = "episodes" in media;
+
+  // Anime links are dominated by streaming services, so we surface only those.
+  // Manga has no streaming link type, so all links are shown.
+  const links = isAnime
+    ? media.externalLinks?.filter((link) => link.type === "STREAMING")
+    : media.externalLinks;
+  const linksHeading = isAnime ? "Where to Watch" : "More Info";
+
+  const total = isAnime ? media.episodes : media.chapters;
 
   return (
     <div className="mt-8 grid grid-cols-1 gap-12 md:grid-cols-[200px_1fr] lg:grid-cols-[250px_1fr]">
       {/* Sidebar */}
       <div className="space-y-8">
-        {anime.genres && anime.genres.length > 0 && (
+        {media.genres && media.genres.length > 0 && (
           <div className="space-y-3">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               Genres
             </h3>
             <div className="flex flex-wrap gap-2">
-              {anime.genres.map((genre) => (
+              {media.genres.map((genre) => (
                 <Badge key={genre} variant="secondary" className="font-normal">
                   {genre}
                 </Badge>
@@ -34,19 +44,31 @@ export function AnimeDetails({ anime }: { anime: Anime }) {
             Details
           </h3>
           <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-1">
-            <InfoItem label="Episodes" value={anime.episodes} />
-            <InfoItem label="Duration" value={anime.duration ? `${anime.duration} mins` : null} />
-            <InfoItem label="Popularity" value={anime.popularity?.toLocaleString()} />
+            {isAnime ? (
+              <>
+                <InfoItem label="Episodes" value={media.episodes} />
+                <InfoItem
+                  label="Duration"
+                  value={media.duration ? `${media.duration} mins` : null}
+                />
+              </>
+            ) : (
+              <>
+                <InfoItem label="Chapters" value={media.chapters} />
+                <InfoItem label="Volumes" value={media.volumes} />
+              </>
+            )}
+            <InfoItem label="Popularity" value={media.popularity?.toLocaleString()} />
           </div>
         </div>
 
-        {streamingLinks && streamingLinks.length > 0 && (
+        {links && links.length > 0 && (
           <div className="space-y-3">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Where to Watch
+              {linksHeading}
             </h3>
             <div className="flex flex-col gap-2">
-              {streamingLinks.map((link) => (
+              {links.map((link) => (
                 <a
                   key={link.url}
                   href={link.url}
@@ -71,8 +93,8 @@ export function AnimeDetails({ anime }: { anime: Anime }) {
           </div>
         )}
         <div className="pt-4 border-t">
-          <Suspense fallback={<AnimeActionsSkeleton />}>
-            <AnimeActions animeId={anime.id} totalEpisodes={anime.episodes} />
+          <Suspense fallback={<MediaActionsSkeleton />}>
+            <MediaActions mediaType={mediaType} mediaId={media.id} total={total} />
           </Suspense>
         </div>
       </div>
@@ -83,12 +105,12 @@ export function AnimeDetails({ anime }: { anime: Anime }) {
         <div
           className="prose prose-sm max-w-none leading-relaxed text-muted-foreground dark:prose-invert md:prose-base"
           dangerouslySetInnerHTML={{
-            __html: anime.description || "No synopsis available.",
+            __html: media.description || "No synopsis available.",
           }}
         />
 
-        {anime.trailer && anime.trailer.site === "youtube" && (
-          <AnimeTrailer trailerId={anime.trailer.id} />
+        {media.trailer && media.trailer.site === "youtube" && (
+          <MediaTrailer trailerId={media.trailer.id} />
         )}
       </div>
     </div>

@@ -3,14 +3,14 @@ import { Star } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { formatEnum } from "@/lib/utils";
-import type { Anime } from "@/lib/types";
+import type { Anime, Manga } from "@/lib/types";
 
-export function AnimeHeader({
-  anime,
+export function MediaHeader({
+  media,
   title,
   coverImage,
 }: {
-  anime: Anime;
+  media: Anime | Manga;
   title: string;
   coverImage: string | null;
 }) {
@@ -38,26 +38,26 @@ export function AnimeHeader({
       <div className="flex flex-1 flex-col gap-2 pb-2 md:pb-4">
         <h1 className="text-3xl font-bold tracking-tight md:text-5xl">{title}</h1>
 
-        {anime.titleNative && anime.titleNative !== title && (
-          <p className="font-medium text-muted-foreground">{anime.titleNative}</p>
+        {media.titleNative && media.titleNative !== title && (
+          <p className="font-medium text-muted-foreground">{media.titleNative}</p>
         )}
 
         <div className="mt-2 flex flex-wrap items-center gap-2">
-          {anime.averageScore && (
+          {media.averageScore && (
             <Badge variant="secondary" className="flex items-center gap-1.5 font-medium">
               <Star className="h-3.5 w-3.5 fill-current text-yellow-500" />
-              {anime.averageScore}%
+              {media.averageScore}%
             </Badge>
           )}
-          {anime.format && <Badge variant="secondary">{anime.format}</Badge>}
-          {anime.status && (
+          {media.format && <Badge variant="secondary">{media.format}</Badge>}
+          {media.status && (
             <Badge variant="outline" className="uppercase text-muted-foreground">
-              {formatEnum(anime.status)}
+              {formatEnum(media.status)}
             </Badge>
           )}
-          {anime.season && anime.seasonYear && (
+          {media.season && media.seasonYear && (
             <Badge variant="outline" className="text-muted-foreground">
-              {`${anime.season} ${anime.seasonYear}`}
+              {`${media.season} ${media.seasonYear}`}
             </Badge>
           )}
         </div>

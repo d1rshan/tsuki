@@ -3,22 +3,40 @@ import Link from "next/link";
 import { Star } from "lucide-react";
 
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { getAnimeTitle, getAnimeCoverImage } from "@/lib/anime";
+import {
+  MEDIA,
+  getMediaCoverImage,
+  getMediaTitle,
+  getMediaUnitCount,
+  mediaHref,
+  type MediaType,
+} from "@/lib/media";
 import { cn } from "@/lib/utils";
-import { type AnimeCompact } from "@/lib/types";
+import { type AnimeCompact, type MangaCompact } from "@/lib/types";
 
-export function AnimeCard({ anime, className }: { anime: AnimeCompact; className?: string }) {
-  const href = `/anime/${anime.id}`;
-  const title = getAnimeTitle(anime);
-  const coverImage = getAnimeCoverImage(anime);
+export function MediaCard({
+  media,
+  mediaType,
+  className,
+}: {
+  media: AnimeCompact | MangaCompact;
+  mediaType: MediaType;
+  className?: string;
+}) {
+  const title = getMediaTitle(media);
+  const coverImage = getMediaCoverImage(media);
+  const unitCount = getMediaUnitCount(media);
 
-  const metadata = [anime.seasonYear, anime.episodes ? `${anime.episodes} eps` : null]
+  const metadata = [
+    media.seasonYear,
+    unitCount ? `${unitCount} ${MEDIA[mediaType].unitShort}` : null,
+  ]
     .filter(Boolean)
     .join(" • ");
 
   return (
     <Link
-      href={href}
+      href={mediaHref(mediaType, media.id)}
       className={cn(
         "group relative block overflow-hidden rounded-xl bg-muted ring-1 ring-border/50 transition-all duration-300 hover:ring-border",
         className,
@@ -41,10 +59,10 @@ export function AnimeCard({ anime, className }: { anime: AnimeCompact; className
         )}
       </AspectRatio>
 
-      {anime.averageScore && (
+      {media.averageScore && (
         <div className="absolute right-2 top-2 flex items-center gap-1 rounded-md bg-background/60 px-1.5 py-0.5 text-xs font-medium text-foreground backdrop-blur-md transition-opacity group-hover:opacity-100">
           <Star className="size-3 fill-primary text-primary" />
-          <span className="tracking-tight">{anime.averageScore}%</span>
+          <span className="tracking-tight">{media.averageScore}%</span>
         </div>
       )}
 

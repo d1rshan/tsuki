@@ -12,6 +12,10 @@ import {
   UserOverviewResponseModel,
   UserActivityResponseModel,
   UpdateProfileModel,
+  MangaLibraryEntryModel,
+  MangaLibraryEntryResponseModel,
+  MangaReviewResponseModel,
+  MangaUserActivityResponseModel,
 } from "./model";
 
 export const userRoutes = new Elysia({ prefix: "/users" })
@@ -56,18 +60,59 @@ export const userRoutes = new Elysia({ prefix: "/users" })
     },
   )
   .get(
+    "/:username/manga-library",
+    async ({ params: { username } }) => {
+      const user = await userDal.getUserByUsername(username);
+      if (!user) return error(404, { success: false, error: "User not found" });
+      return await activityDal.getUserMangaLibrary(user.id);
+    },
+    {
+      params: t.Object({ username: t.String() }),
+      response: {
+        200: t.Array(MangaLibraryEntryResponseModel),
+        404: t.Object({ success: t.Boolean(), error: t.String() }),
+      },
+      detail: {
+        summary: "Get User Manga Library",
+        description: "Retrieves the manga library/read list for a specific user.",
+      },
+    },
+  )
+  .get(
+    "/:username/manga-reviews",
+    async ({ params: { username } }) => {
+      const user = await userDal.getUserByUsername(username);
+      if (!user) return error(404, { success: false, error: "User not found" });
+      return await activityDal.getUserMangaReviews(user.id);
+    },
+    {
+      params: t.Object({ username: t.String() }),
+      response: {
+        200: t.Array(MangaReviewResponseModel),
+        404: t.Object({ success: t.Boolean(), error: t.String() }),
+      },
+      detail: {
+        summary: "Get User Manga Reviews",
+        description: "Retrieves all written manga reviews by a specific user.",
+      },
+    },
+  )
+  .get(
     "/:username/overview",
     async ({ params: { username } }) => {
       const user = await userDal.getUserByUsername(username);
       if (!user) return error(404, { success: false, error: "User not found" });
 
-      const [library, reviews, profile] = await Promise.all([
+      const [library, reviews, profile, mangaLibrary, mangaReviews] = await Promise.all([
         activityDal.getUserLibrary(user.id),
         activityDal.getUserReviews(user.id),
         profileDal.getProfileByUserId(user.id),
+        activityDal.getUserMangaLibrary(user.id),
+        activityDal.getUserMangaReviews(user.id),
       ]);
 
       const favorites = library.filter((entry) => entry.isFavorite);
+      const mangaFavorites = mangaLibrary.filter((entry) => entry.isFavorite);
 
       // Calculate mean score
       const ratedEntries = library.filter((e) => e.rating != null);
@@ -76,7 +121,15 @@ export const userRoutes = new Elysia({ prefix: "/users" })
           ? ratedEntries.reduce((sum, e) => sum + (e.rating || 0), 0) / ratedEntries.length
           : 0;
 
+      const ratedMangaEntries = mangaLibrary.filter((e) => e.rating != null);
+      const mangaMeanScore =
+        ratedMangaEntries.length > 0
+          ? ratedMangaEntries.reduce((sum, e) => sum + (e.rating || 0), 0) /
+            ratedMangaEntries.length
+          : 0;
+
       const episodesWatched = library.reduce((sum, e) => sum + e.episodesWatched, 0);
+      const chaptersRead = mangaLibrary.reduce((sum, e) => sum + e.chaptersRead, 0);
 
       return {
         user: {
@@ -92,10 +145,16 @@ export const userRoutes = new Elysia({ prefix: "/users" })
           totalAnime: library.length,
           episodesWatched,
           meanScore,
+          totalManga: mangaLibrary.length,
+          chaptersRead,
+          mangaMeanScore,
         },
         favorites: favorites.slice(0, 10),
         recentLogs: library.slice(0, 10),
         recentReviews: reviews.slice(0, 5),
+        mangaFavorites: mangaFavorites.slice(0, 10),
+        recentMangaLogs: mangaLibrary.slice(0, 10),
+        recentMangaReviews: mangaReviews.slice(0, 5),
       };
     },
     {
@@ -133,8 +192,34 @@ export const userRoutes = new Elysia({ prefix: "/users" })
       detail: { summary: "Get My Activity for Anime" },
     },
   )
+  .get(
+    "/me/manga-activity/:mangaId",
+    async ({ params: { mangaId }, user }) => {
+      const [entry, review] = await Promise.all([
+        activityDal.getMangaLibraryEntry(user.id, mangaId),
+        activityDal.getReviewForManga(user.id, mangaId),
+      ]);
+      return {
+        entry: entry || null,
+        review: review || null,
+      };
+    },
+    {
+      auth: true,
+      params: t.Object({ mangaId: t.Numeric() }),
+      response: {
+        200: MangaUserActivityResponseModel,
+      },
+      detail: { summary: "Get My Activity for Manga" },
+    },
+  )
   .post(
     "/me/library/:animeId",
+    // TODO: requires the anime row to already exist (FK on user_anime_library.anime_id).
+    // Holds today only because AnimeActions renders solely on /anime/[id], which warms
+    // the row via GET /anime/:id. A quick-log entry point anywhere else (search results,
+    // profile grid) breaks it — the insert then 500s. Fix: ensureAnimeExists(animeId)
+    // here, reusing the read-through cache from modules/anime. Same for manga below.
     async ({ params: { animeId }, body, user }) => {
       const entry = await activityDal.upsertLibraryEntry({
         userId: user.id,
@@ -170,7 +255,46 @@ export const userRoutes = new Elysia({ prefix: "/users" })
   )
 
   .post(
+    "/me/manga-library/:mangaId",
+    // TODO: same missing precondition as POST /me/library/:animeId above — needs
+    // ensureMangaExists(mangaId) before the upsert.
+    async ({ params: { mangaId }, body, user }) => {
+      const entry = await activityDal.upsertMangaLibraryEntry({
+        userId: user.id,
+        mangaId: mangaId,
+        ...body,
+      });
+      if (!entry) return error(500, "Failed to create entry");
+      return { success: true, entry };
+    },
+    {
+      auth: true,
+      body: MangaLibraryEntryModel,
+      params: t.Object({ mangaId: t.Numeric() }),
+      response: {
+        200: t.Object({ success: t.Boolean(), entry: MangaLibraryEntryResponseModel }),
+        500: t.String(),
+      },
+      detail: { summary: "Log Manga" },
+    },
+  )
+  .delete(
+    "/me/manga-library/:mangaId",
+    async ({ params: { mangaId }, user }) => {
+      await activityDal.deleteMangaLibraryEntry(user.id, mangaId);
+      return { success: true };
+    },
+    {
+      auth: true,
+      params: t.Object({ mangaId: t.Numeric() }),
+      response: t.Object({ success: t.Boolean() }),
+      detail: { summary: "Delete Manga Library Entry" },
+    },
+  )
+
+  .post(
     "/me/reviews/:animeId",
+    // TODO: same missing precondition as POST /me/library/:animeId (FK on user_reviews.anime_id).
     async ({ params: { animeId }, body, user }) => {
       const existing = await activityDal.getReviewForAnime(user.id, animeId);
 
@@ -202,6 +326,42 @@ export const userRoutes = new Elysia({ prefix: "/users" })
         500: t.String(),
       },
       detail: { summary: "Submit Review" },
+    },
+  )
+  .post(
+    "/me/manga-reviews/:mangaId",
+    // TODO: same missing precondition as POST /me/library/:animeId (FK on user_manga_reviews.manga_id).
+    async ({ params: { mangaId }, body, user }) => {
+      const existing = await activityDal.getReviewForManga(user.id, mangaId);
+
+      if (existing) {
+        const review = await activityDal.updateMangaReview(existing.id, {
+          content: body.content,
+          containsSpoilers: body.containsSpoilers,
+        });
+        if (!review) return error(500, "Failed to update review");
+        return { success: true, review };
+      } else {
+        const review = await activityDal.createMangaReview({
+          id: crypto.randomUUID(),
+          userId: user.id,
+          mangaId: mangaId,
+          content: body.content,
+          containsSpoilers: body.containsSpoilers || false,
+        });
+        if (!review) return error(500, "Failed to create review");
+        return { success: true, review };
+      }
+    },
+    {
+      auth: true,
+      body: ReviewModel,
+      params: t.Object({ mangaId: t.Numeric() }),
+      response: {
+        200: t.Object({ success: t.Boolean(), review: MangaReviewResponseModel }),
+        500: t.String(),
+      },
+      detail: { summary: "Submit Manga Review" },
     },
   )
   .put(

@@ -2,7 +2,8 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { FavoritesSection } from "@/components/profile/profile-overview";
-import { getProfileLibrary } from "../queries";
+import { ProfileMediaToggle } from "@/components/profile/profile-media-toggle";
+import { getProfileLibrary, getProfileMangaLibrary } from "../queries";
 
 export default async function ProfileFavoritesPage({
   params,
@@ -25,15 +26,33 @@ export default async function ProfileFavoritesPage({
 }
 
 async function FavoritesContent({ username }: { username: string }) {
-  const { data: library, error } = await getProfileLibrary(username);
+  const [{ data: library, error }, { data: mangaLibrary, error: mangaError }] = await Promise.all([
+    getProfileLibrary(username),
+    getProfileMangaLibrary(username),
+  ]);
 
-  if (error || !library) return notFound();
+  if (error || !library || mangaError || !mangaLibrary) return notFound();
 
   const favorites = library.filter((entry) => entry.isFavorite);
+  const mangaFavorites = mangaLibrary.filter((entry) => entry.isFavorite);
 
-  return (
-    <div className="space-y-16 pb-16">
-      <FavoritesSection favorites={favorites} />
-    </div>
-  );
+  const animeContent =
+    favorites.length === 0 ? (
+      <div className="text-center py-20 text-muted-foreground">
+        <p className="text-sm font-medium">No favorite anime yet.</p>
+      </div>
+    ) : (
+      <FavoritesSection title="Anime Favorites" favorites={favorites} />
+    );
+
+  const mangaContent =
+    mangaFavorites.length === 0 ? (
+      <div className="text-center py-20 text-muted-foreground">
+        <p className="text-sm font-medium">No favorite manga yet.</p>
+      </div>
+    ) : (
+      <FavoritesSection title="Manga Favorites" favorites={mangaFavorites} />
+    );
+
+  return <ProfileMediaToggle anime={animeContent} manga={mangaContent} />;
 }

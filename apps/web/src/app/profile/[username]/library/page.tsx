@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 
 import { LibrarySection } from "@/components/profile/profile-library";
-import { getProfileLibrary } from "../queries";
+import { ProfileMediaToggle } from "@/components/profile/profile-media-toggle";
+import { getProfileLibrary, getProfileMangaLibrary } from "../queries";
 
 export default async function ProfileLibraryPage({
   params,
@@ -9,38 +10,51 @@ export default async function ProfileLibraryPage({
   params: Promise<{ username: string }>;
 }) {
   const { username } = await params;
-  const { data: library, error } = await getProfileLibrary(username);
+  const [{ data: library, error: libraryError }, { data: mangaLibrary, error: mangaLibraryError }] =
+    await Promise.all([getProfileLibrary(username), getProfileMangaLibrary(username)]);
 
-  if (error) {
+  if (libraryError || mangaLibraryError) {
     return notFound();
   }
 
   // Group by status
-  const watching = library.filter((e) => e.status === "WATCHING");
-  const completed = library.filter((e) => e.status === "COMPLETED");
-  const planToWatch = library.filter((e) => e.status === "PLAN_TO_WATCH");
-  const paused = library.filter((e) => e.status === "PAUSED");
-  const dropped = library.filter((e) => e.status === "DROPPED");
-
   const sections = [
-    { title: "Watching", entries: watching },
-    { title: "Completed", entries: completed },
-    { title: "Plan to Watch", entries: planToWatch },
-    { title: "Paused", entries: paused },
-    { title: "Dropped", entries: dropped },
+    { title: "Watching", entries: library.filter((e) => e.status === "WATCHING") },
+    { title: "Completed", entries: library.filter((e) => e.status === "COMPLETED") },
+    { title: "Plan to Watch", entries: library.filter((e) => e.status === "PLAN_TO_WATCH") },
+    { title: "Paused", entries: library.filter((e) => e.status === "PAUSED") },
+    { title: "Dropped", entries: library.filter((e) => e.status === "DROPPED") },
   ];
 
-  return (
-    <div>
-      {library.length === 0 && (
-        <div className="text-center py-20 text-muted-foreground">
-          <p>This user's library is empty.</p>
-        </div>
-      )}
+  const mangaSections = [
+    { title: "Reading", entries: mangaLibrary.filter((e) => e.status === "READING") },
+    { title: "Completed", entries: mangaLibrary.filter((e) => e.status === "COMPLETED") },
+    { title: "Plan to Read", entries: mangaLibrary.filter((e) => e.status === "PLAN_TO_READ") },
+    { title: "Paused", entries: mangaLibrary.filter((e) => e.status === "PAUSED") },
+    { title: "Dropped", entries: mangaLibrary.filter((e) => e.status === "DROPPED") },
+  ];
 
-      {sections.map((section) => (
+  const animeContent =
+    library.length === 0 ? (
+      <div className="text-center py-20 text-muted-foreground">
+        <p>This user's anime library is empty.</p>
+      </div>
+    ) : (
+      sections.map((section) => (
         <LibrarySection key={section.title} title={section.title} entries={section.entries} />
-      ))}
-    </div>
-  );
+      ))
+    );
+
+  const mangaContent =
+    mangaLibrary.length === 0 ? (
+      <div className="text-center py-20 text-muted-foreground">
+        <p>This user's manga library is empty.</p>
+      </div>
+    ) : (
+      mangaSections.map((section) => (
+        <LibrarySection key={section.title} title={section.title} entries={section.entries} />
+      ))
+    );
+
+  return <ProfileMediaToggle anime={animeContent} manga={mangaContent} />;
 }

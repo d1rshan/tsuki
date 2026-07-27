@@ -109,6 +109,8 @@ export function ProfileHeader({
             <StatItem label="Anime" value={stats.totalAnime} />
             <StatItem label="Episodes" value={stats.episodesWatched} />
             <StatItem label="Mean Score" value={stats.meanScore.toFixed(1)} />
+            <StatItem label="Manga" value={stats.totalManga} />
+            <StatItem label="Chapters" value={stats.chaptersRead} />
           </div>
 
           <div className="mt-8 mb-2 w-full">
@@ -121,6 +123,8 @@ export function ProfileHeader({
           <StatItem label="Anime" value={stats.totalAnime} />
           <StatItem label="Episodes" value={stats.episodesWatched} />
           <StatItem label="Mean Score" value={stats.meanScore.toFixed(1)} />
+          <StatItem label="Manga" value={stats.totalManga} />
+          <StatItem label="Chapters" value={stats.chaptersRead} />
         </div>
       </div>
     </div>
