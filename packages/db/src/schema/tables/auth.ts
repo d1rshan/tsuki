@@ -1,9 +1,5 @@
 import { pgTable, text, timestamp, boolean, index } from "drizzle-orm/pg-core";
 
-// Tables owned by Better Auth — shapes are dictated by the library and are
-// reproduced by `@better-auth/cli generate`. Keep app-owned tables elsewhere.
-// Relations for these tables live in ./relations.
-
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),

@@ -52,8 +52,6 @@ export const upsertEntry = async (entry: InsertLibraryEntry) => {
         notes: entry.notes,
         startedAt: entry.startedAt,
         completedAt: entry.completedAt,
-        // $onUpdate does not fire for onConflictDoUpdate, and the library is
-        // ordered by this column, so it has to be stamped explicitly.
         updatedAt: new Date(),
       },
     })

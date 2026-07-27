@@ -1,13 +1,7 @@
-/**
- * Payload shapes for the jsonb columns.
- *
- * These mirror what AniList returns, but are declared here so the db package
- * carries no dependency on any upstream client — storage should not know which
- * API filled it. Divergence is not silent: mapper output meets these types at
- * `upsertMedia`, so a mismatch fails to compile at the call site.
- */
+// Payload shapes for the jsonb columns
+// (These mirror what AniList returns)
 
-/** A date where any component may be unknown. */
+// date where any component may be unknown
 export type FuzzyDate = {
   year: number | null;
   month: number | null;

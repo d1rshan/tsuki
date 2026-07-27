@@ -5,7 +5,6 @@ import { pgEnum } from "drizzle-orm/pg-core";
 
 export const mediaTypeEnum = pgEnum("media_type", ["ANIME", "MANGA"]);
 
-/** Derived from the column so queries are constrained by our schema, not a client. */
 export type MediaType = (typeof mediaTypeEnum.enumValues)[number];
 
 export const mediaFormatEnum = pgEnum("media_format", [

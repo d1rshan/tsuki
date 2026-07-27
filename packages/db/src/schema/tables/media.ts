@@ -18,12 +18,6 @@ import {
   mediaTypeEnum,
 } from "../enums";
 
-/**
- * A local cache of AniList's `Media`. Anime and manga share one table because
- * AniList models them as one entity discriminated by `type`, over a single
- * globally unique id space (verified: id 1 resolves only as ANIME, 30002 only
- * as MANGA). Type-specific columns are simply null for the other type.
- */
 export const media = pgTable(
   "media",
   {
