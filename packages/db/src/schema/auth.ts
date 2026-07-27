@@ -1,7 +1,12 @@
 import { relations } from "drizzle-orm";
-import { pgTable, text, timestamp, boolean, index, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, index } from "drizzle-orm/pg-core";
 
-import { userAnimeLibrary, userReviews, userMangaLibrary, userMangaReviews } from "./activity";
+import { userAnimeLibrary, userMangaLibrary } from "./library";
+import { userReviews, userMangaReviews } from "./reviews";
+import { userProfile } from "./profile";
+
+// Tables owned by Better Auth — shapes are dictated by the library and are
+// reproduced by `@better-auth/cli generate`. Keep app-owned tables elsewhere.
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -22,20 +27,6 @@ export const user = pgTable("user", {
   banExpires: timestamp("ban_expires"),
 });
 
-export const userProfile = pgTable("user_profile", {
-  userId: text("user_id")
-    .primaryKey()
-    .references(() => user.id, { onDelete: "cascade" }),
-  bio: text("bio"),
-  bannerImage: text("banner_image"),
-  accentColor: text("accent_color"),
-  socialLinks: jsonb("social_links").$type<Record<string, string>>().default({}),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at")
-    .defaultNow()
-    .$onUpdate(() => /* @__PURE__ */ new Date())
-    .notNull(),
-});
 export const session = pgTable(
   "session",
   {
@@ -106,13 +97,6 @@ export const userRelations = relations(user, ({ many, one }) => ({
   profile: one(userProfile, {
     fields: [user.id],
     references: [userProfile.userId],
-  }),
-}));
-
-export const userProfileRelations = relations(userProfile, ({ one }) => ({
-  user: one(user, {
-    fields: [userProfile.userId],
-    references: [user.id],
   }),
 }));
 

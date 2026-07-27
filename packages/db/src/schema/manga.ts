@@ -1,8 +1,9 @@
 import { relations } from "drizzle-orm";
 import { pgTable, text, timestamp, boolean, integer, jsonb } from "drizzle-orm/pg-core";
 
-import { userMangaLibrary, userMangaReviews } from "./activity";
-import { mediaStatusEnum } from "./anime";
+import { userMangaLibrary } from "./library";
+import { userMangaReviews } from "./reviews";
+import { mediaStatusEnum } from "./enums";
 
 export const manga = pgTable("manga", {
   id: integer("id").primaryKey(), // AniList ID

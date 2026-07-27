@@ -1,6 +1,6 @@
 import { Elysia, t, status as error } from "elysia";
 
-import { activityDal, userDal, profileDal } from "@tsuki/db";
+import { libraryDal, reviewsDal, userDal, profileDal } from "@tsuki/db";
 
 import { authPlugin } from "../../auth-plugin";
 
@@ -26,7 +26,7 @@ export const userRoutes = new Elysia({ prefix: "/users" })
     async ({ params: { username } }) => {
       const user = await userDal.getUserByUsername(username);
       if (!user) return error(404, { success: false, error: "User not found" });
-      return await activityDal.getUserLibrary(user.id);
+      return await libraryDal.getUserLibrary(user.id);
     },
     {
       params: t.Object({ username: t.String() }),
@@ -45,7 +45,7 @@ export const userRoutes = new Elysia({ prefix: "/users" })
     async ({ params: { username } }) => {
       const user = await userDal.getUserByUsername(username);
       if (!user) return error(404, { success: false, error: "User not found" });
-      return await activityDal.getUserReviews(user.id);
+      return await reviewsDal.getUserReviews(user.id);
     },
     {
       params: t.Object({ username: t.String() }),
@@ -64,7 +64,7 @@ export const userRoutes = new Elysia({ prefix: "/users" })
     async ({ params: { username } }) => {
       const user = await userDal.getUserByUsername(username);
       if (!user) return error(404, { success: false, error: "User not found" });
-      return await activityDal.getUserMangaLibrary(user.id);
+      return await libraryDal.getUserMangaLibrary(user.id);
     },
     {
       params: t.Object({ username: t.String() }),
@@ -83,7 +83,7 @@ export const userRoutes = new Elysia({ prefix: "/users" })
     async ({ params: { username } }) => {
       const user = await userDal.getUserByUsername(username);
       if (!user) return error(404, { success: false, error: "User not found" });
-      return await activityDal.getUserMangaReviews(user.id);
+      return await reviewsDal.getUserMangaReviews(user.id);
     },
     {
       params: t.Object({ username: t.String() }),
@@ -104,11 +104,11 @@ export const userRoutes = new Elysia({ prefix: "/users" })
       if (!user) return error(404, { success: false, error: "User not found" });
 
       const [library, reviews, profile, mangaLibrary, mangaReviews] = await Promise.all([
-        activityDal.getUserLibrary(user.id),
-        activityDal.getUserReviews(user.id),
+        libraryDal.getUserLibrary(user.id),
+        reviewsDal.getUserReviews(user.id),
         profileDal.getProfileByUserId(user.id),
-        activityDal.getUserMangaLibrary(user.id),
-        activityDal.getUserMangaReviews(user.id),
+        libraryDal.getUserMangaLibrary(user.id),
+        reviewsDal.getUserMangaReviews(user.id),
       ]);
 
       const favorites = library.filter((entry) => entry.isFavorite);
@@ -175,8 +175,8 @@ export const userRoutes = new Elysia({ prefix: "/users" })
     "/me/activity/:animeId",
     async ({ params: { animeId }, user }) => {
       const [entry, review] = await Promise.all([
-        activityDal.getLibraryEntry(user.id, animeId),
-        activityDal.getReviewForAnime(user.id, animeId),
+        libraryDal.getLibraryEntry(user.id, animeId),
+        reviewsDal.getReviewForAnime(user.id, animeId),
       ]);
       return {
         entry: entry || null,
@@ -196,8 +196,8 @@ export const userRoutes = new Elysia({ prefix: "/users" })
     "/me/manga-activity/:mangaId",
     async ({ params: { mangaId }, user }) => {
       const [entry, review] = await Promise.all([
-        activityDal.getMangaLibraryEntry(user.id, mangaId),
-        activityDal.getReviewForManga(user.id, mangaId),
+        libraryDal.getMangaLibraryEntry(user.id, mangaId),
+        reviewsDal.getReviewForManga(user.id, mangaId),
       ]);
       return {
         entry: entry || null,
@@ -221,7 +221,7 @@ export const userRoutes = new Elysia({ prefix: "/users" })
     // profile grid) breaks it — the insert then 500s. Fix: ensureAnimeExists(animeId)
     // here, reusing the read-through cache from modules/anime. Same for manga below.
     async ({ params: { animeId }, body, user }) => {
-      const entry = await activityDal.upsertLibraryEntry({
+      const entry = await libraryDal.upsertLibraryEntry({
         userId: user.id,
         animeId: animeId,
         ...body,
@@ -243,7 +243,7 @@ export const userRoutes = new Elysia({ prefix: "/users" })
   .delete(
     "/me/library/:animeId",
     async ({ params: { animeId }, user }) => {
-      await activityDal.deleteLibraryEntry(user.id, animeId);
+      await libraryDal.deleteLibraryEntry(user.id, animeId);
       return { success: true };
     },
     {
@@ -259,7 +259,7 @@ export const userRoutes = new Elysia({ prefix: "/users" })
     // TODO: same missing precondition as POST /me/library/:animeId above — needs
     // ensureMangaExists(mangaId) before the upsert.
     async ({ params: { mangaId }, body, user }) => {
-      const entry = await activityDal.upsertMangaLibraryEntry({
+      const entry = await libraryDal.upsertMangaLibraryEntry({
         userId: user.id,
         mangaId: mangaId,
         ...body,
@@ -281,7 +281,7 @@ export const userRoutes = new Elysia({ prefix: "/users" })
   .delete(
     "/me/manga-library/:mangaId",
     async ({ params: { mangaId }, user }) => {
-      await activityDal.deleteMangaLibraryEntry(user.id, mangaId);
+      await libraryDal.deleteMangaLibraryEntry(user.id, mangaId);
       return { success: true };
     },
     {
@@ -296,17 +296,17 @@ export const userRoutes = new Elysia({ prefix: "/users" })
     "/me/reviews/:animeId",
     // TODO: same missing precondition as POST /me/library/:animeId (FK on user_reviews.anime_id).
     async ({ params: { animeId }, body, user }) => {
-      const existing = await activityDal.getReviewForAnime(user.id, animeId);
+      const existing = await reviewsDal.getReviewForAnime(user.id, animeId);
 
       if (existing) {
-        const review = await activityDal.updateReview(existing.id, {
+        const review = await reviewsDal.updateReview(existing.id, {
           content: body.content,
           containsSpoilers: body.containsSpoilers,
         });
         if (!review) return error(500, "Failed to update review");
         return { success: true, review };
       } else {
-        const review = await activityDal.createReview({
+        const review = await reviewsDal.createReview({
           id: crypto.randomUUID(),
           userId: user.id,
           animeId: animeId,
@@ -332,17 +332,17 @@ export const userRoutes = new Elysia({ prefix: "/users" })
     "/me/manga-reviews/:mangaId",
     // TODO: same missing precondition as POST /me/library/:animeId (FK on user_manga_reviews.manga_id).
     async ({ params: { mangaId }, body, user }) => {
-      const existing = await activityDal.getReviewForManga(user.id, mangaId);
+      const existing = await reviewsDal.getReviewForManga(user.id, mangaId);
 
       if (existing) {
-        const review = await activityDal.updateMangaReview(existing.id, {
+        const review = await reviewsDal.updateMangaReview(existing.id, {
           content: body.content,
           containsSpoilers: body.containsSpoilers,
         });
         if (!review) return error(500, "Failed to update review");
         return { success: true, review };
       } else {
-        const review = await activityDal.createMangaReview({
+        const review = await reviewsDal.createMangaReview({
           id: crypto.randomUUID(),
           userId: user.id,
           mangaId: mangaId,
