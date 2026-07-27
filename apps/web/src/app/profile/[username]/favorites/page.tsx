@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
-import { FavoritesSection, MangaFavoritesSection } from "@/components/profile/profile-overview";
+import { FavoritesSection } from "@/components/profile/profile-overview";
 import { ProfileMediaToggle } from "@/components/profile/profile-media-toggle";
 import { getProfileLibrary, getProfileMangaLibrary } from "../queries";
 
@@ -42,7 +42,7 @@ async function FavoritesContent({ username }: { username: string }) {
         <p className="text-sm font-medium">No favorite anime yet.</p>
       </div>
     ) : (
-      <FavoritesSection favorites={favorites} />
+      <FavoritesSection title="Anime Favorites" favorites={favorites} />
     );
 
   const mangaContent =
@@ -51,7 +51,7 @@ async function FavoritesContent({ username }: { username: string }) {
         <p className="text-sm font-medium">No favorite manga yet.</p>
       </div>
     ) : (
-      <MangaFavoritesSection favorites={mangaFavorites} />
+      <FavoritesSection title="Manga Favorites" favorites={mangaFavorites} />
     );
 
   return <ProfileMediaToggle anime={animeContent} manga={mangaContent} />;

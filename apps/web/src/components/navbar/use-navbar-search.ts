@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { useQueryState, parseAsStringEnum } from "nuqs";
 import { usePathname } from "next/navigation";
 import { useHotkey } from "@/hooks/use-hotkey";
-import type { MediaType } from "@/components/media-type-toggle";
+import type { MediaType } from "@/lib/media";
 
 export function useNavbarSearch() {
   const pathname = usePathname();

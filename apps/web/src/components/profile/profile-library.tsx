@@ -1,38 +1,13 @@
-import { ProfileAnimeCard } from "@/components/profile/profile-anime-card";
-import { ProfileMangaCard } from "@/components/profile/profile-manga-card";
+import { ProfileMediaCard } from "@/components/profile/profile-media-card";
+import { toMediaEntry } from "@/lib/media";
 import type { LibraryEntry, MangaLibraryEntry } from "@/lib/types";
 
-export function LibrarySection({ title, entries }: { title: string; entries: LibraryEntry[] }) {
-  if (entries.length === 0) return null;
-  return (
-    <section className="mb-12">
-      <h2 className="text-2xl font-bold tracking-tight mb-6">
-        {title}
-        <span className="text-muted-foreground text-lg font-normal ml-2">({entries.length})</span>
-      </h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 lg:gap-6">
-        {entries.map((entry) => {
-          if (!entry.anime) return null;
-          return (
-            <ProfileAnimeCard
-              key={entry.animeId}
-              anime={entry.anime}
-              rating={entry.rating}
-              episodesWatched={entry.episodesWatched}
-            />
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
-export function MangaLibrarySection({
+export function LibrarySection({
   title,
   entries,
 }: {
   title: string;
-  entries: MangaLibraryEntry[];
+  entries: (LibraryEntry | MangaLibraryEntry)[];
 }) {
   if (entries.length === 0) return null;
   return (
@@ -42,14 +17,15 @@ export function MangaLibrarySection({
         <span className="text-muted-foreground text-lg font-normal ml-2">({entries.length})</span>
       </h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 lg:gap-6">
-        {entries.map((entry) => {
-          if (!entry.manga) return null;
+        {entries.map(toMediaEntry).map((entry) => {
+          if (!entry.media) return null;
           return (
-            <ProfileMangaCard
-              key={entry.mangaId}
-              manga={entry.manga}
+            <ProfileMediaCard
+              key={entry.mediaId}
+              media={entry.media}
+              mediaType={entry.mediaType}
               rating={entry.rating}
-              chaptersRead={entry.chaptersRead}
+              progress={entry.progress}
             />
           );
         })}

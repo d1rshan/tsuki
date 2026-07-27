@@ -2,12 +2,12 @@ import { Suspense } from "react";
 import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
 
-import { getAnimeTitle, getAnimeBannerImage, getAnimeCoverImage } from "@/lib/anime";
+import { getMediaTitle, getMediaBannerImage, getMediaCoverImage } from "@/lib/media";
 import { api } from "@/lib/api";
-import { AnimeBanner } from "@/components/anime/anime-banner";
-import { AnimeHeader } from "@/components/anime/anime-header";
-import { AnimeDetails } from "@/components/anime/anime-details";
-import { AnimePageSkeleton } from "@/components/anime/anime-skeletons";
+import { MediaBanner } from "@/components/media/media-banner";
+import { MediaHeader } from "@/components/media/media-header";
+import { MediaDetails } from "@/components/media/media-details";
+import { MediaPageSkeleton } from "@/components/media/media-skeletons";
 
 // TODO: we hv to do smth for this too!, same with profile queries.ts
 
@@ -25,7 +25,7 @@ async function getCachedAnime(id: string) {
 
 export default function AnimePage({ params }: { params: Promise<{ id: string }> }) {
   return (
-    <Suspense fallback={<AnimePageSkeleton />}>
+    <Suspense fallback={<MediaPageSkeleton showTrailer />}>
       <AnimePageContent params={params} />
     </Suspense>
   );
@@ -37,16 +37,16 @@ async function AnimePageContent({ params }: { params: Promise<{ id: string }> })
 
   if (error) return notFound();
 
-  const title = getAnimeTitle(anime);
-  const coverImage = getAnimeCoverImage(anime);
-  const bannerImage = getAnimeBannerImage(anime);
+  const title = getMediaTitle(anime);
+  const coverImage = getMediaCoverImage(anime);
+  const bannerImage = getMediaBannerImage(anime);
 
   return (
     <div className="pb-16">
-      <AnimeBanner bannerImage={bannerImage} title={title} />
+      <MediaBanner bannerImage={bannerImage} title={title} />
       <div className="container mx-auto max-w-6xl px-4">
-        <AnimeHeader anime={anime} title={title} coverImage={coverImage} />
-        <AnimeDetails anime={anime} />
+        <MediaHeader media={anime} title={title} coverImage={coverImage} />
+        <MediaDetails media={anime} mediaType="anime" />
       </div>
     </div>
   );

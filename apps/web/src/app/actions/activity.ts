@@ -6,6 +6,30 @@ import { auth } from "@/lib/auth";
 import { serverApi } from "@/lib/server-api";
 import type { WatchStatus, ReadStatus } from "@tsuki/api/src/modules/users/model";
 
+type ServerApi = Awaited<ReturnType<typeof serverApi>>;
+
+/**
+ * Runs an authenticated mutation against the API and revalidates the profile
+ * tags it affects. `tag` is the profile-scoped suffix, e.g. "manga-library".
+ */
+async function mediaAction(
+  label: string,
+  tag: string,
+  call: (api: ServerApi) => Promise<{ error: unknown }>,
+) {
+  const { user } = await auth();
+  if (!user || !user.username) throw new Error("Unauthorized");
+
+  const { error } = await call(await serverApi());
+  if (error) {
+    console.error(`${label} error:`, error);
+    throw new Error(`${label} failed: ` + JSON.stringify(error));
+  }
+
+  updateTag(`profile-${user.username}-${tag}`);
+  updateTag(`profile-${user.username}-overview`);
+}
+
 export async function logAnimeAction(
   animeId: number,
   data: {
@@ -15,33 +39,15 @@ export async function logAnimeAction(
     isFavorite?: boolean;
   },
 ) {
-  const { user } = await auth();
-  if (!user || !user.username) throw new Error("Unauthorized");
-
-  const api = await serverApi();
-  const { error } = await api.users.me.library({ animeId }).post(data);
-  if (error) {
-    console.error("logAnimeAction error:", error);
-    throw new Error("Failed to log anime: " + JSON.stringify(error));
-  }
-
-  updateTag(`profile-${user.username}-library`);
-  updateTag(`profile-${user.username}-overview`);
+  await mediaAction("logAnimeAction", "library", (api) =>
+    api.users.me.library({ animeId }).post(data),
+  );
 }
 
 export async function deleteLogAction(animeId: number) {
-  const { user } = await auth();
-  if (!user || !user.username) throw new Error("Unauthorized");
-
-  const api = await serverApi();
-  const { error } = await api.users.me.library({ animeId }).delete();
-  if (error) {
-    console.error("deleteLogAction error:", error);
-    throw new Error("Failed to delete log: " + JSON.stringify(error));
-  }
-
-  updateTag(`profile-${user.username}-library`);
-  updateTag(`profile-${user.username}-overview`);
+  await mediaAction("deleteLogAction", "library", (api) =>
+    api.users.me.library({ animeId }).delete(),
+  );
 }
 
 export async function submitReviewAction(
@@ -49,18 +55,9 @@ export async function submitReviewAction(
   content: string,
   containsSpoilers: boolean,
 ) {
-  const { user } = await auth();
-  if (!user || !user.username) throw new Error("Unauthorized");
-
-  const api = await serverApi();
-  const { error } = await api.users.me.reviews({ animeId }).post({ content, containsSpoilers });
-  if (error) {
-    console.error("submitReviewAction error:", error);
-    throw new Error("Failed to submit review: " + JSON.stringify(error));
-  }
-
-  updateTag(`profile-${user.username}-reviews`);
-  updateTag(`profile-${user.username}-overview`);
+  await mediaAction("submitReviewAction", "reviews", (api) =>
+    api.users.me.reviews({ animeId }).post({ content, containsSpoilers }),
+  );
 }
 
 export async function logMangaAction(
@@ -72,33 +69,15 @@ export async function logMangaAction(
     isFavorite?: boolean;
   },
 ) {
-  const { user } = await auth();
-  if (!user || !user.username) throw new Error("Unauthorized");
-
-  const api = await serverApi();
-  const { error } = await api.users.me["manga-library"]({ mangaId }).post(data);
-  if (error) {
-    console.error("logMangaAction error:", error);
-    throw new Error("Failed to log manga: " + JSON.stringify(error));
-  }
-
-  updateTag(`profile-${user.username}-manga-library`);
-  updateTag(`profile-${user.username}-overview`);
+  await mediaAction("logMangaAction", "manga-library", (api) =>
+    api.users.me["manga-library"]({ mangaId }).post(data),
+  );
 }
 
 export async function deleteMangaLogAction(mangaId: number) {
-  const { user } = await auth();
-  if (!user || !user.username) throw new Error("Unauthorized");
-
-  const api = await serverApi();
-  const { error } = await api.users.me["manga-library"]({ mangaId }).delete();
-  if (error) {
-    console.error("deleteMangaLogAction error:", error);
-    throw new Error("Failed to delete log: " + JSON.stringify(error));
-  }
-
-  updateTag(`profile-${user.username}-manga-library`);
-  updateTag(`profile-${user.username}-overview`);
+  await mediaAction("deleteMangaLogAction", "manga-library", (api) =>
+    api.users.me["manga-library"]({ mangaId }).delete(),
+  );
 }
 
 export async function submitMangaReviewAction(
@@ -106,21 +85,9 @@ export async function submitMangaReviewAction(
   content: string,
   containsSpoilers: boolean,
 ) {
-  const { user } = await auth();
-  if (!user || !user.username) throw new Error("Unauthorized");
-
-  const api = await serverApi();
-  const { error } = await api.users.me["manga-reviews"]({ mangaId }).post({
-    content,
-    containsSpoilers,
-  });
-  if (error) {
-    console.error("submitMangaReviewAction error:", error);
-    throw new Error("Failed to submit review: " + JSON.stringify(error));
-  }
-
-  updateTag(`profile-${user.username}-manga-reviews`);
-  updateTag(`profile-${user.username}-overview`);
+  await mediaAction("submitMangaReviewAction", "manga-reviews", (api) =>
+    api.users.me["manga-reviews"]({ mangaId }).post({ content, containsSpoilers }),
+  );
 }
 
 // TODO: not sure about this revalidation

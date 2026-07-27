@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 
-import { LibrarySection, MangaLibrarySection } from "@/components/profile/profile-library";
+import { LibrarySection } from "@/components/profile/profile-library";
 import { ProfileMediaToggle } from "@/components/profile/profile-media-toggle";
 import { getProfileLibrary, getProfileMangaLibrary } from "../queries";
 
@@ -52,7 +52,7 @@ export default async function ProfileLibraryPage({
       </div>
     ) : (
       mangaSections.map((section) => (
-        <MangaLibrarySection key={section.title} title={section.title} entries={section.entries} />
+        <LibrarySection key={section.title} title={section.title} entries={section.entries} />
       ))
     );
 

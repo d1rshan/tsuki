@@ -1,8 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-
-export type MediaType = "anime" | "manga";
+import { type MediaType } from "@/lib/media";
 
 export function MediaTypeToggle({
   value,

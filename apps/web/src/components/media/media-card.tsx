@@ -3,22 +3,40 @@ import Link from "next/link";
 import { Star } from "lucide-react";
 
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { getMangaTitle, getMangaCoverImage } from "@/lib/manga";
+import {
+  MEDIA,
+  getMediaCoverImage,
+  getMediaTitle,
+  getMediaUnitCount,
+  mediaHref,
+  type MediaType,
+} from "@/lib/media";
 import { cn } from "@/lib/utils";
-import { type MangaCompact } from "@/lib/types";
+import { type AnimeCompact, type MangaCompact } from "@/lib/types";
 
-export function MangaCard({ manga, className }: { manga: MangaCompact; className?: string }) {
-  const href = `/manga/${manga.id}`;
-  const title = getMangaTitle(manga);
-  const coverImage = getMangaCoverImage(manga);
+export function MediaCard({
+  media,
+  mediaType,
+  className,
+}: {
+  media: AnimeCompact | MangaCompact;
+  mediaType: MediaType;
+  className?: string;
+}) {
+  const title = getMediaTitle(media);
+  const coverImage = getMediaCoverImage(media);
+  const unitCount = getMediaUnitCount(media);
 
-  const metadata = [manga.seasonYear, manga.chapters ? `${manga.chapters} ch` : null]
+  const metadata = [
+    media.seasonYear,
+    unitCount ? `${unitCount} ${MEDIA[mediaType].unitShort}` : null,
+  ]
     .filter(Boolean)
     .join(" • ");
 
   return (
     <Link
-      href={href}
+      href={mediaHref(mediaType, media.id)}
       className={cn(
         "group relative block overflow-hidden rounded-xl bg-muted ring-1 ring-border/50 transition-all duration-300 hover:ring-border",
         className,
@@ -41,10 +59,10 @@ export function MangaCard({ manga, className }: { manga: MangaCompact; className
         )}
       </AspectRatio>
 
-      {manga.averageScore && (
+      {media.averageScore && (
         <div className="absolute right-2 top-2 flex items-center gap-1 rounded-md bg-background/60 px-1.5 py-0.5 text-xs font-medium text-foreground backdrop-blur-md transition-opacity group-hover:opacity-100">
           <Star className="size-3 fill-primary text-primary" />
-          <span className="tracking-tight">{manga.averageScore}%</span>
+          <span className="tracking-tight">{media.averageScore}%</span>
         </div>
       )}
 

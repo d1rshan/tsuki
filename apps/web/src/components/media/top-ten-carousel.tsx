@@ -7,13 +7,15 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { type AnimeCompact } from "@/lib/types";
+import { type AnimeCompact, type MangaCompact } from "@/lib/types";
+import { type MediaType } from "@/lib/media";
 import { cn } from "@/lib/utils";
 
-import { AnimeCard } from "./anime-card";
+import { MediaCard } from "./media-card";
 
 type TopTenCarouselProps = {
-  animes: AnimeCompact[];
+  items: (AnimeCompact | MangaCompact)[];
+  mediaType: MediaType;
   actions?: React.ReactNode;
 };
 
@@ -22,7 +24,7 @@ const HEADING_CLASS = "text-3xl font-black uppercase tracking-tight md:text-5xl"
 const NAV_BUTTON_CLASS =
   "inline-flex size-10 border-border bg-background/55 text-foreground transition-all hover:size-14 hover:!bg-foreground hover:!text-background active:!-translate-y-1/2 disabled:opacity-100 disabled:pointer-events-auto  backdrop-blur-2xl md:size-12 lg:pointer-events-none lg:opacity-0 lg:group-hover/carousel:pointer-events-auto lg:group-hover/carousel:opacity-100 lg:group-focus-within/carousel:pointer-events-auto lg:group-focus-within/carousel:opacity-100";
 
-export function TopTenCarousel({ animes, actions }: TopTenCarouselProps) {
+export function TopTenCarousel({ items, mediaType, actions }: TopTenCarouselProps) {
   return (
     <section className="flex flex-col gap-4 md:gap-5 w-full">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -38,7 +40,7 @@ export function TopTenCarousel({ animes, actions }: TopTenCarouselProps) {
         className="group/carousel w-full"
       >
         <CarouselContent className="-ml-4 md:-ml-6 py-6 md:py-10">
-          {animes.slice(0, 10).map((anime, index) => {
+          {items.slice(0, 10).map((media, index) => {
             const rank = index + 1;
             const isRank10 = rank === 10;
             const isRank1 = rank === 1;
@@ -55,7 +57,7 @@ export function TopTenCarousel({ animes, actions }: TopTenCarouselProps) {
 
             return (
               <CarouselItem
-                key={anime.id}
+                key={media.id}
                 className={cn(
                   isRank1 ? "pl-0" : isRank10 ? "pl-10 md:pl-14" : "pl-4 md:pl-6",
                   basisClass,
@@ -94,7 +96,7 @@ export function TopTenCarousel({ animes, actions }: TopTenCarouselProps) {
 
                   {/* The Card */}
                   <div className="relative z-20 w-[64%] sm:w-[68%] shrink-0">
-                    <AnimeCard anime={anime} className="w-full shadow-md" />
+                    <MediaCard media={media} mediaType={mediaType} className="w-full shadow-md" />
                   </div>
                 </article>
               </CarouselItem>

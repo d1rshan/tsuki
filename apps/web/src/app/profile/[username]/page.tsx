@@ -1,11 +1,6 @@
 import { notFound } from "next/navigation";
 
-import {
-  FavoritesSection,
-  RecentActivitySection,
-  MangaFavoritesSection,
-  RecentMangaActivitySection,
-} from "@/components/profile/profile-overview";
+import { FavoritesSection, RecentActivitySection } from "@/components/profile/profile-overview";
 import { getProfileOverview } from "./queries";
 
 export default async function ProfileOverviewPage({
@@ -22,10 +17,18 @@ export default async function ProfileOverviewPage({
 
   return (
     <div className="space-y-16 pb-16">
-      <FavoritesSection favorites={favorites} />
-      <RecentActivitySection recentLogs={recentLogs} username={username} />
-      <MangaFavoritesSection favorites={mangaFavorites} />
-      <RecentMangaActivitySection recentLogs={recentMangaLogs} username={username} />
+      <FavoritesSection title="Anime Favorites" favorites={favorites} />
+      <RecentActivitySection
+        title="Recent Anime Activity"
+        recentLogs={recentLogs}
+        username={username}
+      />
+      <FavoritesSection title="Manga Favorites" favorites={mangaFavorites} />
+      <RecentActivitySection
+        title="Recent Manga Activity"
+        recentLogs={recentMangaLogs}
+        username={username}
+      />
     </div>
   );
 }

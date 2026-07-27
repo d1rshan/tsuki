@@ -1,24 +1,36 @@
 import { Suspense } from "react";
 import { ExternalLink } from "lucide-react";
 
-import type { Manga } from "@/lib/types";
+import type { Anime, Manga } from "@/lib/types";
+import { type MediaType } from "@/lib/media";
 import { Badge } from "@/components/ui/badge";
-import { MangaActions } from "@/components/manga/manga-actions";
-import { MangaActionsSkeleton } from "@/components/manga/manga-skeletons";
-import { MangaTrailer } from "@/components/manga/manga-trailer";
+import { MediaActions } from "@/components/media/media-actions";
+import { MediaActionsSkeleton } from "@/components/media/media-skeletons";
+import { MediaTrailer } from "@/components/media/media-trailer";
 
-export function MangaDetails({ manga }: { manga: Manga }) {
+export function MediaDetails({ media, mediaType }: { media: Anime | Manga; mediaType: MediaType }) {
+  const isAnime = "episodes" in media;
+
+  // Anime links are dominated by streaming services, so we surface only those.
+  // Manga has no streaming link type, so all links are shown.
+  const links = isAnime
+    ? media.externalLinks?.filter((link) => link.type === "STREAMING")
+    : media.externalLinks;
+  const linksHeading = isAnime ? "Where to Watch" : "More Info";
+
+  const total = isAnime ? media.episodes : media.chapters;
+
   return (
     <div className="mt-8 grid grid-cols-1 gap-12 md:grid-cols-[200px_1fr] lg:grid-cols-[250px_1fr]">
       {/* Sidebar */}
       <div className="space-y-8">
-        {manga.genres && manga.genres.length > 0 && (
+        {media.genres && media.genres.length > 0 && (
           <div className="space-y-3">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               Genres
             </h3>
             <div className="flex flex-wrap gap-2">
-              {manga.genres.map((genre) => (
+              {media.genres.map((genre) => (
                 <Badge key={genre} variant="secondary" className="font-normal">
                   {genre}
                 </Badge>
@@ -32,19 +44,31 @@ export function MangaDetails({ manga }: { manga: Manga }) {
             Details
           </h3>
           <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-1">
-            <InfoItem label="Chapters" value={manga.chapters} />
-            <InfoItem label="Volumes" value={manga.volumes} />
-            <InfoItem label="Popularity" value={manga.popularity?.toLocaleString()} />
+            {isAnime ? (
+              <>
+                <InfoItem label="Episodes" value={media.episodes} />
+                <InfoItem
+                  label="Duration"
+                  value={media.duration ? `${media.duration} mins` : null}
+                />
+              </>
+            ) : (
+              <>
+                <InfoItem label="Chapters" value={media.chapters} />
+                <InfoItem label="Volumes" value={media.volumes} />
+              </>
+            )}
+            <InfoItem label="Popularity" value={media.popularity?.toLocaleString()} />
           </div>
         </div>
 
-        {manga.externalLinks && manga.externalLinks.length > 0 && (
+        {links && links.length > 0 && (
           <div className="space-y-3">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              More Info
+              {linksHeading}
             </h3>
             <div className="flex flex-col gap-2">
-              {manga.externalLinks.map((link) => (
+              {links.map((link) => (
                 <a
                   key={link.url}
                   href={link.url}
@@ -69,8 +93,8 @@ export function MangaDetails({ manga }: { manga: Manga }) {
           </div>
         )}
         <div className="pt-4 border-t">
-          <Suspense fallback={<MangaActionsSkeleton />}>
-            <MangaActions mangaId={manga.id} totalChapters={manga.chapters} />
+          <Suspense fallback={<MediaActionsSkeleton />}>
+            <MediaActions mediaType={mediaType} mediaId={media.id} total={total} />
           </Suspense>
         </div>
       </div>
@@ -81,12 +105,12 @@ export function MangaDetails({ manga }: { manga: Manga }) {
         <div
           className="prose prose-sm max-w-none leading-relaxed text-muted-foreground dark:prose-invert md:prose-base"
           dangerouslySetInnerHTML={{
-            __html: manga.description || "No synopsis available.",
+            __html: media.description || "No synopsis available.",
           }}
         />
 
-        {manga.trailer && manga.trailer.site === "youtube" && (
-          <MangaTrailer trailerId={manga.trailer.id} />
+        {media.trailer && media.trailer.site === "youtube" && (
+          <MediaTrailer trailerId={media.trailer.id} />
         )}
       </div>
     </div>

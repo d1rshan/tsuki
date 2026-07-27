@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-export function AnimeBanner({ bannerImage, title }: { bannerImage: string | null; title: string }) {
+export function MediaBanner({ bannerImage, title }: { bannerImage: string | null; title: string }) {
   if (!bannerImage) {
     return <div className="relative h-[250px] w-full overflow-hidden md:h-[350px]" />;
   }

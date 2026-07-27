@@ -2,12 +2,12 @@ import { Suspense } from "react";
 import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
 
-import { getMangaTitle, getMangaBannerImage, getMangaCoverImage } from "@/lib/manga";
+import { getMediaTitle, getMediaBannerImage, getMediaCoverImage } from "@/lib/media";
 import { api } from "@/lib/api";
-import { MangaBanner } from "@/components/manga/manga-banner";
-import { MangaHeader } from "@/components/manga/manga-header";
-import { MangaDetails } from "@/components/manga/manga-details";
-import { MangaPageSkeleton } from "@/components/manga/manga-skeletons";
+import { MediaBanner } from "@/components/media/media-banner";
+import { MediaHeader } from "@/components/media/media-header";
+import { MediaDetails } from "@/components/media/media-details";
+import { MediaPageSkeleton } from "@/components/media/media-skeletons";
 
 async function getCachedManga(id: string) {
   "use cache: remote";
@@ -23,7 +23,7 @@ async function getCachedManga(id: string) {
 
 export default function MangaPage({ params }: { params: Promise<{ id: string }> }) {
   return (
-    <Suspense fallback={<MangaPageSkeleton />}>
+    <Suspense fallback={<MediaPageSkeleton />}>
       <MangaPageContent params={params} />
     </Suspense>
   );
@@ -35,16 +35,16 @@ async function MangaPageContent({ params }: { params: Promise<{ id: string }> })
 
   if (error) return notFound();
 
-  const title = getMangaTitle(manga);
-  const coverImage = getMangaCoverImage(manga);
-  const bannerImage = getMangaBannerImage(manga);
+  const title = getMediaTitle(manga);
+  const coverImage = getMediaCoverImage(manga);
+  const bannerImage = getMediaBannerImage(manga);
 
   return (
     <div className="pb-16">
-      <MangaBanner bannerImage={bannerImage} title={title} />
+      <MediaBanner bannerImage={bannerImage} title={title} />
       <div className="container mx-auto max-w-6xl px-4">
-        <MangaHeader manga={manga} title={title} coverImage={coverImage} />
-        <MangaDetails manga={manga} />
+        <MediaHeader media={manga} title={title} coverImage={coverImage} />
+        <MediaDetails media={manga} mediaType="manga" />
       </div>
     </div>
   );

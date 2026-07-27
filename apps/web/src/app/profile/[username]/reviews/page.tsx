@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 
-import { ReviewItem, MangaReviewItem } from "@/components/profile/profile-reviews";
+import { ReviewItem } from "@/components/profile/profile-reviews";
 import { ProfileMediaToggle } from "@/components/profile/profile-media-toggle";
 import { getProfileReviews, getProfileMangaReviews } from "../queries";
 
@@ -40,7 +40,7 @@ export default async function ProfileReviewsPage({
     ) : (
       <div className="flex flex-col gap-10">
         {mangaReviews.map((review) => (
-          <MangaReviewItem key={review.id} review={review} />
+          <ReviewItem key={review.id} review={review} />
         ))}
       </div>
     );
