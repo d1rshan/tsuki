@@ -30,8 +30,8 @@ const PRESERVED_ON_UPSERT = new Set(["id", "type", "createdAt"]);
 /**
  * Refresh every other column from the incoming row. Derived from the table
  * definition so a new column can never be silently left out of the upsert.
- * `syncedAt` and `updatedAt` default to now() on the attempted insert, so
- * taking them from `excluded` stamps them correctly.
+ * `updatedAt` defaults to now() on the attempted insert, so taking it from
+ * `excluded` stamps it correctly.
  */
 const MEDIA_UPSERT_SET = Object.fromEntries(
   Object.entries(getTableColumns(media))

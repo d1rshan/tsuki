@@ -8,9 +8,3 @@ export const getUserByUsername = async (username: string) => {
     where: eq(user.username, username),
   });
 };
-
-export const getUserById = async (id: string) => {
-  return db.query.user.findFirst({
-    where: eq(user.id, id),
-  });
-};

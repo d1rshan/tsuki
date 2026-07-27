@@ -60,8 +60,6 @@ export const media = pgTable(
     externalLinks: jsonb("external_links").$type<MediaExternalLink[]>(),
     siteUrl: text("site_url"),
     isAdult: boolean("is_adult").default(false),
-    /** When we last pulled this row from AniList, for TTL refresh. */
-    syncedAt: timestamp("synced_at").defaultNow().notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()
