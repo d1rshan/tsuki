@@ -1,7 +1,7 @@
 import { gql } from "graphql-request";
 
 import { MEDIA_COMPACT_FIELDS, MEDIA_FIELDS } from "./fragments";
-import type { AnilistMedia, AnilistMediaCompact } from "./types";
+import type { AnilistMedia, AnilistMediaCompact } from "../types";
 
 type PageOf<T> = { Page?: { media?: (T | null)[] } };
 

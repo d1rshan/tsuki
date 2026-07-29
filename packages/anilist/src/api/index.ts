@@ -1,6 +1,6 @@
 import { ClientError } from "graphql-request";
 
-import { anilistClient } from "./client";
+import { anilistClient } from "../client";
 import { toMediaRow, toMediaCompactRow } from "./mappers";
 import {
   MEDIA_BY_ID_QUERY,
@@ -9,8 +9,8 @@ import {
   type MediaByIdResponse,
   type SearchMediaResponse,
   type TrendingMediaResponse,
-} from "./queries";
-import type { MediaType } from "./types";
+} from "../queries";
+import type { MediaType } from "../types";
 
 /**
  * Searches AniList for media of the given type. Leaving `isAdult` unset is what

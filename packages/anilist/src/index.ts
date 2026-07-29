@@ -1,1 +1,1 @@
-export { fetchMediaById, fetchMediaSearch, fetchTrendingMedia } from "./api";
+export * from "./api";

@@ -1,4 +1,4 @@
-import type { AnilistMedia, AnilistMediaCompact, FuzzyDate } from "./types";
+import type { AnilistMedia, AnilistMediaCompact, FuzzyDate } from "../types";
 
 /** Empty collapses to null too, so "none" has one form rather than two. */
 function dropNulls<T>(list: (T | null)[] | null | undefined): T[] | null {

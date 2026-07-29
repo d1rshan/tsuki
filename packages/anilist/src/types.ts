@@ -83,7 +83,7 @@ type MediaTag = {
   isAdult: boolean;
 };
 
-/** The full `Media` selection — see MEDIA_FIELDS in ./fragments. */
+/** The full `Media` selection — see MEDIA_FIELDS in ./queries/fragments. */
 export type AnilistMedia = {
   id: number;
   idMal: number | null;
@@ -121,7 +121,7 @@ export type AnilistMedia = {
   isAdult: boolean | null;
 };
 
-/** The trimmed selection — mirrors MEDIA_COMPACT_FIELDS in ./fragments. */
+/** The trimmed selection — mirrors MEDIA_COMPACT_FIELDS in ./queries/fragments. */
 export type AnilistMediaCompact = Pick<
   AnilistMedia,
   | "id"
