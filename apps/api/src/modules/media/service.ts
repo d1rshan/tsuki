@@ -1,4 +1,4 @@
-import { fetchMediaById, fetchTrendingMedia } from "@tsuki/anilist";
+import { anilistMediaById, anilistTrendingMedia } from "@tsuki/anilist";
 import { mediaDal } from "@tsuki/db";
 import type { MediaType } from "@tsuki/db";
 
@@ -66,7 +66,7 @@ export async function getMedia(type: MediaType, id: number) {
   const cached = await mediaDal.getMediaById(type, id);
   if (cached) return cached;
 
-  const fetched = await fetchMediaById(type, id);
+  const fetched = await anilistMediaById(type, id);
   if (!fetched) return null;
 
   await mediaDal.upsertMedia([fetched]);
@@ -92,7 +92,7 @@ export async function ensureMediaExists(type: MediaType, id: number) {
  * Rows are still persisted so opening a title from the carousel is a local hit.
  */
 export async function getTrending(type: MediaType) {
-  const rows = await fetchTrendingMedia(type);
+  const rows = await anilistTrendingMedia(type);
   await mediaDal.upsertMedia(rows);
 
   return rows.map(toMediaCompact);

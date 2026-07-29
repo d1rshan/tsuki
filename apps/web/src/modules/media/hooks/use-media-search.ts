@@ -1,6 +1,6 @@
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 
-import { fetchMediaSearch } from "@tsuki/anilist";
+import { anilistSearchMedia } from "@tsuki/anilist";
 import type { MediaCompact, MediaType } from "@tsuki/api/types";
 
 import { useDebounce } from "@/hooks/use-debounce";
@@ -13,7 +13,7 @@ import { mediaKeys } from "../query-keys";
 // searching it would return a strict subset — there is no server-side search
 // endpoint for that reason.
 
-type AnilistResult = Awaited<ReturnType<typeof fetchMediaSearch>>[number];
+type AnilistResult = Awaited<ReturnType<typeof anilistSearchMedia>>[number];
 
 /**
  * Bypassing our API means bypassing its response shape too, so results have to
@@ -45,7 +45,7 @@ export function useMediaSearch(mediaType: MediaType, query: string, includeNsfw:
     queryFn: async () => {
       if (debouncedQuery.length === 0) return [];
 
-      const results = await fetchMediaSearch(
+      const results = await anilistSearchMedia(
         mediaType === "anime" ? "ANIME" : "MANGA",
         debouncedQuery,
         includeNsfw,

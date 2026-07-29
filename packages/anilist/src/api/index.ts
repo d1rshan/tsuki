@@ -16,7 +16,7 @@ import type { MediaType } from "../types";
  * Searches AniList for media of the given type. Leaving `isAdult` unset is what
  * includes NSFW, so the filter is only omitted when `includeNsfw` is set.
  */
-export async function fetchMediaSearch(
+export async function anilistSearchMedia(
   type: MediaType,
   query: string,
   includeNsfw: boolean = false,
@@ -31,7 +31,7 @@ export async function fetchMediaSearch(
  * Two pages of trending media, 70 items, most trending first. Ties straddling
  * the page boundary can come back twice, so ids are deduped, first seen winning.
  */
-export async function fetchTrendingMedia(type: MediaType) {
+export async function anilistTrendingMedia(type: MediaType) {
   const pages = await Promise.all(
     [1, 2].map((page) =>
       anilistClient.request<TrendingMediaResponse>(TRENDING_MEDIA_QUERY, {
@@ -55,7 +55,7 @@ export async function fetchTrendingMedia(type: MediaType) {
  * AniList answers those with a 404, which graphql-request throws rather than
  * returning, so the catch is the only place that sees them.
  */
-export async function fetchMediaById(type: MediaType, id: number) {
+export async function anilistMediaById(type: MediaType, id: number) {
   try {
     const data = await anilistClient.request<MediaByIdResponse>(MEDIA_BY_ID_QUERY, { id, type });
     return data.Media ? toMediaRow(data.Media) : null;
