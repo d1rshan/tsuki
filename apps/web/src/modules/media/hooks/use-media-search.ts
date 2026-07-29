@@ -7,11 +7,11 @@ import { useDebounce } from "@/hooks/use-debounce";
 
 import { mediaKeys } from "../query-keys";
 
-// TODO: this queries AniList straight from the browser, deliberately. Note that
-// the API also exposes GET /media/:type/search, which searches only what we have
-// already cached locally and so returns fewer results — that is why we do not
-// use it here. If that endpoint ever falls through to AniList, route this
-// through it instead so searches warm our cache, and drop the mapping below.
+// Search goes to AniList straight from the browser, deliberately: it keeps the
+// full catalogue reachable without proxying every keystroke through our API.
+// Our own media table only holds titles someone has already opened, so
+// searching it would return a strict subset — there is no server-side search
+// endpoint for that reason.
 
 type AnilistResult = Awaited<ReturnType<typeof fetchMediaSearch>>[number];
 

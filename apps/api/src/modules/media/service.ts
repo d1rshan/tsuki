@@ -5,7 +5,7 @@ import type { MediaType } from "@tsuki/db";
 import { toApiMediaType, type Media, type MediaCompact } from "./model";
 
 type MediaRow = NonNullable<Awaited<ReturnType<typeof mediaDal.getMediaById>>>;
-type MediaCompactRow = Awaited<ReturnType<typeof mediaDal.searchMedia>>[number];
+type MediaCompactRow = mediaDal.MediaCompactRow;
 
 /** Episodes or chapters, whichever unit the media counts. */
 const unitCount = (row: { type: MediaType; episodes: number | null; chapters: number | null }) =>
@@ -95,10 +95,5 @@ export async function getTrending(type: MediaType) {
   const rows = await fetchTrendingMedia(type);
   await mediaDal.upsertMedia(rows);
 
-  return rows.map(toMediaCompact);
-}
-
-export async function search(type: MediaType, query: string) {
-  const rows = await mediaDal.searchMedia(type, query);
   return rows.map(toMediaCompact);
 }
