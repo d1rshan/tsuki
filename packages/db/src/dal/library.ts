@@ -41,8 +41,6 @@ export const upsertEntry = async (entry: InsertLibraryEntry) => {
     .onConflictDoUpdate({
       target: [libraryEntries.userId, libraryEntries.mediaId],
       set: {
-        // Undefined fields are omitted by drizzle, so a partial log preserves
-        // whatever the entry already held.
         status: entry.status,
         score: entry.score,
         progress: entry.progress,

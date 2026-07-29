@@ -34,12 +34,7 @@ export const getUserReviews = async (userId: string, options: ReviewQueryOptions
   });
 };
 
-/**
- * Conflicts resolve on (userId, mediaId), not the primary key, so the `id` on an
- * incoming review is only used when the row is new — editing an existing review
- * discards it. Read the id back off the returned row rather than assuming it is
- * the one you passed in.
- */
+/** Conflicts resolve on (userId, mediaId), so an incoming `id` is ignored on edits. */
 export const upsertReview = async (review: InsertReview) => {
   const [result] = await db
     .insert(reviews)

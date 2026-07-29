@@ -5,7 +5,7 @@ import type { MediaType } from "@tsuki/db";
 import { toApiMediaType, type Media, type MediaCompact } from "./model";
 
 type MediaRow = NonNullable<Awaited<ReturnType<typeof mediaDal.getMediaById>>>;
-type MediaCompactRow = mediaDal.MediaCompactRow;
+type MediaCompactRow = Pick<MediaRow, keyof typeof mediaDal.MEDIA_COMPACT_COLUMNS>;
 
 /** Episodes or chapters, whichever unit the media counts. */
 const unitCount = (row: { type: MediaType; episodes: number | null; chapters: number | null }) =>

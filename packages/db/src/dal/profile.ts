@@ -12,8 +12,7 @@ export const updateUserProfile = async (
     socialLinks?: Record<string, string> | null;
   },
 ) => {
-  // The column defaults to `{}`, so storing null would give "no links" two
-  // representations. Callers may still send null to clear it.
+  // Callers clear with null; the column defaults to `{}`. Keep one representation of "none".
   const values = data.socialLinks === null ? { ...data, socialLinks: {} } : data;
 
   return db
