@@ -1,11 +1,7 @@
 import type { AnilistMedia, AnilistMediaCompact, FuzzyDate } from "./types";
 
-/**
- * AniList list fields are nullable and may contain nulls. An absent list and a
- * list that held nothing usable both come back as null, so "none" has one
- * representation rather than two.
- */
-function compact<T>(list: (T | null)[] | null | undefined): T[] | null {
+/** Empty collapses to null too, so "none" has one form rather than two. */
+function dropNulls<T>(list: (T | null)[] | null | undefined): T[] | null {
   if (!list) return null;
 
   const items = list.filter((item): item is T => item != null);
@@ -28,7 +24,7 @@ export function toMediaRow(media: AnilistMedia) {
     titleRomaji: media.title.romaji,
     titleEnglish: media.title.english,
     titleNative: media.title.native,
-    synonyms: compact(media.synonyms),
+    synonyms: dropNulls(media.synonyms),
     description: media.description,
     coverImageExtraLarge: media.coverImage.extraLarge,
     coverImageLarge: media.coverImage.large,
@@ -51,10 +47,10 @@ export function toMediaRow(media: AnilistMedia) {
     meanScore: media.meanScore,
     popularity: media.popularity,
     favourites: media.favourites,
-    genres: compact(media.genres),
-    tags: compact(media.tags),
+    genres: dropNulls(media.genres),
+    tags: dropNulls(media.tags),
     trailer: media.trailer,
-    externalLinks: compact(media.externalLinks),
+    externalLinks: dropNulls(media.externalLinks),
     siteUrl: media.siteUrl,
     isAdult: media.isAdult ?? false,
   };
@@ -79,6 +75,3 @@ export function toMediaCompactRow(media: AnilistMediaCompact) {
     averageScore: media.averageScore,
   };
 }
-
-export type MediaRow = ReturnType<typeof toMediaRow>;
-export type MediaCompactRow = ReturnType<typeof toMediaCompactRow>;

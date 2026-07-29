@@ -1,16 +1,12 @@
 /**
- * Mirrors of AniList's GraphQL schema types.
- *
- * AniList models anime and manga as a single `Media` entity discriminated by
- * `type`, with a shared, globally unique id space. We mirror that here so
- * fetched fields map straight onto our own `media` rows with no reshaping.
- *
+ * Mirrors of AniList's GraphQL schema types — anime and manga are one `Media`
+ * entity discriminated by `type`, sharing a global id space.
  * Reference: docs/docs/reference/object/media.md
  */
 
 export type MediaType = "ANIME" | "MANGA";
 
-export type MediaFormat =
+type MediaFormat =
   | "TV"
   | "TV_SHORT"
   | "MOVIE"
@@ -22,11 +18,11 @@ export type MediaFormat =
   | "NOVEL"
   | "ONE_SHOT";
 
-export type MediaStatus = "FINISHED" | "RELEASING" | "NOT_YET_RELEASED" | "CANCELLED" | "HIATUS";
+type MediaStatus = "FINISHED" | "RELEASING" | "NOT_YET_RELEASED" | "CANCELLED" | "HIATUS";
 
-export type MediaSeason = "WINTER" | "SPRING" | "SUMMER" | "FALL";
+type MediaSeason = "WINTER" | "SPRING" | "SUMMER" | "FALL";
 
-export type MediaSource =
+type MediaSource =
   | "ORIGINAL"
   | "MANGA"
   | "LIGHT_NOVEL"
@@ -50,26 +46,26 @@ export type FuzzyDate = {
   day: number | null;
 };
 
-export type MediaTitle = {
+type MediaTitle = {
   romaji: string | null;
   english: string | null;
   native: string | null;
 };
 
-export type MediaCoverImage = {
+type MediaCoverImage = {
   extraLarge: string | null;
   large: string | null;
   medium: string | null;
   color: string | null;
 };
 
-export type MediaTrailer = {
+type MediaTrailer = {
   id: string;
   site: string;
   thumbnail: string;
 };
 
-export type MediaExternalLink = {
+type MediaExternalLink = {
   url: string;
   site: string;
   type: string;
@@ -77,7 +73,7 @@ export type MediaExternalLink = {
   icon: string | null;
 };
 
-export type MediaTag = {
+type MediaTag = {
   id: number;
   name: string;
   category: string | null;
@@ -87,7 +83,7 @@ export type MediaTag = {
   isAdult: boolean;
 };
 
-/** The full `Media` selection — see MEDIA_FIELDS in ./queries/fragments. */
+/** The full `Media` selection — see MEDIA_FIELDS in ./fragments. */
 export type AnilistMedia = {
   id: number;
   idMal: number | null;
@@ -125,11 +121,7 @@ export type AnilistMedia = {
   isAdult: boolean | null;
 };
 
-/**
- * The trimmed selection used for search results and grids. `coverImage.medium`
- * is deliberately absent — MEDIA_COMPACT_FIELDS does not request it, and no
- * compact consumer renders it.
- */
+/** The trimmed selection — mirrors MEDIA_COMPACT_FIELDS in ./fragments. */
 export type AnilistMediaCompact = Pick<
   AnilistMedia,
   | "id"
@@ -141,4 +133,4 @@ export type AnilistMediaCompact = Pick<
   | "chapters"
   | "seasonYear"
   | "averageScore"
-> & { coverImage: Omit<MediaCoverImage, "medium"> };
+> & { coverImage: Pick<MediaCoverImage, "extraLarge" | "large" | "color"> };

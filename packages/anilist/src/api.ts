@@ -1,79 +1,65 @@
 import { ClientError } from "graphql-request";
 
 import { anilistClient } from "./client";
-import { toMediaRow, toMediaCompactRow, type MediaRow } from "./mappers";
-import { MEDIA_BY_ID_QUERY, type MediaByIdResponse } from "./queries/media-by-id";
-import { SEARCH_MEDIA_QUERY, type SearchMediaResponse } from "./queries/search";
-import { TRENDING_MEDIA_QUERY, type TrendingMediaResponse } from "./queries/trending";
+import { toMediaRow, toMediaCompactRow } from "./mappers";
+import {
+  MEDIA_BY_ID_QUERY,
+  SEARCH_MEDIA_QUERY,
+  TRENDING_MEDIA_QUERY,
+  type MediaByIdResponse,
+  type SearchMediaResponse,
+  type TrendingMediaResponse,
+} from "./queries";
 import type { MediaType } from "./types";
 
 /**
- * Searches AniList for media of the given type.
- * Returns compact rows suitable for search results and grids.
+ * Searches AniList for media of the given type. Leaving `isAdult` unset is what
+ * includes NSFW, so the filter is only omitted when `includeNsfw` is set.
  */
 export async function fetchMediaSearch(
   type: MediaType,
   query: string,
   includeNsfw: boolean = false,
 ) {
-  // Omitting `isAdult` entirely leaves the filter unset, which includes NSFW.
   const variables = includeNsfw ? { search: query, type } : { search: query, type, isAdult: false };
   const data = await anilistClient.request<SearchMediaResponse>(SEARCH_MEDIA_QUERY, variables);
 
-  if (!data.Page?.media) return [];
-
-  return data.Page.media.filter((media) => media != null).map(toMediaCompactRow);
+  return (data.Page?.media ?? []).filter((media) => media != null).map(toMediaCompactRow);
 }
 
 /**
- * Fetches the current trending media of the given type — two pages, 70 items,
- * most trending first.
- *
- * AniList applies no tiebreaker to `TRENDING_DESC` and the pages are fetched
- * independently, so a title tied at the page boundary can come back on both.
- * Ties there are routine: the tail of the list clusters into groups of six or
- * seven sharing a score. Deduping keeps the same title out of the carousel
- * twice and, more importantly, keeps `upsertMedia` from targeting one conflict
- * row twice in a single statement, which Postgres rejects outright.
+ * Two pages of trending media, 70 items, most trending first. Ties straddling
+ * the page boundary can come back twice, so ids are deduped, first seen winning.
  */
 export async function fetchTrendingMedia(type: MediaType) {
-  const [page1, page2] = await Promise.all([
-    anilistClient.request<TrendingMediaResponse>(TRENDING_MEDIA_QUERY, {
-      type,
-      page: 1,
-      perPage: 35,
-    }),
-    anilistClient.request<TrendingMediaResponse>(TRENDING_MEDIA_QUERY, {
-      type,
-      page: 2,
-      perPage: 35,
-    }),
-  ]);
+  const pages = await Promise.all(
+    [1, 2].map((page) =>
+      anilistClient.request<TrendingMediaResponse>(TRENDING_MEDIA_QUERY, {
+        type,
+        page,
+        perPage: 35,
+      }),
+    ),
+  );
 
-  // A Map keeps first-seen order, so the higher-ranked position wins.
-  const byId = new Map<number, MediaRow>();
-  for (const item of [...(page1.Page?.media ?? []), ...(page2.Page?.media ?? [])]) {
-    if (item == null) continue;
+  const rows = pages
+    .flatMap((page) => page.Page?.media ?? [])
+    .filter((media) => media != null)
+    .map(toMediaRow);
 
-    const row = toMediaRow(item);
-    byId.set(row.id, row);
-  }
-
-  return [...byId.values()];
+  return [...new Map(rows.map((row) => [row.id, row])).values()];
 }
 
 /**
- * Fetches a single media by its AniList id.
- * Returns null if no media of that type carries the id.
+ * Fetches one media by AniList id. Null when no media of that type carries it —
+ * AniList answers those with a 404, which graphql-request throws rather than
+ * returning, so the catch is the only place that sees them.
  */
 export async function fetchMediaById(type: MediaType, id: number) {
   try {
     const data = await anilistClient.request<MediaByIdResponse>(MEDIA_BY_ID_QUERY, { id, type });
     return data.Media ? toMediaRow(data.Media) : null;
   } catch (error) {
-    // AniList answers an unknown id with HTTP 404 and a `Not Found.` error entry.
-    // graphql-request surfaces that as a thrown ClientError, so a plain null check
-    // on the response never sees it.
     if (error instanceof ClientError && error.response.status === 404) return null;
     throw error;
   }

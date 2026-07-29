@@ -1,11 +1,6 @@
 import { gql } from "graphql-request";
 
-/**
- * Field selections shared by every query. AniList discriminates anime and manga
- * on `Media.type`, so one selection serves both — anime-only fields (episodes,
- * duration) and manga-only fields (chapters, volumes) simply come back null for
- * the other type.
- */
+/** One selection serves both types — the other's fields just come back null. */
 export const MEDIA_FIELDS = gql`
   fragment MediaFields on Media {
     id
@@ -76,6 +71,7 @@ export const MEDIA_FIELDS = gql`
   }
 `;
 
+/** The trimmed selection behind search results and grids. */
 export const MEDIA_COMPACT_FIELDS = gql`
   fragment MediaCompactFields on Media {
     id

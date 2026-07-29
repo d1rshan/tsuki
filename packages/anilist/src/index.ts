@@ -1,3 +1,1 @@
-export * from "./api";
-export * from "./mappers";
-export * from "./types";
+export { fetchMediaById, fetchMediaSearch, fetchTrendingMedia } from "./api";
