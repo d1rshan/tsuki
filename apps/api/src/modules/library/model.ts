@@ -1,6 +1,6 @@
 import { t } from "elysia";
 
-import { FuzzyDateModel, MediaCompactModel, MediaTypeParam } from "../media/model";
+import { FuzzyDateModel, MediaCompactModel, MediaTypeEnum } from "../media/model";
 
 /** AniList's MediaListStatus — type-agnostic, so anime and manga share it. */
 export const ListStatusEnum = t.Union([
@@ -13,7 +13,7 @@ export const ListStatusEnum = t.Union([
 ]);
 
 export const LibraryEntryModel = t.Object({
-  mediaType: MediaTypeParam,
+  mediaType: MediaTypeEnum,
   mediaId: t.Number(),
   media: t.Nullable(MediaCompactModel),
   status: t.Nullable(ListStatusEnum),
@@ -44,7 +44,7 @@ export const LibraryEntryInputModel = t.Object({
 });
 
 export const LibraryQueryModel = t.Object({
-  type: t.Optional(MediaTypeParam),
+  type: t.Optional(MediaTypeEnum),
   limit: t.Optional(t.Numeric({ minimum: 1, maximum: 100 })),
   offset: t.Optional(t.Numeric({ minimum: 0 })),
 });

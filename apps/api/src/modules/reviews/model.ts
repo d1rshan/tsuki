@@ -1,10 +1,10 @@
 import { t } from "elysia";
 
-import { MediaCompactModel, MediaTypeParam } from "../media/model";
+import { MediaCompactModel, MediaTypeEnum } from "../media/model";
 
 export const ReviewModel = t.Object({
   id: t.String(),
-  mediaType: MediaTypeParam,
+  mediaType: MediaTypeEnum,
   mediaId: t.Number(),
   media: t.Nullable(MediaCompactModel),
   content: t.String(),
@@ -19,7 +19,7 @@ export const ReviewInputModel = t.Object({
 });
 
 export const ReviewQueryModel = t.Object({
-  type: t.Optional(MediaTypeParam),
+  type: t.Optional(MediaTypeEnum),
   limit: t.Optional(t.Numeric({ minimum: 1, maximum: 100 })),
   offset: t.Optional(t.Numeric({ minimum: 0 })),
 });

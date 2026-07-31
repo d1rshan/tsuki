@@ -1,4 +1,4 @@
-import { GraphQLClient } from "graphql-request";
+import { ClientError, GraphQLClient, type Variables } from "graphql-request";
 
 // AniList is regularly slow or briefly unreachable, and nothing here is a
 // mutation, so every request is safe to retry.
@@ -35,8 +35,35 @@ const fetchWithRetry = async (input: RequestInfo | URL, init?: RequestInit): Pro
   }
 };
 
-export const anilistClient = new GraphQLClient("https://graphql.anilist.co", {
+const anilistClient = new GraphQLClient("https://graphql.anilist.co", {
   // Typed as `typeof fetch`, which under Bun also carries `preconnect`, but
   // graphql-request only ever calls the function itself.
   fetch: fetchWithRetry as typeof fetch,
 });
+
+/** Any AniList failure — unreachable, timed out, or a non-2xx from their API. */
+export class AnilistError extends Error {
+  constructor(
+    message: string,
+    /** AniList's HTTP status, absent when we never got a response. */
+    readonly status?: number,
+    options?: ErrorOptions,
+  ) {
+    super(message, options);
+    this.name = "AnilistError";
+  }
+}
+
+/** The one way in, so callers only ever have to know about AnilistError. */
+export async function anilistRequest<T>(query: string, variables?: Variables) {
+  try {
+    return await anilistClient.request<T>(query, variables);
+  } catch (error) {
+    if (error instanceof ClientError) {
+      const { status } = error.response;
+      throw new AnilistError(`AniList responded ${status}`, status, { cause: error });
+    }
+
+    throw new AnilistError("AniList is unreachable", undefined, { cause: error });
+  }
+}

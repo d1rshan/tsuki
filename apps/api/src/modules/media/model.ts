@@ -1,8 +1,8 @@
 import { t } from "elysia";
 
 /** AniList's vocabulary, carried unchanged from the database through to the client. */
-export const MediaTypeParam = t.Union([t.Literal("ANIME"), t.Literal("MANGA")]);
-export type ApiMediaType = typeof MediaTypeParam.static;
+export const MediaTypeEnum = t.Union([t.Literal("ANIME"), t.Literal("MANGA")]);
+export type MediaType = typeof MediaTypeEnum.static;
 
 export const FuzzyDateModel = t.Object({
   year: t.Nullable(t.Number()),
@@ -69,7 +69,7 @@ const MediaTagModel = t.Object({
 /** The shape embedded in cards, grids, library entries and reviews. */
 export const MediaCompactModel = t.Object({
   id: t.Number(),
-  type: MediaTypeParam,
+  type: MediaTypeEnum,
   titleRomaji: t.Nullable(t.String()),
   titleEnglish: t.Nullable(t.String()),
   titleNative: t.Nullable(t.String()),

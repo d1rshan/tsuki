@@ -5,7 +5,7 @@ import { reviewsDal, userDal } from "@tsuki/db";
 import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
 import { ensureMediaExists } from "../media";
-import { MediaTypeParam } from "../media/model";
+import { MediaTypeEnum } from "../media/model";
 import { ReviewInputModel, ReviewModel, ReviewQueryModel } from "./model";
 
 export const reviewRoutes = new Elysia()
@@ -51,7 +51,7 @@ export const reviewRoutes = new Elysia()
     },
     {
       auth: true,
-      params: t.Object({ type: MediaTypeParam, id: t.Numeric() }),
+      params: t.Object({ type: MediaTypeEnum, id: t.Numeric() }),
       body: ReviewInputModel,
       response: { 200: ReviewModel, 404: ErrorModel, 500: ErrorModel },
       detail: {
@@ -68,7 +68,7 @@ export const reviewRoutes = new Elysia()
     },
     {
       auth: true,
-      params: t.Object({ type: MediaTypeParam, id: t.Numeric() }),
+      params: t.Object({ type: MediaTypeEnum, id: t.Numeric() }),
       detail: { summary: "Delete a review" },
     },
   );

@@ -4,7 +4,7 @@ import { libraryDal, profileDal, reviewsDal, userDal } from "@tsuki/db";
 
 import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
-import type { ApiMediaType } from "../media/model";
+import type { MediaType } from "../media/model";
 import { ProfileModel, UpdateProfileModel, UserOverviewModel } from "./model";
 
 type LibraryRow = Awaited<ReturnType<typeof libraryDal.getUserLibrary>>[number];
@@ -13,7 +13,7 @@ const FAVORITES_LIMIT = 10;
 const RECENT_LOGS_LIMIT = 10;
 const RECENT_REVIEWS_LIMIT = 5;
 
-function statsFor(entries: LibraryRow[], type: ApiMediaType) {
+function statsFor(entries: LibraryRow[], type: MediaType) {
   const forType = entries.filter((entry) => entry.mediaType === type);
   const scored = forType.filter((entry) => entry.score != null);
 

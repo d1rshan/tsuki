@@ -1,6 +1,4 @@
-import { ClientError } from "graphql-request";
-
-import { anilistClient } from "../client";
+import { AnilistError, anilistRequest } from "../client";
 import { toMediaRow, toMediaCompactRow } from "./mappers";
 import {
   MEDIA_BY_ID_QUERY,
@@ -22,7 +20,7 @@ export async function anilistSearchMedia(
   includeNsfw: boolean = false,
 ) {
   const variables = includeNsfw ? { search: query, type } : { search: query, type, isAdult: false };
-  const data = await anilistClient.request<SearchMediaResponse>(SEARCH_MEDIA_QUERY, variables);
+  const data = await anilistRequest<SearchMediaResponse>(SEARCH_MEDIA_QUERY, variables);
 
   return (data.Page?.media ?? []).filter((media) => media != null).map(toMediaCompactRow);
 }
@@ -34,11 +32,7 @@ export async function anilistSearchMedia(
 export async function anilistTrendingMedia(type: MediaType) {
   const pages = await Promise.all(
     [1, 2].map((page) =>
-      anilistClient.request<TrendingMediaResponse>(TRENDING_MEDIA_QUERY, {
-        type,
-        page,
-        perPage: 35,
-      }),
+      anilistRequest<TrendingMediaResponse>(TRENDING_MEDIA_QUERY, { type, page, perPage: 35 }),
     ),
   );
 
@@ -52,15 +46,15 @@ export async function anilistTrendingMedia(type: MediaType) {
 
 /**
  * Fetches one media by AniList id. Null when no media of that type carries it —
- * AniList answers those with a 404, which graphql-request throws rather than
- * returning, so the catch is the only place that sees them.
+ * AniList answers those with a 404, which is raised rather than returned, so the
+ * catch is the only place that sees them.
  */
 export async function anilistMediaById(type: MediaType, id: number) {
   try {
-    const data = await anilistClient.request<MediaByIdResponse>(MEDIA_BY_ID_QUERY, { id, type });
+    const data = await anilistRequest<MediaByIdResponse>(MEDIA_BY_ID_QUERY, { id, type });
     return data.Media ? toMediaRow(data.Media) : null;
   } catch (error) {
-    if (error instanceof ClientError && error.response.status === 404) return null;
+    if (error instanceof AnilistError && error.status === 404) return null;
     throw error;
   }
 }

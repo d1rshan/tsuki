@@ -5,7 +5,7 @@ import { libraryDal, reviewsDal, userDal } from "@tsuki/db";
 import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
 import { ensureMediaExists } from "../media";
-import { MediaTypeParam } from "../media/model";
+import { MediaTypeEnum } from "../media/model";
 import { ReviewModel } from "../reviews/model";
 import { LibraryEntryInputModel, LibraryEntryModel, LibraryQueryModel } from "./model";
 
@@ -44,7 +44,7 @@ export const libraryRoutes = new Elysia()
     },
     {
       auth: true,
-      params: t.Object({ type: MediaTypeParam, id: t.Numeric() }),
+      params: t.Object({ type: MediaTypeEnum, id: t.Numeric() }),
       response: {
         200: t.Object({
           entry: t.Nullable(LibraryEntryModel),
@@ -75,7 +75,7 @@ export const libraryRoutes = new Elysia()
     },
     {
       auth: true,
-      params: t.Object({ type: MediaTypeParam, id: t.Numeric() }),
+      params: t.Object({ type: MediaTypeEnum, id: t.Numeric() }),
       body: LibraryEntryInputModel,
       response: { 200: LibraryEntryModel, 404: ErrorModel, 500: ErrorModel },
       detail: {
@@ -92,7 +92,7 @@ export const libraryRoutes = new Elysia()
     },
     {
       auth: true,
-      params: t.Object({ type: MediaTypeParam, id: t.Numeric() }),
+      params: t.Object({ type: MediaTypeEnum, id: t.Numeric() }),
       detail: { summary: "Delete a library entry" },
     },
   );

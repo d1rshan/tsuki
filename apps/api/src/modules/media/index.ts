@@ -1,10 +1,10 @@
 import { Elysia, t, status } from "elysia";
 
 import { anilistMediaById, anilistTrendingMedia } from "@tsuki/anilist";
-import { mediaDal, type MediaType } from "@tsuki/db";
+import { mediaDal } from "@tsuki/db";
 
 import { ErrorModel } from "../../plugins/errors";
-import { MediaCompactModel, MediaModel, MediaTypeParam } from "./model";
+import { MediaCompactModel, MediaModel, MediaTypeEnum, type MediaType } from "./model";
 
 /**
  * Read-through cache: serve from our table, else pull from AniList and persist.
@@ -39,7 +39,7 @@ export const mediaRoutes = new Elysia({ prefix: "/media" })
       return rows;
     },
     {
-      params: t.Object({ type: MediaTypeParam }),
+      params: t.Object({ type: MediaTypeEnum }),
       response: { 200: t.Array(MediaCompactModel) },
       detail: {
         summary: "Get trending media",
@@ -56,7 +56,7 @@ export const mediaRoutes = new Elysia({ prefix: "/media" })
       return media;
     },
     {
-      params: t.Object({ type: MediaTypeParam, id: t.Numeric() }),
+      params: t.Object({ type: MediaTypeEnum, id: t.Numeric() }),
       response: { 200: MediaModel, 404: ErrorModel },
       detail: {
         summary: "Get media by id",
