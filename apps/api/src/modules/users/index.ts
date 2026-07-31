@@ -7,22 +7,23 @@ import { ErrorModel } from "../../plugins/errors";
 import type { MediaType } from "../media/model";
 import { ProfileModel, UpdateProfileModel, UserOverviewModel } from "./model";
 
-type LibraryRow = Awaited<ReturnType<typeof libraryDal.getUserLibrary>>[number];
-
 const FAVORITES_LIMIT = 10;
 const RECENT_LOGS_LIMIT = 10;
 const RECENT_REVIEWS_LIMIT = 5;
 
-function statsFor(entries: LibraryRow[], type: MediaType) {
-  const forType = entries.filter((entry) => entry.mediaType === type);
-  const scored = forType.filter((entry) => entry.score != null);
+/**
+ * The database counts; the two judgement calls live here. Unscored entries sit
+ * out of the mean rather than counting as zero, and a user with nothing scored
+ * reads as 0 rather than null. A type with no entries has no row at all.
+ */
+function statsFor(rows: libraryDal.LibraryStatsRow[], type: MediaType) {
+  const row = rows.find((entry) => entry.mediaType === type);
+  if (!row) return { total: 0, progress: 0, meanScore: 0 };
 
   return {
-    total: forType.length,
-    progress: forType.reduce((sum, entry) => sum + entry.progress, 0),
-    meanScore: scored.length
-      ? scored.reduce((sum, entry) => sum + entry.score!, 0) / scored.length
-      : 0,
+    total: row.total,
+    progress: row.progress,
+    meanScore: row.scoredCount ? row.scoreSum / row.scoredCount : 0,
   };
 }
 
@@ -34,9 +35,10 @@ export const userRoutes = new Elysia()
       const user = await userDal.getUserByUsername(username);
       if (!user) return status(404, { error: "User not found" });
 
-      // The whole library is needed for accurate totals; the lists are slices of it.
-      const [entryRows, reviewRows, profile] = await Promise.all([
-        libraryDal.getUserLibrary(user.id, {}),
+      const [stats, favorites, recentLogs, recentReviews, profile] = await Promise.all([
+        libraryDal.getLibraryStats(user.id),
+        libraryDal.getUserLibrary(user.id, { isFavorite: true, limit: FAVORITES_LIMIT }),
+        libraryDal.getUserLibrary(user.id, { limit: RECENT_LOGS_LIMIT }),
         reviewsDal.getUserReviews(user.id, { limit: RECENT_REVIEWS_LIMIT }),
         profileDal.getProfileByUserId(user.id),
       ]);
@@ -52,12 +54,12 @@ export const userRoutes = new Elysia()
         },
         profile: profile ?? null,
         stats: {
-          ANIME: statsFor(entryRows, "ANIME"),
-          MANGA: statsFor(entryRows, "MANGA"),
+          ANIME: statsFor(stats, "ANIME"),
+          MANGA: statsFor(stats, "MANGA"),
         },
-        favorites: entryRows.filter((entry) => entry.isFavorite).slice(0, FAVORITES_LIMIT),
-        recentLogs: entryRows.slice(0, RECENT_LOGS_LIMIT),
-        recentReviews: reviewRows,
+        favorites,
+        recentLogs,
+        recentReviews,
       };
     },
     {
