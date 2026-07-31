@@ -17,7 +17,9 @@ import { mediaTypeEnum } from "../enums";
 export const reviews = pgTable(
   "reviews",
   {
-    id: text("id").primaryKey(),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),

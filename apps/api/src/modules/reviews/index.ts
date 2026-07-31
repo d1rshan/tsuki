@@ -36,7 +36,6 @@ export const reviewRoutes = new Elysia()
       }
 
       await reviewsDal.upsertReview({
-        id: crypto.randomUUID(),
         userId: user.id,
         mediaId: id,
         mediaType,

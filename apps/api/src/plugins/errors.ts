@@ -22,9 +22,6 @@ export const errorsPlugin = new Elysia({ name: "errors" })
     // AniList is down or throttling us. Their outage, not our bug.
     if (code === "ANILIST") return status(502, { error: "Upstream service unavailable" });
 
-    // A thrown `status()` arrives under its own numeric code, body already set.
-    if (typeof code === "number") return;
-
     // NOT_FOUND, PARSE and the rest each carry the status they mean.
     if ("status" in error && typeof error.status === "number") {
       return status(error.status, { error: error.message });
