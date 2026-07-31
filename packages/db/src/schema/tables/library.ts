@@ -38,7 +38,11 @@ export const libraryEntries = pgTable(
      * from AniList as 0–100.
      */
     score: integer("score"),
-    /** Episodes watched or chapters read. */
+    /**
+     * One counter for both types, exactly as AniList does it: `MediaList.progress`
+     * is "episodes/chapters consumed", while the totals stay split on `Media` as
+     * `episodes`/`chapters`. An entry is for one media, so only its unit applies.
+     */
     progress: integer("progress").default(0).notNull(),
     /** Manga only. */
     progressVolumes: integer("progress_volumes"),
