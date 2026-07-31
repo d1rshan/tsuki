@@ -57,8 +57,8 @@ async function FavoritesContent({ username }: { username: string }) {
 
   return (
     <ProfileMediaToggle
-      anime={<FavoritesForType entries={data} mediaType="anime" />}
-      manga={<FavoritesForType entries={data} mediaType="manga" />}
+      anime={<FavoritesForType entries={data} mediaType="ANIME" />}
+      manga={<FavoritesForType entries={data} mediaType="MANGA" />}
     />
   );
 }

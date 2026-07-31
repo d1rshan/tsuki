@@ -33,8 +33,8 @@ export const UserOverviewModel = t.Object({
   user: UserSummaryModel,
   profile: t.Nullable(ProfileModel),
   stats: t.Object({
-    anime: MediaStatsModel,
-    manga: MediaStatsModel,
+    ANIME: MediaStatsModel,
+    MANGA: MediaStatsModel,
   }),
   favorites: t.Array(LibraryEntryModel),
   recentLogs: t.Array(LibraryEntryModel),

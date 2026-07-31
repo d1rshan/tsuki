@@ -260,7 +260,7 @@ interface NavbarSearchInputProps {
   query: string;
   setQuery: (val: string) => void;
   onClose: () => void;
-  mediaType: "anime" | "manga";
+  mediaType: "ANIME" | "MANGA";
 }
 
 function NavbarSearchInput({ query, setQuery, onClose, mediaType }: NavbarSearchInputProps) {

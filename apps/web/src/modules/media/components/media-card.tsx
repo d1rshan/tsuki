@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Star } from "lucide-react";
 
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { MEDIA, getMediaCoverImage, getMediaTitle, mediaHref } from "../config";
+import { MEDIA, getMediaCoverImage, getMediaTitle, mediaHref, unitCount } from "../config";
 import { cn } from "@/lib/utils";
 import type { MediaCompact, MediaType } from "@tsuki/api/types";
 
@@ -19,10 +19,9 @@ export function MediaCard({
   const title = getMediaTitle(media);
   const coverImage = getMediaCoverImage(media);
 
-  const metadata = [
-    media.seasonYear,
-    media.unitCount ? `${media.unitCount} ${MEDIA[mediaType].unitShort}` : null,
-  ]
+  const count = unitCount(media);
+
+  const metadata = [media.seasonYear, count ? `${count} ${MEDIA[mediaType].unitShort}` : null]
     .filter(Boolean)
     .join(" • ");
 

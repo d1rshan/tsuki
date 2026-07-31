@@ -1,15 +1,13 @@
 import { Elysia, t, status } from "elysia";
 
-import { libraryDal, userDal } from "@tsuki/db";
+import { libraryDal, reviewsDal, userDal } from "@tsuki/db";
 
 import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
-import { MediaTypeParam, toDbMediaType } from "../media/model";
-import { ensureMediaExists } from "../media/service";
+import { ensureMediaExists } from "../media";
+import { MediaTypeParam } from "../media/model";
 import { ReviewModel } from "../reviews/model";
-import * as reviewsService from "../reviews/service";
 import { LibraryEntryInputModel, LibraryEntryModel, LibraryQueryModel } from "./model";
-import * as libraryService from "./service";
 
 export const libraryRoutes = new Elysia()
   .use(authPlugin)
@@ -19,11 +17,7 @@ export const libraryRoutes = new Elysia()
       const user = await userDal.getUserByUsername(username);
       if (!user) return status(404, { error: "User not found" });
 
-      return libraryService.getUserLibrary(user.id, {
-        type: query.type && toDbMediaType(query.type),
-        limit: query.limit,
-        offset: query.offset,
-      });
+      return libraryDal.getUserLibrary(user.id, query);
     },
     {
       params: t.Object({ username: t.String() }),
@@ -39,11 +33,14 @@ export const libraryRoutes = new Elysia()
     "/me/library/:type/:id",
     async ({ params: { id }, user }) => {
       const [entry, review] = await Promise.all([
-        libraryService.getEntry(user.id, id),
-        reviewsService.getReview(user.id, id),
+        libraryDal.getEntry(user.id, id),
+        reviewsDal.getReview(user.id, id),
       ]);
 
-      return { entry, review };
+      return {
+        entry: entry ?? null,
+        review: review ?? null,
+      };
     },
     {
       auth: true,
@@ -62,9 +59,7 @@ export const libraryRoutes = new Elysia()
   )
   .put(
     "/me/library/:type/:id",
-    async ({ params: { type, id }, body, user }) => {
-      const mediaType = toDbMediaType(type);
-
+    async ({ params: { type: mediaType, id }, body, user }) => {
       // The entry carries a foreign key to media, and logging from a search
       // result or profile grid can be the first time we have seen this title.
       if (!(await ensureMediaExists(mediaType, id))) {
@@ -72,7 +67,8 @@ export const libraryRoutes = new Elysia()
       }
 
       await libraryDal.upsertEntry({ userId: user.id, mediaId: id, mediaType, ...body });
-      const entry = await libraryService.getEntry(user.id, id);
+
+      const entry = await libraryDal.getEntry(user.id, id);
       if (!entry) return status(500, { error: "Failed to save entry" });
 
       return entry;

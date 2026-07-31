@@ -23,7 +23,7 @@ export function DiscoverView({ trending }: { trending: Record<MediaType, MediaCo
   const [includeNsfw, setIncludeNsfw] = useQueryState("nsfw", parseAsBoolean.withDefault(false));
   const [type, setType] = useQueryState(
     "type",
-    parseAsStringEnum<MediaType>([...MEDIA_TYPES]).withDefault("anime"),
+    parseAsStringEnum<MediaType>([...MEDIA_TYPES]).withDefault("ANIME"),
   );
   const searchQuery = query.trim();
 

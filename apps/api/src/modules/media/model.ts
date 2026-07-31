@@ -1,19 +1,8 @@
 import { t } from "elysia";
 
-import type { MediaType } from "@tsuki/db";
-
-/**
- * URLs and payloads speak lowercase; the database speaks AniList's uppercase
- * vocabulary. This is the only place the two meet.
- */
-export const MediaTypeParam = t.Union([t.Literal("anime"), t.Literal("manga")]);
+/** AniList's vocabulary, carried unchanged from the database through to the client. */
+export const MediaTypeParam = t.Union([t.Literal("ANIME"), t.Literal("MANGA")]);
 export type ApiMediaType = typeof MediaTypeParam.static;
-
-export const toDbMediaType = (type: ApiMediaType): MediaType =>
-  type === "anime" ? "ANIME" : "MANGA";
-
-export const toApiMediaType = (type: MediaType): ApiMediaType =>
-  type === "ANIME" ? "anime" : "manga";
 
 export const FuzzyDateModel = t.Object({
   year: t.Nullable(t.Number()),
@@ -89,8 +78,10 @@ export const MediaCompactModel = t.Object({
   coverImageColor: t.Nullable(t.String()),
   bannerImage: t.Nullable(t.String()),
   format: t.Nullable(MediaFormatEnum),
-  /** Episodes or chapters — whichever unit this media counts. */
-  unitCount: t.Nullable(t.Number()),
+  /** Anime only. */
+  episodes: t.Nullable(t.Number()),
+  /** Manga only. */
+  chapters: t.Nullable(t.Number()),
   seasonYear: t.Nullable(t.Number()),
   averageScore: t.Nullable(t.Number()),
 });
@@ -105,9 +96,9 @@ export const MediaModel = t.Composite([
     status: t.Nullable(MediaStatusEnum),
     source: t.Nullable(MediaSourceEnum),
     countryOfOrigin: t.Nullable(t.String()),
-    episodes: t.Nullable(t.Number()),
+    /** Anime only — minutes per episode. */
     duration: t.Nullable(t.Number()),
-    chapters: t.Nullable(t.Number()),
+    /** Manga only. */
     volumes: t.Nullable(t.Number()),
     startDate: t.Nullable(FuzzyDateModel),
     endDate: t.Nullable(FuzzyDateModel),

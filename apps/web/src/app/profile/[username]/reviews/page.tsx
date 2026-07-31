@@ -42,8 +42,8 @@ export default async function ProfileReviewsPage({
   return (
     <div className="max-w-3xl pb-16">
       <ProfileMediaToggle
-        anime={<ReviewsForType reviews={data} mediaType="anime" />}
-        manga={<ReviewsForType reviews={data} mediaType="manga" />}
+        anime={<ReviewsForType reviews={data} mediaType="ANIME" />}
+        manga={<ReviewsForType reviews={data} mediaType="MANGA" />}
       />
     </div>
   );

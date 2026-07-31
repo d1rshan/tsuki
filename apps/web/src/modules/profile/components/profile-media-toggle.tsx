@@ -9,13 +9,13 @@ import { MediaTypeToggle } from "@/modules/media/components/media-type-toggle";
 export function ProfileMediaToggle({ anime, manga }: { anime: ReactNode; manga: ReactNode }) {
   const [type, setType] = useQueryState(
     "type",
-    parseAsStringEnum<MediaType>(["anime", "manga"]).withDefault("anime"),
+    parseAsStringEnum<MediaType>(["ANIME", "MANGA"]).withDefault("ANIME"),
   );
 
   return (
     <div className="space-y-8">
       <MediaTypeToggle value={type} onChange={setType} />
-      {type === "anime" ? anime : manga}
+      {type === "ANIME" ? anime : manga}
     </div>
   );
 }

@@ -5,12 +5,13 @@ import type { Media } from "@tsuki/api/types";
 
 import { Badge } from "@/components/ui/badge";
 
+import { unitCount } from "../config";
 import { MediaActions } from "./media-actions";
 import { MediaActionsSkeleton } from "./media-skeletons";
 import { MediaTrailer } from "./media-trailer";
 
 export function MediaDetails({ media }: { media: Media }) {
-  const isAnime = media.type === "anime";
+  const isAnime = media.type === "ANIME";
 
   // Anime links are dominated by streaming services, so we surface only those.
   // Manga has no streaming link type, so all links are shown.
@@ -93,7 +94,7 @@ export function MediaDetails({ media }: { media: Media }) {
         )}
         <div className="pt-4 border-t">
           <Suspense fallback={<MediaActionsSkeleton />}>
-            <MediaActions mediaType={media.type} mediaId={media.id} total={media.unitCount} />
+            <MediaActions mediaType={media.type} mediaId={media.id} total={unitCount(media)} />
           </Suspense>
         </div>
       </div>

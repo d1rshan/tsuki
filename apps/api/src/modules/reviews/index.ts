@@ -4,10 +4,9 @@ import { reviewsDal, userDal } from "@tsuki/db";
 
 import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
-import { MediaTypeParam, toDbMediaType } from "../media/model";
-import { ensureMediaExists } from "../media/service";
+import { ensureMediaExists } from "../media";
+import { MediaTypeParam } from "../media/model";
 import { ReviewInputModel, ReviewModel, ReviewQueryModel } from "./model";
-import * as reviewsService from "./service";
 
 export const reviewRoutes = new Elysia()
   .use(authPlugin)
@@ -17,11 +16,7 @@ export const reviewRoutes = new Elysia()
       const user = await userDal.getUserByUsername(username);
       if (!user) return status(404, { error: "User not found" });
 
-      return reviewsService.getUserReviews(user.id, {
-        type: query.type && toDbMediaType(query.type),
-        limit: query.limit,
-        offset: query.offset,
-      });
+      return reviewsDal.getUserReviews(user.id, query);
     },
     {
       params: t.Object({ username: t.String() }),
@@ -35,9 +30,7 @@ export const reviewRoutes = new Elysia()
   )
   .put(
     "/me/reviews/:type/:id",
-    async ({ params: { type, id }, body, user }) => {
-      const mediaType = toDbMediaType(type);
-
+    async ({ params: { type: mediaType, id }, body, user }) => {
       if (!(await ensureMediaExists(mediaType, id))) {
         return status(404, { error: "Media not found" });
       }
@@ -51,7 +44,7 @@ export const reviewRoutes = new Elysia()
         containsSpoilers: body.containsSpoilers ?? false,
       });
 
-      const review = await reviewsService.getReview(user.id, id);
+      const review = await reviewsDal.getReview(user.id, id);
       if (!review) return status(500, { error: "Failed to save review" });
 
       return review;

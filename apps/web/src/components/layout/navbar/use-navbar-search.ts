@@ -11,7 +11,7 @@ export function useNavbarSearch() {
   const [query, setQuery] = useQueryState("q", { defaultValue: "" });
   const [mediaType] = useQueryState(
     "type",
-    parseAsStringEnum<MediaType>(["anime", "manga"]).withDefault("anime"),
+    parseAsStringEnum<MediaType>(["ANIME", "MANGA"]).withDefault("ANIME"),
   );
 
   // Track intentional manual opening

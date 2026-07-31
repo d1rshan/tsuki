@@ -6,7 +6,7 @@ import type { ListStatus, MediaType } from "@tsuki/api/types";
  * is presentational, and all of it lives here.
  */
 export const MEDIA = {
-  anime: {
+  ANIME: {
     label: "Anime",
     /** Progress unit, in the three forms the UI needs. */
     unitLong: "Episodes",
@@ -22,7 +22,7 @@ export const MEDIA = {
       { value: "REPEATING", label: "Rewatching" },
     ],
   },
-  manga: {
+  MANGA: {
     label: "Manga",
     unitLong: "Chapters",
     unitShort: "ch",
@@ -49,7 +49,7 @@ export const MEDIA = {
   }
 >;
 
-export const MEDIA_TYPES = ["anime", "manga"] as const satisfies readonly MediaType[];
+export const MEDIA_TYPES = ["ANIME", "MANGA"] as const satisfies readonly MediaType[];
 
 /**
  * The API stores one status vocabulary for both types, so CURRENT has to render
@@ -59,8 +59,18 @@ export function statusLabel(mediaType: MediaType, status: ListStatus): string {
   return MEDIA[mediaType].statuses.find((entry) => entry.value === status)?.label ?? status;
 }
 
+/** Episodes or chapters — whichever unit this media counts. */
+export function unitCount(media: {
+  type: MediaType;
+  episodes: number | null;
+  chapters: number | null;
+}) {
+  return media.type === "ANIME" ? media.episodes : media.chapters;
+}
+
+/** Route segments stay lowercase — `/anime/21`, not the `ANIME` the data carries. */
 export function mediaHref(mediaType: MediaType, id: number) {
-  return `/${mediaType}/${id}`;
+  return `/${mediaType.toLowerCase()}/${id}`;
 }
 
 export function getMediaTitle(media: {

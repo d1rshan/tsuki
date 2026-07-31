@@ -106,11 +106,11 @@ export function ProfileHeader({
 
           {/* Mobile Stats (Rendered above tabs on small screens) */}
           <div className="flex md:hidden flex-row flex-wrap gap-6 w-full pt-6">
-            <StatItem label="Anime" value={stats.anime.total} />
-            <StatItem label="Episodes" value={stats.anime.progress} />
-            <StatItem label="Mean Score" value={stats.anime.meanScore.toFixed(1)} />
-            <StatItem label="Manga" value={stats.manga.total} />
-            <StatItem label="Chapters" value={stats.manga.progress} />
+            <StatItem label="Anime" value={stats.ANIME.total} />
+            <StatItem label="Episodes" value={stats.ANIME.progress} />
+            <StatItem label="Mean Score" value={stats.ANIME.meanScore.toFixed(1)} />
+            <StatItem label="Manga" value={stats.MANGA.total} />
+            <StatItem label="Chapters" value={stats.MANGA.progress} />
           </div>
 
           <div className="mt-8 mb-2 w-full">
@@ -120,11 +120,11 @@ export function ProfileHeader({
 
         {/* Desktop Stats */}
         <div className="hidden md:flex flex-col justify-start md:justify-center gap-5 md:min-w-[120px] pt-6 md:pt-2 shrink-0 border-l pl-6 border-border/50">
-          <StatItem label="Anime" value={stats.anime.total} />
-          <StatItem label="Episodes" value={stats.anime.progress} />
-          <StatItem label="Mean Score" value={stats.anime.meanScore.toFixed(1)} />
-          <StatItem label="Manga" value={stats.manga.total} />
-          <StatItem label="Chapters" value={stats.manga.progress} />
+          <StatItem label="Anime" value={stats.ANIME.total} />
+          <StatItem label="Episodes" value={stats.ANIME.progress} />
+          <StatItem label="Mean Score" value={stats.ANIME.meanScore.toFixed(1)} />
+          <StatItem label="Manga" value={stats.MANGA.total} />
+          <StatItem label="Chapters" value={stats.MANGA.progress} />
         </div>
       </div>
     </div>

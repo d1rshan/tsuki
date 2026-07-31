@@ -40,8 +40,8 @@ export default async function ProfileLibraryPage({
 
   return (
     <ProfileMediaToggle
-      anime={<LibraryForType entries={data} mediaType="anime" />}
-      manga={<LibraryForType entries={data} mediaType="manga" />}
+      anime={<LibraryForType entries={data} mediaType="ANIME" />}
+      manga={<LibraryForType entries={data} mediaType="MANGA" />}
     />
   );
 }
