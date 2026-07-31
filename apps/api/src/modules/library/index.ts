@@ -4,7 +4,7 @@ import { libraryDal, reviewsDal, userDal } from "@tsuki/db";
 
 import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
-import { ensureMediaExists } from "../media";
+import { ensureMedia } from "../media";
 import { MediaTypeEnum } from "../media/model";
 import { ReviewModel } from "../reviews/model";
 import { LibraryEntryInputModel, LibraryEntryModel, LibraryQueryModel } from "./model";
@@ -60,11 +60,9 @@ export const libraryRoutes = new Elysia()
   .put(
     "/me/library/:type/:id",
     async ({ params: { type: mediaType, id }, body, user }) => {
-      // The entry carries a foreign key to media, and logging from a search
-      // result or profile grid can be the first time we have seen this title.
-      if (!(await ensureMediaExists(mediaType, id))) {
-        return status(404, { error: "Media not found" });
-      }
+      // Logging from a search result can be the first time we have seen this title.
+      const media = await ensureMedia(mediaType, id);
+      if (!media) return status(404, { error: "Media not found" });
 
       await libraryDal.upsertEntry({ userId: user.id, mediaId: id, mediaType, ...body });
 

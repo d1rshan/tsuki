@@ -4,7 +4,7 @@ import { reviewsDal, userDal } from "@tsuki/db";
 
 import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
-import { ensureMediaExists } from "../media";
+import { ensureMedia } from "../media";
 import { MediaTypeEnum } from "../media/model";
 import { ReviewInputModel, ReviewModel, ReviewQueryModel } from "./model";
 
@@ -31,9 +31,8 @@ export const reviewRoutes = new Elysia()
   .put(
     "/me/reviews/:type/:id",
     async ({ params: { type: mediaType, id }, body, user }) => {
-      if (!(await ensureMediaExists(mediaType, id))) {
-        return status(404, { error: "Media not found" });
-      }
+      const media = await ensureMedia(mediaType, id);
+      if (!media) return status(404, { error: "Media not found" });
 
       await reviewsDal.upsertReview({
         userId: user.id,

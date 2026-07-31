@@ -9,8 +9,11 @@ import { MediaCompactModel, MediaModel, MediaTypeEnum, type MediaType } from "./
 /**
  * Read-through cache: serve from our table, else pull from AniList and persist.
  * Null only when AniList has no such media of that type.
+ *
+ * Doubles as the guard before writing a library entry or review, since both
+ * carry a foreign key to media and the row has to exist first.
  */
-export async function getMedia(type: MediaType, id: number) {
+export async function ensureMedia(type: MediaType, id: number) {
   const cached = await mediaDal.getMediaById(type, id);
   if (cached) return cached;
 
@@ -19,11 +22,6 @@ export async function getMedia(type: MediaType, id: number) {
 
   await mediaDal.upsertMedia([fetched]);
   return mediaDal.getMediaById(type, id);
-}
-
-/** Library entries and reviews carry a foreign key to media, so the row has to exist first. */
-export async function ensureMediaExists(type: MediaType, id: number) {
-  return (await getMedia(type, id)) != null;
 }
 
 export const mediaRoutes = new Elysia({ prefix: "/media" })
@@ -50,7 +48,7 @@ export const mediaRoutes = new Elysia({ prefix: "/media" })
   .get(
     "/:type/:id",
     async ({ params: { type, id } }) => {
-      const media = await getMedia(type, id);
+      const media = await ensureMedia(type, id);
       if (!media) return status(404, { error: "Media not found" });
 
       return media;
