@@ -40,8 +40,66 @@ type AdminUsersData = {
   total: number;
   users: UserData[];
 };
+type AdminAction = () => Promise<{ error: { message?: string | null } | null }>;
 
 const ADMIN_USERS_QUERY_KEY = "admin-users";
+const columns: ColumnDef<UserData>[] = [
+  {
+    accessorKey: "displayUsername",
+    header: "User",
+    enableHiding: false,
+    cell: ({ row }) => {
+      const user = row.original;
+
+      return (
+        <div className="flex items-center gap-3">
+          <Avatar className="h-9 w-9 border border-muted/50">
+            {user.image && <AvatarImage src={user.image} alt={user.username ?? ""} />}
+            <AvatarFallback className="bg-muted/50 text-xs text-muted-foreground">
+              {getInitial(user)}
+            </AvatarFallback>
+          </Avatar>
+          <span className="font-medium leading-none">{user.displayUsername}</span>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "name",
+    header: "Name",
+    cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
+  },
+  {
+    accessorKey: "email",
+    header: "Email",
+    cell: ({ row }) => <EmailCell email={row.getValue("email") as string} />,
+  },
+  {
+    accessorKey: "role",
+    header: "Role",
+    cell: ({ row }) => <RoleBadge role={row.getValue("role") as string | null | undefined} />,
+  },
+  {
+    accessorKey: "banned",
+    header: "Banned",
+    cell: ({ row }) => <BanBadge banned={row.getValue("banned") as boolean} />,
+  },
+  {
+    accessorKey: "emailVerified",
+    header: "Status",
+    cell: ({ row }) => <VerificationBadge verified={row.getValue("emailVerified") as boolean} />,
+  },
+  {
+    accessorKey: "createdAt",
+    header: "Joined",
+    cell: ({ row }) => <JoinedDate date={row.getValue("createdAt") as Date | string} />,
+  },
+  {
+    id: "actions",
+    enableHiding: false,
+    cell: ({ row }) => <AdminUserActionsMenu user={row.original} />,
+  },
+];
 
 export function AdminUsersTable() {
   const [page, setPage] = useQueryState(
@@ -83,11 +141,11 @@ export function AdminUsersTable() {
     }
   }, [isError, error]);
 
+  const pageCount = Math.ceil(total / limit);
   const pagination = {
     pageIndex: page - 1,
     pageSize: limit,
   };
-  const columns = getColumns();
 
   const handlePaginationChange = (updaterOrValue: Updater<PaginationState>) => {
     const newPagination =
@@ -107,7 +165,7 @@ export function AdminUsersTable() {
         searchValue={inputValue}
         onSearchChange={setInputValue}
         manualPagination={true}
-        pageCount={Math.ceil(total / limit)}
+        pageCount={pageCount}
         pagination={pagination}
         onPaginationChange={handlePaginationChange}
       />
@@ -142,89 +200,29 @@ async function listUsers({
   };
 }
 
-function getColumns(): ColumnDef<UserData>[] {
-  return [
-    {
-      accessorKey: "displayUsername",
-      header: "User",
-      enableHiding: false,
-      cell: ({ row }) => {
-        const user = row.original;
-
-        return (
-          <div className="flex items-center gap-3">
-            <Avatar className="h-9 w-9 border border-muted/50">
-              {user.image && <AvatarImage src={user.image} alt={user.username ?? ""} />}
-              <AvatarFallback className="bg-muted/50 text-xs text-muted-foreground">
-                {getInitial(user)}
-              </AvatarFallback>
-            </Avatar>
-            <span className="font-medium leading-none">{user.displayUsername}</span>
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: "name",
-      header: "Name",
-      cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
-    },
-    {
-      accessorKey: "email",
-      header: "Email",
-      cell: ({ row }) => <EmailCell email={row.getValue("email")} />,
-    },
-    {
-      accessorKey: "role",
-      header: "Role",
-      cell: ({ row }) => <RoleBadge role={row.getValue("role")} />,
-    },
-    {
-      accessorKey: "banned",
-      header: "Banned",
-      cell: ({ row }) => <BanBadge banned={row.getValue("banned")} />,
-    },
-    {
-      accessorKey: "emailVerified",
-      header: "Status",
-      cell: ({ row }) => <VerificationBadge verified={row.getValue("emailVerified")} />,
-    },
-    {
-      accessorKey: "createdAt",
-      header: "Joined",
-      cell: ({ row }) => <JoinedDate date={row.getValue("createdAt")} />,
-    },
-    {
-      id: "actions",
-      enableHiding: false,
-      cell: ({ row }) => <AdminUserActionsMenu user={row.original} />,
-    },
-  ];
-}
-
 function getInitial(user: UserData) {
   return (user.displayUsername || user.name || "U").charAt(0).toUpperCase();
 }
 
-function EmailCell({ email }: { email: unknown }) {
+function EmailCell({ email }: { email: string }) {
   return (
     <button
       onClick={() => {
-        navigator.clipboard.writeText(String(email));
+        navigator.clipboard.writeText(email);
         toast.success("Email copied to clipboard");
       }}
       className="group flex cursor-pointer items-center gap-2 text-left text-muted-foreground transition-colors hover:text-foreground"
     >
       <Mail className="h-4 w-4 shrink-0" />
       <span className="truncate group-hover:underline group-hover:decoration-dashed group-hover:underline-offset-4">
-        {String(email)}
+        {email}
       </span>
     </button>
   );
 }
 
-function RoleBadge({ role }: { role: unknown }) {
-  const value = typeof role === "string" ? role : "user";
+function RoleBadge({ role }: { role?: string | null }) {
+  const value = role || "user";
 
   return (
     <Badge variant={isAdmin(value) ? "default" : "outline"} className="capitalize">
@@ -234,7 +232,7 @@ function RoleBadge({ role }: { role: unknown }) {
   );
 }
 
-function BanBadge({ banned }: { banned: unknown }) {
+function BanBadge({ banned }: { banned: boolean }) {
   return banned ? (
     <Badge variant="destructive">
       <Ban className="mr-1 h-3 w-3" /> Banned
@@ -246,7 +244,7 @@ function BanBadge({ banned }: { banned: unknown }) {
   );
 }
 
-function VerificationBadge({ verified }: { verified: unknown }) {
+function VerificationBadge({ verified }: { verified: boolean }) {
   return verified ? (
     <Badge variant="outline">
       <ShieldCheck className="mr-1 h-3 w-3" /> Verified
@@ -258,11 +256,11 @@ function VerificationBadge({ verified }: { verified: unknown }) {
   );
 }
 
-function JoinedDate({ date }: { date: unknown }) {
+function JoinedDate({ date }: { date: Date | string }) {
   return (
     <div className="flex items-center gap-2 text-muted-foreground">
       <Calendar className="h-4 w-4" />
-      <span>{format(new Date(String(date)), "MMM d, yyyy")}</span>
+      <span>{format(new Date(date), "MMM d, yyyy")}</span>
     </div>
   );
 }
@@ -273,18 +271,15 @@ function AdminUserActionsMenu({ user }: { user: UserData }) {
   const sessionUser = session?.user;
 
   const isSelf = sessionUser?.id === user.id;
+  const isPrivilegedUser = isAdmin(user.role);
   const canModifyRole = !isSelf && sessionUser?.role === "owner";
   const canManageUser =
     !isSelf &&
-    (sessionUser?.role === "owner" || (sessionUser?.role === "admin" && !isAdmin(user.role)));
+    (sessionUser?.role === "owner" || (sessionUser?.role === "admin" && !isPrivilegedUser));
 
   const refreshUsers = () => queryClient.invalidateQueries({ queryKey: [ADMIN_USERS_QUERY_KEY] });
 
-  const runAction = async (
-    action: () => Promise<{ error: { message?: string | null } | null }>,
-    successMessage: string,
-    errorMessage: string,
-  ) => {
+  const runAction = async (action: AdminAction, successMessage: string, errorMessage: string) => {
     const { error } = await action();
 
     if (error) {
@@ -295,6 +290,34 @@ function AdminUserActionsMenu({ user }: { user: UserData }) {
     toast.success(successMessage);
     await refreshUsers();
   };
+
+  const roleAction = isPrivilegedUser
+    ? {
+        label: "Remove Admin",
+        action: () => authClient.admin.setRole({ userId: user.id, role: "user" as const }),
+        successMessage: "Role updated to user",
+      }
+    : {
+        label: "Make Admin",
+        action: () => authClient.admin.setRole({ userId: user.id, role: "admin" as const }),
+        successMessage: "Role updated to admin",
+      };
+
+  const banAction = user.banned
+    ? {
+        label: "Unban User",
+        action: () => authClient.admin.unbanUser({ userId: user.id }),
+        successMessage: "User unbanned",
+        className: canManageUser ? "text-green-600" : undefined,
+        errorMessage: "Failed to unban user",
+      }
+    : {
+        label: "Ban User",
+        action: () => authClient.admin.banUser({ userId: user.id, banReason: "Admin action" }),
+        successMessage: "User banned",
+        className: canManageUser ? "text-red-600" : undefined,
+        errorMessage: "Failed to ban user",
+      };
 
   return (
     <DropdownMenu>
@@ -315,62 +338,23 @@ function AdminUserActionsMenu({ user }: { user: UserData }) {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          {isAdmin(user.role) ? (
-            <DropdownMenuItem
-              onClick={() =>
-                runAction(
-                  () => authClient.admin.setRole({ userId: user.id, role: "user" }),
-                  "Role updated to user",
-                  "Failed to update role",
-                )
-              }
-              disabled={!canModifyRole}
-            >
-              Remove Admin
-            </DropdownMenuItem>
-          ) : (
-            <DropdownMenuItem
-              onClick={() =>
-                runAction(
-                  () => authClient.admin.setRole({ userId: user.id, role: "admin" }),
-                  "Role updated to admin",
-                  "Failed to update role",
-                )
-              }
-              disabled={!canModifyRole}
-            >
-              Make Admin
-            </DropdownMenuItem>
-          )}
-          {user.banned ? (
-            <DropdownMenuItem
-              onClick={() =>
-                runAction(
-                  () => authClient.admin.unbanUser({ userId: user.id }),
-                  "User unbanned",
-                  "Failed to unban user",
-                )
-              }
-              disabled={!canManageUser}
-              className={canManageUser ? "text-green-600" : undefined}
-            >
-              Unban User
-            </DropdownMenuItem>
-          ) : (
-            <DropdownMenuItem
-              onClick={() =>
-                runAction(
-                  () => authClient.admin.banUser({ userId: user.id, banReason: "Admin action" }),
-                  "User banned",
-                  "Failed to ban user",
-                )
-              }
-              disabled={!canManageUser}
-              className={canManageUser ? "text-red-600" : undefined}
-            >
-              Ban User
-            </DropdownMenuItem>
-          )}
+          <DropdownMenuItem
+            onClick={() =>
+              runAction(roleAction.action, roleAction.successMessage, "Failed to update role")
+            }
+            disabled={!canModifyRole}
+          >
+            {roleAction.label}
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() =>
+              runAction(banAction.action, banAction.successMessage, banAction.errorMessage)
+            }
+            disabled={!canManageUser}
+            className={banAction.className}
+          >
+            {banAction.label}
+          </DropdownMenuItem>
           <DropdownMenuItem
             onClick={async () => {
               const { error } = await authClient.admin.impersonateUser({ userId: user.id });
