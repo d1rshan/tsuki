@@ -1,13 +1,15 @@
 "use client";
+
 import { useEffect, useState } from "react";
-import { useQueryState, parseAsInteger, parseAsString } from "nuqs";
 import { useQuery } from "@tanstack/react-query";
 import { type Updater, type PaginationState } from "@tanstack/react-table";
+import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { toast } from "sonner";
 
 import { authClient } from "@tsuki/auth/client";
 import { DataTable } from "@/components/ui/data-table";
 import { useDebounce } from "@/hooks/use-debounce";
+import { cn } from "@/lib/utils";
 
 import { columns } from "./columns";
 
@@ -90,7 +92,7 @@ export function AdminUsersTable() {
   };
 
   return (
-    <div className={`transition-opacity duration-200 ${isFetching ? "opacity-50" : "opacity-100"}`}>
+    <div className={cn("transition-opacity duration-200", isFetching && "opacity-50")}>
       <DataTable
         columns={columns}
         data={users}

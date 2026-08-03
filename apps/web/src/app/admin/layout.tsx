@@ -1,15 +1,10 @@
 import { AdminSidebar } from "@/modules/admin/components/admin-sidebar";
 import { AdminSiteHeader } from "@/modules/admin/components/admin-site-header";
+import { requireAdmin } from "@/modules/admin/lib/admin";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { user } = await auth();
-
-  if (!user || (user.role !== "admin" && user.role !== "owner")) {
-    redirect("/");
-  }
+  await requireAdmin();
 
   return (
     <SidebarProvider
@@ -23,7 +18,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <AdminSidebar variant="inset" />
       <SidebarInset>
         <AdminSiteHeader />
-        <div className="p-4 md:p-6 lg:p-8">{children}</div>
+        <main className="p-4 md:p-6 lg:p-8">{children}</main>
       </SidebarInset>
     </SidebarProvider>
   );

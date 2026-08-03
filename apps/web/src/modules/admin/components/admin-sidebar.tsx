@@ -8,65 +8,53 @@ import { LayoutDashboard, Users, ArrowLeft, Shield } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarFooter,
 } from "@/components/ui/sidebar";
 
-const items = [
-  { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
-  { title: "Users", url: "/admin/users", icon: Users },
-];
+const navItems = [
+  { title: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { title: "Users", href: "/admin/users", icon: Users },
+] as const;
 
 export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
 
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              render={<div className="hover:bg-transparent cursor-default active:bg-transparent" />}
-            >
-              <Shield className="size-4" />
-              <span className="text-base font-black uppercase tracking-tighter md:text-lg truncate">
-                TSUKI ADMIN
-              </span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+      <SidebarHeader className="px-2">
+        <div className="flex items-center gap-2 rounded-md px-2 py-1 text-sidebar-foreground">
+          <Shield className="size-4 shrink-0" />
+          <span className="truncate text-base font-black uppercase tracking-tighter md:text-lg">
+            Tsuki Admin
+          </span>
+        </div>
       </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent className="flex flex-col gap-2">
-            <SidebarMenu>
-              {items.map((item) => {
-                const isActive =
-                  pathname === item.url || (item.url !== "/admin" && pathname.startsWith(item.url));
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      tooltip={item.title}
-                      isActive={isActive}
-                      render={<Link href={item.url} />}
-                      className="hover:bg-muted hover:text-muted-foreground"
-                    >
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+      <SidebarContent className="px-2">
+        <SidebarMenu>
+          {navItems.map((item) => {
+            const isActive =
+              pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href));
+
+            return (
+              <SidebarMenuItem key={item.href}>
+                <SidebarMenuButton
+                  tooltip={item.title}
+                  isActive={isActive}
+                  render={<Link href={item.href} />}
+                >
+                  <item.icon />
+                  <span>{item.title}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
+        </SidebarMenu>
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="px-2">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton

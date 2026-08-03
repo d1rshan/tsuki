@@ -1,9 +1,10 @@
 "use client";
 
-import { MoreHorizontal } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { MoreHorizontal } from "lucide-react";
 import { toast } from "sonner";
 
+import { authClient } from "@tsuki/auth/client";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -13,7 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { authClient } from "@tsuki/auth/client";
+import { isAdmin } from "@/modules/admin/lib/admin";
 
 import { type UserData } from "./index";
 
@@ -27,59 +28,60 @@ export function AdminUserActionsMenu({ user }: AdminUserActionsMenuProps) {
 
   const currentUserRole = session?.user?.role;
   const isSelf = session?.user?.id === user.id;
-
-  // Proper RBAC hierarchy:
-  // 1. You cannot modify yourself.
-  // 2. Only an 'owner' can change someone's role.
-  // 3. An 'admin' can only ban/unban regular users (not other admins or owners).
+  const isPrivilegedUser = isAdmin(user.role);
   const canModifyRole = !isSelf && currentUserRole === "owner";
-
-  const canBanOrUnban =
-    !isSelf &&
-    (currentUserRole === "owner" ||
-      (currentUserRole === "admin" && user.role !== "admin" && user.role !== "owner"));
-
-  const canImpersonate =
-    !isSelf &&
-    (currentUserRole === "owner" ||
-      (currentUserRole === "admin" && user.role !== "admin" && user.role !== "owner"));
+  const canManageUser =
+    !isSelf && (currentUserRole === "owner" || (currentUserRole === "admin" && !isPrivilegedUser));
 
   const handleCopyId = () => {
     navigator.clipboard.writeText(user.id);
     toast("User ID copied to clipboard");
   };
 
-  const handleSetRole = async (role: "user" | "admin") => {
-    const { error } = await authClient.admin.setRole({ userId: user.id, role });
+  const refreshUsers = () => queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+
+  const runAdminAction = async (
+    action: () => Promise<{ error: { message?: string | null } | null }>,
+    successMessage: string,
+    errorMessage: string,
+  ) => {
+    const { error } = await action();
+
     if (error) {
-      toast.error(error.message || "Failed to update role");
+      toast.error(error.message || errorMessage);
       return;
     }
-    toast.success(`Role updated to ${role}`);
-    queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+
+    toast.success(successMessage);
+    await refreshUsers();
+  };
+
+  const handleSetRole = (role: "user" | "admin") => {
+    return runAdminAction(
+      () => authClient.admin.setRole({ userId: user.id, role }),
+      `Role updated to ${role}`,
+      "Failed to update role",
+    );
   };
 
   const handleBan = async () => {
-    const { error } = await authClient.admin.banUser({
-      userId: user.id,
-      banReason: "Admin action",
-    });
-    if (error) {
-      toast.error(error.message || "Failed to ban user");
-      return;
-    }
-    toast.success("User banned");
-    queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+    await runAdminAction(
+      () =>
+        authClient.admin.banUser({
+          userId: user.id,
+          banReason: "Admin action",
+        }),
+      "User banned",
+      "Failed to ban user",
+    );
   };
 
   const handleUnban = async () => {
-    const { error } = await authClient.admin.unbanUser({ userId: user.id });
-    if (error) {
-      toast.error(error.message || "Failed to unban user");
-      return;
-    }
-    toast.success("User unbanned");
-    queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+    await runAdminAction(
+      () => authClient.admin.unbanUser({ userId: user.id }),
+      "User unbanned",
+      "Failed to unban user",
+    );
   };
 
   const handleImpersonate = async () => {
@@ -104,7 +106,7 @@ export function AdminUserActionsMenu({ user }: AdminUserActionsMenuProps) {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          {user.role !== "admin" && user.role !== "owner" ? (
+          {!isPrivilegedUser ? (
             <DropdownMenuItem onClick={() => handleSetRole("admin")} disabled={!canModifyRole}>
               Make Admin
             </DropdownMenuItem>
@@ -116,21 +118,21 @@ export function AdminUserActionsMenu({ user }: AdminUserActionsMenuProps) {
           {user.banned ? (
             <DropdownMenuItem
               onClick={handleUnban}
-              disabled={!canBanOrUnban}
-              className={canBanOrUnban ? "text-green-600" : ""}
+              disabled={!canManageUser}
+              className={canManageUser ? "text-green-600" : ""}
             >
               Unban User
             </DropdownMenuItem>
           ) : (
             <DropdownMenuItem
               onClick={handleBan}
-              disabled={!canBanOrUnban}
-              className={canBanOrUnban ? "text-red-600" : ""}
+              disabled={!canManageUser}
+              className={canManageUser ? "text-red-600" : ""}
             >
               Ban User
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem onClick={handleImpersonate} disabled={!canImpersonate}>
+          <DropdownMenuItem onClick={handleImpersonate} disabled={!canManageUser}>
             Impersonate
           </DropdownMenuItem>
         </DropdownMenuGroup>
