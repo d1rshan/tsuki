@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { ExternalLink } from "lucide-react";
 
 import type { Media } from "@tsuki/api/types";
@@ -7,22 +6,15 @@ import { Badge } from "@/components/ui/badge";
 
 import { unitCount } from "../config";
 import { MediaActions } from "./media-actions";
-import { MediaActionsSkeleton } from "./media-skeletons";
 import { MediaTrailer } from "./media-trailer";
 
 export function MediaDetails({ media }: { media: Media }) {
-  const isAnime = media.type === "ANIME";
-
-  // Anime links are dominated by streaming services, so we surface only those.
-  // Manga has no streaming link type, so all links are shown.
-  const links = isAnime
-    ? media.externalLinks?.filter((link) => link.type === "STREAMING")
-    : media.externalLinks;
-  const linksHeading = isAnime ? "Where to Watch" : "More Info";
+  const detailItems = getDetailItems(media);
+  const links = getMediaLinks(media);
+  const synopsis = media.description || "No synopsis available.";
 
   return (
     <div className="mt-8 grid grid-cols-1 gap-12 md:grid-cols-[200px_1fr] lg:grid-cols-[250px_1fr]">
-      {/* Sidebar */}
       <div className="space-y-8">
         {media.genres && media.genres.length > 0 && (
           <div className="space-y-3">
@@ -44,31 +36,19 @@ export function MediaDetails({ media }: { media: Media }) {
             Details
           </h3>
           <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-1">
-            {isAnime ? (
-              <>
-                <InfoItem label="Episodes" value={media.episodes} />
-                <InfoItem
-                  label="Duration"
-                  value={media.duration ? `${media.duration} mins` : null}
-                />
-              </>
-            ) : (
-              <>
-                <InfoItem label="Chapters" value={media.chapters} />
-                <InfoItem label="Volumes" value={media.volumes} />
-              </>
-            )}
-            <InfoItem label="Popularity" value={media.popularity?.toLocaleString()} />
+            {detailItems.map((item) => (
+              <InfoItem key={item.label} label={item.label} value={item.value} />
+            ))}
           </div>
         </div>
 
-        {links && links.length > 0 && (
+        {links.items.length > 0 && (
           <div className="space-y-3">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              {linksHeading}
+              {links.heading}
             </h3>
             <div className="flex flex-col gap-2">
-              {links.map((link) => (
+              {links.items.map((link) => (
                 <a
                   key={link.url}
                   href={link.url}
@@ -92,20 +72,17 @@ export function MediaDetails({ media }: { media: Media }) {
             </div>
           </div>
         )}
-        <div className="pt-4 border-t">
-          <Suspense fallback={<MediaActionsSkeleton />}>
-            <MediaActions mediaType={media.type} mediaId={media.id} total={unitCount(media)} />
-          </Suspense>
+        <div className="border-t pt-4">
+          <MediaActions mediaType={media.type} mediaId={media.id} total={unitCount(media)} />
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="min-w-0 space-y-4">
         <h2 className="text-xl font-semibold tracking-tight">Synopsis</h2>
         <div
           className="prose prose-sm max-w-none leading-relaxed text-muted-foreground dark:prose-invert md:prose-base"
           dangerouslySetInnerHTML={{
-            __html: media.description || "No synopsis available.",
+            __html: synopsis,
           }}
         />
 
@@ -118,11 +95,36 @@ export function MediaDetails({ media }: { media: Media }) {
 }
 
 function InfoItem({ label, value }: { label: string; value: React.ReactNode }) {
-  if (!value) return null;
+  if (value == null || value === "") return null;
   return (
     <div className="flex flex-col gap-1">
       <span className="text-muted-foreground">{label}</span>
       <span className="font-medium text-foreground">{value}</span>
     </div>
   );
+}
+
+function getDetailItems(media: Media) {
+  const typeSpecificItems =
+    media.type === "ANIME"
+      ? [
+          { label: "Episodes", value: media.episodes },
+          { label: "Duration", value: media.duration ? `${media.duration} mins` : null },
+        ]
+      : [
+          { label: "Chapters", value: media.chapters },
+          { label: "Volumes", value: media.volumes },
+        ];
+
+  return [...typeSpecificItems, { label: "Popularity", value: media.popularity?.toLocaleString() }];
+}
+
+function getMediaLinks(media: Media) {
+  return {
+    heading: media.type === "ANIME" ? "Where to Watch" : "More Info",
+    items:
+      media.type === "ANIME"
+        ? (media.externalLinks?.filter((link) => link.type === "STREAMING") ?? [])
+        : (media.externalLinks ?? []),
+  };
 }

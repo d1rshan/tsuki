@@ -36,9 +36,17 @@ async function MediaPageContent({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const media = await getMedia(mediaType, Number(id));
+  const mediaId = Number(id);
 
-  if (!media) return notFound();
+  if (!Number.isInteger(mediaId) || mediaId <= 0) {
+    notFound();
+  }
+
+  const media = await getMedia(mediaType, mediaId);
+
+  if (!media) {
+    notFound();
+  }
 
   const title = getMediaTitle(media);
 
