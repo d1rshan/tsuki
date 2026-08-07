@@ -4,6 +4,7 @@ import { env } from "@tsuki/env";
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
+  partialPrefetching: true,
   // experimental: {
   //   staleTimes: {
   //     dynamic: 15, // Caches dynamic routes in the client router for 15 seconds

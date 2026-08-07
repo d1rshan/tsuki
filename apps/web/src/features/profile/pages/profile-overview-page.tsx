@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 
 import {
@@ -5,10 +6,19 @@ import {
   RecentActivitySection,
 } from "@/features/profile/components/profile-overview";
 import { parseUsername } from "@/shared/lib/username";
+import { LoadingIndicator } from "@/shared/components/loading-indicator";
 
 import { getProfileOverview } from "../data";
 
-export async function ProfileOverviewPage({ params }: { params: Promise<{ username: string }> }) {
+export function ProfileOverviewPage({ params }: { params: Promise<{ username: string }> }) {
+  return (
+    <Suspense fallback={<LoadingIndicator label="Loading profile" />}>
+      <ProfileOverviewContent params={params} />
+    </Suspense>
+  );
+}
+
+async function ProfileOverviewContent({ params }: { params: Promise<{ username: string }> }) {
   const username = parseUsername((await params).username);
   if (!username) notFound();
 

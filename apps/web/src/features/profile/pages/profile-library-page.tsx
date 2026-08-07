@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 
 import type { LibraryEntry, MediaType } from "@tsuki/api/types";
@@ -5,6 +6,7 @@ import type { LibraryEntry, MediaType } from "@tsuki/api/types";
 import { MEDIA } from "@/features/media/media";
 import { LibrarySection } from "@/features/profile/components/profile-library";
 import { ProfileMediaToggle } from "@/features/profile/components/profile-media-toggle";
+import { LoadingIndicator } from "@/shared/components/loading-indicator";
 import { parseUsername } from "@/shared/lib/username";
 
 import { getProfileLibrary } from "../data";
@@ -29,7 +31,15 @@ function LibraryForType({ entries, mediaType }: { entries: LibraryEntry[]; media
   ));
 }
 
-export async function ProfileLibraryPage({ params }: { params: Promise<{ username: string }> }) {
+export function ProfileLibraryPage({ params }: { params: Promise<{ username: string }> }) {
+  return (
+    <Suspense fallback={<LoadingIndicator label="Loading library" />}>
+      <ProfileLibraryContent params={params} />
+    </Suspense>
+  );
+}
+
+async function ProfileLibraryContent({ params }: { params: Promise<{ username: string }> }) {
   const username = parseUsername((await params).username);
   if (!username) notFound();
 
