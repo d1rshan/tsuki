@@ -114,18 +114,23 @@ export function LogMediaDialog({
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger
-        render={<Button disabled={disabled} className="flex-1" />}
+        render={
+          <Button
+            disabled={disabled}
+            className="flex-1 rounded-xl bg-primary font-semibold text-primary-foreground shadow-md transition-all hover:bg-primary/90 active:scale-[0.98]"
+          />
+        }
         aria-label={hasActivity ? `Edit ${config.label.toLowerCase()} log` : undefined}
       >
-        {hasActivity ? <Check /> : <Plus />}
-        {hasActivity ? "Edit log" : "Add to list"}
+        {hasActivity ? <Check className="mr-2 h-4 w-4" /> : <Plus className="mr-2 h-4 w-4" />}
+        {hasActivity ? "Edit Log" : "Log / Add to List"}
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
+      <DialogContent className="rounded-xl border-white/10 bg-background/80 backdrop-blur-xl sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Log {config.label}</DialogTitle>
+          <DialogTitle className="text-xl">Log {config.label}</DialogTitle>
         </DialogHeader>
         <form
-          className="grid gap-5"
+          className="grid gap-6 py-4"
           onSubmit={(event) => {
             event.preventDefault();
             saveMutation.mutate();
@@ -150,12 +155,14 @@ export function LogMediaDialog({
             onContentChange={(reviewContent) => updateForm({ reviewContent })}
             onSpoilersChange={(containsSpoilers) => updateForm({ containsSpoilers })}
           />
-          <div className="flex justify-end gap-2">
+          <div className="mt-4 flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
               Cancel
             </Button>
             <Button type="submit" disabled={saveMutation.isPending}>
-              {saveMutation.isPending ? <LoaderCircle className="animate-spin" /> : null}
+              {saveMutation.isPending ? (
+                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+              ) : null}
               Save
             </Button>
           </div>
@@ -175,15 +182,17 @@ function StatusField({
   onChange: (value: ListStatus) => void;
 }) {
   return (
-    <div className="grid gap-2">
-      <Label htmlFor="media-status">Status</Label>
+    <div className="grid grid-cols-4 items-center gap-4">
+      <Label htmlFor="media-status" className="text-right text-muted-foreground">
+        Status
+      </Label>
       <Select
         value={value}
         onValueChange={(nextValue) => onChange(nextValue as ListStatus)}
         items={statuses}
       >
-        <SelectTrigger id="media-status">
-          <SelectValue />
+        <SelectTrigger id="media-status" className="col-span-3 bg-background/50">
+          <SelectValue placeholder="Select status" />
         </SelectTrigger>
         <SelectContent>
           {statuses.map((status) => (
@@ -211,9 +220,11 @@ function ProgressField({
   const hasLimit = typeof total === "number" && total > 0;
 
   return (
-    <div className="grid gap-2">
-      <Label htmlFor="media-progress">{label}</Label>
-      <div className="flex items-center gap-2">
+    <div className="grid grid-cols-4 items-center gap-4">
+      <Label htmlFor="media-progress" className="text-right text-muted-foreground">
+        {label}
+      </Label>
+      <div className="col-span-3 flex flex-wrap items-center gap-2">
         <Input
           id="media-progress"
           type="number"
@@ -225,9 +236,9 @@ function ProgressField({
             const nextValue = event.target.value;
             onChange(nextValue ? String(clampProgress(Number.parseInt(nextValue, 10), total)) : "");
           }}
-          className="w-24"
+          className="w-24 bg-background/50"
         />
-        {hasLimit ? <span className="text-sm text-muted-foreground">of {total}</span> : null}
+        {hasLimit ? <span className="text-sm text-muted-foreground">/ {total}</span> : null}
       </div>
     </div>
   );
@@ -235,22 +246,24 @@ function ProgressField({
 
 function RatingField({ value, onChange }: { value: number; onChange: (value: number) => void }) {
   return (
-    <fieldset className="grid gap-2">
-      <legend className="text-sm font-medium">Rating</legend>
-      <div className="flex flex-wrap gap-1">
+    <fieldset className="grid grid-cols-4 items-center gap-4">
+      <legend className="text-right text-sm font-medium text-muted-foreground">Rating</legend>
+      <div className="col-span-3 flex gap-1">
         {SCORE_OPTIONS.map((score) => (
           <button
             type="button"
             key={score}
             onClick={() => onChange(score === value ? 0 : score)}
-            className="rounded-sm p-0.5 focus-visible:outline-2 focus-visible:outline-ring"
+            className="transition-transform hover:scale-110 active:scale-95 focus-visible:outline-2 focus-visible:outline-ring"
             aria-label={`Rate ${score} out of 10`}
             aria-pressed={value === score}
           >
             <Star
               className={cn(
-                "size-5",
-                value >= score ? "fill-yellow-500 text-yellow-500" : "text-muted-foreground",
+                "h-5 w-5",
+                value >= score
+                  ? "fill-yellow-500 text-yellow-500"
+                  : "text-muted-foreground hover:text-yellow-500/50",
               )}
             />
           </button>
@@ -277,25 +290,33 @@ function ReviewField({
   const spoilersId = useId();
 
   return (
-    <div className="grid gap-2 border-t pt-4">
-      <Label htmlFor={reviewId}>Review (optional)</Label>
+    <div className="flex flex-col gap-3 border-t border-white/5 pt-2">
+      <Label htmlFor={reviewId} className="font-medium text-muted-foreground">
+        Review (Optional)
+      </Label>
       <Textarea
         id={reviewId}
         placeholder={`What did you think about this ${MEDIA[mediaType].label.toLowerCase()}?`}
         value={content}
         onChange={(event) => onContentChange(event.target.value)}
-        rows={4}
+        className="h-24 resize-none bg-background/50 focus-visible:ring-primary/50"
       />
       {content.trim() ? (
-        <label htmlFor={spoilersId} className="flex cursor-pointer items-center gap-2 text-sm">
+        <div className="flex items-center gap-2">
           <input
             id={spoilersId}
             type="checkbox"
             checked={containsSpoilers}
             onChange={(event) => onSpoilersChange(event.target.checked)}
+            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
           />
-          Contains spoilers
-        </label>
+          <Label
+            htmlFor={spoilersId}
+            className="cursor-pointer text-sm font-normal text-muted-foreground"
+          >
+            This review contains spoilers
+          </Label>
+        </div>
       ) : null}
     </div>
   );

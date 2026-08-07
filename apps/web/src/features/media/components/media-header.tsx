@@ -19,7 +19,7 @@ export function MediaHeader({
   return (
     <div className="relative z-10 -mt-20 flex flex-col gap-6 border-b pb-8 md:-mt-32 md:flex-row md:items-end md:gap-8">
       {/* Poster */}
-      <div className="relative aspect-[3/4] w-40 shrink-0 overflow-hidden rounded-lg bg-muted ring-1 ring-border shadow-lg md:w-56">
+      <div className="relative aspect-[3/4] w-40 shrink-0 overflow-hidden rounded-xl bg-muted ring-1 ring-border shadow-xl md:w-56">
         {coverImage ? (
           <Image
             src={coverImage}
@@ -38,7 +38,7 @@ export function MediaHeader({
 
       {/* Header Info */}
       <div className="flex flex-1 flex-col gap-2 pb-2 md:pb-4">
-        <h1 className="text-3xl font-bold md:text-5xl">{title}</h1>
+        <h1 className="text-3xl font-bold tracking-tight md:text-5xl">{title}</h1>
 
         {media.titleNative && media.titleNative !== title && (
           <p className="font-medium text-muted-foreground">{media.titleNative}</p>

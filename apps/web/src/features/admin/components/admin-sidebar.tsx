@@ -28,7 +28,9 @@ export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>)
       <SidebarHeader className="px-2">
         <div className="flex items-center gap-2 rounded-md px-2 py-1 text-sidebar-foreground">
           <Shield className="size-4 shrink-0" />
-          <span className="truncate text-base font-black uppercase md:text-lg">Tsuki Admin</span>
+          <span className="truncate text-base font-black tracking-tighter uppercase md:text-lg">
+            Tsuki Admin
+          </span>
         </div>
       </SidebarHeader>
       <SidebarContent className="px-2">

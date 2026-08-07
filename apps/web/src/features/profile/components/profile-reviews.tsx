@@ -20,19 +20,19 @@ export function ReviewItem({ review }: { review: Review }) {
     <article className="group py-8 first:pt-0 border-b border-border/40 last:border-0 flex gap-6 md:gap-8">
       <Link
         href={href}
-        className="relative hidden aspect-[3/4] w-20 shrink-0 overflow-hidden rounded-lg bg-muted shadow-sm transition-transform duration-500 group-hover:scale-105 group-hover:shadow-md group-hover:ring-1 group-hover:ring-primary/50 sm:block md:w-28"
+        className="relative hidden aspect-[3/4] w-20 shrink-0 overflow-hidden rounded-xl bg-muted shadow-sm transition-transform duration-500 group-hover:scale-105 group-hover:shadow-md group-hover:ring-1 group-hover:ring-primary/50 sm:block md:w-28"
       >
         {cover ? (
           <Image src={cover} alt={title} fill className="object-cover" />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-muted p-2 text-center text-xs text-muted-foreground" />
+          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted/50 p-2 text-center text-xs text-muted-foreground" />
         )}
       </Link>
 
       <div className="flex-1 min-w-0">
         <div className="mb-5">
           <Link href={href} className="inline-block">
-            <h3 className="text-lg md:text-xl font-bold hover:text-primary transition-colors">
+            <h3 className="text-lg font-bold tracking-tight transition-colors hover:text-primary md:text-xl">
               {title}
             </h3>
           </Link>

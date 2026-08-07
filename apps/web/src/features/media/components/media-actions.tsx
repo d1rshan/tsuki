@@ -86,8 +86,14 @@ export function MediaActions({
         disabled={activity.isLoading || favoriteMutation.isPending}
         onClick={toggleFavorite}
         aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+        className="shrink-0 rounded-xl border-white/10"
       >
-        <Heart className={cn(isFavorite && "fill-red-500 text-red-500")} />
+        <Heart
+          className={cn(
+            "h-5 w-5 transition-all active:scale-75",
+            isFavorite && "fill-red-500 text-red-500",
+          )}
+        />
       </Button>
     </div>
   );

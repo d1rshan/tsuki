@@ -44,16 +44,27 @@ export function NavigationLinks({
       href={link.href}
       onNavigate={onNavigate}
       className={cn(
-        "text-xs font-bold uppercase transition-colors",
-        isMobile ? "rounded-md px-3 py-3" : "py-2",
-        link.isActive
-          ? isMobile
-            ? "bg-muted text-foreground"
-            : "text-foreground"
-          : "text-muted-foreground hover:text-foreground",
+        isMobile
+          ? "flex w-full items-center rounded-lg px-3 py-3 text-xs font-black uppercase tracking-widest transition-all duration-300"
+          : "group/link inline-flex items-center py-2 text-xs font-black uppercase tracking-widest transition-all duration-300 hover:text-foreground",
+        link.isActive ? "text-foreground" : "text-muted-foreground",
+        isMobile &&
+          (link.isActive ? "bg-foreground/5" : "hover:bg-foreground/5 hover:text-foreground"),
       )}
     >
-      {link.label}
+      {isMobile ? (
+        link.label
+      ) : (
+        <span className="relative">
+          {link.label}
+          <span
+            className={cn(
+              "absolute -bottom-1 left-0 h-px bg-foreground transition-all duration-300",
+              link.isActive ? "w-full" : "w-0 group-hover/link:w-full",
+            )}
+          />
+        </span>
+      )}
     </Link>
   ));
 }

@@ -1,19 +1,28 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Home } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-3 p-4 text-center">
-      <p className="text-sm font-semibold uppercase text-muted-foreground">404</p>
-      <h1 className="text-3xl font-bold">Page not found</h1>
-      <p className="mb-4 max-w-sm text-sm text-muted-foreground">
-        The page may have moved, or the address may be incorrect.
-      </p>
-      <Button render={<Link href="/" />} size="lg" nativeButton={false}>
+    <div className="flex min-h-[80vh] flex-col items-center justify-center p-4 text-center">
+      <div className="mb-6 w-full max-w-sm overflow-hidden">
+        <Image
+          src="https://c.tenor.com/X3S0_ADGTjgAAAAC/tenor.gif"
+          alt="Zoro getting lost"
+          width={498}
+          height={280}
+          unoptimized
+          className="h-auto w-full object-cover"
+        />
+      </div>
+
+      <h1 className="mb-8 text-4xl font-black tracking-tight text-foreground md:text-5xl">404</h1>
+
+      <Button render={<Link href="/" />} variant="default" size="lg" nativeButton={false}>
         <Home />
-        Back to home
+        Back to Home
       </Button>
     </div>
   );

@@ -16,7 +16,7 @@ export function MediaTypeToggle({
   const options = MEDIA_TYPES.map((value) => ({ value, label: MEDIA[value].label }));
 
   return (
-    <div className="flex w-fit items-center gap-1 rounded-lg border bg-muted/30 p-1">
+    <div className="flex w-fit items-center gap-2 rounded-2xl border border-border/50 bg-muted/30 p-1.5 shadow-sm backdrop-blur-md">
       {options.map((option) => {
         const isActive = value === option.value;
         return (
@@ -26,7 +26,7 @@ export function MediaTypeToggle({
             onClick={() => onChange(option.value)}
             aria-pressed={isActive}
             className={cn(
-              "rounded-md px-4 py-2 text-sm font-semibold transition-colors",
+              "rounded-xl px-5 py-2 text-sm font-semibold transition-all duration-300",
               isActive
                 ? "bg-primary text-primary-foreground shadow-md"
                 : "text-muted-foreground hover:text-primary hover:bg-primary/10",

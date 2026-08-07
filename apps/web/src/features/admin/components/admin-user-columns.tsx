@@ -46,7 +46,7 @@ export const adminUserColumns: ColumnDef<AdminUser>[] = [
   {
     accessorKey: "name",
     header: "Name",
-    cell: ({ row }) => <span className="font-medium">{row.getValue("name")}</span>,
+    cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
   },
   {
     accessorKey: "email",
@@ -85,11 +85,13 @@ function UserCell({ user }: { user: AdminUser }) {
 
   return (
     <div className="flex items-center gap-3">
-      <Avatar className="size-9">
-        {user.image ? <AvatarImage src={user.image} alt="" /> : null}
-        <AvatarFallback className="text-xs">{initial}</AvatarFallback>
+      <Avatar className="h-9 w-9 border border-muted/50">
+        {user.image ? <AvatarImage src={user.image} alt={user.username ?? ""} /> : null}
+        <AvatarFallback className="bg-muted/50 text-xs text-muted-foreground">
+          {initial}
+        </AvatarFallback>
       </Avatar>
-      <span className="font-medium">{user.displayUsername}</span>
+      <span className="font-medium leading-none">{user.displayUsername}</span>
     </div>
   );
 }
@@ -100,13 +102,15 @@ function EmailCell({ email }: { email: string }) {
       type="button"
       onClick={async () => {
         await navigator.clipboard.writeText(email);
-        toast.success("Email copied");
+        toast.success("Email copied to clipboard");
       }}
-      className="flex items-center gap-2 text-left text-muted-foreground hover:text-foreground"
+      className="group flex cursor-pointer items-center gap-2 text-left text-muted-foreground transition-colors hover:text-foreground"
       aria-label={`Copy ${email}`}
     >
-      <Mail className="size-4 shrink-0" />
-      <span className="truncate">{email}</span>
+      <Mail className="h-4 w-4 shrink-0" />
+      <span className="truncate group-hover:underline group-hover:decoration-dashed group-hover:underline-offset-4">
+        {email}
+      </span>
     </button>
   );
 }
@@ -116,7 +120,7 @@ function RoleBadge({ role }: { role?: string | null }) {
 
   return (
     <Badge variant={isAdminRole(value) ? "default" : "outline"} className="capitalize">
-      {isAdminRole(value) ? <Shield /> : <User />}
+      {isAdminRole(value) ? <Shield className="mr-1 h-3 w-3" /> : <User className="mr-1 h-3 w-3" />}
       {value}
     </Badge>
   );
@@ -125,11 +129,11 @@ function RoleBadge({ role }: { role?: string | null }) {
 function BanBadge({ isBanned }: { isBanned: boolean }) {
   return isBanned ? (
     <Badge variant="destructive">
-      <Ban /> Banned
+      <Ban className="mr-1 h-3 w-3" /> Banned
     </Badge>
   ) : (
     <Badge variant="outline">
-      <CheckCircle2 /> Active
+      <CheckCircle2 className="mr-1 h-3 w-3" /> Active
     </Badge>
   );
 }
@@ -137,21 +141,21 @@ function BanBadge({ isBanned }: { isBanned: boolean }) {
 function VerificationBadge({ isVerified }: { isVerified: boolean }) {
   return isVerified ? (
     <Badge variant="outline">
-      <ShieldCheck /> Verified
+      <ShieldCheck className="mr-1 h-3 w-3" /> Verified
     </Badge>
   ) : (
     <Badge variant="secondary">
-      <ShieldAlert /> Unverified
+      <ShieldAlert className="mr-1 h-3 w-3" /> Unverified
     </Badge>
   );
 }
 
 function JoinedDate({ date }: { date: Date | string }) {
   return (
-    <span className="flex items-center gap-2 text-muted-foreground">
-      <Calendar className="size-4" />
-      {format(new Date(date), "MMM d, yyyy")}
-    </span>
+    <div className="flex items-center gap-2 text-muted-foreground">
+      <Calendar className="h-4 w-4" />
+      <span>{format(new Date(date), "MMM d, yyyy")}</span>
+    </div>
   );
 }
 
@@ -186,12 +190,13 @@ function AdminUserActions({ user }: { user: AdminUser }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        render={<Button variant="ghost" size="icon-sm" />}
+        render={<Button variant="ghost" className="h-8 w-8 p-0" />}
         aria-label={`Actions for ${user.displayUsername}`}
       >
-        <MoreHorizontal />
+        <span className="sr-only">Open menu</span>
+        <MoreHorizontal className="h-4 w-4" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="start">
         <DropdownMenuGroup>
           <DropdownMenuItem
             onClick={async () => {
@@ -214,11 +219,11 @@ function AdminUserActions({ user }: { user: AdminUser }) {
               )
             }
           >
-            {isPrivileged ? "Remove admin" : "Make admin"}
+            {isPrivileged ? "Remove Admin" : "Make Admin"}
           </DropdownMenuItem>
           <DropdownMenuItem
             disabled={!canManage}
-            variant={user.banned ? "default" : "destructive"}
+            className={canManage ? (user.banned ? "text-green-600" : "text-red-600") : undefined}
             onClick={() =>
               run(
                 banAction,
@@ -227,7 +232,7 @@ function AdminUserActions({ user }: { user: AdminUser }) {
               )
             }
           >
-            {user.banned ? "Unban user" : "Ban user"}
+            {user.banned ? "Unban User" : "Ban User"}
           </DropdownMenuItem>
           <DropdownMenuItem
             disabled={!canManage}

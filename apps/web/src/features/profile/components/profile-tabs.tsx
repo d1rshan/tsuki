@@ -17,7 +17,7 @@ export function ProfileTabs({ username }: { username: string }) {
 
   return (
     <nav
-      className="flex w-fit max-w-full items-center gap-1 rounded-lg border bg-muted/30 p-1"
+      className="flex w-fit max-w-full items-center gap-2 overflow-x-auto rounded-2xl border border-border/50 bg-muted/30 p-1.5 shadow-sm backdrop-blur-md"
       aria-label="Profile"
     >
       {tabs.map((tab) => {
@@ -27,7 +27,7 @@ export function ProfileTabs({ username }: { username: string }) {
             key={tab.name}
             href={tab.href}
             className={cn(
-              "rounded-md px-4 py-2 text-sm font-semibold transition-colors",
+              "rounded-xl px-5 py-2 text-sm font-semibold transition-all duration-300",
               isActive
                 ? "bg-primary text-primary-foreground shadow-md"
                 : "text-muted-foreground hover:text-primary hover:bg-primary/10",

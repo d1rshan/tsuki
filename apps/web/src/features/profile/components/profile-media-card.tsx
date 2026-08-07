@@ -21,7 +21,7 @@ export function ProfileMediaCard({ media, mediaType, score, progress }: ProfileM
   return (
     <Link
       href={mediaHref(mediaType, media.id)}
-      className="group relative flex aspect-[3/4] flex-col overflow-hidden rounded-lg bg-muted/30 outline-none transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:ring-1 hover:ring-primary/50 focus-visible:ring-1 focus-visible:ring-primary"
+      className="group relative flex aspect-[3/4] flex-col overflow-hidden rounded-xl bg-muted/30 outline-none transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5 hover:ring-1 hover:ring-primary/50 focus-visible:ring-1 focus-visible:ring-primary"
     >
       {cover ? (
         <Image
@@ -32,7 +32,7 @@ export function ProfileMediaCard({ media, mediaType, score, progress }: ProfileM
           className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
       ) : (
-        <div className="flex h-full w-full items-center justify-center bg-muted p-4 text-center text-xs text-muted-foreground">
+        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted/50 p-4 text-center text-xs text-muted-foreground">
           {title}
         </div>
       )}

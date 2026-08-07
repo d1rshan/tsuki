@@ -7,7 +7,7 @@ export function LibrarySection({ title, entries }: { title: string; entries: Lib
 
   return (
     <section className="mb-12">
-      <h2 className="text-2xl font-bold mb-6">
+      <h2 className="mb-6 text-2xl font-bold tracking-tight">
         {title}
         <span className="text-muted-foreground text-lg font-normal ml-2">({entries.length})</span>
       </h2>

@@ -19,11 +19,11 @@ type TopTenCarouselProps = {
   actions?: React.ReactNode;
 };
 
-const HEADING_CLASS = "text-3xl font-black uppercase md:text-5xl";
+const HEADING_CLASS = "text-3xl font-black tracking-tight uppercase md:text-5xl";
 const TOP_TEN_LIMIT = 10;
 
 const NAV_BUTTON_CLASS =
-  "inline-flex size-10 border-border bg-background/90 text-foreground hover:!bg-foreground hover:!text-background active:!-translate-y-1/2 disabled:pointer-events-auto disabled:opacity-100 md:size-12 lg:pointer-events-none lg:opacity-0 lg:group-hover/carousel:pointer-events-auto lg:group-hover/carousel:opacity-100 lg:group-focus-within/carousel:pointer-events-auto lg:group-focus-within/carousel:opacity-100";
+  "inline-flex size-10 border-border bg-background/55 text-foreground transition-all hover:size-14 hover:!bg-foreground hover:!text-background active:!-translate-y-1/2 backdrop-blur-2xl disabled:pointer-events-auto disabled:opacity-100 md:size-12 lg:pointer-events-none lg:opacity-0 lg:group-hover/carousel:pointer-events-auto lg:group-hover/carousel:opacity-100 lg:group-focus-within/carousel:pointer-events-auto lg:group-focus-within/carousel:opacity-100";
 
 export function TopTenCarousel({ items, mediaType, actions }: TopTenCarouselProps) {
   const topTenItems = items.slice(0, TOP_TEN_LIMIT);
@@ -54,11 +54,16 @@ export function TopTenCarousel({ items, mediaType, actions }: TopTenCarouselProp
                 <article className="group relative flex h-full items-end justify-end transition-all duration-500 hover:z-50">
                   <div
                     className={cn(
-                      "absolute bottom-0 z-10 h-[1em] min-w-px text-[6rem] drop-shadow-md md:text-[8rem]",
+                      "absolute bottom-0 z-10 drop-shadow-md",
                       rank === 1
                         ? "right-[calc(64%-0.25rem)] sm:right-[calc(68%-0.5rem)]"
                         : "right-[calc(64%-0.75rem)] sm:right-[calc(68%-1.25rem)]",
                     )}
+                    style={{
+                      minWidth: "1px",
+                      height: "1em",
+                      fontSize: "clamp(5.5rem, 11vw, 8.5rem)",
+                    }}
                   >
                     <svg className="pointer-events-none select-none overflow-visible absolute inset-0 w-full h-full">
                       <text
@@ -69,7 +74,7 @@ export function TopTenCarousel({ items, mediaType, actions }: TopTenCarouselProp
                         strokeWidth="4px"
                         strokeLinejoin="round"
                         paintOrder="stroke fill"
-                        className="text-background stroke-muted-foreground font-black"
+                        className="text-background stroke-muted-foreground font-black tracking-[-0.08em]"
                       >
                         {rank}
                       </text>

@@ -30,7 +30,7 @@ export function SiteNavigation({ user }: { user: NavigationUser | null }) {
   return (
     <nav className="pointer-events-none fixed inset-x-0 top-0 z-40 pt-4 md:pt-6" aria-label="Main">
       <div className="container mx-auto px-4 xl:max-w-5xl">
-        <div className="pointer-events-auto relative flex h-12 items-center justify-between rounded-lg border bg-background/95 px-3 shadow-lg backdrop-blur-md md:h-14 md:px-5">
+        <div className="pointer-events-auto relative flex h-12 w-full items-center justify-between rounded-xl border border-black/5 bg-background px-3 shadow-2xl transition-all duration-300 dark:border-white/10 dark:bg-background/55 dark:backdrop-blur-2xl md:h-14 md:px-6">
           {search.isOpen ? (
             <NavigationSearch
               mediaType={search.mediaType}
@@ -40,19 +40,22 @@ export function SiteNavigation({ user }: { user: NavigationUser | null }) {
             />
           ) : (
             <>
-              <div className="flex min-w-0 items-center gap-6 md:gap-8">
-                <Link href="/" className="flex shrink-0 items-center gap-2 font-black uppercase">
-                  <span className="size-1.5 rounded-full bg-foreground" />
-                  Tsuki
+              <div className="mr-auto flex items-center gap-6 md:gap-8">
+                <Link href="/" className="group flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-foreground transition-all duration-300 group-hover:scale-[1.5]" />
+                  <span className="text-base font-black uppercase tracking-tighter md:text-lg">
+                    TSUKI
+                  </span>
                 </Link>
                 <div className="hidden items-center gap-6 sm:flex">
                   <NavigationLinks pathname={pathname} user={user} />
                 </div>
               </div>
 
-              <div className="flex items-center gap-1">
-                <div className="hidden items-center gap-1 sm:flex">
+              <div className="flex items-center gap-2">
+                <div className="hidden items-center gap-2 sm:flex">
                   <NavigationAuth isAuthenticated={Boolean(user?.username)} />
+                  <div className="mx-1 h-4 w-px bg-border" />
                   <ThemeToggle />
                 </div>
                 {search.isSearchable ? (
@@ -62,20 +65,21 @@ export function SiteNavigation({ user }: { user: NavigationUser | null }) {
                     size="icon"
                     onClick={search.open}
                     aria-label="Open search"
+                    className="text-muted-foreground hover:!bg-transparent hover:text-foreground"
                   >
-                    <Search />
+                    <Search className="size-4" />
                   </Button>
                 ) : null}
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="sm:hidden"
+                  className="text-muted-foreground hover:!bg-transparent hover:text-foreground sm:hidden"
                   onClick={() => setIsMobileMenuOpen((isOpen) => !isOpen)}
                   aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
                   aria-expanded={isMobileMenuOpen}
                 >
-                  {isMobileMenuOpen ? <X /> : <Menu />}
+                  {isMobileMenuOpen ? <X className="size-4" /> : <Menu className="size-4" />}
                 </Button>
               </div>
             </>
@@ -83,17 +87,19 @@ export function SiteNavigation({ user }: { user: NavigationUser | null }) {
         </div>
 
         {isMobileMenuOpen && !search.isOpen ? (
-          <div className="pointer-events-auto mt-2 flex flex-col gap-1 rounded-lg border bg-background/95 p-3 shadow-lg backdrop-blur-md sm:hidden">
+          <div className="pointer-events-auto mt-2 flex flex-col gap-1 rounded-xl border border-black/5 bg-background/95 p-3 shadow-2xl backdrop-blur-2xl dark:border-white/10 dark:bg-background/80 sm:hidden">
             <NavigationLinks
               isMobile
               pathname={pathname}
               user={user}
               onNavigate={closeMobileMenu}
             />
-            <div className="my-2 h-px bg-border" />
-            <div className="flex items-center justify-between gap-2">
-              <NavigationAuth isAuthenticated={Boolean(user?.username)} />
-              <ThemeToggle />
+            <div className="my-2 h-px w-full bg-border" />
+            <div className="flex items-center justify-between px-1">
+              <NavigationAuth isAuthenticated={Boolean(user?.username)} isMobile />
+              <div className="pr-2">
+                <ThemeToggle />
+              </div>
             </div>
           </div>
         ) : null}

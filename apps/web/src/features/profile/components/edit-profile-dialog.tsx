@@ -84,7 +84,7 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
             size="sm"
             className="gap-2 rounded-full border-border/50 hover:border-primary/50 hover:bg-primary/10 hover:text-primary transition-colors"
           >
-            <Edit2 />
+            <Edit2 className="h-4 w-4" />
             Edit Profile
           </Button>
         }
@@ -163,7 +163,7 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
                   onClick={() => append({ platform: "", url: "" })}
                   disabled={isSubmitting}
                 >
-                  <Plus /> Add link
+                  <Plus className="mr-1 h-4 w-4" /> Add Link
                 </Button>
               </div>
 
@@ -207,7 +207,7 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
                     disabled={isSubmitting}
                     aria-label={`Remove ${field.platform || "social"} link`}
                   >
-                    <Trash2 />
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               ))}
@@ -224,8 +224,8 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
               Cancel
             </Button>
             <Button type="submit" form="edit-profile-form" disabled={isSubmitting}>
-              {isSubmitting ? <LoaderCircle className="animate-spin" /> : null}
-              Save changes
+              {isSubmitting ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Save Changes
             </Button>
           </div>
         </form>

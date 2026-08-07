@@ -25,13 +25,13 @@ export function MediaCard({
 
   const metadata = [media.seasonYear, count ? `${count} ${MEDIA[mediaType].unitShort}` : null]
     .filter(Boolean)
-    .join(" / ");
+    .join(" • ");
 
   return (
     <Link
       href={mediaHref(mediaType, media.id)}
       className={cn(
-        "group relative block overflow-hidden rounded-lg bg-muted ring-1 ring-border/50 transition-all duration-300 hover:ring-border",
+        "group relative block overflow-hidden rounded-xl bg-muted ring-1 ring-border/50 transition-all duration-300 hover:ring-border",
         className,
       )}
     >
@@ -54,7 +54,7 @@ export function MediaCard({
       {media.averageScore && (
         <div className="absolute right-2 top-2 flex items-center gap-1 rounded-md bg-background/60 px-1.5 py-0.5 text-xs font-medium text-foreground backdrop-blur-md transition-opacity group-hover:opacity-100">
           <Star className="size-3 fill-primary text-primary" />
-          <span>{media.averageScore}%</span>
+          <span className="tracking-tight">{media.averageScore}%</span>
         </div>
       )}
 
