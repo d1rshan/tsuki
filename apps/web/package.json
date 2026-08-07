@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
@@ -23,7 +24,6 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
     "embla-carousel-react": "^8.6.0",
-    "framer-motion": "^12.40.0",
     "graphql-request": "^7.4.0",
     "lucide-react": "^1.17.0",
     "next": "16.2.9",
