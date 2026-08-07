@@ -5,7 +5,7 @@ import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/ca
 export function AdminDashboardStats({ totalUsers }: { totalUsers: number }) {
   return (
     <div className="grid gap-4 md:max-w-sm">
-      <Card className="shadow-xs">
+      <Card className="bg-gradient-to-t from-primary/5 to-card shadow-xs dark:bg-card">
         <CardHeader className="gap-3">
           <div className="flex items-center justify-between gap-4">
             <CardDescription>Total Users</CardDescription>

@@ -10,7 +10,7 @@ export function MediaPageSkeleton() {
         {/* Header Skeleton */}
         <div className="relative z-10 -mt-20 flex flex-col gap-6 border-b pb-8 md:-mt-32 md:flex-row md:items-end md:gap-8">
           {/* Poster Skeleton */}
-          <div className="relative aspect-[3/4] w-40 shrink-0 overflow-hidden rounded-lg bg-background ring-1 ring-border shadow-xl md:w-56">
+          <div className="relative aspect-[3/4] w-40 shrink-0 overflow-hidden rounded-xl bg-background ring-1 ring-border shadow-xl md:w-56">
             <Skeleton className="h-full w-full rounded-none" />
           </div>
 
@@ -89,7 +89,7 @@ export function MediaPageSkeleton() {
                 <Skeleton className="size-5 rounded-full" />
                 <Skeleton className="h-7 w-20" />
               </div>
-              <Skeleton className="aspect-video w-full rounded-lg" />
+              <Skeleton className="aspect-video w-full rounded-xl" />
             </div>
           </div>
         </div>
@@ -101,8 +101,8 @@ export function MediaPageSkeleton() {
 export function MediaActionsSkeleton() {
   return (
     <div className="flex gap-2">
-      <Skeleton className="h-8 flex-1 rounded-lg" />
-      <Skeleton className="h-8 w-8 shrink-0 rounded-lg" />
+      <Skeleton className="h-8 flex-1 rounded-xl" />
+      <Skeleton className="h-8 w-8 shrink-0 rounded-xl" />
     </div>
   );
 }

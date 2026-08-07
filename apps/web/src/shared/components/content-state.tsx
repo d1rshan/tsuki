@@ -1,4 +1,4 @@
-import { SearchX } from "lucide-react";
+import { Search } from "lucide-react";
 
 type ContentStateProps = {
   description?: string;
@@ -7,8 +7,8 @@ type ContentStateProps = {
 
 export function EmptyState({ title, description }: ContentStateProps) {
   return (
-    <div className="flex min-h-64 flex-col items-center justify-center gap-2 text-center text-muted-foreground">
-      <SearchX className="size-8 opacity-40" />
+    <div className="flex h-64 flex-col items-center justify-center gap-2 text-muted-foreground">
+      <Search className="size-8 opacity-40" />
       <p className="font-medium">{title}</p>
       {description ? <p className="text-sm">{description}</p> : null}
     </div>
@@ -17,7 +17,7 @@ export function EmptyState({ title, description }: ContentStateProps) {
 
 export function ErrorState({ title, description }: ContentStateProps) {
   return (
-    <div className="flex min-h-64 flex-col items-center justify-center gap-1 text-center text-destructive">
+    <div className="flex h-64 flex-col items-center justify-center gap-1 text-destructive">
       <p className="font-medium">{title}</p>
       {description ? <p className="text-sm opacity-80">{description}</p> : null}
     </div>

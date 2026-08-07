@@ -81,7 +81,9 @@ function SearchResults({
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h2 className="text-2xl font-semibold">Search results for &ldquo;{searchQuery}&rdquo;</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">
+          Search results for &ldquo;{searchQuery}&rdquo;
+        </h2>
         <div className="flex items-center gap-4">
           <MediaTypeToggle value={type} onChange={onTypeChange} />
           <div className="flex items-center gap-2 bg-muted/50 px-3 py-1.5 rounded-full border">

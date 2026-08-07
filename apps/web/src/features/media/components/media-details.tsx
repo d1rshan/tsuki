@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { ExternalLink } from "lucide-react";
 
 import type { Media } from "@tsuki/api/types";
@@ -18,7 +19,9 @@ export function MediaDetails({ media }: { media: Media }) {
       <div className="space-y-8">
         {media.genres && media.genres.length > 0 ? (
           <div className="space-y-3">
-            <h3 className="text-sm font-semibold uppercase text-muted-foreground">Genres</h3>
+            <h3 className="text-sm font-semibold tracking-wider text-muted-foreground uppercase">
+              Genres
+            </h3>
             <div className="flex flex-wrap gap-2">
               {media.genres.map((genre) => (
                 <Badge key={genre} variant="secondary" className="font-normal">
@@ -30,7 +33,9 @@ export function MediaDetails({ media }: { media: Media }) {
         ) : null}
 
         <div className="space-y-4">
-          <h3 className="text-sm font-semibold uppercase text-muted-foreground">Details</h3>
+          <h3 className="text-sm font-semibold tracking-wider text-muted-foreground uppercase">
+            Details
+          </h3>
           <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-1">
             {detailItems.map((item) => (
               <InfoItem key={item.label} label={item.label} value={item.value} />
@@ -40,7 +45,7 @@ export function MediaDetails({ media }: { media: Media }) {
 
         {links.items.length > 0 ? (
           <div className="space-y-3">
-            <h3 className="text-sm font-semibold uppercase text-muted-foreground">
+            <h3 className="text-sm font-semibold tracking-wider text-muted-foreground uppercase">
               {links.heading}
             </h3>
             <div className="flex flex-col gap-2">
@@ -52,6 +57,16 @@ export function MediaDetails({ media }: { media: Media }) {
                   rel="noopener noreferrer"
                   className="group inline-flex w-fit items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                 >
+                  {link.icon ? (
+                    <Image
+                      src={link.icon}
+                      alt={link.site}
+                      width={16}
+                      height={16}
+                      unoptimized
+                      className="size-4 rounded-sm bg-primary object-contain p-0.5 dark:bg-transparent dark:p-0"
+                    />
+                  ) : null}
                   <span className="group-hover:underline group-hover:decoration-dashed group-hover:underline-offset-4">
                     {link.site}
                   </span>
@@ -67,8 +82,8 @@ export function MediaDetails({ media }: { media: Media }) {
       </div>
 
       <div className="min-w-0 space-y-4">
-        <h2 className="text-xl font-semibold">Synopsis</h2>
-        <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground md:text-base">
+        <h2 className="text-xl font-semibold tracking-tight">Synopsis</h2>
+        <p className="prose prose-sm max-w-none whitespace-pre-line leading-relaxed text-muted-foreground dark:prose-invert md:prose-base">
           {synopsis}
         </p>
 

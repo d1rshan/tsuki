@@ -1,8 +1,8 @@
-import { Search, X } from "lucide-react";
+import { Search } from "lucide-react";
 
 import type { MediaType } from "@tsuki/api/types";
 
-import { Button } from "@/components/ui/button";
+import { Kbd } from "@/components/ui/kbd";
 
 type NavigationSearchProps = {
   mediaType: MediaType;
@@ -14,24 +14,23 @@ type NavigationSearchProps = {
 export function NavigationSearch({ mediaType, onChange, onClose, query }: NavigationSearchProps) {
   return (
     <div className="flex h-full w-full items-center gap-3">
-      <Search className="size-5 shrink-0 text-muted-foreground" />
+      <Search className="size-5 text-muted-foreground" />
       <input
         autoFocus
         value={query}
         onChange={(event) => onChange(event.target.value)}
-        placeholder={`Search ${mediaType.toLowerCase()}...`}
+        placeholder={`Search ${mediaType}...`}
         aria-label={`Search ${mediaType.toLowerCase()}`}
-        className="h-full min-w-0 flex-1 bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground"
+        className="h-full flex-1 bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground"
       />
-      <Button
+      <button
         type="button"
-        variant="ghost"
-        size="icon-sm"
         onClick={onClose}
         aria-label="Close search"
+        className="transition-opacity hover:opacity-80"
       >
-        <X />
-      </Button>
+        <Kbd>Esc</Kbd>
+      </button>
     </div>
   );
 }

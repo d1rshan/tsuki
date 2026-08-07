@@ -133,7 +133,7 @@ export function DataTable<TData, TValue>({
         </DropdownMenu>
       </div>
       <div
-        className={cn("transition-opacity", isDataPending && "opacity-60")}
+        className={cn("transition-opacity duration-200", isDataPending && "opacity-50")}
         aria-busy={isDataPending}
         inert={isDataPending ? true : undefined}
       >

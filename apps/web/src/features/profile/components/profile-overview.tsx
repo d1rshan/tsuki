@@ -25,7 +25,7 @@ export function FavoritesSection({
 
   return (
     <section className="space-y-6">
-      <h2 className="text-2xl font-bold">{title}</h2>
+      <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
       <div className="grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
         {favorites.map((entry) => {
           if (!entry.media) return null;
@@ -54,7 +54,7 @@ export function RecentActivitySection({
   return (
     <section className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">{title}</h2>
+        <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
         <Link
           href={`/profile/${username}/library`}
           className="group flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
@@ -88,13 +88,13 @@ function RecentLogItem({ entry }: { entry: LibraryEntry }) {
   return (
     <Link
       href={mediaHref(entry.mediaType, entry.mediaId)}
-      className="group -m-2 flex items-start gap-4 rounded-lg p-2 transition-colors hover:bg-muted/50"
+      className="group -m-2 flex items-start gap-4 rounded-2xl p-2 transition-colors hover:bg-muted/50"
     >
       <div className="relative w-16 aspect-[3/4] shrink-0 overflow-hidden rounded-lg bg-muted shadow-sm transition-transform duration-500 group-hover:shadow-md group-hover:scale-105">
         {cover ? (
           <Image src={cover} alt={title} fill sizes="64px" className="object-cover" />
         ) : (
-          <div className="h-full w-full bg-muted" />
+          <div className="h-full w-full bg-gradient-to-br from-muted to-muted/50" />
         )}
       </div>
       <div className="flex flex-1 flex-col py-1">

@@ -49,7 +49,7 @@ export function AuthFormCard({
       <form id={formId} onSubmit={onSubmit}>
         <CardContent>{children}</CardContent>
       </form>
-      <CardFooter>
+      <CardFooter className="flex-col gap-2">
         <Button type="submit" form={formId} className="w-full" disabled={isSubmitting}>
           {isSubmitting ? <LoaderCircle className="animate-spin" /> : null}
           {submitLabel}
