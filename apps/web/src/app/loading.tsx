@@ -1,5 +1,5 @@
-import { Loader } from "@/components/loader";
+import { LoadingIndicator } from "@/shared/components/loading-indicator";
 
 export default function Loading() {
-  return <Loader />;
+  return <LoadingIndicator className="min-h-screen" label="Loading page" />;
 }

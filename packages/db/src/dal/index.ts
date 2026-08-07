@@ -1,5 +1,4 @@
-export * as animeDal from "./anime";
-export * as mangaDal from "./manga";
+export * as mediaDal from "./media";
 export * as libraryDal from "./library";
 export * as reviewsDal from "./reviews";
 export * as userDal from "./user";

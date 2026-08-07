@@ -1,89 +1,57 @@
-import { eq, and } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 
 import { db } from "../db";
-import { userReviews, userMangaReviews } from "../schema";
+import { reviews, type MediaType } from "../schema";
+import { MEDIA_COMPACT_COLUMNS } from "./media";
 
-type InsertReview = typeof userReviews.$inferInsert;
-type InsertMangaReview = typeof userMangaReviews.$inferInsert;
+export type InsertReview = typeof reviews.$inferInsert;
 
-export const createReview = async (review: InsertReview) => {
-  const [result] = await db.insert(userReviews).values(review).returning();
-  return result;
+export type ReviewQueryOptions = {
+  /** Omit to return anime and manga reviews together, newest first. */
+  type?: MediaType;
+  limit?: number;
+  offset?: number;
 };
 
-export const updateReview = async (
-  id: string,
-  data: { content?: string; containsSpoilers?: boolean },
-) => {
-  const [result] = await db.update(userReviews).set(data).where(eq(userReviews.id, id)).returning();
-  return result;
-};
-
-export const getReviewForAnime = async (userId: string, animeId: number) => {
-  return db.query.userReviews.findFirst({
-    where: and(eq(userReviews.userId, userId), eq(userReviews.animeId, animeId)),
+export const getReview = async (userId: string, mediaId: number) => {
+  return db.query.reviews.findFirst({
+    where: and(eq(reviews.userId, userId), eq(reviews.mediaId, mediaId)),
+    with: { media: { columns: MEDIA_COMPACT_COLUMNS } },
   });
 };
 
-export const getUserReviews = async (userId: string) => {
-  return db.query.userReviews.findMany({
-    where: eq(userReviews.userId, userId),
-    with: {
-      anime: {
-        columns: {
-          id: true,
-          titleRomaji: true,
-          titleEnglish: true,
-          titleNative: true,
-          coverImageExtraLarge: true,
-          coverImageLarge: true,
-          coverImageColor: true,
-        },
-      },
-    },
-    orderBy: (reviews, { desc }) => [desc(reviews.createdAt)],
+export const getUserReviews = async (userId: string, options: ReviewQueryOptions = {}) => {
+  const { type, limit, offset } = options;
+
+  return db.query.reviews.findMany({
+    where: type
+      ? and(eq(reviews.userId, userId), eq(reviews.mediaType, type))
+      : eq(reviews.userId, userId),
+    with: { media: { columns: MEDIA_COMPACT_COLUMNS } },
+    orderBy: [desc(reviews.createdAt)],
+    limit,
+    offset,
   });
 };
 
-export const createMangaReview = async (review: InsertMangaReview) => {
-  const [result] = await db.insert(userMangaReviews).values(review).returning();
-  return result;
-};
-
-export const updateMangaReview = async (
-  id: string,
-  data: { content?: string; containsSpoilers?: boolean },
-) => {
+/** Conflicts resolve on (userId, mediaId), so an incoming `id` is ignored on edits. */
+export const upsertReview = async (review: InsertReview) => {
   const [result] = await db
-    .update(userMangaReviews)
-    .set(data)
-    .where(eq(userMangaReviews.id, id))
+    .insert(reviews)
+    .values(review)
+    .onConflictDoUpdate({
+      target: [reviews.userId, reviews.mediaId],
+      set: {
+        content: review.content,
+        containsSpoilers: review.containsSpoilers,
+        updatedAt: new Date(),
+      },
+    })
     .returning();
+
   return result;
 };
 
-export const getReviewForManga = async (userId: string, mangaId: number) => {
-  return db.query.userMangaReviews.findFirst({
-    where: and(eq(userMangaReviews.userId, userId), eq(userMangaReviews.mangaId, mangaId)),
-  });
-};
-
-export const getUserMangaReviews = async (userId: string) => {
-  return db.query.userMangaReviews.findMany({
-    where: eq(userMangaReviews.userId, userId),
-    with: {
-      manga: {
-        columns: {
-          id: true,
-          titleRomaji: true,
-          titleEnglish: true,
-          titleNative: true,
-          coverImageExtraLarge: true,
-          coverImageLarge: true,
-          coverImageColor: true,
-        },
-      },
-    },
-    orderBy: (reviews, { desc }) => [desc(reviews.createdAt)],
-  });
+export const deleteReview = async (userId: string, mediaId: number) => {
+  return db.delete(reviews).where(and(eq(reviews.userId, userId), eq(reviews.mediaId, mediaId)));
 };

@@ -12,15 +12,18 @@ export const updateUserProfile = async (
     socialLinks?: Record<string, string> | null;
   },
 ) => {
+  // Callers clear with null; the column defaults to `{}`. Keep one representation of "none".
+  const values = data.socialLinks === null ? { ...data, socialLinks: {} } : data;
+
   return db
     .insert(userProfile)
     .values({
       userId,
-      ...data,
+      ...values,
     })
     .onConflictDoUpdate({
       target: userProfile.userId,
-      set: { ...data, updatedAt: new Date() },
+      set: { ...values, updatedAt: new Date() },
     })
     .returning();
 };
