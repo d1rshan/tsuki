@@ -14,6 +14,10 @@
     "format:check": "oxfmt --check .",
     "format:fix": "oxfmt --write .",
     "typecheck": "turbo run typecheck",
+    "deploy": "bun run deploy:check && bun run deploy:web && bun run deploy:api",
+    "deploy:check": "bun run build && bun run typecheck",
+    "deploy:web": "bunx vercel@latest --project tsuki-web --prod",
+    "deploy:api": "bunx vercel@latest --project tsuki-api --prod",
     "db:push": "turbo -F @tsuki/db db:push",
     "db:studio": "turbo -F @tsuki/db db:studio",
     "prepare": "husky"
