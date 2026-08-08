@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { parseAsStringEnum, useQueryState } from "nuqs";
 
@@ -13,6 +13,7 @@ const MEDIA_TYPES = ["ANIME", "MANGA"] as const;
 export function useNavigationSearch() {
   const pathname = usePathname();
   const [isManuallyOpen, setIsManuallyOpen] = useState(false);
+  const previousPathname = useRef(pathname);
   const [query, setQuery] = useQueryState("q", { defaultValue: "" });
   const [mediaType] = useQueryState(
     "type",
@@ -21,6 +22,14 @@ export function useNavigationSearch() {
 
   const isSearchable = pathname === "/";
   const isOpen = isSearchable && (isManuallyOpen || query.length > 0);
+
+  useEffect(() => {
+    if (previousPathname.current === pathname) return;
+
+    previousPathname.current = pathname;
+    setIsManuallyOpen(false);
+    if (query) void setQuery(null);
+  }, [pathname, query, setQuery]);
 
   const close = useCallback(() => {
     setIsManuallyOpen(false);
