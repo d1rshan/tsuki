@@ -11,7 +11,7 @@ import { MediaTypeToggle } from "@/features/media/components/media-type-toggle";
 import { TopTenCarousel } from "@/features/media/components/top-ten-carousel";
 import { useMediaSearch } from "@/features/media/hooks/use-media-search";
 import { MEDIA_TYPES } from "@/features/media/media";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 import { EmptyState, ErrorState } from "@/shared/components/content-state";
 import { LoadingIndicator } from "@/shared/components/loading-indicator";
 

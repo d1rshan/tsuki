@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { signOut } from "@tsuki/auth/client";
 
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 export function NavigationAuth({
   isAuthenticated,

@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import type { MediaType } from "@tsuki/api/types";
 
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 import { logMediaAction } from "../actions";
 import { createFavoriteInput } from "../activity";

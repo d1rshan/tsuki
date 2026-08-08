@@ -5,7 +5,7 @@ import { Star } from "lucide-react";
 import type { MediaCompact, MediaType } from "@tsuki/api/types";
 
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 import { MEDIA, getMediaCoverImage, getMediaTitle, mediaHref, unitCount } from "../media";
 

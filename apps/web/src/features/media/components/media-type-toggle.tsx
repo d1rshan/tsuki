@@ -2,7 +2,7 @@
 
 import type { MediaType } from "@tsuki/api/types";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 import { MEDIA, MEDIA_TYPES } from "../media";
 

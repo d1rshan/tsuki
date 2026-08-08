@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 import type { NavigationUser } from "./site-navigation";
 
