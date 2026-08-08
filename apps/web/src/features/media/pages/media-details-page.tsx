@@ -53,10 +53,15 @@ async function MediaDetailsContent({
   }
 
   const title = getMediaTitle(media);
+  const bannerImage = getMediaBannerImage(media);
 
   return (
     <div className="pb-16">
-      <MediaBanner bannerImage={getMediaBannerImage(media)} title={title} />
+      <MediaBanner
+        bannerImage={bannerImage}
+        isFallbackImage={Boolean(bannerImage && !media.bannerImage)}
+        title={title}
+      />
       <div className="container mx-auto max-w-6xl px-4">
         <MediaHeader media={media} title={title} coverImage={getMediaCoverImage(media)} />
         <MediaDetails media={media} />
