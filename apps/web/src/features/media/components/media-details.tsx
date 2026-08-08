@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { ExternalLink } from "lucide-react";
 
 import type { Media } from "@tsuki/api/types";
@@ -58,12 +57,11 @@ export function MediaDetails({ media }: { media: Media }) {
                   className="group inline-flex w-fit items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                 >
                   {link.icon ? (
-                    <Image
+                    <img
                       src={link.icon}
                       alt={link.site}
                       width={16}
                       height={16}
-                      unoptimized
                       className="size-4 rounded-sm bg-primary object-contain p-0.5 dark:bg-transparent dark:p-0"
                     />
                   ) : null}

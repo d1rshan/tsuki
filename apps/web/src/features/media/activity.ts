@@ -25,7 +25,7 @@ export function createActivityForm(
 ): ActivityForm {
   return {
     containsSpoilers: review?.containsSpoilers ?? false,
-    progress: entry?.progress ? String(entry.progress) : "",
+    progress: entry ? String(entry.progress) : "0",
     reviewContent: review?.content ?? "",
     score: entry?.score ?? 0,
     status: entry?.status ?? MEDIA[mediaType].defaultStatus,

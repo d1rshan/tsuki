@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import {
   clampProgress,
+  createActivityForm,
   createFavoriteInput,
   createLogMediaInput,
   saveMediaActivity,
@@ -17,6 +18,10 @@ const form: ActivityForm = {
 };
 
 describe("media activity normalization", () => {
+  test("starts new logs at zero progress", () => {
+    expect(createActivityForm("ANIME", null, null).progress).toBe("0");
+  });
+
   test("clamps progress to a known total", () => {
     expect(clampProgress(14, 12)).toBe(12);
     expect(clampProgress(-2, 12)).toBe(0);
