@@ -17,10 +17,10 @@ export function MediaBanner({
             src={bannerImage}
             alt=""
             fill
-            className="scale-110 object-cover blur-2xl"
+            className="scale-110 object-cover blur-xl"
             sizes="100vw"
           />
-          <div className="absolute inset-0 bg-background/35" />
+          <div className="absolute inset-0 bg-background/30" />
         </>
       ) : bannerImage ? (
         <Image
