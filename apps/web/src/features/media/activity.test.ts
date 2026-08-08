@@ -5,6 +5,7 @@ import {
   createActivityForm,
   createFavoriteInput,
   createLogMediaInput,
+  hasLoggedActivity,
   saveMediaActivity,
   type ActivityForm,
 } from "./activity";
@@ -16,6 +17,17 @@ const form: ActivityForm = {
   score: 8,
   status: "CURRENT",
 };
+
+const review = {
+  id: "review-1",
+  mediaType: "ANIME",
+  mediaId: 1,
+  media: null,
+  content: "good",
+  containsSpoilers: false,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+} as const;
 
 describe("media activity normalization", () => {
   test("starts new logs at zero progress", () => {
@@ -41,12 +53,35 @@ describe("media activity normalization", () => {
     expect(createLogMediaInput({ ...form, score: 0 }, false).score).toBeNull();
   });
 
-  test("gives status-less favorites a visible planning status", () => {
-    expect(createFavoriteInput("ANIME", null, true)).toEqual({
-      isFavorite: true,
-      status: "PLANNING",
-    });
-    expect(createFavoriteInput("MANGA", "CURRENT", false)).toEqual({ isFavorite: false });
+  test("keeps favorite updates separate from logs", () => {
+    expect(createFavoriteInput(true)).toEqual({ isFavorite: true });
+    expect(createFavoriteInput(false)).toEqual({ isFavorite: false });
+  });
+
+  test("does not treat favorite-only entries as logs", () => {
+    expect(
+      hasLoggedActivity(
+        "ANIME",
+        {
+          mediaType: "ANIME",
+          mediaId: 1,
+          media: null,
+          status: "PLANNING",
+          score: null,
+          progress: 0,
+          progressVolumes: null,
+          repeat: 0,
+          isFavorite: true,
+          notes: null,
+          startedAt: null,
+          completedAt: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        null,
+      ),
+    ).toBe(false);
+    expect(hasLoggedActivity("ANIME", null, review)).toBe(true);
   });
 });
 

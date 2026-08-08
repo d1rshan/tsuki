@@ -45,15 +45,21 @@ export function createLogMediaInput(
   };
 }
 
-export function createFavoriteInput(
+export function createFavoriteInput(isFavorite: boolean): LogMediaInput {
+  return { isFavorite };
+}
+
+export function hasLoggedActivity(
   mediaType: MediaType,
-  currentStatus: ListStatus | null | undefined,
-  isFavorite: boolean,
-): LogMediaInput {
-  return {
-    isFavorite,
-    ...(!currentStatus ? { status: MEDIA[mediaType].defaultStatus } : {}),
-  };
+  entry: LibraryEntry | null,
+  review: Review | null,
+) {
+  return Boolean(
+    review ||
+    entry?.score ||
+    (entry?.progress && entry.progress > 0) ||
+    (entry?.status && entry.status !== MEDIA[mediaType].defaultStatus),
+  );
 }
 
 export async function saveMediaActivity(

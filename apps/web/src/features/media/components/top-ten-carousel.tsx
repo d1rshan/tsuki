@@ -19,19 +19,18 @@ type TopTenCarouselProps = {
   actions?: React.ReactNode;
 };
 
-const HEADING_CLASS = "text-3xl font-black tracking-tight uppercase md:text-5xl";
-const TOP_TEN_LIMIT = 10;
+const LIMIT = 10;
 
 const NAV_BUTTON_CLASS =
   "inline-flex size-10 border-border bg-background/55 text-foreground transition-all hover:size-14 hover:!bg-foreground hover:!text-background active:!-translate-y-1/2 backdrop-blur-2xl disabled:pointer-events-auto disabled:opacity-100 md:size-12 lg:pointer-events-none lg:opacity-0 lg:group-hover/carousel:pointer-events-auto lg:group-hover/carousel:opacity-100 lg:group-focus-within/carousel:pointer-events-auto lg:group-focus-within/carousel:opacity-100";
 
 export function TopTenCarousel({ items, mediaType, actions }: TopTenCarouselProps) {
-  const topTenItems = items.slice(0, TOP_TEN_LIMIT);
+  const topTenItems = items.slice(0, LIMIT);
 
   return (
     <section className="flex w-full flex-col gap-4 md:gap-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h2 className={HEADING_CLASS}>Top 10 Today</h2>
+        <h2 className={"text-3xl font-black tracking-tight uppercase md:text-5xl"}>Top 10 Today</h2>
         {actions}
       </div>
 
@@ -111,7 +110,7 @@ function getRankBasisClass(rank: number) {
     return "basis-[calc(75%-16px)] sm:basis-[calc(55%-16px)] md:basis-[calc(40%-24px)] lg:basis-[calc(32%-24px)] xl:basis-[calc(26%-24px)]";
   }
 
-  if (rank === TOP_TEN_LIMIT) {
+  if (rank === LIMIT) {
     return "basis-[calc(75%+24px)] sm:basis-[calc(55%+24px)] md:basis-[calc(40%+32px)] lg:basis-[calc(32%+32px)] xl:basis-[calc(26%+32px)]";
   }
 
@@ -123,7 +122,7 @@ function getRankPaddingClass(rank: number) {
     return "pl-0";
   }
 
-  if (rank === TOP_TEN_LIMIT) {
+  if (rank === LIMIT) {
     return "pl-10 md:pl-14";
   }
 

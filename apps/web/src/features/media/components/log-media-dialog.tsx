@@ -33,6 +33,7 @@ import {
   clampProgress,
   createActivityForm,
   createLogMediaInput,
+  hasLoggedActivity,
   saveMediaActivity,
   type ActivityForm,
 } from "../activity";
@@ -66,7 +67,7 @@ export function LogMediaDialog({
   const [isOpen, setIsOpen] = useState(false);
   const [form, setForm] = useState(() => createActivityForm(mediaType, entry, review));
   const config = MEDIA[mediaType];
-  const hasActivity = Boolean(entry || review);
+  const hasActivity = hasLoggedActivity(mediaType, entry, review);
 
   useLayoutEffect(() => () => setIsOpen(false), []);
 

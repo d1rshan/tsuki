@@ -32,11 +32,7 @@ export function MediaActions({
 
   const favoriteMutation = useMutation({
     mutationFn: (nextIsFavorite: boolean) =>
-      logMediaAction(
-        mediaType,
-        mediaId,
-        createFavoriteInput(mediaType, activity.entry?.status, nextIsFavorite),
-      ),
+      logMediaAction(mediaType, mediaId, createFavoriteInput(nextIsFavorite)),
     onSuccess: async (_, nextIsFavorite) => {
       await queryClient.invalidateQueries({ queryKey: mediaKeys.activity(mediaType, mediaId) });
       toast.success(nextIsFavorite ? "Added to favorites" : "Removed from favorites");
