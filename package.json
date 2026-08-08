@@ -16,8 +16,8 @@
     "typecheck": "turbo run typecheck",
     "deploy": "bun run deploy:check && bun run deploy:web && bun run deploy:api",
     "deploy:check": "bun run build && bun run typecheck",
-    "deploy:web": "bunx vercel@latest --project tsuki-web --prod",
-    "deploy:api": "bunx vercel@latest --project tsuki-api --prod",
+    "deploy:web": "vercel --project tsuki-web --prod",
+    "deploy:api": "vercel --project tsuki-api --prod",
     "db:push": "turbo -F @tsuki/db db:push",
     "db:studio": "turbo -F @tsuki/db db:studio",
     "prepare": "husky"

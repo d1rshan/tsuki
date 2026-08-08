@@ -19,7 +19,7 @@ export function NavigationSearch({ mediaType, onChange, onClose, query }: Naviga
         autoFocus
         value={query}
         onChange={(event) => onChange(event.target.value)}
-        placeholder={`Search ${mediaType}...`}
+        placeholder={`Search ${mediaType.toLowerCase()}...`}
         aria-label={`Search ${mediaType.toLowerCase()}`}
         className="h-full flex-1 bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground"
       />

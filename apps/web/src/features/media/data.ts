@@ -29,11 +29,8 @@ export async function getMedia(mediaType: MediaType, id: number) {
   return data;
 }
 
+// TODO: better to move to discover feature ig
 export async function getTrending(mediaType: MediaType) {
-  "use cache: remote";
-  cacheTag(`trending-${mediaType}`, "trending");
-  cacheLife("hours");
-
   const { data, error } = await publicApi.media({ type: mediaType }).trending.get();
   if (error) {
     throw new Error(`Failed to load trending ${mediaType.toLowerCase()}`, { cause: error });
