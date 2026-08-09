@@ -1,6 +1,7 @@
 "use client";
 
 import { Eye, EyeOff } from "lucide-react";
+import { useLayoutEffect } from "react";
 import { useQueryState, parseAsBoolean, parseAsStringEnum } from "nuqs";
 
 import type { MediaCompact, MediaType } from "@tsuki/api/types";
@@ -17,14 +18,32 @@ import { LoadingIndicator } from "@/shared/components/loading-indicator";
 
 const TOP_TEN_LIMIT = 10;
 const FEATURED_HEADING_CLASS = "text-3xl font-black uppercase md:text-5xl";
+const MEDIA_TYPE_STORAGE_KEY = "discover-media-type";
 
 export function DiscoverView({ trending }: { trending: Record<MediaType, MediaCompact[]> }) {
   const [query] = useQueryState("q", { defaultValue: "" });
   const [includeNsfw, setIncludeNsfw] = useQueryState("nsfw", parseAsBoolean.withDefault(false));
-  const [type, setType] = useQueryState(
+  const [typeParam, setTypeParam] = useQueryState(
     "type",
-    parseAsStringEnum<MediaType>([...MEDIA_TYPES]).withDefault("ANIME"),
+    parseAsStringEnum<MediaType>([...MEDIA_TYPES]),
   );
+  const type = typeParam ?? "ANIME";
+
+  useLayoutEffect(() => {
+    if (typeParam) {
+      window.localStorage.setItem(MEDIA_TYPE_STORAGE_KEY, typeParam);
+      return;
+    }
+
+    if (window.localStorage.getItem(MEDIA_TYPE_STORAGE_KEY) === "MANGA") {
+      void setTypeParam("MANGA");
+    }
+  }, [setTypeParam, typeParam]);
+
+  const setType = (value: MediaType) => {
+    window.localStorage.setItem(MEDIA_TYPE_STORAGE_KEY, value);
+    void setTypeParam(value);
+  };
   const searchQuery = query.trim();
 
   const items = trending[type];
