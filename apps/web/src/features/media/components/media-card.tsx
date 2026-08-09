@@ -7,7 +7,14 @@ import type { MediaCompact, MediaType } from "@tsuki/api/types";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { cn } from "@/shared/lib/utils";
 
-import { MEDIA, getMediaCoverImage, getMediaTitle, mediaHref, unitCount } from "../media";
+import {
+  MEDIA,
+  getMediaCoverImage,
+  getMediaTitle,
+  mediaHref,
+  mediaImageClass,
+  unitCount,
+} from "../media";
 
 export function MediaCard({
   media,
@@ -41,7 +48,10 @@ export function MediaCard({
             src={coverImage}
             alt={title}
             fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className={cn(
+              "object-cover transition-transform duration-500 group-hover:scale-105",
+              mediaImageClass(mediaType),
+            )}
             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 16vw"
           />
         ) : (

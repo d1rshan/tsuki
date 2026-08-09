@@ -9,8 +9,10 @@ import {
   getMediaCoverImage,
   getMediaTitle,
   mediaHref,
+  mediaImageClass,
   statusLabel,
 } from "@/features/media/media";
+import { cn } from "@/shared/lib/utils";
 
 import { ProfileMediaCard } from "./profile-media-card";
 
@@ -92,7 +94,13 @@ function RecentLogItem({ entry }: { entry: LibraryEntry }) {
     >
       <div className="relative w-16 aspect-[3/4] shrink-0 overflow-hidden rounded-lg bg-muted shadow-sm transition-transform duration-500 group-hover:shadow-md group-hover:scale-105">
         {cover ? (
-          <Image src={cover} alt={title} fill sizes="64px" className="object-cover" />
+          <Image
+            src={cover}
+            alt={title}
+            fill
+            sizes="64px"
+            className={cn("object-cover", mediaImageClass(entry.mediaType))}
+          />
         ) : (
           <div className="h-full w-full bg-gradient-to-br from-muted to-muted/50" />
         )}

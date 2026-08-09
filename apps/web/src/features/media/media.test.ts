@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { mediaDescriptionText, parseMediaId } from "./media";
+import { mediaDescriptionText, mediaImageClass, parseMediaId } from "./media";
 import { mediaIdSchema } from "./schemas";
 
 describe("parseMediaId", () => {
@@ -40,5 +40,12 @@ describe("mediaDescriptionText", () => {
   test("handles missing and invalid numeric entities", () => {
     expect(mediaDescriptionText(null)).toBe("No synopsis available.");
     expect(mediaDescriptionText("&#999999999;")).toBe("&#999999999;");
+  });
+});
+
+describe("mediaImageClass", () => {
+  test("uses monochrome styling only for manga", () => {
+    expect(mediaImageClass("ANIME")).toBeUndefined();
+    expect(mediaImageClass("MANGA")).toBe("grayscale contrast-125");
   });
 });

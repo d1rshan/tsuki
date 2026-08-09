@@ -4,7 +4,14 @@ import { Star } from "lucide-react";
 
 import type { MediaCompact, MediaType } from "@tsuki/api/types";
 
-import { MEDIA, getMediaCoverImage, getMediaTitle, mediaHref } from "@/features/media/media";
+import {
+  MEDIA,
+  getMediaCoverImage,
+  getMediaTitle,
+  mediaHref,
+  mediaImageClass,
+} from "@/features/media/media";
+import { cn } from "@/shared/lib/utils";
 
 interface ProfileMediaCardProps {
   media: MediaCompact;
@@ -29,7 +36,10 @@ export function ProfileMediaCard({ media, mediaType, score, progress }: ProfileM
           alt={title}
           fill
           sizes="(max-width: 768px) 120px, 160px"
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          className={cn(
+            "object-cover transition-transform duration-500 group-hover:scale-105",
+            mediaImageClass(mediaType),
+          )}
         />
       ) : (
         <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted/50 p-4 text-center text-xs text-muted-foreground">

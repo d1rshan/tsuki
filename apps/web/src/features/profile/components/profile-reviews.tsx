@@ -5,7 +5,13 @@ import { formatDistanceToNow } from "date-fns";
 import type { Review } from "@tsuki/api/types";
 
 import { Spoiler } from "@/shared/components/spoiler";
-import { getMediaCoverImage, getMediaTitle, mediaHref } from "@/features/media/media";
+import {
+  getMediaCoverImage,
+  getMediaTitle,
+  mediaHref,
+  mediaImageClass,
+} from "@/features/media/media";
+import { cn } from "@/shared/lib/utils";
 
 export function ReviewItem({ review }: { review: Review }) {
   const { mediaType, mediaId, media, content, containsSpoilers, createdAt, updatedAt } = review;
@@ -23,7 +29,12 @@ export function ReviewItem({ review }: { review: Review }) {
         className="relative hidden aspect-[3/4] w-20 shrink-0 overflow-hidden rounded-xl bg-muted shadow-sm transition-transform duration-500 group-hover:scale-105 group-hover:shadow-md group-hover:ring-1 group-hover:ring-primary/50 sm:block md:w-28"
       >
         {cover ? (
-          <Image src={cover} alt={title} fill className="object-cover" />
+          <Image
+            src={cover}
+            alt={title}
+            fill
+            className={cn("object-cover", mediaImageClass(mediaType))}
+          />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted/50 p-2 text-center text-xs text-muted-foreground" />
         )}

@@ -60,6 +60,7 @@ async function MediaDetailsContent({
       <MediaBanner
         bannerImage={bannerImage}
         isFallbackImage={Boolean(bannerImage && !media.bannerImage)}
+        mediaType={mediaType}
         title={title}
       />
       <div className="container mx-auto max-w-6xl px-4">

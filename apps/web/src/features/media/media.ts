@@ -74,6 +74,10 @@ export function mediaHref(mediaType: MediaType, id: number) {
   return `/${mediaType.toLowerCase()}/${id}`;
 }
 
+export function mediaImageClass(mediaType: MediaType) {
+  return mediaType === "MANGA" ? "grayscale opacity-90" : undefined;
+}
+
 export function getMediaTitle(media: {
   titleEnglish?: string | null;
   titleRomaji?: string | null;

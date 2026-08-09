@@ -4,8 +4,9 @@ import { Star } from "lucide-react";
 import type { Media } from "@tsuki/api/types";
 
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/shared/lib/utils";
 
-import { formatMediaStatus } from "../media";
+import { formatMediaStatus, mediaImageClass } from "../media";
 
 export function MediaHeader({
   media,
@@ -26,7 +27,7 @@ export function MediaHeader({
             alt={title}
             fill
             sizes="(max-width: 768px) 160px, 224px"
-            className="object-cover"
+            className={cn("object-cover", mediaImageClass(media.type))}
             priority
           />
         ) : (
