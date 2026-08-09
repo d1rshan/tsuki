@@ -42,6 +42,7 @@ export function NavigationLinks({
     <Link
       key={link.href}
       href={link.href}
+      prefetch={link.label === "Profile"}
       onNavigate={onNavigate}
       className={cn(
         isMobile
