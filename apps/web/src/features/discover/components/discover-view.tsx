@@ -1,11 +1,11 @@
 "use client";
 
+import { Eye, EyeOff } from "lucide-react";
 import { useQueryState, parseAsBoolean, parseAsStringEnum } from "nuqs";
 
 import type { MediaCompact, MediaType } from "@tsuki/api/types";
 
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
 import { MediaGrid } from "@/features/media/components/media-grid";
 import { MediaTypeToggle } from "@/features/media/components/media-type-toggle";
 import { TopTenCarousel } from "@/features/media/components/top-ten-carousel";
@@ -44,7 +44,7 @@ export function DiscoverView({ trending }: { trending: Record<MediaType, MediaCo
           <TopTenCarousel
             items={items.slice(0, TOP_TEN_LIMIT)}
             mediaType={type}
-            actions={<MediaTypeToggle value={type} onChange={setType} />}
+            actions={<MediaTypeToggle compact value={type} onChange={setType} />}
           />
           <section className="flex flex-col gap-4">
             <h2 className={FEATURED_HEADING_CLASS}>More Trending</h2>
@@ -80,23 +80,23 @@ function SearchResults({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-2xl font-semibold tracking-tight">
           Search results for &ldquo;{searchQuery}&rdquo;
         </h2>
-        <div className="flex items-center gap-4">
-          <MediaTypeToggle value={type} onChange={onTypeChange} />
-          <div className="flex items-center gap-2 bg-muted/50 px-3 py-1.5 rounded-full border">
-            <Switch
-              id="nsfw-mode"
-              checked={includeNsfw}
-              onCheckedChange={onNsfwChange}
-              className="data-[state=checked]:bg-red-500"
-            />
-            <Label htmlFor="nsfw-mode" className="text-sm font-medium cursor-pointer">
-              Show NSFW
-            </Label>
-          </div>
+        <div className="flex items-center gap-2">
+          <MediaTypeToggle compact value={type} onChange={onTypeChange} />
+          <Button
+            type="button"
+            variant={includeNsfw ? "default" : "outline"}
+            onClick={() => onNsfwChange(!includeNsfw)}
+            aria-pressed={includeNsfw}
+            aria-label={includeNsfw ? "Hide mature results" : "Show mature results"}
+            className="rounded-lg sm:h-9 sm:rounded-xl sm:px-3 sm:text-sm"
+          >
+            {includeNsfw ? <Eye data-icon="inline-start" /> : <EyeOff data-icon="inline-start" />}
+            <span>NSFW</span>
+          </Button>
         </div>
       </div>
 
