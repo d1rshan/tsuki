@@ -15,7 +15,7 @@ export async function DiscoverPage() {
 
     return (
       <Suspense>
-        <DiscoverView trending={{ ANIME: anime, MANGA: manga }} />;
+        <DiscoverView trending={{ ANIME: anime, MANGA: manga }} />
       </Suspense>
     );
   } catch {
