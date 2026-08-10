@@ -4,6 +4,7 @@
   "exports": {
     "./server": "./src/server.ts",
     "./client": "./src/client.ts",
+    "./cookies": "./src/cookies.ts",
     "./permissions": "./src/permissions.ts"
   },
   "scripts": {
