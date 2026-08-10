@@ -6,13 +6,12 @@ import {
   RecentActivitySection,
 } from "@/features/profile/components/profile-overview";
 import { parseUsername } from "@/shared/lib/username";
-import { LoadingIndicator } from "@/shared/components/loading-indicator";
 
 import { getProfileOverview } from "../data";
 
 export function ProfileOverviewPage({ params }: { params: Promise<{ username: string }> }) {
   return (
-    <Suspense fallback={<LoadingIndicator label="Loading profile" />}>
+    <Suspense fallback={null}>
       <ProfileOverviewContent params={params} />
     </Suspense>
   );

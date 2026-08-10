@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
 import { ProfileHeader } from "@/features/profile/components/profile-header";
-import { LoadingIndicator } from "@/shared/components/loading-indicator";
 import { getSession } from "@/shared/lib/session";
 import { parseUsername } from "@/shared/lib/username";
 
@@ -16,7 +15,7 @@ type ProfileLayoutProps = {
 
 export function ProfileLayout({ children, params }: ProfileLayoutProps) {
   return (
-    <Suspense fallback={<LoadingIndicator className="min-h-screen" label="Loading profile" />}>
+    <Suspense fallback={null}>
       <ProfileLayoutContent params={params}>{children}</ProfileLayoutContent>
     </Suspense>
   );

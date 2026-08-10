@@ -30,6 +30,6 @@ export const auth = betterAuth({
     },
   },
   advanced: {
-    useSecureCookies: env.NODE_ENV === "production",
+    useSecureCookies: env.NEXT_PUBLIC_APP_URL.startsWith("https://"),
   },
 });
