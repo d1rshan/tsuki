@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-import { env } from "@tsuki/env";
+import { env } from "@tsuki/env/web";
 
 const nextConfig: NextConfig = {
   cacheComponents: true,

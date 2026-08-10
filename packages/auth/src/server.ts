@@ -3,7 +3,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { admin, haveIBeenPwned, username } from "better-auth/plugins";
 
 import { db } from "@tsuki/db";
-import { env } from "@tsuki/env";
+import { env } from "@tsuki/env/api";
 
 import { sendEmail } from "./email";
 import { ac, adminRolesObj } from "./permissions";
