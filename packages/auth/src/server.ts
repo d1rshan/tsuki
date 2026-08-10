@@ -5,6 +5,7 @@ import { admin, haveIBeenPwned, username } from "better-auth/plugins";
 import { db } from "@tsuki/db";
 import { env } from "@tsuki/env";
 
+import { sendEmail } from "./email";
 import { ac, adminRolesObj } from "./permissions";
 
 export const auth = betterAuth({
@@ -13,6 +14,18 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: true,
+  },
+  emailVerification: {
+    autoSignInAfterVerification: true,
+    sendOnSignUp: true,
+    sendVerificationEmail: async ({ user, url }) => {
+      await sendEmail({
+        to: user.email,
+        subject: "Verify your Tsuki email",
+        text: `Verify your email to start using Tsuki:\n\n${url}`,
+      });
+    },
   },
   plugins: [
     username(),
