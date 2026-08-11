@@ -15,7 +15,7 @@ type Email = {
 };
 
 function escapeHtml(value: string) {
-  return value.replace(/[&<>"']/g, (character) => HTML_ENTITIES[character]);
+  return value.replace(/[&<>"']/g, (character) => HTML_ENTITIES[character]!);
 }
 
 function createEmailContent({
