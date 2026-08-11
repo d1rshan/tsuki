@@ -19,9 +19,11 @@ export const auth = betterAuth({
     sendResetPassword: async ({ user, url }) => {
       const { sendEmail } = await import("./email");
       await sendEmail({
+        actionLabel: "Reset password",
+        actionUrl: url,
+        description: "We received a request to reset your Tsuki password.",
         to: user.email,
         subject: "Reset your Tsuki password",
-        text: `Reset your password:\n\n${url}`,
       });
     },
   },
@@ -31,9 +33,11 @@ export const auth = betterAuth({
     sendVerificationEmail: async ({ user, url }) => {
       const { sendEmail } = await import("./email");
       await sendEmail({
+        actionLabel: "Verify email",
+        actionUrl: url,
+        description: "Confirm your email to finish setting up your Tsuki account.",
         to: user.email,
         subject: "Verify your Tsuki email",
-        text: `Verify your email to start using Tsuki:\n\n${url}`,
       });
     },
   },
