@@ -41,6 +41,15 @@ export const auth = betterAuth({
       });
     },
   },
+  rateLimit: {
+    customRules: {
+      "/request-password-reset": { max: 1, window: 60 },
+      "/send-verification-email": { max: 1, window: 60 },
+      "/sign-up/email": { max: 1, window: 60 },
+    },
+    enabled: true,
+    storage: "database",
+  },
   plugins: [
     username(),
     haveIBeenPwned({
