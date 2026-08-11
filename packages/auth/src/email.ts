@@ -1,5 +1,3 @@
-import { env } from "@tsuki/env/email";
-
 const HTML_ENTITIES: Record<string, string> = {
   "&": "&amp;",
   "<": "&lt;",
@@ -57,7 +55,11 @@ function createEmailContent({
 }
 
 export async function sendEmail({ actionLabel, actionUrl, description, subject, to }: Email) {
+  const { env } = await import("@tsuki/env/email");
   const content = createEmailContent({ actionLabel, actionUrl, description });
+  // Comment out the development condition to send emails to their real recipient locally.
+  const recipient = process.env.NODE_ENV === "development" ? "delivered+local-dev@resend.dev" : to;
+
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -69,7 +71,7 @@ export async function sendEmail({ actionLabel, actionUrl, description, subject, 
       from: env.RESEND_FROM_EMAIL,
       ...content,
       subject,
-      to: [to],
+      to: [recipient],
     }),
   });
 
