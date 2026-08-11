@@ -14,6 +14,18 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
+    resetPasswordTokenExpiresIn: 60 * 30,
+    revokeSessionsOnPasswordReset: true,
+    sendResetPassword: async ({ user, url }) => {
+      const { sendEmail } = await import("./email");
+      await sendEmail({
+        actionLabel: "Reset password",
+        actionUrl: url,
+        description: "We received a request to reset your Tsuki password.",
+        to: user.email,
+        subject: "Reset your Tsuki password",
+      });
+    },
   },
   emailVerification: {
     autoSignInAfterVerification: true,
@@ -21,11 +33,22 @@ export const auth = betterAuth({
     sendVerificationEmail: async ({ user, url }) => {
       const { sendEmail } = await import("./email");
       await sendEmail({
+        actionLabel: "Verify email",
+        actionUrl: url,
+        description: "Confirm your email to finish setting up your Tsuki account.",
         to: user.email,
         subject: "Verify your Tsuki email",
-        text: `Verify your email to start using Tsuki:\n\n${url}`,
       });
     },
+  },
+  rateLimit: {
+    customRules: {
+      "/request-password-reset": { max: 1, window: 60 },
+      "/send-verification-email": { max: 1, window: 60 },
+      "/sign-up/email": { max: 1, window: 60 },
+    },
+    enabled: true,
+    storage: "database",
   },
   plugins: [
     username(),

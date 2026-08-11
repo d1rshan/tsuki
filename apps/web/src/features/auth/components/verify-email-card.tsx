@@ -6,6 +6,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { authClient } from "@tsuki/auth/client";
+import { env } from "@tsuki/env/web";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -28,7 +29,7 @@ export function VerifyEmailCard({ email }: { email?: string }) {
     try {
       const { error } = await authClient.sendVerificationEmail({
         email,
-        callbackURL: window.location.origin,
+        callbackURL: env.NEXT_PUBLIC_APP_URL,
       });
 
       if (error) {
@@ -77,7 +78,12 @@ export function VerifyEmailCard({ email }: { email?: string }) {
             Resend verification email
           </Button>
         )}
-        <Button className="w-full" variant="link" render={<Link href="/login" replace />}>
+        <Button
+          className="w-full"
+          variant="link"
+          render={<Link href="/login" replace />}
+          nativeButton={false}
+        >
           Back to sign in
         </Button>
       </CardFooter>

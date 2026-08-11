@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -81,6 +82,12 @@ export function LoginCard() {
           />
           <FieldError errors={errors.password ? [errors.password] : []} />
         </Field>
+        <Link
+          href="/forgot-password"
+          className="text-sm text-primary underline-offset-4 hover:underline"
+        >
+          Forgot password?
+        </Link>
       </FieldGroup>
     </AuthFormCard>
   );
