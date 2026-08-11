@@ -50,7 +50,7 @@ export function ProfileMediaCard({ media, mediaType, score, progress }: ProfileM
       {score ? (
         <div className="absolute top-2 right-2 z-10">
           <div className="bg-black/80 px-1.5 py-0.5 rounded-md flex items-center gap-1 text-[10px] font-semibold text-white shadow-sm">
-            <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" />
+            <Star className="w-3 h-3 fill-primary text-primary" />
             {score}
           </div>
         </div>
