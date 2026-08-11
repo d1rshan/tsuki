@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { MailCheck } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -58,17 +59,25 @@ export function ForgotPasswordCard() {
   if (isSent) {
     return (
       <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>Check your inbox</CardTitle>
+        <CardHeader className="items-center text-center">
+          <CardTitle className="flex items-center justify-center gap-2">
+            <MailCheck className="size-5 text-primary" aria-hidden="true" />
+            Check your inbox
+          </CardTitle>
           <CardDescription>
             If that email belongs to a Tsuki account, we sent a password-reset link.
           </CardDescription>
         </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">
+        <CardContent className="text-center text-sm text-muted-foreground">
           The link expires in 30 minutes. Check spam if it does not arrive soon.
         </CardContent>
-        <CardFooter>
-          <Button className="w-full" variant="link" render={<Link href="/login" replace />}>
+        <CardFooter className="flex-col gap-2">
+          <Button
+            className="w-full"
+            variant="link"
+            render={<Link href="/login" replace />}
+            nativeButton={false}
+          >
             Back to sign in
           </Button>
         </CardFooter>

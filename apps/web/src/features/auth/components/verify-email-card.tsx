@@ -77,7 +77,12 @@ export function VerifyEmailCard({ email }: { email?: string }) {
             Resend verification email
           </Button>
         )}
-        <Button className="w-full" variant="link" render={<Link href="/login" replace />}>
+        <Button
+          className="w-full"
+          variant="link"
+          render={<Link href="/login" replace />}
+          nativeButton={false}
+        >
           Back to sign in
         </Button>
       </CardFooter>

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { CircleCheck, KeyRound } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -65,12 +66,19 @@ export function ResetPasswordCard({ token }: ResetPasswordCardProps) {
   if (!token) {
     return (
       <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>Reset link unavailable</CardTitle>
+        <CardHeader className="items-center text-center">
+          <CardTitle className="flex items-center justify-center gap-2">
+            <KeyRound className="size-5 text-primary" aria-hidden="true" />
+            Reset link unavailable
+          </CardTitle>
           <CardDescription>This reset link is invalid or has expired.</CardDescription>
         </CardHeader>
-        <CardFooter>
-          <Button className="w-full" render={<Link href="/forgot-password" replace />}>
+        <CardFooter className="flex-col gap-2">
+          <Button
+            className="w-full"
+            render={<Link href="/forgot-password" replace />}
+            nativeButton={false}
+          >
             Request a new link
           </Button>
         </CardFooter>
@@ -81,17 +89,20 @@ export function ResetPasswordCard({ token }: ResetPasswordCardProps) {
   if (isComplete) {
     return (
       <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>Password updated</CardTitle>
+        <CardHeader className="items-center text-center">
+          <CardTitle className="flex items-center justify-center gap-2">
+            <CircleCheck className="size-5 text-primary" aria-hidden="true" />
+            Password updated
+          </CardTitle>
           <CardDescription>
             Your password has been reset and your sessions were signed out.
           </CardDescription>
         </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">
+        <CardContent className="text-center text-sm text-muted-foreground">
           You can now sign in with your new password.
         </CardContent>
-        <CardFooter>
-          <Button className="w-full" render={<Link href="/login" replace />}>
+        <CardFooter className="flex-col gap-2">
+          <Button className="w-full" render={<Link href="/login" replace />} nativeButton={false}>
             Sign in
           </Button>
         </CardFooter>
