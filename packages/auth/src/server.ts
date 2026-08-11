@@ -14,6 +14,16 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
+    resetPasswordTokenExpiresIn: 60 * 30,
+    revokeSessionsOnPasswordReset: true,
+    sendResetPassword: async ({ user, url }) => {
+      const { sendEmail } = await import("./email");
+      await sendEmail({
+        to: user.email,
+        subject: "Reset your Tsuki password",
+        text: `Reset your password:\n\n${url}`,
+      });
+    },
   },
   emailVerification: {
     autoSignInAfterVerification: true,
