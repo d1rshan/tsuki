@@ -23,7 +23,7 @@ import { usernameSchema } from "@/shared/lib/username";
 
 import { invalidateRenamedProfile } from "../actions";
 
-import { profilePathForUsername } from "./username-change";
+import { profilePathForUsername, usernameChangeErrorMessage } from "./username-change";
 
 type Availability = "available" | "checking" | "idle" | "unavailable";
 
@@ -92,11 +92,7 @@ export function ChangeUsernameDialog({ displayUsername, username }: ChangeUserna
       });
 
       if (updateError) {
-        setError(
-          updateError.code === "USERNAME_IS_ALREADY_TAKEN"
-            ? "That username is already taken."
-            : updateError.message || "Unable to change your username.",
-        );
+        setError(usernameChangeErrorMessage(updateError));
         return;
       }
 
@@ -128,8 +124,8 @@ export function ChangeUsernameDialog({ displayUsername, username }: ChangeUserna
         <DialogHeader>
           <DialogTitle>Change username</DialogTitle>
           <DialogDescription>
-            Your profile URL and sign-in username will change. To protect usernames, changes are
-            limited.
+            Your profile URL and sign-in username will change. You can change your username once
+            every 7 days.
           </DialogDescription>
         </DialogHeader>
 
