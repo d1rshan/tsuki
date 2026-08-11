@@ -2,7 +2,15 @@
   "name": "@tsuki/env",
   "version": "0.1.0",
   "private": true,
-  "main": "src/index.ts",
+  "exports": {
+    "./api": "./src/api.ts",
+    "./db": "./src/db.ts",
+    "./email": "./src/email.ts",
+    "./web": "./src/web.ts"
+  },
+  "scripts": {
+    "test": "bun test"
+  },
   "dependencies": {
     "@t3-oss/env-core": "^0.13.11",
     "zod": "^4.4.3"

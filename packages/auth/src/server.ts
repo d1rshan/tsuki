@@ -1,9 +1,9 @@
-import { env } from "@tsuki/env";
 import { betterAuth } from "better-auth";
-
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { admin, username } from "better-auth/plugins";
+import { admin, haveIBeenPwned, username } from "better-auth/plugins";
+
 import { db } from "@tsuki/db";
+import { env } from "@tsuki/env/api";
 
 import { ac, adminRolesObj } from "./permissions";
 
@@ -13,9 +13,25 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: true,
+  },
+  emailVerification: {
+    autoSignInAfterVerification: true,
+    sendOnSignUp: true,
+    sendVerificationEmail: async ({ user, url }) => {
+      const { sendEmail } = await import("./email");
+      await sendEmail({
+        to: user.email,
+        subject: "Verify your Tsuki email",
+        text: `Verify your email to start using Tsuki:\n\n${url}`,
+      });
+    },
   },
   plugins: [
     username(),
+    haveIBeenPwned({
+      customPasswordCompromisedMessage: "Choose a password that has not appeared in a data breach.",
+    }),
     admin({
       adminRoles: ["admin", "owner"],
       ac,

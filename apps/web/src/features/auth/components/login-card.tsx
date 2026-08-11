@@ -32,7 +32,11 @@ export function LoginCard() {
         : await signIn.username({ ...credentials, username: values.emailOrUsername });
 
       if (error) {
-        toast.error(error.message || "Failed to sign in");
+        toast.error(
+          error.code === "EMAIL_NOT_VERIFIED"
+            ? "Verify your email with the link we sent, then sign in."
+            : error.message || "Failed to sign in",
+        );
         return;
       }
 

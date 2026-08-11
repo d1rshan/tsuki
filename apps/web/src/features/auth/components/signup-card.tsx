@@ -26,14 +26,19 @@ export function SignUpCard() {
 
   async function submit(values: SignUpValues) {
     try {
-      const { error } = await signUp.email(values);
+      const { error } = await signUp.email({
+        ...values,
+        callbackURL: window.location.origin,
+      });
 
       if (error) {
         toast.error(error.message || "Failed to create account");
         return;
       }
 
-      window.location.assign("/");
+      const destination = new URL("/verify-email", window.location.origin);
+      destination.searchParams.set("email", values.email);
+      window.location.assign(destination);
     } catch {
       toast.error("Unable to reach the server. Try again.");
     }
