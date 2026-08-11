@@ -5,7 +5,6 @@ import { admin, haveIBeenPwned, username } from "better-auth/plugins";
 import { db } from "@tsuki/db";
 import { env } from "@tsuki/env/api";
 
-import { sendEmail } from "./email";
 import { ac, adminRolesObj } from "./permissions";
 
 export const auth = betterAuth({
@@ -20,6 +19,7 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true,
     sendOnSignUp: true,
     sendVerificationEmail: async ({ user, url }) => {
+      const { sendEmail } = await import("./email");
       await sendEmail({
         to: user.email,
         subject: "Verify your Tsuki email",

@@ -5,6 +5,7 @@
   "exports": {
     "./api": "./src/api.ts",
     "./db": "./src/db.ts",
+    "./email": "./src/email.ts",
     "./web": "./src/web.ts"
   },
   "scripts": {

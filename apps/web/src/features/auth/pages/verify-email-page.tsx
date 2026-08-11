@@ -1,10 +1,10 @@
 import { VerifyEmailCard } from "../components/verify-email-card";
 
-type VerifyEmailPageProps = {
+export async function VerifyEmailPage({
+  searchParams,
+}: {
   searchParams: Promise<{ email?: string }>;
-};
-
-export async function VerifyEmailPage({ searchParams }: VerifyEmailPageProps) {
+}) {
   const { email } = await searchParams;
 
   return (

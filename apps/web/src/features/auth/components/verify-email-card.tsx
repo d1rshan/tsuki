@@ -17,17 +17,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-type VerifyEmailCardProps = {
-  email?: string;
-};
-
-export function VerifyEmailCard({ email }: VerifyEmailCardProps) {
+export function VerifyEmailCard({ email }: { email?: string }) {
   const [isResending, setIsResending] = useState(false);
 
   async function resendVerificationEmail() {
-    if (!email) {
-      return;
-    }
+    if (!email) return;
 
     setIsResending(true);
 
@@ -72,7 +66,7 @@ export function VerifyEmailCard({ email }: VerifyEmailCardProps) {
         Open the link to verify your email and enter Tsuki. Check spam if it does not arrive soon.
       </CardContent>
       <CardFooter className="flex-col gap-2">
-        {email ? (
+        {email && (
           <Button
             className="w-full"
             variant="outline"
@@ -82,7 +76,7 @@ export function VerifyEmailCard({ email }: VerifyEmailCardProps) {
             {isResending ? <LoaderCircle className="animate-spin" /> : null}
             Resend verification email
           </Button>
-        ) : null}
+        )}
         <Button className="w-full" variant="link" render={<Link href="/login" replace />}>
           Back to sign in
         </Button>

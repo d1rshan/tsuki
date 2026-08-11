@@ -1,4 +1,4 @@
-import { env } from "@tsuki/env/api";
+import { env } from "@tsuki/env/email";
 
 type Email = {
   subject: string;
