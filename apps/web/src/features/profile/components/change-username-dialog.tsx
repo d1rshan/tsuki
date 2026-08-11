@@ -17,7 +17,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -27,6 +26,8 @@ import { usernameFormSchema, type UsernameFormValues } from "../schemas";
 
 type ChangeUsernameDialogProps = {
   displayUsername: string;
+  onOpenChange: (open: boolean) => void;
+  open: boolean;
   username: string;
 };
 
@@ -38,9 +39,13 @@ type UsernameChangeError = {
   status?: number;
 };
 
-export function ChangeUsernameDialog({ displayUsername, username }: ChangeUsernameDialogProps) {
+export function ChangeUsernameDialog({
+  displayUsername,
+  onOpenChange,
+  open,
+  username,
+}: ChangeUsernameDialogProps) {
   const router = useRouter();
-  const [isOpen, setIsOpen] = useState(false);
   const [availability, setAvailability] = useState<UsernameAvailability>("idle");
   const {
     register,
@@ -80,7 +85,7 @@ export function ChangeUsernameDialog({ displayUsername, username }: ChangeUserna
   }
 
   function handleOpenChange(open: boolean) {
-    setIsOpen(open);
+    onOpenChange(open);
     if (!open) {
       setAvailability("idle");
       reset({ username: displayUsername });
@@ -143,8 +148,7 @@ export function ChangeUsernameDialog({ displayUsername, username }: ChangeUserna
   const availabilityMessage = usernameAvailabilityMessage();
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogTrigger render={<Button variant="outline" size="sm" />}>Change Username</DialogTrigger>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Change username</DialogTitle>

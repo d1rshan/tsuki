@@ -3,7 +3,6 @@ import { Link as LinkIcon } from "lucide-react";
 
 import type { UserOverview } from "@tsuki/api/types";
 
-import { ChangeUsernameDialog } from "./change-username-dialog";
 import { EditProfileDialog } from "./edit-profile-dialog";
 import { ProfileTabs } from "./profile-tabs";
 
@@ -49,7 +48,7 @@ export function ProfileHeader({ isOwner, profile, stats, user }: ProfileHeaderPr
 
           {isOwner ? (
             <div className="mb-2 shrink-0 md:hidden">
-              <ProfileActions profile={profile} user={user} />
+              <EditProfileDialog profile={profile} user={user} />
             </div>
           ) : null}
         </div>
@@ -64,7 +63,7 @@ export function ProfileHeader({ isOwner, profile, stats, user }: ProfileHeaderPr
             </div>
             {isOwner ? (
               <div className="hidden shrink-0 md:block">
-                <ProfileActions profile={profile} user={user} />
+                <EditProfileDialog profile={profile} user={user} />
               </div>
             ) : null}
           </div>
@@ -90,21 +89,6 @@ export function ProfileHeader({ isOwner, profile, stats, user }: ProfileHeaderPr
           <ProfileStats stats={stats} />
         </div>
       </div>
-    </div>
-  );
-}
-
-function ProfileActions({
-  profile,
-  user,
-}: {
-  profile: UserOverview["profile"];
-  user: UserOverview["user"];
-}) {
-  return (
-    <div className="flex flex-wrap justify-end gap-2">
-      <EditProfileDialog profile={profile} />
-      <ChangeUsernameDialog displayUsername={user.displayUsername} username={user.username} />
     </div>
   );
 }
