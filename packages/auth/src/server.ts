@@ -46,6 +46,7 @@ export const auth = betterAuth({
       "/request-password-reset": { max: 1, window: 60 },
       "/send-verification-email": { max: 1, window: 60 },
       "/sign-up/email": { max: 1, window: 60 },
+      "/update-user": { max: 3, window: 60 * 60 * 24 },
     },
     enabled: true,
     storage: "database",
