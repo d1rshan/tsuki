@@ -1,11 +1,14 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { APIError } from "better-auth/api";
 import { admin, haveIBeenPwned, username } from "better-auth/plugins";
 
 import { db } from "@tsuki/db";
 import { env } from "@tsuki/env/api";
 
 import { ac, adminRolesObj } from "./permissions";
+
+const usernameChangeCooldownMs = 7 * 24 * 60 * 60 * 1000;
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -41,12 +44,52 @@ export const auth = betterAuth({
       });
     },
   },
+  user: {
+    additionalFields: {
+      usernameChangedAt: {
+        input: false,
+        required: false,
+        type: "date",
+      },
+    },
+  },
+  databaseHooks: {
+    user: {
+      update: {
+        async before(data, context) {
+          if (context?.path !== "/update-user" || typeof data.username !== "string") return;
+
+          const session = context.context.session;
+          if (!session) return;
+
+          const currentUser = await db.query.user.findFirst({
+            where: (user, { eq }) => eq(user.id, session.user.id),
+          });
+
+          if (!currentUser || currentUser.username === data.username.toLowerCase()) return;
+
+          if (
+            currentUser.usernameChangedAt &&
+            Date.now() - new Date(currentUser.usernameChangedAt).getTime() <
+              usernameChangeCooldownMs
+          ) {
+            throw APIError.from("TOO_MANY_REQUESTS", {
+              code: "USERNAME_CHANGE_COOLDOWN",
+              message:
+                "You can change your username once every 7 days. Please try again after your cooldown ends.",
+            });
+          }
+
+          return { data: { usernameChangedAt: new Date() } };
+        },
+      },
+    },
+  },
   rateLimit: {
     customRules: {
       "/request-password-reset": { max: 1, window: 60 },
       "/send-verification-email": { max: 1, window: 60 },
       "/sign-up/email": { max: 1, window: 60 },
-      "/update-user": { max: 1, window: 60 * 60 * 24 * 7 },
     },
     enabled: true,
     storage: "database",

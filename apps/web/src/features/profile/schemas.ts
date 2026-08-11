@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { usernameSchema } from "@/shared/lib/username";
+
 const httpUrl = z.url("Enter a valid URL").refine((value) => /^https?:\/\//i.test(value), {
   message: "URL must start with http:// or https://",
 });
@@ -20,6 +22,10 @@ export const profileFormSchema = z.object({
   ),
 });
 
+export const usernameFormSchema = z.object({
+  username: usernameSchema,
+});
+
 export const profileUpdateSchema = z.object({
   bio: z.string().max(500).nullable(),
   bannerImage: httpUrl.nullable(),
@@ -32,6 +38,7 @@ export const profileUpdateSchema = z.object({
 
 export type ProfileFormValues = z.infer<typeof profileFormSchema>;
 export type ProfileUpdate = z.infer<typeof profileUpdateSchema>;
+export type UsernameFormValues = z.infer<typeof usernameFormSchema>;
 
 export function createProfileUpdate(values: ProfileFormValues): ProfileUpdate {
   const socialLinks = Object.fromEntries(
