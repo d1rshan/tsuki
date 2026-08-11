@@ -26,11 +26,7 @@ import { AuthFormCard } from "./auth-form-card";
 
 const FORM_ID = "reset-password-form";
 
-type ResetPasswordCardProps = {
-  token?: string;
-};
-
-export function ResetPasswordCard({ token }: ResetPasswordCardProps) {
+export function ResetPasswordCard({ token }: { token?: string }) {
   const [isComplete, setIsComplete] = useState(false);
   const {
     register,
@@ -42,9 +38,7 @@ export function ResetPasswordCard({ token }: ResetPasswordCardProps) {
   });
 
   async function submit({ password }: ResetPasswordValues) {
-    if (!token) {
-      return;
-    }
+    if (!token) return;
 
     try {
       const { error: resetError } = await authClient.resetPassword({

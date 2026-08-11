@@ -6,6 +6,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { authClient } from "@tsuki/auth/client";
+import { env } from "@tsuki/env/web";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -28,7 +29,7 @@ export function VerifyEmailCard({ email }: { email?: string }) {
     try {
       const { error } = await authClient.sendVerificationEmail({
         email,
-        callbackURL: window.location.origin,
+        callbackURL: env.NEXT_PUBLIC_APP_URL,
       });
 
       if (error) {

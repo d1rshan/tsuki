@@ -1,10 +1,10 @@
 import { ResetPasswordCard } from "../components/reset-password-card";
 
-type ResetPasswordPageProps = {
+export async function ResetPasswordPage({
+  searchParams,
+}: {
   searchParams: Promise<{ token?: string }>;
-};
-
-export async function ResetPasswordPage({ searchParams }: ResetPasswordPageProps) {
+}) {
   const { token } = await searchParams;
 
   return (
