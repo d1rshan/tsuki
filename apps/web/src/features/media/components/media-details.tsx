@@ -4,7 +4,14 @@ import type { Media } from "@tsuki/api/types";
 
 import { Badge } from "@/components/ui/badge";
 
-import { formatExternalLinks, mediaDescriptionText, unitCount } from "../media";
+import {
+  formatCountry,
+  formatExternalLinks,
+  formatFuzzyDate,
+  formatMediaSource,
+  mediaDescriptionText,
+  unitCount,
+} from "../media";
 import { MediaActions } from "./media-actions";
 import { MediaTrailer } from "./media-trailer";
 
@@ -35,11 +42,11 @@ export function MediaDetails({ media }: { media: Media }) {
           <h3 className="text-sm font-semibold tracking-wider text-muted-foreground uppercase">
             Details
           </h3>
-          <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-1">
+          <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm md:grid-cols-1">
             {detailItems.map((item) => (
               <InfoItem key={item.label} label={item.label} value={item.value} />
             ))}
-          </div>
+          </dl>
         </div>
 
         {links.items.length > 0 ? (
@@ -96,9 +103,9 @@ export function MediaDetails({ media }: { media: Media }) {
 function InfoItem({ label, value }: { label: string; value: React.ReactNode }) {
   if (value == null || value === "") return null;
   return (
-    <div className="flex flex-col gap-1">
-      <span className="text-muted-foreground">{label}</span>
-      <span className="font-medium text-foreground">{value}</span>
+    <div className="flex flex-col gap-0.5">
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className="font-medium text-foreground">{value}</dd>
     </div>
   );
 }
@@ -115,7 +122,21 @@ function getDetailItems(media: Media) {
           { label: "Volumes", value: media.volumes },
         ];
 
-  return [...typeSpecificItems, { label: "Popularity", value: media.popularity?.toLocaleString() }];
+  return [
+    ...typeSpecificItems,
+    { label: "Start date", value: formatFuzzyDate(media.startDate) },
+    { label: "End date", value: formatFuzzyDate(media.endDate) },
+    { label: "Source", value: media.source ? formatMediaSource(media.source) : null },
+    { label: "Country", value: formatCountry(media.countryOfOrigin) },
+    {
+      label: "AniList popularity",
+      value: media.popularity?.toLocaleString("en-US"),
+    },
+    {
+      label: "AniList favourites",
+      value: media.favourites?.toLocaleString("en-US"),
+    },
+  ];
 }
 
 function getMediaLinks(media: Media) {

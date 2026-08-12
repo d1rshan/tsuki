@@ -1,6 +1,14 @@
 import { describe, expect, test } from "bun:test";
 
-import { formatExternalLinks, mediaDescriptionText, mediaImageClass, parseMediaId } from "./media";
+import {
+  formatCountry,
+  formatExternalLinks,
+  formatFuzzyDate,
+  formatMediaSource,
+  mediaDescriptionText,
+  mediaImageClass,
+  parseMediaId,
+} from "./media";
 import { mediaIdSchema } from "./schemas";
 
 describe("parseMediaId", () => {
@@ -92,5 +100,26 @@ describe("formatExternalLinks", () => {
         label: "Legacy",
       },
     ]);
+  });
+});
+
+describe("media metadata formatting", () => {
+  test("formats every useful fuzzy date precision without inventing missing parts", () => {
+    expect(formatFuzzyDate({ year: 2024, month: 5, day: 12 })).toBe("May 12, 2024");
+    expect(formatFuzzyDate({ year: 2024, month: 5, day: null })).toBe("May 2024");
+    expect(formatFuzzyDate({ year: 2024, month: null, day: null })).toBe("2024");
+    expect(formatFuzzyDate({ year: null, month: 5, day: 12 })).toBe("May 12");
+    expect(formatFuzzyDate({ year: null, month: 5, day: null })).toBe("May");
+    expect(formatFuzzyDate({ year: 2024, month: null, day: 12 })).toBe("Day 12, 2024");
+    expect(formatFuzzyDate({ year: null, month: null, day: 12 })).toBe("Day 12");
+    expect(formatFuzzyDate({ year: null, month: null, day: null })).toBeNull();
+    expect(formatFuzzyDate(null)).toBeNull();
+  });
+
+  test("makes AniList enum and country values readable", () => {
+    expect(formatMediaSource("LIGHT_NOVEL")).toBe("Light novel");
+    expect(formatCountry("JP")).toBe("Japan");
+    expect(formatCountry(null)).toBeNull();
+    expect(formatCountry("not-a-country")).toBeNull();
   });
 });

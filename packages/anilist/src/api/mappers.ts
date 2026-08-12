@@ -19,16 +19,13 @@ function normalizeDate(date: FuzzyDate | null | undefined): FuzzyDate | null {
 export function toMediaRow(media: AnilistMedia) {
   return {
     id: media.id,
-    idMal: media.idMal,
     type: media.type,
     titleRomaji: media.title.romaji,
     titleEnglish: media.title.english,
     titleNative: media.title.native,
-    synonyms: dropNulls(media.synonyms),
     description: media.description,
     coverImageExtraLarge: media.coverImage.extraLarge,
     coverImageLarge: media.coverImage.large,
-    coverImageMedium: media.coverImage.medium,
     coverImageColor: media.coverImage.color,
     bannerImage: media.bannerImage,
     format: media.format,
@@ -44,15 +41,11 @@ export function toMediaRow(media: AnilistMedia) {
     season: media.season,
     seasonYear: media.seasonYear,
     averageScore: media.averageScore,
-    meanScore: media.meanScore,
     popularity: media.popularity,
     favourites: media.favourites,
     genres: dropNulls(media.genres),
-    tags: dropNulls(media.tags),
     trailer: media.trailer,
     externalLinks: dropNulls(media.externalLinks),
-    siteUrl: media.siteUrl,
-    isAdult: media.isAdult ?? false,
   };
 }
 

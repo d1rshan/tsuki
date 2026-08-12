@@ -23,13 +23,3 @@ export type MediaExternalLink = {
   color: string | null;
   icon: string | null;
 };
-
-export type MediaTag = {
-  id: number;
-  name: string;
-  category: string | null;
-  rank: number | null;
-  isGeneralSpoiler: boolean;
-  isMediaSpoiler: boolean;
-  isAdult: boolean;
-};
