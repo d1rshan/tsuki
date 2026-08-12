@@ -39,10 +39,7 @@ type UsernameChangeError = {
 
 function getUsernameChangeError(error: UsernameChangeError): string {
   if (error.code === "USERNAME_CHANGE_COOLDOWN") {
-    return (
-      error.message ??
-      "You can change your username once every 7 days. Please try again after your cooldown ends."
-    );
+    return error.message ?? "You can change your username once every 7 days.";
   }
 
   if (error.code === "USERNAME_IS_ALREADY_TAKEN") return "That username is already taken.";

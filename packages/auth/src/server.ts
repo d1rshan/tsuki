@@ -85,8 +85,7 @@ export const auth = betterAuth({
           if (isUsernameChangeOnCooldown(currentUser.usernameChangedAt)) {
             throw APIError.from("TOO_MANY_REQUESTS", {
               code: "USERNAME_CHANGE_COOLDOWN",
-              message:
-                "You can change your username once every 7 days. Please try again after your cooldown ends.",
+              message: "You can change your username once every 7 days. Please try again later.",
             });
           }
 
