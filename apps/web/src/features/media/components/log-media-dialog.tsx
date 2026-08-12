@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useLayoutEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Check, LoaderCircle, Plus, Star } from "lucide-react";
@@ -26,7 +27,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/shared/lib/utils";
 
 import {
@@ -41,6 +41,8 @@ import {
 import { deleteReviewAction, logMediaAction, submitReviewAction } from "../actions";
 import { MEDIA } from "../media";
 import { mediaKeys } from "../query-keys";
+
+const ReviewEditor = dynamic(() => import("./review-editor").then((module) => module.ReviewEditor));
 
 type LogMediaDialogProps = {
   disabled: boolean;
@@ -122,7 +124,7 @@ export function LogMediaDialog({
         {hasActivity ? <Check /> : <Plus />}
         {hasActivity ? "Edit log" : "Add to list"}
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] gap-3 overflow-y-auto border-white/10 bg-background/80 backdrop-blur-xl sm:max-w-[20rem]">
+      <DialogContent className="max-h-[90vh] gap-3 overflow-y-auto border-white/10 bg-background/80 backdrop-blur-xl sm:max-w-xl">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold tracking-tight">
             Log {config.label}
@@ -288,18 +290,14 @@ function ReviewField({
   onContentChange: (value: string) => void;
   onSpoilersChange: (value: boolean) => void;
 }) {
-  const reviewId = useId();
   const spoilersId = useId();
 
   return (
     <div className="grid gap-2 border-t pt-3">
-      <Label htmlFor={reviewId}>Review</Label>
-      <Textarea
-        id={reviewId}
+      <ReviewEditor
         placeholder={`What did you think about this ${MEDIA[mediaType].label.toLowerCase()}?`}
         value={content}
-        onChange={(event) => onContentChange(event.target.value)}
-        rows={3}
+        onChange={onContentChange}
       />
       {content.trim() ? (
         <div className="flex items-center gap-2">
