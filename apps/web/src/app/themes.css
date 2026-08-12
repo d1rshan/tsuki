@@ -36,8 +36,8 @@
   --foreground: #44624a;
   --surface: #ffffff;
   --surface-muted: #eaf0e1;
-  --primary: #7b9756;
-  --primary-foreground: #18220f;
+  --primary: #526b3a;
+  --primary-foreground: #ffffff;
   --secondary: #e6ecd8;
   --muted-foreground: #596653;
   --destructive: #b42323;
@@ -74,8 +74,8 @@
   --foreground: #5c3345;
   --surface: #ffffff;
   --surface-muted: #fceaf1;
-  --primary: #c85c8e;
-  --primary-foreground: #1a0c12;
+  --primary: #9b3f68;
+  --primary-foreground: #ffffff;
   --secondary: #f8dce8;
   --muted-foreground: #745162;
   --destructive: #c83e4d;
@@ -93,8 +93,8 @@
   --foreground: #164e63;
   --surface: #ffffff;
   --surface-muted: #e1f2f6;
-  --primary: #168aad;
-  --primary-foreground: #001419;
+  --primary: #126782;
+  --primary-foreground: #ffffff;
   --secondary: #d6eef3;
   --muted-foreground: #3f6a76;
   --destructive: #b52b3c;
@@ -131,8 +131,8 @@
   --foreground: #5c352b;
   --surface: #ffffff;
   --surface-muted: #faebe0;
-  --primary: #e76f51;
-  --primary-foreground: #3b160d;
+  --primary: #b84a30;
+  --primary-foreground: #ffffff;
   --secondary: #f8dfd0;
   --muted-foreground: #755247;
   --destructive: #c44536;
@@ -150,8 +150,8 @@
   --foreground: #49385d;
   --surface: #ffffff;
   --surface-muted: #f0e9f8;
-  --primary: #8b6bb1;
-  --primary-foreground: #0d0712;
+  --primary: #684b8a;
+  --primary-foreground: #ffffff;
   --secondary: #e9ddf3;
   --muted-foreground: #665575;
   --destructive: #a92f50;
@@ -169,7 +169,7 @@
   --foreground: #4c1d2a;
   --surface: #ffffff;
   --surface-muted: #ffe4e8;
-  --primary: #e11d48;
+  --primary: #c9143c;
   --primary-foreground: #ffffff;
   --secondary: #fecdd6;
   --muted-foreground: #794151;
@@ -188,8 +188,8 @@
   --foreground: #244d48;
   --surface: #ffffff;
   --surface-muted: #e2f5ef;
-  --primary: #2a9d8f;
-  --primary-foreground: #071f1c;
+  --primary: #1f776d;
+  --primary-foreground: #ffffff;
   --secondary: #d2eee7;
   --muted-foreground: #456f69;
   --destructive: #b8322e;
@@ -207,8 +207,8 @@
   --foreground: #573a08;
   --surface: #ffffff;
   --surface-muted: #fef3c7;
-  --primary: #d97706;
-  --primary-foreground: #321b02;
+  --primary: #a84e07;
+  --primary-foreground: #ffffff;
   --secondary: #fde7a5;
   --muted-foreground: #6b4f20;
   --destructive: #dc2626;

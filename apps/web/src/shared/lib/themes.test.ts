@@ -66,9 +66,10 @@ describe("themes", () => {
     }
   });
 
-  test("keeps dark preset behavior synchronized", () => {
-    for (const { id, scheme } of THEMES) {
+  test("keeps preset metadata synchronized", () => {
+    for (const { id, color, scheme } of THEMES) {
       expect(getThemeBlock(id)).toContain(`color-scheme: ${scheme};`);
+      expect(getThemeBlock(id)).toContain(`--primary: ${color};`);
       expect(globalCss.includes(`.${id} *`)).toBe(scheme === "dark");
     }
   });
@@ -79,6 +80,7 @@ describe("themes", () => {
       ["foreground", "background"],
       ["foreground", "surface"],
       ["muted-foreground", "secondary"],
+      ["primary", "background"],
       ["primary-foreground", "primary"],
       ["destructive", "background"],
     ] as const;
