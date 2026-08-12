@@ -45,3 +45,5 @@ docs/*
 # husky
 .husky/_
 .vercel
+.ai/
+/ai

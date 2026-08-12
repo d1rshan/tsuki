@@ -4,7 +4,7 @@ Tsuki is an anime tracking platform (like Letterboxd for anime), built as a Turb
 
 ## Repo Structure
 
-- `apps/web` — Next.js 16.2.9 frontend (`cacheComponents` enabled), uses shadcn/ui
+- `apps/web` — Next.js 16.3.0 frontend (`cacheComponents` enabled), uses shadcn/ui
 - `apps/api` — Elysia backend, uses Better Auth
 - `packages/db` — Neon Postgres via Drizzle ORM
 - `packages/anilist` — AniList GraphQL API client and all related utilities
