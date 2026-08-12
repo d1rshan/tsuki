@@ -15,28 +15,32 @@ export async function ContinueMedia() {
   const { user } = await getSession();
   if (!user?.username) return null;
 
-  try {
-    const entries = (await getProfileLibrary(user.username, { status: "CURRENT" })) ?? [];
+  const entries = await getProfileLibrary(user.username, { status: "CURRENT" }).catch(
+    () => undefined,
+  );
 
-    return (
-      <div className="grid gap-8 lg:grid-cols-2">
-        <ContinueList
-          entries={getContinueEntries(entries, "ANIME", DISPLAY_LIMIT)}
-          mediaType="ANIME"
-        />
-        <ContinueList
-          entries={getContinueEntries(entries, "MANGA", DISPLAY_LIMIT)}
-          mediaType="MANGA"
-        />
-      </div>
-    );
-  } catch {
+  if (entries === undefined) {
     return (
       <p className="rounded-xl border border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
         Your in-progress library couldn&apos;t be loaded right now.
       </p>
     );
   }
+
+  const currentEntries = entries ?? [];
+
+  return (
+    <div className="grid gap-8 lg:grid-cols-2">
+      <ContinueList
+        entries={getContinueEntries(currentEntries, "ANIME", DISPLAY_LIMIT)}
+        mediaType="ANIME"
+      />
+      <ContinueList
+        entries={getContinueEntries(currentEntries, "MANGA", DISPLAY_LIMIT)}
+        mediaType="MANGA"
+      />
+    </div>
+  );
 }
 
 function ContinueList({ entries, mediaType }: { entries: ContinueEntry[]; mediaType: MediaType }) {

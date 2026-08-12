@@ -24,19 +24,23 @@ async function TrendingDiscover() {
   "use cache: remote";
   cacheLife("days");
 
-  try {
-    const [anime, manga] = await Promise.all([getTrending("ANIME"), getTrending("MANGA")]);
+  const trending = await Promise.all([getTrending("ANIME"), getTrending("MANGA")]).catch(
+    () => null,
+  );
 
-    return (
-      <Suspense>
-        <DiscoverView trending={{ ANIME: anime, MANGA: manga }} />
-      </Suspense>
-    );
-  } catch {
+  if (!trending) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
         <ErrorState title="Failed to load discover" description="Please try again in a moment." />
       </div>
     );
   }
+
+  const [anime, manga] = trending;
+
+  return (
+    <Suspense>
+      <DiscoverView trending={{ ANIME: anime, MANGA: manga }} />
+    </Suspense>
+  );
 }
