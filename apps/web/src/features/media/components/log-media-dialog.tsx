@@ -42,7 +42,19 @@ import { deleteReviewAction, logMediaAction, submitReviewAction } from "../actio
 import { MEDIA } from "../media";
 import { mediaKeys } from "../query-keys";
 
-const ReviewEditor = dynamic(() => import("./review-editor").then((module) => module.ReviewEditor));
+const ReviewEditor = dynamic(
+  () => import("./review-editor").then((module) => module.ReviewEditor),
+  {
+    ssr: false,
+    loading: () => (
+      <div
+        className="h-[180px] rounded-lg border bg-muted"
+        role="status"
+        aria-label="Loading review editor"
+      />
+    ),
+  },
+);
 
 type LogMediaDialogProps = {
   disabled: boolean;
