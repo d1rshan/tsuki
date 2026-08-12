@@ -2,7 +2,7 @@ import "server-only";
 
 import { cacheLife, cacheTag } from "next/cache";
 
-import type { MediaType } from "@tsuki/api/types";
+import type { ListStatus, MediaType } from "@tsuki/api/types";
 
 import { publicApi } from "@/shared/lib/public-api";
 
@@ -28,14 +28,15 @@ export async function getProfileOverview(username: string) {
   return data;
 }
 
-export async function getProfileLibrary(username: string, mediaType?: MediaType) {
+export async function getProfileLibrary(
+  username: string,
+  query: { limit?: number; status?: ListStatus; type?: MediaType } = {},
+) {
   "use cache: remote";
   cacheLife("minutes");
   tagProfile(username, "library");
 
-  const { data, error } = await publicApi
-    .users({ username })
-    .library.get({ query: mediaType ? { type: mediaType } : {} });
+  const { data, error } = await publicApi.users({ username }).library.get({ query });
 
   if (isNotFound(error)) return null;
   if (error) throw new Error(`Failed to load library for ${username}`, { cause: error });

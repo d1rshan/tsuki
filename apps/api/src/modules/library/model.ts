@@ -45,6 +45,7 @@ export const LibraryEntryInputModel = t.Object({
 
 export const LibraryQueryModel = t.Object({
   type: t.Optional(MediaTypeEnum),
+  status: t.Optional(ListStatusEnum),
   limit: t.Optional(t.Numeric({ minimum: 1, maximum: 100 })),
   offset: t.Optional(t.Numeric({ minimum: 0 })),
 });

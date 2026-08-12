@@ -1,7 +1,7 @@
 import { and, count, desc, eq, sum } from "drizzle-orm";
 
 import { db } from "../db";
-import { libraryEntries, type MediaType } from "../schema";
+import { libraryEntries, type ListStatus, type MediaType } from "../schema";
 import { MEDIA_COMPACT_COLUMNS } from "./media";
 
 export type InsertLibraryEntry = typeof libraryEntries.$inferInsert;
@@ -9,6 +9,7 @@ export type InsertLibraryEntry = typeof libraryEntries.$inferInsert;
 export type LibraryQueryOptions = {
   /** Omit to return anime and manga together, newest first. */
   type?: MediaType;
+  status?: ListStatus;
   isFavorite?: boolean;
   limit?: number;
   offset?: number;
@@ -22,13 +23,14 @@ export const getEntry = async (userId: string, mediaId: number) => {
 };
 
 export const getUserLibrary = async (userId: string, options: LibraryQueryOptions = {}) => {
-  const { type, isFavorite, limit, offset } = options;
+  const { type, status, isFavorite, limit, offset } = options;
 
   return db.query.libraryEntries.findMany({
     // `and` drops the undefined conditions, so each filter is opt-in.
     where: and(
       eq(libraryEntries.userId, userId),
       type ? eq(libraryEntries.mediaType, type) : undefined,
+      status ? eq(libraryEntries.status, status) : undefined,
       isFavorite ? eq(libraryEntries.isFavorite, true) : undefined,
     ),
     with: { media: { columns: MEDIA_COMPACT_COLUMNS } },

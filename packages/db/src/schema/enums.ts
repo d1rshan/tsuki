@@ -60,3 +60,5 @@ export const listStatusEnum = pgEnum("list_status", [
   "PAUSED",
   "REPEATING",
 ]);
+
+export type ListStatus = (typeof listStatusEnum.enumValues)[number];
