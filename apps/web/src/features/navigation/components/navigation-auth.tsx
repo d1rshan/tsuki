@@ -13,9 +13,11 @@ import { cn } from "@/shared/lib/utils";
 export function NavigationAuth({
   isAuthenticated,
   isMobile = false,
+  onNavigate,
 }: {
   isAuthenticated: boolean;
   isMobile?: boolean;
+  onNavigate?: () => void;
 }) {
   const [isSigningOut, setIsSigningOut] = useState(false);
   const pathname = usePathname();
@@ -24,6 +26,7 @@ export function NavigationAuth({
     return (
       <Link
         href="/login"
+        onNavigate={onNavigate}
         className={cn(
           isMobile
             ? "flex w-full items-center rounded-lg px-3 py-3 text-xs font-black uppercase tracking-widest transition-all duration-300"
