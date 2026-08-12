@@ -18,6 +18,8 @@ export type MediaExternalLink = {
   url: string;
   site: string;
   type: string;
+  /** Optional for links cached before AniList's language metadata was stored. */
+  language?: string | null;
   color: string | null;
   icon: string | null;
 };

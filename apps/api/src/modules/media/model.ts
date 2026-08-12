@@ -115,6 +115,7 @@ export const MediaModel = t.Composite([
           url: t.String(),
           site: t.String(),
           type: t.String(),
+          language: t.Optional(t.Nullable(t.String())),
           color: t.Nullable(t.String()),
           icon: t.Nullable(t.String()),
         }),
