@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -18,10 +17,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
-import { invalidateRenamedProfile } from "../actions";
+import { finishUsernameChange } from "../actions";
 import { usernameFormSchema, type UsernameFormValues } from "../schemas";
 
 type ChangeUsernameDialogProps = {
@@ -31,13 +30,25 @@ type ChangeUsernameDialogProps = {
   username: string;
 };
 
-type UsernameAvailability = "available" | "checking" | "idle" | "unavailable";
+type UsernameAvailability = "available" | "checking" | null;
 
 type UsernameChangeError = {
   code?: string;
   message?: string;
-  status?: number;
 };
+
+function getUsernameChangeError(error: UsernameChangeError): string {
+  if (error.code === "USERNAME_CHANGE_COOLDOWN") {
+    return (
+      error.message ??
+      "You can change your username once every 7 days. Please try again after your cooldown ends."
+    );
+  }
+
+  if (error.code === "USERNAME_IS_ALREADY_TAKEN") return "That username is already taken.";
+
+  return error.message ?? "Unable to change your username.";
+}
 
 export function ChangeUsernameDialog({
   displayUsername,
@@ -45,8 +56,7 @@ export function ChangeUsernameDialog({
   open,
   username,
 }: ChangeUsernameDialogProps) {
-  const router = useRouter();
-  const [availability, setAvailability] = useState<UsernameAvailability>("idle");
+  const [availability, setAvailability] = useState<UsernameAvailability>(null);
   const {
     register,
     handleSubmit,
@@ -61,46 +71,23 @@ export function ChangeUsernameDialog({
     defaultValues: { username: displayUsername },
   });
 
-  function usernameChangeErrorMessage(error: UsernameChangeError): string {
-    if (error.status === 429) {
-      return "You can change your username once every 7 days. Please try again after your cooldown ends.";
-    }
-
-    if (error.code === "USERNAME_IS_ALREADY_TAKEN") return "That username is already taken.";
-
-    return error.message || "Unable to change your username.";
-  }
-
-  function usernameAvailabilityMessage(): string | null {
-    switch (availability) {
-      case "available":
-        return "Username is available.";
-      case "checking":
-        return "Checking availability…";
-      case "unavailable":
-        return "That username is already taken.";
-      case "idle":
-        return null;
-    }
-  }
-
   function handleOpenChange(open: boolean) {
     onOpenChange(open);
     if (!open) {
-      setAvailability("idle");
+      setAvailability(null);
       reset({ username: displayUsername });
     }
   }
 
   async function checkAvailability() {
     if (!(await trigger("username"))) {
-      setAvailability("idle");
+      setAvailability(null);
       return;
     }
 
     const newUsername = getValues("username").trim();
     if (newUsername.toLowerCase() === username) {
-      setAvailability("idle");
+      setAvailability(null);
       return;
     }
 
@@ -110,13 +97,18 @@ export function ChangeUsernameDialog({
     });
 
     if (availabilityError) {
-      setAvailability("idle");
+      setAvailability(null);
       return;
     }
 
     if (getValues("username").trim() !== newUsername) return;
 
-    setAvailability(data?.available ? "available" : "unavailable");
+    if (data?.available) {
+      setAvailability("available");
+    } else {
+      setAvailability(null);
+      setError("username", { message: "That username is already taken." });
+    }
   }
 
   async function onSubmit({ username: newUsername }: UsernameFormValues) {
@@ -132,20 +124,16 @@ export function ChangeUsernameDialog({
       });
 
       if (updateError) {
-        setError("username", { message: usernameChangeErrorMessage(updateError) });
+        setError("username", { message: getUsernameChangeError(updateError) });
         return;
       }
 
-      await invalidateRenamedProfile(username);
       toast.success("Username updated successfully.");
-      handleOpenChange(false);
-      router.replace(`/profile/${newUsername.toLowerCase()}`);
+      await finishUsernameChange(username, newUsername);
     } catch {
       setError("username", { message: "Unable to change your username. Try again." });
     }
   }
-
-  const availabilityMessage = usernameAvailabilityMessage();
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -158,36 +146,32 @@ export function ChangeUsernameDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} id="change-username-form" className="space-y-4">
-          <Field data-invalid={Boolean(errors.username)}>
-            <FieldLabel htmlFor="username">Username</FieldLabel>
-            <Input
-              id="username"
-              autoComplete="username"
-              {...register("username", {
-                onBlur: () => void checkAvailability(),
-                onChange: () => {
-                  setAvailability("idle");
-                  clearErrors("username");
-                },
-              })}
-              aria-invalid={Boolean(errors.username)}
-              disabled={isSubmitting}
-            />
-            {availabilityMessage ? (
-              <p
-                className={
-                  availability === "available"
-                    ? "text-sm text-emerald-600"
-                    : "text-sm text-muted-foreground"
-                }
-                aria-live="polite"
-              >
-                {availabilityMessage}
-              </p>
-            ) : null}
-            <FieldError errors={errors.username ? [errors.username] : []} />
-          </Field>
+        <form onSubmit={handleSubmit(onSubmit)} id="change-username-form">
+          <FieldGroup>
+            <Field data-invalid={Boolean(errors.username)}>
+              <FieldLabel htmlFor="username">Username</FieldLabel>
+              <Input
+                id="username"
+                autoComplete="username"
+                {...register("username", {
+                  onBlur: () => void checkAvailability(),
+                  onChange: () => {
+                    setAvailability(null);
+                    clearErrors("username");
+                  },
+                })}
+                aria-invalid={Boolean(errors.username)}
+                disabled={isSubmitting}
+              />
+              {availability === "checking" ? (
+                <FieldDescription aria-live="polite">Checking availability…</FieldDescription>
+              ) : null}
+              {availability === "available" ? (
+                <FieldDescription aria-live="polite">Username is available.</FieldDescription>
+              ) : null}
+              <FieldError errors={errors.username ? [errors.username] : []} />
+            </Field>
+          </FieldGroup>
         </form>
 
         <DialogFooter>
@@ -200,7 +184,9 @@ export function ChangeUsernameDialog({
             Cancel
           </Button>
           <Button type="submit" form="change-username-form" disabled={isSubmitting}>
-            {isSubmitting ? <LoaderCircle className="animate-spin" /> : null}
+            {isSubmitting ? (
+              <LoaderCircle data-icon="inline-start" className="animate-spin" />
+            ) : null}
             Save username
           </Button>
         </DialogFooter>

@@ -1,6 +1,7 @@
 "use server";
 
 import { updateTag } from "next/cache";
+import { redirect } from "next/navigation";
 
 import { getServerApi } from "@/shared/lib/server-api";
 import { getSession } from "@/shared/lib/session";
@@ -10,15 +11,17 @@ import { profileUpdateSchema, type ProfileUpdate } from "./schemas";
 
 type UpdateProfileResult = { success: true; error: null } | { success: false; error: string };
 
-/** Clears all cached sections for a profile whose URL slug has just changed. */
-export async function invalidateRenamedProfile(previousUsername: string) {
-  const username = parseUsername(previousUsername);
-  if (!username) return;
-
+export async function finishUsernameChange(previousUsername: string, username: string) {
+  const previous = parseUsername(previousUsername)?.toLowerCase();
+  const next = parseUsername(username)?.toLowerCase();
   const { user } = await getSession();
-  if (!user) return;
+  if (!previous || !next || user?.username !== next) {
+    throw new Error("Could not finish changing the username.");
+  }
 
-  updateTag(`profile-${username}`);
+  updateTag(`profile-${previous}`);
+  updateTag(`profile-${next}`);
+  redirect(`/profile/${next}`);
 }
 
 export async function updateProfile(data: ProfileUpdate): Promise<UpdateProfileResult> {

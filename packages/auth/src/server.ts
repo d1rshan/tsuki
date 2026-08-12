@@ -7,8 +7,7 @@ import { db } from "@tsuki/db";
 import { env } from "@tsuki/env/api";
 
 import { ac, adminRolesObj } from "./permissions";
-
-const usernameChangeCooldownMs = 7 * 24 * 60 * 60 * 1000;
+import { isUsernameChangeOnCooldown } from "./username-change";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -57,7 +56,9 @@ export const auth = betterAuth({
     user: {
       update: {
         async before(data, context) {
-          if (context?.path !== "/update-user" || typeof data.username !== "string") return;
+          const changesUsername =
+            typeof data.username === "string" || typeof data.displayUsername === "string";
+          if (context?.path !== "/update-user" || !changesUsername) return;
 
           const session = context.context.session;
           if (!session) return;
@@ -66,13 +67,22 @@ export const auth = betterAuth({
             where: (user, { eq }) => eq(user.id, session.user.id),
           });
 
-          if (!currentUser || currentUser.username === data.username.toLowerCase()) return;
+          if (!currentUser) return;
 
+          const username =
+            typeof data.username === "string" ? data.username.toLowerCase() : currentUser.username;
+          const displayUsername =
+            typeof data.displayUsername === "string"
+              ? data.displayUsername
+              : currentUser.displayUsername;
           if (
-            currentUser.usernameChangedAt &&
-            Date.now() - new Date(currentUser.usernameChangedAt).getTime() <
-              usernameChangeCooldownMs
+            currentUser.username === username &&
+            currentUser.displayUsername === displayUsername
           ) {
+            return;
+          }
+
+          if (isUsernameChangeOnCooldown(currentUser.usernameChangedAt)) {
             throw APIError.from("TOO_MANY_REQUESTS", {
               code: "USERNAME_CHANGE_COOLDOWN",
               message:
