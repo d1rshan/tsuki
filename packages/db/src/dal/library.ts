@@ -1,7 +1,7 @@
 import { and, count, desc, eq, sum } from "drizzle-orm";
 
 import { db } from "../db";
-import { libraryEntries, type MediaType } from "../schema";
+import { libraryEntries, progressActivity, type MediaType } from "../schema";
 import { MEDIA_COMPACT_COLUMNS } from "./media";
 
 export type InsertLibraryEntry = typeof libraryEntries.$inferInsert;
@@ -60,8 +60,17 @@ export const getLibraryStats = async (userId: string) => {
 
 export type LibraryStatsRow = Awaited<ReturnType<typeof getLibraryStats>>[number];
 
+export function progressAdded(previous: number, next: number | undefined) {
+  return next === undefined ? 0 : Math.max(0, next - previous);
+}
+
 export const upsertEntry = async (entry: InsertLibraryEntry) => {
-  const [result] = await db
+  const current = await db.query.libraryEntries.findFirst({
+    columns: { progress: true },
+    where: and(eq(libraryEntries.userId, entry.userId), eq(libraryEntries.mediaId, entry.mediaId)),
+  });
+  const amount = progressAdded(current?.progress ?? 0, entry.progress);
+  const upsert = db
     .insert(libraryEntries)
     .values(entry)
     .onConflictDoUpdate({
@@ -81,7 +90,21 @@ export const upsertEntry = async (entry: InsertLibraryEntry) => {
     })
     .returning();
 
-  return result;
+  if (!amount) {
+    const [result] = await upsert;
+    return result;
+  }
+
+  const [results] = await db.batch([
+    upsert,
+    db.insert(progressActivity).values({
+      userId: entry.userId,
+      mediaType: entry.mediaType,
+      amount,
+    }),
+  ]);
+
+  return results[0];
 };
 
 export const deleteEntry = async (userId: string, mediaId: number) => {

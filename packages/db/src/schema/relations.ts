@@ -1,16 +1,30 @@
 import { relations } from "drizzle-orm";
 
-import { account, libraryEntries, media, reviews, session, user, userProfile } from "./tables";
+import {
+  account,
+  libraryEntries,
+  media,
+  progressActivity,
+  reviews,
+  session,
+  user,
+  userProfile,
+} from "./tables";
 
 export const userRelations = relations(user, ({ many, one }) => ({
   sessions: many(session),
   accounts: many(account),
   libraryEntries: many(libraryEntries),
+  progressActivity: many(progressActivity),
   reviews: many(reviews),
   profile: one(userProfile, {
     fields: [user.id],
     references: [userProfile.userId],
   }),
+}));
+
+export const progressActivityRelations = relations(progressActivity, ({ one }) => ({
+  user: one(user, { fields: [progressActivity.userId], references: [user.id] }),
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({
