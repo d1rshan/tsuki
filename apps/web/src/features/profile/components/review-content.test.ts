@@ -21,4 +21,15 @@ describe("ReviewContent", () => {
     expect(html).not.toContain("<script>");
     expect(html).not.toContain("<img");
   });
+
+  test("strips unsafe link URLs", () => {
+    const html = renderToStaticMarkup(
+      createElement(ReviewContent, {
+        content: "[script](javascript:alert(1)) [data](data:text/html,test)",
+      }),
+    );
+
+    expect(html).not.toContain("javascript:");
+    expect(html).not.toContain("data:text");
+  });
 });

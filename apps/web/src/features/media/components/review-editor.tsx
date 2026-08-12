@@ -14,6 +14,7 @@ import MDEditor, {
   strikethrough,
   unorderedListCommand,
 } from "@uiw/react-md-editor/nohighlight";
+import { defaultUrlTransform } from "react-markdown";
 
 import { Label } from "@/components/ui/label";
 
@@ -64,6 +65,7 @@ export function ReviewEditor({ placeholder, value, onChange }: ReviewEditorProps
         previewOptions={{
           skipHtml: true,
           components: { img: () => null },
+          urlTransform: defaultUrlTransform,
         }}
         className="rounded-lg [--color-accent-fg:var(--primary)] [--color-border-default:var(--border)] [--color-canvas-default:var(--background)] [--color-fg-default:var(--foreground)] [--color-neutral-muted:var(--muted)]"
       />
