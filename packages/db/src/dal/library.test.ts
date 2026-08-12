@@ -1,14 +1,29 @@
 import { describe, expect, test } from "bun:test";
 
 describe("library progress activity", () => {
-  test("records only progress that was added", async () => {
+  test("batches progress writes with an atomic cursor claim", async () => {
     process.env.DATABASE_URL ??= "postgresql://test:test@localhost/test";
-    const { progressAdded } = await import("./library");
+    const { buildEntryWrite } = await import("./library");
+    const [upsert, recordActivity] = buildEntryWrite({
+      userId: "user-1",
+      mediaId: 1,
+      mediaType: "ANIME",
+      progress: 3,
+    });
+    const upsertSql = upsert.toSQL().sql;
+    const activitySql = recordActivity?.getQuery().sql;
 
-    expect(progressAdded(0, 3)).toBe(3);
-    expect(progressAdded(7, 9)).toBe(2);
-    expect(progressAdded(7, 7)).toBe(0);
-    expect(progressAdded(7, 4)).toBe(0);
-    expect(progressAdded(7, undefined)).toBe(0);
+    expect(upsertSql).toContain('"activity_progress" = coalesce');
+    expect(activitySql).toContain("with current_progress as");
+    expect(activitySql).toContain('insert into "progress_activity"');
+  });
+
+  test("does not create an activity query when progress was omitted", async () => {
+    process.env.DATABASE_URL ??= "postgresql://test:test@localhost/test";
+    const { buildEntryWrite } = await import("./library");
+
+    expect(
+      buildEntryWrite({ userId: "user-1", mediaId: 1, mediaType: "ANIME", score: 8 }),
+    ).toHaveLength(1);
   });
 });

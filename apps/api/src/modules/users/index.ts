@@ -5,7 +5,7 @@ import { activityDal, libraryDal, profileDal, reviewsDal, userDal } from "@tsuki
 import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
 import type { MediaType } from "../media/model";
-import { activityStartDate, summarizeActivity } from "./activity";
+import { activityStartDate, currentActivityStreak, summarizeActivity } from "./activity";
 import { ProfileModel, UpdateProfileModel, UserOverviewModel } from "./model";
 
 const FAVORITES_LIMIT = 10;
@@ -37,7 +37,7 @@ export const userRoutes = new Elysia()
       if (!user) return status(404, { error: "User not found" });
 
       const today = new Date();
-      const [stats, favorites, recentLogs, recentReviews, profile, activityRows] =
+      const [stats, favorites, recentLogs, recentReviews, profile, activityRows, activityDates] =
         await Promise.all([
           libraryDal.getLibraryStats(user.id),
           libraryDal.getUserLibrary(user.id, { isFavorite: true, limit: FAVORITES_LIMIT }),
@@ -45,6 +45,7 @@ export const userRoutes = new Elysia()
           reviewsDal.getUserReviews(user.id, { limit: RECENT_REVIEWS_LIMIT }),
           profileDal.getProfileByUserId(user.id),
           activityDal.getProgressActivity(user.id, activityStartDate(today)),
+          activityDal.getProgressActivityDates(user.id),
         ]);
 
       return {
@@ -64,7 +65,13 @@ export const userRoutes = new Elysia()
         favorites,
         recentLogs,
         recentReviews,
-        activity: summarizeActivity(activityRows, today),
+        activity: {
+          ...summarizeActivity(activityRows, today),
+          currentStreak: currentActivityStreak(
+            activityDates.map(({ date }) => date),
+            today,
+          ),
+        },
       };
     },
     {

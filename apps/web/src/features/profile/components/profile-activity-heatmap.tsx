@@ -55,11 +55,11 @@ export function ProfileActivityHeatmap({ activity }: { activity: ProfileActivity
           <div className="flex flex-wrap gap-2">
             <Badge variant="secondary">
               <Tv />
-              {activity.totals.anime} episodes
+              {activity.totals.anime} {activity.totals.anime === 1 ? "episode" : "episodes"}
             </Badge>
             <Badge variant="secondary">
               <BookOpen />
-              {activity.totals.manga} chapters
+              {activity.totals.manga} {activity.totals.manga === 1 ? "chapter" : "chapters"}
             </Badge>
           </div>
 
@@ -75,7 +75,7 @@ export function ProfileActivityHeatmap({ activity }: { activity: ProfileActivity
                   labels={{ legend: { less: "Less", more: "More" } }}
                   renderBlock={(block, day) => {
                     const label = activityTooltip(daysByDate.get(day.date)!);
-                    return cloneElement(block, { "aria-label": label, role: "img", tabIndex: 0 });
+                    return cloneElement(block, { "aria-label": label, role: "img" });
                   }}
                   showTotalCount={false}
                   showWeekdayLabels={["mon", "wed", "fri"]}

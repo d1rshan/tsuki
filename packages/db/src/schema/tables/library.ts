@@ -43,6 +43,8 @@ export const libraryEntries = pgTable(
      * `episodes`/`chapters`. An entry is for one media, so only its unit applies.
      */
     progress: integer("progress").default(0).notNull(),
+    /** Last progress value accounted for in progress_activity; null on legacy rows until written. */
+    activityProgress: integer("activity_progress"),
     /** Manga only. */
     progressVolumes: integer("progress_volumes"),
     /** Rewatch/reread count, pairs with status REPEATING. */

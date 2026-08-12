@@ -19,3 +19,12 @@ export const getProgressActivity = async (userId: string, since: Date) => {
 };
 
 export type ProgressActivityRow = Awaited<ReturnType<typeof getProgressActivity>>[number];
+
+export const getProgressActivityDates = async (userId: string) => {
+  const date = sql<string>`to_char(${progressActivity.createdAt}, 'YYYY-MM-DD')`;
+
+  return db
+    .selectDistinct({ date })
+    .from(progressActivity)
+    .where(eq(progressActivity.userId, userId));
+};

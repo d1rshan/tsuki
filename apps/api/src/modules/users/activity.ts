@@ -38,13 +38,21 @@ export function summarizeActivity(rows: ActivityRow[], today: Date) {
     { anime: 0, manga: 0 },
   );
 
+  return { days, totals };
+}
+
+export function currentActivityStreak(dates: string[], today: Date) {
+  const activeDates = new Set(dates);
+  const cursor = new Date(
+    Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()),
+  );
+  if (!activeDates.has(dayKey(cursor))) cursor.setUTCDate(cursor.getUTCDate() - 1);
+
   let streak = 0;
-  let index = days.length - 1;
-  if (days[index]!.anime + days[index]!.manga === 0) index--;
-  while (index >= 0 && days[index]!.anime + days[index]!.manga > 0) {
+  while (activeDates.has(dayKey(cursor))) {
     streak++;
-    index--;
+    cursor.setUTCDate(cursor.getUTCDate() - 1);
   }
 
-  return { days, totals, currentStreak: streak };
+  return streak;
 }

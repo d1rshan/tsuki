@@ -1,4 +1,4 @@
-import { and, count, desc, eq, sum } from "drizzle-orm";
+import { and, count, desc, eq, sql, sum } from "drizzle-orm";
 
 import { db } from "../db";
 import { libraryEntries, progressActivity, type MediaType } from "../schema";
@@ -17,6 +17,7 @@ export type LibraryQueryOptions = {
 export const getEntry = async (userId: string, mediaId: number) => {
   return db.query.libraryEntries.findFirst({
     where: and(eq(libraryEntries.userId, userId), eq(libraryEntries.mediaId, mediaId)),
+    columns: { activityProgress: false },
     with: { media: { columns: MEDIA_COMPACT_COLUMNS } },
   });
 };
@@ -31,6 +32,7 @@ export const getUserLibrary = async (userId: string, options: LibraryQueryOption
       type ? eq(libraryEntries.mediaType, type) : undefined,
       isFavorite ? eq(libraryEntries.isFavorite, true) : undefined,
     ),
+    columns: { activityProgress: false },
     with: { media: { columns: MEDIA_COMPACT_COLUMNS } },
     orderBy: [desc(libraryEntries.updatedAt)],
     limit,
@@ -60,19 +62,10 @@ export const getLibraryStats = async (userId: string) => {
 
 export type LibraryStatsRow = Awaited<ReturnType<typeof getLibraryStats>>[number];
 
-export function progressAdded(previous: number, next: number | undefined) {
-  return next === undefined ? 0 : Math.max(0, next - previous);
-}
-
-export const upsertEntry = async (entry: InsertLibraryEntry) => {
-  const current = await db.query.libraryEntries.findFirst({
-    columns: { progress: true },
-    where: and(eq(libraryEntries.userId, entry.userId), eq(libraryEntries.mediaId, entry.mediaId)),
-  });
-  const amount = progressAdded(current?.progress ?? 0, entry.progress);
+export function buildEntryWrite(entry: InsertLibraryEntry) {
   const upsert = db
     .insert(libraryEntries)
-    .values(entry)
+    .values({ ...entry, activityProgress: 0 })
     .onConflictDoUpdate({
       target: [libraryEntries.userId, libraryEntries.mediaId],
       set: {
@@ -85,25 +78,50 @@ export const upsertEntry = async (entry: InsertLibraryEntry) => {
         notes: entry.notes,
         startedAt: entry.startedAt,
         completedAt: entry.completedAt,
+        // Existing rows start with a null cursor after deployment. Seed it from
+        // the old progress before applying the new value so nothing is backfilled.
+        activityProgress: sql`coalesce(${libraryEntries.activityProgress}, ${libraryEntries.progress})`,
         updatedAt: new Date(),
       },
     })
     .returning();
 
-  if (!amount) {
-    const [result] = await upsert;
-    return result;
+  if (entry.progress === undefined) return [upsert] as const;
+
+  // neon-http batches run in one transaction. The upsert locks this entry
+  // before this statement advances its cursor, serializing concurrent saves.
+  const recordActivity = db.execute(sql`
+    with current_progress as (
+      select ${libraryEntries.progress} as progress,
+             ${libraryEntries.activityProgress} as activity_progress
+      from ${libraryEntries}
+      where ${libraryEntries.userId} = ${entry.userId}
+        and ${libraryEntries.mediaId} = ${entry.mediaId}
+    ), advanced_progress as (
+      update ${libraryEntries}
+      set activity_progress = current_progress.progress
+      from current_progress
+      where ${libraryEntries.userId} = ${entry.userId}
+        and ${libraryEntries.mediaId} = ${entry.mediaId}
+      returning current_progress.progress - current_progress.activity_progress as amount
+    )
+    insert into ${progressActivity} (user_id, media_type, amount)
+    select ${entry.userId}, ${entry.mediaType}, amount
+    from advanced_progress
+    where amount > 0
+  `);
+
+  return [upsert, recordActivity] as const;
+}
+
+export const upsertEntry = async (entry: InsertLibraryEntry) => {
+  const queries = buildEntryWrite(entry);
+  if (queries.length === 1) {
+    const [results] = await db.batch(queries);
+    return results[0];
   }
 
-  const [results] = await db.batch([
-    upsert,
-    db.insert(progressActivity).values({
-      userId: entry.userId,
-      mediaType: entry.mediaType,
-      amount,
-    }),
-  ]);
-
+  const [results] = await db.batch(queries);
   return results[0];
 };
 

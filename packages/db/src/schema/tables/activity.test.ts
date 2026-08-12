@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { getTableConfig } from "drizzle-orm/pg-core";
 
 import { progressActivity } from "./activity";
+import { libraryEntries } from "./library";
 
 describe("progress activity table", () => {
   test("stores only positive increments and removes them with the user", () => {
@@ -23,5 +24,14 @@ describe("progress activity table", () => {
       "user_id",
       "created_at",
     ]);
+  });
+
+  test("leaves existing progress unaccounted until its next write", () => {
+    const cursor = getTableConfig(libraryEntries).columns.find(
+      (column) => column.name === "activity_progress",
+    );
+
+    expect(cursor?.notNull).toBe(false);
+    expect(cursor?.default).toBeUndefined();
   });
 });
