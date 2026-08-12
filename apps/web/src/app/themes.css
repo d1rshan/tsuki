@@ -1,0 +1,316 @@
+/*
+ * Theme contribution guide
+ * ------------------------
+ * 1. Add a class below with every core color as a hex value.
+ * 2. Add matching metadata to shared/lib/themes.ts.
+ * 3. For a dark palette, include its class in the dark variant in globals.css.
+ * Semantic component colors are derived from these core colors in :root.
+ */
+
+:root {
+  --card: var(--surface);
+  --card-foreground: var(--foreground);
+  --popover: var(--surface);
+  --popover-foreground: var(--foreground);
+  --secondary-foreground: var(--foreground);
+  --muted: var(--secondary);
+  --accent: var(--secondary);
+  --accent-foreground: var(--foreground);
+  --input: var(--secondary);
+  --ring: var(--primary);
+  --sidebar: var(--surface-muted);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--secondary);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--primary);
+  --radius: 0.625rem;
+}
+
+:root,
+.light {
+  color-scheme: light;
+  --background: #eef5e6;
+  --foreground: #44624a;
+  --surface: #ffffff;
+  --surface-muted: #eaf0e1;
+  --primary: #7b9756;
+  --primary-foreground: #18220f;
+  --secondary: #e6ecd8;
+  --muted-foreground: #8b9e82;
+  --destructive: #d96c6c;
+  --border: #d3dcc3;
+  --chart-1: #7b9756;
+  --chart-2: #526b3a;
+  --chart-3: #a8c081;
+  --chart-4: #e2ce7b;
+  --chart-5: #d98c6c;
+}
+
+.dark {
+  color-scheme: dark;
+  --background: #171717;
+  --foreground: #fafafa;
+  --surface: #262626;
+  --surface-muted: #202020;
+  --primary: #e5e5e5;
+  --primary-foreground: #262626;
+  --secondary: #404040;
+  --muted-foreground: #a3a3a3;
+  --destructive: #dc2626;
+  --border: #ffffff1a;
+  --chart-1: #dedede;
+  --chart-2: #737373;
+  --chart-3: #525252;
+  --chart-4: #404040;
+  --chart-5: #303030;
+}
+
+.sakura {
+  color-scheme: light;
+  --background: #fff7fa;
+  --foreground: #5c3345;
+  --surface: #ffffff;
+  --surface-muted: #fceaf1;
+  --primary: #c85c8e;
+  --primary-foreground: #1a0c12;
+  --secondary: #f8dce8;
+  --muted-foreground: #936c7d;
+  --destructive: #c83e4d;
+  --border: #edc5d6;
+  --chart-1: #c85c8e;
+  --chart-2: #9b496e;
+  --chart-3: #e58bb4;
+  --chart-4: #d9a441;
+  --chart-5: #936c7d;
+}
+
+.ocean {
+  color-scheme: light;
+  --background: #f0f9fb;
+  --foreground: #164e63;
+  --surface: #ffffff;
+  --surface-muted: #e1f2f6;
+  --primary: #168aad;
+  --primary-foreground: #041f27;
+  --secondary: #d6eef3;
+  --muted-foreground: #5c8591;
+  --destructive: #d1495b;
+  --border: #b9dce5;
+  --chart-1: #168aad;
+  --chart-2: #126782;
+  --chart-3: #52b6c9;
+  --chart-4: #76c893;
+  --chart-5: #f4a261;
+}
+
+.forest {
+  color-scheme: dark;
+  --background: #17251d;
+  --foreground: #e8f1e9;
+  --surface: #22352a;
+  --surface-muted: #1d3025;
+  --primary: #84a98c;
+  --primary-foreground: #142019;
+  --secondary: #354f3e;
+  --muted-foreground: #a4b9a8;
+  --destructive: #e76f51;
+  --border: #46614e;
+  --chart-1: #84a98c;
+  --chart-2: #cad2c5;
+  --chart-3: #52796f;
+  --chart-4: #e9c46a;
+  --chart-5: #e76f51;
+}
+
+.sunset {
+  color-scheme: light;
+  --background: #fff8f2;
+  --foreground: #5c352b;
+  --surface: #ffffff;
+  --surface-muted: #faebe0;
+  --primary: #e76f51;
+  --primary-foreground: #3b160d;
+  --secondary: #f8dfd0;
+  --muted-foreground: #966d61;
+  --destructive: #c44536;
+  --border: #edc8b7;
+  --chart-1: #e76f51;
+  --chart-2: #f4a261;
+  --chart-3: #e9c46a;
+  --chart-4: #2a9d8f;
+  --chart-5: #264653;
+}
+
+.lavender {
+  color-scheme: light;
+  --background: #faf7ff;
+  --foreground: #49385d;
+  --surface: #ffffff;
+  --surface-muted: #f0e9f8;
+  --primary: #8b6bb1;
+  --primary-foreground: #160c1f;
+  --secondary: #e9ddf3;
+  --muted-foreground: #806f91;
+  --destructive: #c94f6d;
+  --border: #d8c8e7;
+  --chart-1: #8b6bb1;
+  --chart-2: #684b8a;
+  --chart-3: #b99bd7;
+  --chart-4: #d989b5;
+  --chart-5: #75a7a0;
+}
+
+.rose {
+  color-scheme: light;
+  --background: #fff5f6;
+  --foreground: #4c1d2a;
+  --surface: #ffffff;
+  --surface-muted: #ffe4e8;
+  --primary: #e11d48;
+  --primary-foreground: #ffffff;
+  --secondary: #fecdd6;
+  --muted-foreground: #9f5264;
+  --destructive: #b91c1c;
+  --border: #f3a9b8;
+  --chart-1: #e11d48;
+  --chart-2: #be123c;
+  --chart-3: #fb7185;
+  --chart-4: #f59e0b;
+  --chart-5: #8b5cf6;
+}
+
+.mint {
+  color-scheme: light;
+  --background: #f2fbf8;
+  --foreground: #244d48;
+  --surface: #ffffff;
+  --surface-muted: #e2f5ef;
+  --primary: #2a9d8f;
+  --primary-foreground: #071f1c;
+  --secondary: #d2eee7;
+  --muted-foreground: #648d87;
+  --destructive: #d9534f;
+  --border: #b7ded5;
+  --chart-1: #2a9d8f;
+  --chart-2: #1f776d;
+  --chart-3: #70c1b3;
+  --chart-4: #e9c46a;
+  --chart-5: #f4a261;
+}
+
+.amber {
+  color-scheme: light;
+  --background: #fffbeb;
+  --foreground: #573a08;
+  --surface: #ffffff;
+  --surface-muted: #fef3c7;
+  --primary: #d97706;
+  --primary-foreground: #321b02;
+  --secondary: #fde7a5;
+  --muted-foreground: #916d2f;
+  --destructive: #dc2626;
+  --border: #f1d185;
+  --chart-1: #d97706;
+  --chart-2: #b45309;
+  --chart-3: #f59e0b;
+  --chart-4: #65a30d;
+  --chart-5: #0891b2;
+}
+
+.nord {
+  color-scheme: dark;
+  --background: #2e3440;
+  --foreground: #eceff4;
+  --surface: #3b4252;
+  --surface-muted: #353c4a;
+  --primary: #88c0d0;
+  --primary-foreground: #2e3440;
+  --secondary: #434c5e;
+  --muted-foreground: #b6bfcc;
+  --destructive: #bf616a;
+  --border: #4c566a;
+  --chart-1: #88c0d0;
+  --chart-2: #81a1c1;
+  --chart-3: #a3be8c;
+  --chart-4: #ebcb8b;
+  --chart-5: #b48ead;
+}
+
+.dracula {
+  color-scheme: dark;
+  --background: #282a36;
+  --foreground: #f8f8f2;
+  --surface: #343746;
+  --surface-muted: #30323f;
+  --primary: #bd93f9;
+  --primary-foreground: #282a36;
+  --secondary: #44475a;
+  --muted-foreground: #b8b8b2;
+  --destructive: #ff5555;
+  --border: #56596e;
+  --chart-1: #bd93f9;
+  --chart-2: #8be9fd;
+  --chart-3: #50fa7b;
+  --chart-4: #f1fa8c;
+  --chart-5: #ff79c6;
+}
+
+.coffee {
+  color-scheme: dark;
+  --background: #241c18;
+  --foreground: #f2e5d5;
+  --surface: #342922;
+  --surface-muted: #2d231e;
+  --primary: #c08a62;
+  --primary-foreground: #241c18;
+  --secondary: #4a392f;
+  --muted-foreground: #b9a697;
+  --destructive: #d76a5b;
+  --border: #5a463a;
+  --chart-1: #c08a62;
+  --chart-2: #e0b084;
+  --chart-3: #8c6a50;
+  --chart-4: #d4a72c;
+  --chart-5: #73956f;
+}
+
+.cyberpunk {
+  color-scheme: dark;
+  --background: #101014;
+  --foreground: #f5f5f5;
+  --surface: #1c1c24;
+  --surface-muted: #17171e;
+  --primary: #fcee0a;
+  --primary-foreground: #101014;
+  --secondary: #2d2942;
+  --muted-foreground: #aaa6b8;
+  --destructive: #ff2a6d;
+  --border: #48415e;
+  --chart-1: #fcee0a;
+  --chart-2: #05d9e8;
+  --chart-3: #ff2a6d;
+  --chart-4: #d300c5;
+  --chart-5: #7c4dff;
+}
+
+.midnight {
+  color-scheme: dark;
+  --background: #0f172a;
+  --foreground: #e2e8f0;
+  --surface: #1e293b;
+  --surface-muted: #172033;
+  --primary: #818cf8;
+  --primary-foreground: #111827;
+  --secondary: #334155;
+  --muted-foreground: #94a3b8;
+  --destructive: #f87171;
+  --border: #475569;
+  --chart-1: #818cf8;
+  --chart-2: #38bdf8;
+  --chart-3: #2dd4bf;
+  --chart-4: #fbbf24;
+  --chart-5: #f472b6;
+}

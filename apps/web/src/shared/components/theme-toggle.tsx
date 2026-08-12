@@ -1,24 +1,61 @@
 "use client";
 
-import { Moon, Sun } from "lucide-react";
+import { Palette } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { THEMES } from "@/shared/lib/themes";
 
 export function ThemeToggle() {
-  const { resolvedTheme, setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
 
   return (
-    <Button
-      type="button"
-      variant="ghost"
-      size="icon"
-      className="relative text-muted-foreground hover:!bg-transparent hover:text-foreground"
-      onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-      aria-label="Toggle color theme"
-    >
-      <Sun className="scale-100 rotate-0 transition-transform dark:scale-0 dark:-rotate-90" />
-      <Moon className="absolute scale-0 rotate-90 transition-transform dark:scale-100 dark:rotate-0" />
-    </Button>
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="text-muted-foreground hover:!bg-transparent hover:text-foreground"
+            aria-label="Choose color theme"
+          />
+        }
+      >
+        <Palette />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-52">
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>Color theme</DropdownMenuLabel>
+          <DropdownMenuRadioGroup
+            value={theme}
+            onValueChange={setTheme}
+            className="grid grid-cols-2"
+          >
+            <DropdownMenuRadioItem value="system" className="col-span-2">
+              System
+            </DropdownMenuRadioItem>
+            {THEMES.map(({ id, name, color }) => (
+              <DropdownMenuRadioItem key={id} value={id}>
+                <span
+                  className="size-2.5 shrink-0 rounded-full ring-1 ring-foreground/15"
+                  style={{ backgroundColor: color }}
+                />
+                {name}
+              </DropdownMenuRadioItem>
+            ))}
+          </DropdownMenuRadioGroup>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
