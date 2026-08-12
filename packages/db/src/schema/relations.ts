@@ -1,12 +1,23 @@
 import { relations } from "drizzle-orm";
 
-import { account, libraryEntries, media, reviews, session, user, userProfile } from "./tables";
+import {
+  account,
+  libraryEntries,
+  media,
+  reviews,
+  session,
+  user,
+  userFollows,
+  userProfile,
+} from "./tables";
 
 export const userRelations = relations(user, ({ many, one }) => ({
   sessions: many(session),
   accounts: many(account),
   libraryEntries: many(libraryEntries),
   reviews: many(reviews),
+  followers: many(userFollows, { relationName: "following" }),
+  following: many(userFollows, { relationName: "follower" }),
   profile: one(userProfile, {
     fields: [user.id],
     references: [userProfile.userId],
@@ -23,6 +34,19 @@ export const accountRelations = relations(account, ({ one }) => ({
 
 export const userProfileRelations = relations(userProfile, ({ one }) => ({
   user: one(user, { fields: [userProfile.userId], references: [user.id] }),
+}));
+
+export const userFollowsRelations = relations(userFollows, ({ one }) => ({
+  follower: one(user, {
+    fields: [userFollows.followerId],
+    references: [user.id],
+    relationName: "follower",
+  }),
+  following: one(user, {
+    fields: [userFollows.followingId],
+    references: [user.id],
+    relationName: "following",
+  }),
 }));
 
 export const mediaRelations = relations(media, ({ many }) => ({

@@ -23,6 +23,17 @@ export const UserSummaryModel = t.Object({
   createdAt: t.Date(),
 });
 
+export const FollowRelationshipModel = t.Object({
+  following: t.Boolean(),
+  followedBy: t.Boolean(),
+});
+
+export const ProfileSocialModel = t.Object({
+  followers: t.Number(),
+  following: t.Number(),
+  viewer: t.Nullable(FollowRelationshipModel),
+});
+
 const MediaStatsModel = t.Object({
   total: t.Number(),
   /** Episodes watched or chapters read. */
@@ -40,7 +51,10 @@ export const UserOverviewModel = t.Object({
   favorites: t.Array(LibraryEntryModel),
   recentLogs: t.Array(LibraryEntryModel),
   recentReviews: t.Array(ReviewModel),
+  social: ProfileSocialModel,
 });
 
 export type Profile = typeof ProfileModel.static;
+export type FollowRelationship = typeof FollowRelationshipModel.static;
+export type UserSummary = typeof UserSummaryModel.static;
 export type UserOverview = typeof UserOverviewModel.static;

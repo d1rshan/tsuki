@@ -25,10 +25,12 @@ async function ProfileLayoutContent({ children, params }: ProfileLayoutProps) {
   const username = parseUsername((await params).username);
   if (!username) notFound();
 
-  const profile = await getProfileOverview(username);
+  const [profile, { user: currentUser }] = await Promise.all([
+    getProfileOverview(username),
+    getSession(),
+  ]);
   if (!profile) notFound();
 
-  const { user: currentUser } = await getSession();
   const style = profile.profile?.accentColor
     ? ({ "--primary": profile.profile.accentColor } as React.CSSProperties)
     : undefined;
@@ -41,6 +43,7 @@ async function ProfileLayoutContent({ children, params }: ProfileLayoutProps) {
           stats={profile.stats}
           profile={profile.profile}
           isOwner={currentUser?.id === profile.user.id}
+          social={profile.social}
         />
         {children}
       </div>
