@@ -10,30 +10,24 @@ import { getContinueEntries, type ContinueEntry } from "../continue-media";
 import { ContinueMediaCard } from "./continue-media-card";
 
 const DISPLAY_LIMIT = 4;
-const QUERY_LIMIT = 12;
 
 export async function ContinueMedia() {
   const { user } = await getSession();
   if (!user?.username) return null;
 
   try {
-    const [anime, manga] = await Promise.all([
-      getProfileLibrary(user.username, {
-        limit: QUERY_LIMIT,
-        status: "CURRENT",
-        type: "ANIME",
-      }),
-      getProfileLibrary(user.username, {
-        limit: QUERY_LIMIT,
-        status: "CURRENT",
-        type: "MANGA",
-      }),
-    ]);
+    const entries = (await getProfileLibrary(user.username, { status: "CURRENT" })) ?? [];
 
     return (
       <div className="grid gap-8 lg:grid-cols-2">
-        <ContinueList entries={getContinueEntries(anime ?? [], DISPLAY_LIMIT)} mediaType="ANIME" />
-        <ContinueList entries={getContinueEntries(manga ?? [], DISPLAY_LIMIT)} mediaType="MANGA" />
+        <ContinueList
+          entries={getContinueEntries(entries, "ANIME", DISPLAY_LIMIT)}
+          mediaType="ANIME"
+        />
+        <ContinueList
+          entries={getContinueEntries(entries, "MANGA", DISPLAY_LIMIT)}
+          mediaType="MANGA"
+        />
       </div>
     );
   } catch {
@@ -67,7 +61,7 @@ function ContinueList({ entries, mediaType }: { entries: ContinueEntry[]; mediaT
       {entries.length > 0 ? (
         <div className="grid gap-3">
           {entries.map((entry) => (
-            <ContinueMediaCard key={entry.mediaId} entry={entry} />
+            <ContinueMediaCard key={entry.mediaId} media={entry.media} progress={entry.progress} />
           ))}
         </div>
       ) : (

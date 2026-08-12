@@ -1,14 +1,18 @@
-import type { LibraryEntry } from "@tsuki/api/types";
+import type { LibraryEntry, MediaType } from "@tsuki/api/types";
 
 import { unitCount } from "@/features/media/media";
 import type { LogMediaInput } from "@/features/media/schemas";
 
 export type ContinueEntry = LibraryEntry & { media: NonNullable<LibraryEntry["media"]> };
 
-export function getContinueEntries(entries: LibraryEntry[], limit: number): ContinueEntry[] {
+export function getContinueEntries(
+  entries: LibraryEntry[],
+  mediaType: MediaType,
+  limit: number,
+): ContinueEntry[] {
   return entries
     .filter((entry): entry is ContinueEntry => {
-      if (entry.status !== "CURRENT" || !entry.media) return false;
+      if (entry.mediaType !== mediaType || entry.status !== "CURRENT" || !entry.media) return false;
 
       const total = unitCount(entry.media);
       return !total || entry.progress < total;

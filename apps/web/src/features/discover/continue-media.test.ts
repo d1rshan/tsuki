@@ -62,15 +62,18 @@ describe("getContinueEntries", () => {
           { ...entry(), media: null },
           unknownTotal,
         ],
+        "ANIME",
         4,
       ),
-    ).toEqual([current, unknownTotal]);
+    ).toEqual([current]);
+
+    expect(getContinueEntries([current, unknownTotal], "MANGA", 4)).toEqual([unknownTotal]);
   });
 
   test("limits the result without changing its order", () => {
     const entries = [entry({ progress: 1 }), entry({ progress: 2 }), entry({ progress: 3 })];
 
-    expect(getContinueEntries(entries, 2)).toEqual(entries.slice(0, 2));
+    expect(getContinueEntries(entries, "ANIME", 2)).toEqual(entries.slice(0, 2));
   });
 
   test("completes a title when its known final unit is logged", () => {
