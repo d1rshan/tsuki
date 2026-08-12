@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
 import { useSession } from "@tsuki/auth/client";
@@ -51,16 +52,30 @@ export function ProfileFollowButton({ username }: { username: string }) {
     mutation.mutate(!relationship?.following);
   }
 
+  if (relationshipQuery.isError) {
+    return (
+      <Button
+        type="button"
+        variant="outline"
+        disabled={relationshipQuery.isFetching}
+        onClick={() => void relationshipQuery.refetch()}
+      >
+        <RefreshCw data-icon="inline-start" />
+        Retry follow
+      </Button>
+    );
+  }
+
   return (
     <Button
       type="button"
       variant={relationship?.following ? "secondary" : "default"}
       disabled={
-        isSessionPending ||
-        mutation.isPending ||
-        (isAuthenticated && (relationshipQuery.isLoading || relationshipQuery.isError))
+        isSessionPending || mutation.isPending || (isAuthenticated && relationshipQuery.isLoading)
       }
       onClick={toggleFollow}
+      aria-busy={mutation.isPending}
+      aria-pressed={relationship?.following ?? false}
     >
       {followButtonLabel(relationship)}
     </Button>

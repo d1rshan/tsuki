@@ -23,8 +23,9 @@ describe("user follows table", () => {
       "cascade",
       "cascade",
     ]);
-    expect(config.indexes.map((dbIndex) => dbIndex.config.name)).toContain(
-      "user_follows_following_id_idx",
-    );
+    expect(config.indexes.map((dbIndex) => dbIndex.config.name)).toEqual([
+      "user_follows_follower_created_idx",
+      "user_follows_following_created_idx",
+    ]);
   });
 });

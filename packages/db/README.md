@@ -1,15 +1,11 @@
-# db
+# Database
 
-To install dependencies:
-
-```bash
-bun install
-```
-
-To run:
+Tsuki uses Drizzle schema push rather than committed SQL migrations. Apply schema changes before
+deploying API or web code that reads them:
 
 ```bash
-bun run index.ts
+bun run db:push
 ```
 
-This project was created using `bun init` in bun v1.3.13. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+Run this from the repository root with `DATABASE_URL` set for the target environment. Review the
+generated statements before confirming the push.

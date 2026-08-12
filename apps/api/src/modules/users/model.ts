@@ -34,6 +34,16 @@ export const ProfileSocialModel = t.Object({
   viewer: t.Nullable(FollowRelationshipModel),
 });
 
+export const FollowListQueryModel = t.Object({
+  limit: t.Optional(t.Numeric({ minimum: 1, maximum: 100 })),
+  offset: t.Optional(t.Numeric({ minimum: 0 })),
+});
+
+export const FollowListModel = t.Object({
+  users: t.Array(UserSummaryModel),
+  total: t.Number(),
+});
+
 const MediaStatsModel = t.Object({
   total: t.Number(),
   /** Episodes watched or chapters read. */

@@ -1,4 +1,4 @@
-name: Format, Lint, Typecheck & Build
+name: Format, Lint, Test, Typecheck & Build
 
 on:
   push:
@@ -38,6 +38,15 @@ jobs:
 
       - name: Typecheck
         run: bun run typecheck
+
+      - name: Test
+        run: >-
+          bun test
+          packages/db/src/schema/tables/social.test.ts
+          packages/db/src/dal/social.test.ts
+          apps/api/src/modules/users/index.test.ts
+          apps/api/src/modules/users/social.test.ts
+          apps/web/src/features/profile/follow.test.ts
 
       - name: Build
         run: bun run build

@@ -6,11 +6,12 @@ import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
 import type { MediaType } from "../media/model";
 import {
+  FollowListModel,
+  FollowListQueryModel,
   FollowRelationshipModel,
   ProfileModel,
   UpdateProfileModel,
   UserOverviewModel,
-  UserSummaryModel,
 } from "./model";
 import { selfFollowError } from "./social";
 
@@ -87,29 +88,43 @@ export const userRoutes = new Elysia()
   )
   .get(
     "/users/:username/followers",
-    async ({ params: { username } }) => {
+    async ({ params: { username }, query }) => {
       const user = await userDal.getUserByUsername(username);
       if (!user) return status(404, { error: "User not found" });
 
-      return socialDal.getFollowers(user.id);
+      const options = { limit: query.limit ?? 40, offset: query.offset ?? 0 };
+      const [users, total] = await Promise.all([
+        socialDal.getFollowers(user.id, options),
+        socialDal.getFollowerCount(user.id),
+      ]);
+
+      return { users, total };
     },
     {
       params: t.Object({ username: t.String() }),
-      response: { 200: t.Array(UserSummaryModel), 404: ErrorModel },
+      query: FollowListQueryModel,
+      response: { 200: FollowListModel, 404: ErrorModel },
       detail: { summary: "List a user's followers" },
     },
   )
   .get(
     "/users/:username/following",
-    async ({ params: { username } }) => {
+    async ({ params: { username }, query }) => {
       const user = await userDal.getUserByUsername(username);
       if (!user) return status(404, { error: "User not found" });
 
-      return socialDal.getFollowing(user.id);
+      const options = { limit: query.limit ?? 40, offset: query.offset ?? 0 };
+      const [users, total] = await Promise.all([
+        socialDal.getFollowing(user.id, options),
+        socialDal.getFollowingCount(user.id),
+      ]);
+
+      return { users, total };
     },
     {
       params: t.Object({ username: t.String() }),
-      response: { 200: t.Array(UserSummaryModel), 404: ErrorModel },
+      query: FollowListQueryModel,
+      response: { 200: FollowListModel, 404: ErrorModel },
       detail: { summary: "List users followed by a user" },
     },
   )

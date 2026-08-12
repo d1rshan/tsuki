@@ -5,6 +5,7 @@
   "scripts": {
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
+    "test": "bun test",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -14,6 +15,7 @@
   },
   "devDependencies": {
     "@types/node": "^25.9.3",
+    "bun-types": "latest",
     "drizzle-kit": "^0.31.10"
   }
 }

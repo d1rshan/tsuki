@@ -17,6 +17,11 @@ export type FollowRelationship = {
   followedBy: boolean;
 };
 
+type FollowListOptions = {
+  limit: number;
+  offset: number;
+};
+
 export function relationshipFromRows(
   rows: { followerId: string; followingId: string }[],
   viewerId: string,
@@ -40,6 +45,24 @@ export const getFollowCounts = async (userId: string) => {
     followers: followers?.count ?? 0,
     following: following?.count ?? 0,
   };
+};
+
+export const getFollowerCount = async (userId: string) => {
+  const [result] = await db
+    .select({ count: count() })
+    .from(userFollows)
+    .where(eq(userFollows.followingId, userId));
+
+  return result?.count ?? 0;
+};
+
+export const getFollowingCount = async (userId: string) => {
+  const [result] = await db
+    .select({ count: count() })
+    .from(userFollows)
+    .where(eq(userFollows.followerId, userId));
+
+  return result?.count ?? 0;
 };
 
 export const getFollowRelationship = async (viewerId: string, profileUserId: string) => {
@@ -69,20 +92,24 @@ export const unfollowUser = async (followerId: string, followingId: string) => {
     .where(and(eq(userFollows.followerId, followerId), eq(userFollows.followingId, followingId)));
 };
 
-export const getFollowers = async (userId: string) => {
+export const getFollowers = async (userId: string, { limit, offset }: FollowListOptions) => {
   return db
     .select(PUBLIC_USER_COLUMNS)
     .from(userFollows)
     .innerJoin(user, eq(user.id, userFollows.followerId))
     .where(eq(userFollows.followingId, userId))
-    .orderBy(desc(userFollows.createdAt));
+    .orderBy(desc(userFollows.createdAt))
+    .limit(limit)
+    .offset(offset);
 };
 
-export const getFollowing = async (userId: string) => {
+export const getFollowing = async (userId: string, { limit, offset }: FollowListOptions) => {
   return db
     .select(PUBLIC_USER_COLUMNS)
     .from(userFollows)
     .innerJoin(user, eq(user.id, userFollows.followingId))
     .where(eq(userFollows.followerId, userId))
-    .orderBy(desc(userFollows.createdAt));
+    .orderBy(desc(userFollows.createdAt))
+    .limit(limit)
+    .offset(offset);
 };
