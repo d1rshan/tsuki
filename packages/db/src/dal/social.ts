@@ -98,7 +98,7 @@ export const getFollowers = async (userId: string, { limit, offset }: FollowList
     .from(userFollows)
     .innerJoin(user, eq(user.id, userFollows.followerId))
     .where(eq(userFollows.followingId, userId))
-    .orderBy(desc(userFollows.createdAt))
+    .orderBy(desc(userFollows.createdAt), desc(userFollows.followerId))
     .limit(limit)
     .offset(offset);
 };
@@ -109,7 +109,7 @@ export const getFollowing = async (userId: string, { limit, offset }: FollowList
     .from(userFollows)
     .innerJoin(user, eq(user.id, userFollows.followingId))
     .where(eq(userFollows.followerId, userId))
-    .orderBy(desc(userFollows.createdAt))
+    .orderBy(desc(userFollows.createdAt), desc(userFollows.followingId))
     .limit(limit)
     .offset(offset);
 };

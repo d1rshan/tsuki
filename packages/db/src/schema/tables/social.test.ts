@@ -23,9 +23,20 @@ describe("user follows table", () => {
       "cascade",
       "cascade",
     ]);
-    expect(config.indexes.map((dbIndex) => dbIndex.config.name)).toEqual([
-      "user_follows_follower_created_idx",
-      "user_follows_following_created_idx",
+    expect(
+      config.indexes.map((dbIndex) => ({
+        name: dbIndex.config.name,
+        columns: dbIndex.config.columns.map((column) => ("name" in column ? column.name : null)),
+      })),
+    ).toEqual([
+      {
+        name: "user_follows_follower_created_idx",
+        columns: ["follower_id", "created_at", "following_id"],
+      },
+      {
+        name: "user_follows_following_created_idx",
+        columns: ["following_id", "created_at", "follower_id"],
+      },
     ]);
   });
 });

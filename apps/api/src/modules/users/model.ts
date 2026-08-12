@@ -35,8 +35,8 @@ export const ProfileSocialModel = t.Object({
 });
 
 export const FollowListQueryModel = t.Object({
-  limit: t.Optional(t.Numeric({ minimum: 1, maximum: 100 })),
-  offset: t.Optional(t.Numeric({ minimum: 0 })),
+  limit: t.Optional(t.Numeric({ minimum: 1, maximum: 100, multipleOf: 1 })),
+  offset: t.Optional(t.Numeric({ minimum: 0, maximum: Number.MAX_SAFE_INTEGER, multipleOf: 1 })),
 });
 
 export const FollowListModel = t.Object({

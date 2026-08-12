@@ -13,7 +13,6 @@ import {
   UpdateProfileModel,
   UserOverviewModel,
 } from "./model";
-import { selfFollowError } from "./social";
 
 const FAVORITES_LIMIT = 10;
 const RECENT_LOGS_LIMIT = 10;
@@ -151,8 +150,9 @@ export const userRoutes = new Elysia()
     async ({ params: { username }, user }) => {
       const profileUser = await userDal.getUserByUsername(username);
       if (!profileUser) return status(404, { error: "User not found" });
-      const invalidTarget = selfFollowError(user.id, profileUser.id);
-      if (invalidTarget) return status(400, { error: invalidTarget });
+      if (profileUser.id === user.id) {
+        return status(400, { error: "You cannot follow yourself" });
+      }
 
       await socialDal.followUser(user.id, profileUser.id);
       return socialDal.getFollowRelationship(user.id, profileUser.id);
@@ -169,8 +169,9 @@ export const userRoutes = new Elysia()
     async ({ params: { username }, user }) => {
       const profileUser = await userDal.getUserByUsername(username);
       if (!profileUser) return status(404, { error: "User not found" });
-      const invalidTarget = selfFollowError(user.id, profileUser.id);
-      if (invalidTarget) return status(400, { error: invalidTarget });
+      if (profileUser.id === user.id) {
+        return status(400, { error: "You cannot follow yourself" });
+      }
 
       await socialDal.unfollowUser(user.id, profileUser.id);
       return socialDal.getFollowRelationship(user.id, profileUser.id);

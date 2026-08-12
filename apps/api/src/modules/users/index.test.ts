@@ -79,9 +79,11 @@ describe("follow API", () => {
   test("requires authentication and rejects self-follows", async () => {
     expect((await request("/users/target/follow", "POST", false)).status).toBe(401);
 
-    const response = await request("/users/self/follow", "POST");
-    expect(response.status).toBe(400);
-    expect(await response.json()).toEqual({ error: "You cannot follow yourself" });
+    for (const method of ["POST", "DELETE"]) {
+      const response = await request("/users/self/follow", method);
+      expect(response.status).toBe(400);
+      expect(await response.json()).toEqual({ error: "You cannot follow yourself" });
+    }
   });
 
   test("makes duplicate follow and unfollow requests idempotent", async () => {
@@ -127,5 +129,11 @@ describe("follow API", () => {
         },
       ],
     });
+  });
+
+  test("rejects fractional pagination values", async () => {
+    expect((await request("/users/target/followers?limit=1.5", "GET", false)).status).toBe(422);
+    expect((await request("/users/target/followers?offset=1.5", "GET", false)).status).toBe(422);
+    expect(lastListOptions).toBeNull();
   });
 });
