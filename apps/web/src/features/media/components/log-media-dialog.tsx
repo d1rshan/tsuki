@@ -26,7 +26,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/shared/lib/utils";
 
 import {
@@ -41,6 +40,7 @@ import {
 import { deleteReviewAction, logMediaAction, submitReviewAction } from "../actions";
 import { MEDIA } from "../media";
 import { mediaKeys } from "../query-keys";
+import { ReviewEditor } from "./review-editor";
 
 type LogMediaDialogProps = {
   disabled: boolean;
@@ -294,12 +294,11 @@ function ReviewField({
   return (
     <div className="grid gap-2 border-t pt-3">
       <Label htmlFor={reviewId}>Review</Label>
-      <Textarea
+      <ReviewEditor
+        content={content}
         id={reviewId}
         placeholder={`What did you think about this ${MEDIA[mediaType].label.toLowerCase()}?`}
-        value={content}
-        onChange={(event) => onContentChange(event.target.value)}
-        rows={3}
+        onChange={onContentChange}
       />
       {content.trim() ? (
         <div className="flex items-center gap-2">

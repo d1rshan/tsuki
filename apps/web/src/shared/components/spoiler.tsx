@@ -1,25 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
-import { cn } from "@/shared/lib/utils";
-
-export function Spoiler({ children }: { children: string }) {
+export function Spoiler({ children, fallback }: { children: ReactNode; fallback?: ReactNode }) {
   const [isRevealed, setIsRevealed] = useState(false);
+
+  if (isRevealed) return <div className="text-foreground/90">{children}</div>;
 
   return (
     <button
       type="button"
-      className={cn(
-        "whitespace-pre-wrap rounded-sm text-left box-decoration-clone transition-colors",
-        isRevealed
-          ? "cursor-text text-foreground/90"
-          : "cursor-pointer bg-muted text-transparent select-none hover:bg-muted/80",
-      )}
+      className="whitespace-pre-wrap rounded-sm text-left box-decoration-clone transition-colors cursor-pointer bg-muted text-transparent select-none hover:bg-muted/80"
       onClick={() => setIsRevealed(true)}
-      aria-label={isRevealed ? undefined : "Reveal spoiler"}
+      aria-label="Reveal spoiler"
     >
-      {children}
+      {fallback ?? children}
     </button>
   );
 }

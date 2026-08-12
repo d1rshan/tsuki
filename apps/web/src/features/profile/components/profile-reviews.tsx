@@ -5,6 +5,7 @@ import { formatDistanceToNow } from "date-fns";
 import type { Review } from "@tsuki/api/types";
 
 import { Spoiler } from "@/shared/components/spoiler";
+import { ReviewContent } from "@/features/media/components/review-content";
 import {
   getMediaCoverImage,
   getMediaTitle,
@@ -59,9 +60,11 @@ export function ReviewItem({ review }: { review: Review }) {
 
         <div className="prose prose-sm md:prose-base dark:prose-invert max-w-none text-muted-foreground leading-relaxed">
           {containsSpoilers ? (
-            <Spoiler>{content}</Spoiler>
+            <Spoiler fallback={content}>
+              <ReviewContent content={content} />
+            </Spoiler>
           ) : (
-            <p className="whitespace-pre-wrap text-foreground/90">{content}</p>
+            <ReviewContent content={content} />
           )}
         </div>
       </div>
