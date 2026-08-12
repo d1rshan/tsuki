@@ -96,7 +96,11 @@ export function SiteNavigation({ user }: { user: NavigationUser | null }) {
             />
             <div className="my-2 h-px w-full bg-border" />
             <div className="flex items-center justify-between px-1">
-              <NavigationAuth isAuthenticated={Boolean(user?.username)} isMobile />
+              <NavigationAuth
+                isAuthenticated={Boolean(user?.username)}
+                isMobile
+                onNavigate={closeMobileMenu}
+              />
               <div className="pr-2">
                 <ThemeToggle />
               </div>
