@@ -1,30 +1,16 @@
-import { and, asc, eq, gte, sql, sum } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 
 import { db } from "../db";
 import { progressActivity } from "../schema";
 
-export const getProgressActivity = async (userId: string, since: Date) => {
-  const date = sql<string>`to_char(${progressActivity.createdAt}, 'YYYY-MM-DD')`;
-
+export const getProgressActivity = async (userId: string) => {
   return db
     .select({
-      date,
+      date: progressActivity.activityDate,
       mediaType: progressActivity.mediaType,
-      amount: sum(progressActivity.amount).mapWith(Number),
+      amount: progressActivity.amount,
     })
     .from(progressActivity)
-    .where(and(eq(progressActivity.userId, userId), gte(progressActivity.createdAt, since)))
-    .groupBy(date, progressActivity.mediaType)
-    .orderBy(asc(date));
-};
-
-export type ProgressActivityRow = Awaited<ReturnType<typeof getProgressActivity>>[number];
-
-export const getProgressActivityDates = async (userId: string) => {
-  const date = sql<string>`to_char(${progressActivity.createdAt}, 'YYYY-MM-DD')`;
-
-  return db
-    .selectDistinct({ date })
-    .from(progressActivity)
-    .where(eq(progressActivity.userId, userId));
+    .where(eq(progressActivity.userId, userId))
+    .orderBy(asc(progressActivity.activityDate));
 };

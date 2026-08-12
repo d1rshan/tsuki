@@ -62,7 +62,7 @@ export const getLibraryStats = async (userId: string) => {
 
 export type LibraryStatsRow = Awaited<ReturnType<typeof getLibraryStats>>[number];
 
-export function buildEntryWrite(entry: InsertLibraryEntry) {
+export const upsertEntry = async (entry: InsertLibraryEntry) => {
   const upsert = db
     .insert(libraryEntries)
     .values({ ...entry, activityProgress: 0 })
@@ -86,11 +86,16 @@ export function buildEntryWrite(entry: InsertLibraryEntry) {
     })
     .returning();
 
-  if (entry.progress === undefined) return [upsert] as const;
+  if (entry.progress === undefined) {
+    const [result] = await upsert;
+    return result;
+  }
 
   // neon-http batches run in one transaction. The upsert locks this entry
   // before this statement advances its cursor, serializing concurrent saves.
-  const recordActivity = db.execute(sql`
+  const [results] = await db.batch([
+    upsert,
+    db.execute(sql`
     with current_progress as (
       select ${libraryEntries.progress} as progress,
              ${libraryEntries.activityProgress} as activity_progress
@@ -109,19 +114,10 @@ export function buildEntryWrite(entry: InsertLibraryEntry) {
     select ${entry.userId}, ${entry.mediaType}, amount
     from advanced_progress
     where amount > 0
-  `);
-
-  return [upsert, recordActivity] as const;
-}
-
-export const upsertEntry = async (entry: InsertLibraryEntry) => {
-  const queries = buildEntryWrite(entry);
-  if (queries.length === 1) {
-    const [results] = await db.batch(queries);
-    return results[0];
-  }
-
-  const [results] = await db.batch(queries);
+    on conflict (user_id, media_type, activity_date)
+    do update set amount = progress_activity.amount + excluded.amount
+  `),
+  ]);
   return results[0];
 };
 

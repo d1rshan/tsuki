@@ -14,15 +14,13 @@ describe("progress activity table", () => {
     expect(config.foreignKeys[0]?.onDelete).toBe("cascade");
   });
 
-  test("indexes a user's activity by time", () => {
+  test("stores one row per user, media type, and day", () => {
     const config = getTableConfig(progressActivity);
-    const activityIndex = config.indexes.find(
-      (dbIndex) => dbIndex.config.name === "progress_activity_user_created_idx",
-    );
 
-    expect(activityIndex?.config.columns.map((column) => column.name)).toEqual([
+    expect(config.primaryKeys[0]?.columns.map((column) => column.name)).toEqual([
       "user_id",
-      "created_at",
+      "media_type",
+      "activity_date",
     ]);
   });
 

@@ -13,7 +13,7 @@ function dayKey(date: Date) {
   return date.toISOString().slice(0, 10);
 }
 
-export function activityStartDate(today: Date) {
+function activityStartDate(today: Date) {
   const start = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
   start.setUTCDate(start.getUTCDate() - (DAYS_SHOWN - 1));
   return start;
@@ -38,10 +38,10 @@ export function summarizeActivity(rows: ActivityRow[], today: Date) {
     { anime: 0, manga: 0 },
   );
 
-  return { days, totals };
+  return { days, totals, currentStreak: currentActivityStreak([...byDate.keys()], today) };
 }
 
-export function currentActivityStreak(dates: string[], today: Date) {
+function currentActivityStreak(dates: string[], today: Date) {
   const activeDates = new Set(dates);
   const cursor = new Date(
     Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()),
