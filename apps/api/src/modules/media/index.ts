@@ -15,7 +15,7 @@ import { MediaCompactModel, MediaModel, MediaTypeEnum, type MediaType } from "./
  */
 export async function ensureMedia(type: MediaType, id: number) {
   const cached = await mediaDal.getMediaById(type, id);
-  if (cached) return cached;
+  if (cached && !cached.externalLinks?.some((link) => !("language" in link))) return cached;
 
   const fetched = await anilistMediaById(type, id);
   if (!fetched) return null;

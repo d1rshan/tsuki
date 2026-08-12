@@ -46,7 +46,7 @@ describe("mediaDescriptionText", () => {
 describe("mediaImageClass", () => {
   test("uses monochrome styling only for manga", () => {
     expect(mediaImageClass("ANIME")).toBeUndefined();
-    expect(mediaImageClass("MANGA")).toBe("grayscale contrast-125");
+    expect(mediaImageClass("MANGA")).toBe("grayscale opacity-90");
   });
 });
 
@@ -57,6 +57,7 @@ describe("formatExternalLinks", () => {
         { url: "https://webtoons.com/en", site: "WEBTOON", language: "English" },
         { url: "https://webtoons.com/fr", site: "WEBTOON", language: "French" },
         { url: "https://webtoons.com/en", site: "WEBTOON", language: "English" },
+        { url: "https://webtoons.com/legacy", site: "WEBTOON" },
         { url: "https://naver.com", site: "Naver Webtoon", language: "Korean" },
         { url: "https://legacy.example", site: "Legacy", language: null },
       ]),
@@ -72,6 +73,11 @@ describe("formatExternalLinks", () => {
         site: "WEBTOON",
         language: "French",
         label: "WEBTOON (French)",
+      },
+      {
+        url: "https://webtoons.com/legacy",
+        site: "WEBTOON",
+        label: "WEBTOON",
       },
       {
         url: "https://naver.com",

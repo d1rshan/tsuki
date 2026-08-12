@@ -88,12 +88,15 @@ export function formatExternalLinks<T extends ExternalLink>(links: T[]): (T & { 
   const uniqueLinks = links.filter(
     (link, index) => links.findIndex(({ url }) => url === link.url) === index,
   );
-  const siteCounts = Map.groupBy(uniqueLinks, ({ site }) => site);
+  const siteCounts = new Map<string, number>();
+  for (const { site } of uniqueLinks) {
+    siteCounts.set(site, (siteCounts.get(site) ?? 0) + 1);
+  }
 
   return uniqueLinks.map((link) => ({
     ...link,
     label:
-      siteCounts.get(link.site)!.length > 1 && link.language
+      siteCounts.get(link.site)! > 1 && link.language
         ? `${link.site} (${link.language})`
         : link.site,
   }));
