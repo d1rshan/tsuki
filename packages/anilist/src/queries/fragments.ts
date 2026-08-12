@@ -4,19 +4,16 @@ import { gql } from "graphql-request";
 export const MEDIA_FIELDS = gql`
   fragment MediaFields on Media {
     id
-    idMal
     type
     title {
       romaji
       english
       native
     }
-    synonyms
     description
     coverImage {
       extraLarge
       large
-      medium
       color
     }
     bannerImage
@@ -41,19 +38,9 @@ export const MEDIA_FIELDS = gql`
     season
     seasonYear
     averageScore
-    meanScore
     popularity
     favourites
     genres
-    tags {
-      id
-      name
-      category
-      rank
-      isGeneralSpoiler
-      isMediaSpoiler
-      isAdult
-    }
     trailer {
       id
       site
@@ -67,8 +54,6 @@ export const MEDIA_FIELDS = gql`
       color
       icon
     }
-    siteUrl
-    isAdult
   }
 `;
 

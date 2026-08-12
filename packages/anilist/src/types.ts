@@ -55,7 +55,6 @@ type MediaTitle = {
 type MediaCoverImage = {
   extraLarge: string | null;
   large: string | null;
-  medium: string | null;
   color: string | null;
 };
 
@@ -74,23 +73,11 @@ type MediaExternalLink = {
   icon: string | null;
 };
 
-type MediaTag = {
-  id: number;
-  name: string;
-  category: string | null;
-  rank: number | null;
-  isGeneralSpoiler: boolean;
-  isMediaSpoiler: boolean;
-  isAdult: boolean;
-};
-
 /** The full `Media` selection — see MEDIA_FIELDS in ./queries/fragments. */
 export type AnilistMedia = {
   id: number;
-  idMal: number | null;
   type: MediaType;
   title: MediaTitle;
-  synonyms: (string | null)[] | null;
   description: string | null;
   coverImage: MediaCoverImage;
   bannerImage: string | null;
@@ -111,15 +98,11 @@ export type AnilistMedia = {
   season: MediaSeason | null;
   seasonYear: number | null;
   averageScore: number | null;
-  meanScore: number | null;
   popularity: number | null;
   favourites: number | null;
   genres: (string | null)[] | null;
-  tags: (MediaTag | null)[] | null;
   trailer: MediaTrailer | null;
   externalLinks: (MediaExternalLink | null)[] | null;
-  siteUrl: string | null;
-  isAdult: boolean | null;
 };
 
 /** The trimmed selection — mirrors MEDIA_COMPACT_FIELDS in ./queries/fragments. */

@@ -56,16 +56,6 @@ export const MediaSourceEnum = t.Union([
   t.Literal("PICTURE_BOOK"),
 ]);
 
-const MediaTagModel = t.Object({
-  id: t.Number(),
-  name: t.String(),
-  category: t.Nullable(t.String()),
-  rank: t.Nullable(t.Number()),
-  isGeneralSpoiler: t.Boolean(),
-  isMediaSpoiler: t.Boolean(),
-  isAdult: t.Boolean(),
-});
-
 /** The shape embedded in cards, grids, library entries and reviews. */
 export const MediaCompactModel = t.Object({
   id: t.Number(),
@@ -89,10 +79,7 @@ export const MediaCompactModel = t.Object({
 export const MediaModel = t.Composite([
   MediaCompactModel,
   t.Object({
-    idMal: t.Nullable(t.Number()),
-    synonyms: t.Nullable(t.Array(t.String())),
     description: t.Nullable(t.String()),
-    coverImageMedium: t.Nullable(t.String()),
     status: t.Nullable(MediaStatusEnum),
     source: t.Nullable(MediaSourceEnum),
     countryOfOrigin: t.Nullable(t.String()),
@@ -103,11 +90,9 @@ export const MediaModel = t.Composite([
     startDate: t.Nullable(FuzzyDateModel),
     endDate: t.Nullable(FuzzyDateModel),
     season: t.Nullable(MediaSeasonEnum),
-    meanScore: t.Nullable(t.Number()),
     popularity: t.Nullable(t.Number()),
     favourites: t.Nullable(t.Number()),
     genres: t.Nullable(t.Array(t.String())),
-    tags: t.Nullable(t.Array(MediaTagModel)),
     trailer: t.Nullable(t.Object({ id: t.String(), site: t.String(), thumbnail: t.String() })),
     externalLinks: t.Nullable(
       t.Array(
@@ -121,8 +106,6 @@ export const MediaModel = t.Composite([
         }),
       ),
     ),
-    siteUrl: t.Nullable(t.String()),
-    isAdult: t.Nullable(t.Boolean()),
   }),
 ]);
 
