@@ -4,7 +4,7 @@ import type { Media } from "@tsuki/api/types";
 
 import { Badge } from "@/components/ui/badge";
 
-import { mediaDescriptionText, unitCount } from "../media";
+import { formatExternalLinks, mediaDescriptionText, unitCount } from "../media";
 import { MediaActions } from "./media-actions";
 import { MediaTrailer } from "./media-trailer";
 
@@ -66,7 +66,7 @@ export function MediaDetails({ media }: { media: Media }) {
                     />
                   ) : null}
                   <span className="group-hover:underline group-hover:decoration-dashed group-hover:underline-offset-4">
-                    {link.site}
+                    {link.label}
                   </span>
                   <ExternalLink className="size-3 opacity-0 transition-opacity group-hover:opacity-100" />
                 </a>
@@ -120,10 +120,11 @@ function getDetailItems(media: Media) {
 
 function getMediaLinks(media: Media) {
   return {
-    heading: media.type === "ANIME" ? "Where to Watch" : "More Info",
-    items:
+    heading: media.type === "ANIME" ? "Where to Watch" : "Where to Read",
+    items: formatExternalLinks(
       media.type === "ANIME"
         ? (media.externalLinks?.filter((link) => link.type === "STREAMING") ?? [])
         : (media.externalLinks ?? []),
+    ),
   };
 }

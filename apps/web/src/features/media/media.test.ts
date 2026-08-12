@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { mediaDescriptionText, mediaImageClass, parseMediaId } from "./media";
+import { formatExternalLinks, mediaDescriptionText, mediaImageClass, parseMediaId } from "./media";
 import { mediaIdSchema } from "./schemas";
 
 describe("parseMediaId", () => {
@@ -47,5 +47,44 @@ describe("mediaImageClass", () => {
   test("uses monochrome styling only for manga", () => {
     expect(mediaImageClass("ANIME")).toBeUndefined();
     expect(mediaImageClass("MANGA")).toBe("grayscale contrast-125");
+  });
+});
+
+describe("formatExternalLinks", () => {
+  test("deduplicates URLs and disambiguates repeated sites by language", () => {
+    expect(
+      formatExternalLinks([
+        { url: "https://webtoons.com/en", site: "WEBTOON", language: "English" },
+        { url: "https://webtoons.com/fr", site: "WEBTOON", language: "French" },
+        { url: "https://webtoons.com/en", site: "WEBTOON", language: "English" },
+        { url: "https://naver.com", site: "Naver Webtoon", language: "Korean" },
+        { url: "https://legacy.example", site: "Legacy", language: null },
+      ]),
+    ).toEqual([
+      {
+        url: "https://webtoons.com/en",
+        site: "WEBTOON",
+        language: "English",
+        label: "WEBTOON (English)",
+      },
+      {
+        url: "https://webtoons.com/fr",
+        site: "WEBTOON",
+        language: "French",
+        label: "WEBTOON (French)",
+      },
+      {
+        url: "https://naver.com",
+        site: "Naver Webtoon",
+        language: "Korean",
+        label: "Naver Webtoon",
+      },
+      {
+        url: "https://legacy.example",
+        site: "Legacy",
+        language: null,
+        label: "Legacy",
+      },
+    ]);
   });
 });

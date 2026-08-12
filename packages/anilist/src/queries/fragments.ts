@@ -63,6 +63,7 @@ export const MEDIA_FIELDS = gql`
       url
       site
       type
+      language
       color
       icon
     }

@@ -69,6 +69,7 @@ type MediaExternalLink = {
   url: string;
   site: string;
   type: string;
+  language: string | null;
   color: string | null;
   icon: string | null;
 };

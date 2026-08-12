@@ -78,6 +78,27 @@ export function mediaImageClass(mediaType: MediaType) {
   return mediaType === "MANGA" ? "grayscale opacity-90" : undefined;
 }
 
+type ExternalLink = {
+  url: string;
+  site: string;
+  language?: string | null;
+};
+
+export function formatExternalLinks<T extends ExternalLink>(links: T[]): (T & { label: string })[] {
+  const uniqueLinks = links.filter(
+    (link, index) => links.findIndex(({ url }) => url === link.url) === index,
+  );
+  const siteCounts = Map.groupBy(uniqueLinks, ({ site }) => site);
+
+  return uniqueLinks.map((link) => ({
+    ...link,
+    label:
+      siteCounts.get(link.site)!.length > 1 && link.language
+        ? `${link.site} (${link.language})`
+        : link.site,
+  }));
+}
+
 export function getMediaTitle(media: {
   titleEnglish?: string | null;
   titleRomaji?: string | null;
