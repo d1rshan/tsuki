@@ -33,10 +33,14 @@
       "cache": false,
       "persistent": true
     },
-    "db:push": {
+    "db:generate": {
       "env": ["DATABASE_URL"],
       "cache": false,
       "interactive": true
+    },
+    "db:migrate": {
+      "env": ["DATABASE_URL"],
+      "cache": false
     },
     "db:studio": {
       "cache": false
