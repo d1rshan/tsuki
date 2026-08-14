@@ -23,6 +23,8 @@ export function MediaDetails({ media }: { media: Media }) {
   return (
     <div className="mt-8 grid grid-cols-1 gap-12 md:grid-cols-[200px_1fr] lg:grid-cols-[250px_1fr]">
       <div className="space-y-8">
+        <MediaActions mediaType={media.type} mediaId={media.id} total={unitCount(media)} />
+
         {media.genres && media.genres.length > 0 ? (
           <div className="space-y-3">
             <h3 className="text-sm font-semibold tracking-wider text-muted-foreground uppercase">
@@ -81,9 +83,6 @@ export function MediaDetails({ media }: { media: Media }) {
             </div>
           </div>
         ) : null}
-        <div className="border-t pt-4">
-          <MediaActions mediaType={media.type} mediaId={media.id} total={unitCount(media)} />
-        </div>
       </div>
 
       <div className="min-w-0 space-y-4">
