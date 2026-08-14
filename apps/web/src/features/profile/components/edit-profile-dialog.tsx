@@ -9,17 +9,17 @@ import { toast } from "sonner";
 
 import type { UserOverview } from "@tsuki/api/types";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+} from "@/shared/components/ui/dialog";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/shared/components/ui/field";
+import { Input } from "@/shared/components/ui/input";
+import { Textarea } from "@/shared/components/ui/textarea";
 
 import { updateProfile } from "../actions";
 import { createProfileUpdate, profileFormSchema, type ProfileFormValues } from "../schemas";

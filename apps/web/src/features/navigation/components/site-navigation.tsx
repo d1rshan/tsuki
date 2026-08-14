@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, Search, X } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import { ThemeToggle } from "@/shared/components/theme-toggle";
 
 import { useNavigationSearch } from "../hooks/use-navigation-search";

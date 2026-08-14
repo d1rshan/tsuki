@@ -7,8 +7,8 @@ import { toast } from "sonner";
 
 import { signIn } from "@tsuki/auth/client";
 
-import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/shared/components/ui/field";
+import { Input } from "@/shared/components/ui/input";
 
 import { loginSchema, type LoginValues } from "../schemas";
 import { AuthFormCard } from "./auth-form-card";

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { LoaderCircle } from "lucide-react";
 
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/shared/components/ui/button";
 import {
   Card,
   CardAction,
@@ -10,7 +10,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/shared/components/ui/card";
 
 type AuthFormCardProps = {
   alternateHref: string;

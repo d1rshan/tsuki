@@ -13,7 +13,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
+} from "@/shared/components/ui/sidebar";
 
 const navItems = [
   { title: "Dashboard", href: "/admin", icon: LayoutDashboard },

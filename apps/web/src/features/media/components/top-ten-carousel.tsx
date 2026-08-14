@@ -8,7 +8,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/components/ui/carousel";
+} from "@/shared/components/ui/carousel";
 import { cn } from "@/shared/lib/utils";
 
 import { MediaCard } from "./media-card";

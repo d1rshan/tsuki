@@ -2,7 +2,7 @@ import { Search } from "lucide-react";
 
 import type { MediaType } from "@tsuki/api/types";
 
-import { Kbd } from "@/components/ui/kbd";
+import { Kbd } from "@/shared/components/ui/kbd";
 
 type NavigationSearchProps = {
   mediaType: MediaType;

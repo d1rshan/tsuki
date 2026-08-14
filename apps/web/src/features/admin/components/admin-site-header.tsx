@@ -1,4 +1,4 @@
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarTrigger } from "@/shared/components/ui/sidebar";
 import { ThemeToggle } from "@/shared/components/theme-toggle";
 
 export function AdminSiteHeader() {

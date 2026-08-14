@@ -9,7 +9,7 @@ import { toast } from "sonner";
 
 import { authClient } from "@tsuki/auth/client";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import {
   Card,
   CardContent,
@@ -17,9 +17,9 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+} from "@/shared/components/ui/card";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/shared/components/ui/field";
+import { Input } from "@/shared/components/ui/input";
 
 import { resetPasswordSchema, type ResetPasswordValues } from "../schemas";
 import { AuthFormCard } from "./auth-form-card";
