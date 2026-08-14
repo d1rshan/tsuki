@@ -1,7 +1,7 @@
-import { and, count, desc, eq, sql, sum } from "drizzle-orm";
+import { and, count, desc, eq, sum } from "drizzle-orm";
 
 import { db } from "../db";
-import { libraryEntries, progressActivity, type MediaType } from "../schema";
+import { libraryEntries, type MediaType } from "../schema";
 import { MEDIA_COMPACT_COLUMNS } from "./media";
 
 export type InsertLibraryEntry = typeof libraryEntries.$inferInsert;
@@ -17,7 +17,6 @@ export type LibraryQueryOptions = {
 export const getEntry = async (userId: string, mediaId: number) => {
   return db.query.libraryEntries.findFirst({
     where: and(eq(libraryEntries.userId, userId), eq(libraryEntries.mediaId, mediaId)),
-    columns: { activityProgress: false },
     with: { media: { columns: MEDIA_COMPACT_COLUMNS } },
   });
 };
@@ -32,7 +31,6 @@ export const getUserLibrary = async (userId: string, options: LibraryQueryOption
       type ? eq(libraryEntries.mediaType, type) : undefined,
       isFavorite ? eq(libraryEntries.isFavorite, true) : undefined,
     ),
-    columns: { activityProgress: false },
     with: { media: { columns: MEDIA_COMPACT_COLUMNS } },
     orderBy: [desc(libraryEntries.updatedAt)],
     limit,
@@ -63,9 +61,9 @@ export const getLibraryStats = async (userId: string) => {
 export type LibraryStatsRow = Awaited<ReturnType<typeof getLibraryStats>>[number];
 
 export const upsertEntry = async (entry: InsertLibraryEntry) => {
-  const upsert = db
+  const [result] = await db
     .insert(libraryEntries)
-    .values({ ...entry, activityProgress: 0 })
+    .values(entry)
     .onConflictDoUpdate({
       target: [libraryEntries.userId, libraryEntries.mediaId],
       set: {
@@ -78,47 +76,11 @@ export const upsertEntry = async (entry: InsertLibraryEntry) => {
         notes: entry.notes,
         startedAt: entry.startedAt,
         completedAt: entry.completedAt,
-        // Existing rows start with a null cursor after deployment. Seed it from
-        // the old progress before applying the new value so nothing is backfilled.
-        activityProgress: sql`coalesce(${libraryEntries.activityProgress}, ${libraryEntries.progress})`,
         updatedAt: new Date(),
       },
     })
     .returning();
-
-  if (entry.progress === undefined) {
-    const [result] = await upsert;
-    return result;
-  }
-
-  // neon-http batches run in one transaction. The upsert locks this entry
-  // before this statement advances its cursor, serializing concurrent saves.
-  const [results] = await db.batch([
-    upsert,
-    db.execute(sql`
-    with current_progress as (
-      select ${libraryEntries.progress} as progress,
-             ${libraryEntries.activityProgress} as activity_progress
-      from ${libraryEntries}
-      where ${libraryEntries.userId} = ${entry.userId}
-        and ${libraryEntries.mediaId} = ${entry.mediaId}
-    ), advanced_progress as (
-      update ${libraryEntries}
-      set activity_progress = current_progress.progress
-      from current_progress
-      where ${libraryEntries.userId} = ${entry.userId}
-        and ${libraryEntries.mediaId} = ${entry.mediaId}
-      returning current_progress.progress - current_progress.activity_progress as amount
-    )
-    insert into ${progressActivity} (user_id, media_type, amount)
-    select ${entry.userId}, ${entry.mediaType}, amount
-    from advanced_progress
-    where amount > 0
-    on conflict (user_id, media_type, activity_date)
-    do update set amount = progress_activity.amount + excluded.amount
-  `),
-  ]);
-  return results[0];
+  return result;
 };
 
 export const deleteEntry = async (userId: string, mediaId: number) => {
