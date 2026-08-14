@@ -2,21 +2,16 @@ import Link from "next/link";
 
 import { cn } from "@/shared/lib/utils";
 
-import type { NavigationUser } from "./site-navigation";
+import type { NavbarUser } from "./";
 
-type NavigationLinksProps = {
+type NavbarLinksProps = {
   isMobile?: boolean;
   onNavigate?: () => void;
   pathname: string;
-  user: NavigationUser | null;
+  user: NavbarUser | null;
 };
 
-export function NavigationLinks({
-  isMobile = false,
-  onNavigate,
-  pathname,
-  user,
-}: NavigationLinksProps) {
+export function NavbarLinks({ isMobile = false, onNavigate, pathname, user }: NavbarLinksProps) {
   const links = [
     {
       href: "/",

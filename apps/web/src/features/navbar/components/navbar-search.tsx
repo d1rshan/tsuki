@@ -4,14 +4,14 @@ import type { MediaType } from "@tsuki/api/types";
 
 import { Kbd } from "@/shared/components/ui/kbd";
 
-type NavigationSearchProps = {
+type NavbarSearchProps = {
   mediaType: MediaType;
   onChange: (value: string) => void;
   onClose: () => void;
   query: string;
 };
 
-export function NavigationSearch({ mediaType, onChange, onClose, query }: NavigationSearchProps) {
+export function NavbarSearch({ mediaType, onChange, onClose, query }: NavbarSearchProps) {
   return (
     <div className="flex h-full w-full items-center gap-3">
       <Search className="size-5 text-muted-foreground" />
