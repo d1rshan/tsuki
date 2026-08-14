@@ -60,6 +60,12 @@ export const getLibraryStats = async (userId: string) => {
 
 export type LibraryStatsRow = Awaited<ReturnType<typeof getLibraryStats>>[number];
 
+/**
+ * Progress activity is recorded by the trigger in
+ * `drizzle/0001_record_progress_activity.sql`. Keeping it in PostgreSQL avoids
+ * an extra cursor column: neon-http has no interactive transaction for locking
+ * the entry, reading its old progress, and updating both tables atomically.
+ */
 export const upsertEntry = async (entry: InsertLibraryEntry) => {
   const [result] = await db
     .insert(libraryEntries)
