@@ -4,7 +4,7 @@ import { Star } from "lucide-react";
 
 import type { MediaCompact, MediaType } from "@tsuki/api/types";
 
-import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { cn } from "@/shared/lib/utils";
 
 import {

@@ -10,7 +10,7 @@ import { useHotkey } from "@/shared/hooks/use-hotkey";
 
 const MEDIA_TYPES = ["ANIME", "MANGA"] as const;
 
-export function useNavigationSearch() {
+export function useNavbarSearch() {
   const pathname = usePathname();
   const [isManuallyOpen, setIsManuallyOpen] = useState(false);
   const previousPathname = useRef(pathname);

@@ -6,7 +6,7 @@ import { useQueryState, parseAsBoolean, parseAsStringEnum } from "nuqs";
 
 import type { MediaCompact, MediaType } from "@tsuki/api/types";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import { MediaGrid } from "@/features/media/components/media-grid";
 import { MediaTypeToggle } from "@/features/media/components/media-type-toggle";
 import { TopTenCarousel } from "@/features/media/components/top-ten-carousel";

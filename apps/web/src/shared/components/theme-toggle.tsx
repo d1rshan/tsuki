@@ -3,7 +3,6 @@
 import { Palette } from "lucide-react";
 import { useTheme } from "next-themes";
 
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,8 +11,9 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/shared/components/ui/dropdown-menu";
 import { THEMES } from "@/shared/lib/themes";
+import { Button } from "@/shared/components/ui/button";
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();

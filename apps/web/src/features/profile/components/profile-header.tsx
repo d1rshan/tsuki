@@ -17,7 +17,7 @@ export function ProfileHeader({ isOwner, profile, stats, user }: ProfileHeaderPr
   const banner = profile?.bannerImage;
 
   return (
-    <div className="mb-8 flex flex-col border-b pb-8">
+    <header className="mb-8 border-b pb-8">
       {banner ? (
         <div className="relative mb-6 h-48 w-full overflow-hidden rounded-2xl border shadow-sm md:h-64">
           <Image src={banner} alt="Banner" fill priority unoptimized className="object-cover" />
@@ -76,7 +76,7 @@ export function ProfileHeader({ isOwner, profile, stats, user }: ProfileHeaderPr
 
           <SocialLinks links={profile?.socialLinks} />
 
-          <div className="flex w-full flex-row flex-wrap gap-6 pt-6 md:hidden">
+          <div className="hidden w-full flex-row flex-wrap gap-x-8 gap-y-4 pt-6">
             <ProfileStats stats={stats} />
           </div>
 
@@ -84,12 +84,8 @@ export function ProfileHeader({ isOwner, profile, stats, user }: ProfileHeaderPr
             <ProfileTabs username={user.username} />
           </div>
         </div>
-
-        <div className="hidden shrink-0 flex-col justify-start gap-5 border-l border-border/50 pt-6 pl-6 md:flex md:min-w-[120px] md:justify-center md:pt-2">
-          <ProfileStats stats={stats} />
-        </div>
       </div>
-    </div>
+    </header>
   );
 }
 

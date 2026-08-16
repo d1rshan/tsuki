@@ -1,15 +1,12 @@
-# db
+# Database
 
-To install dependencies:
-
-```bash
-bun install
-```
-
-To run:
+Drizzle migrations are the source of truth for database structure and behavior.
 
 ```bash
-bun run index.ts
+bun run db:generate # after changing the TypeScript schema
+bun run db:migrate  # apply pending migrations
+bun run db:studio
 ```
 
-This project was created using `bun init` in bun v1.3.13. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+PostgreSQL features that Drizzle cannot declare, such as triggers, belong in a
+custom migration created with `drizzle-kit generate --custom --name <name>`.

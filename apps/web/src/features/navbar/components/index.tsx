@@ -5,23 +5,23 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, Search, X } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import { ThemeToggle } from "@/shared/components/theme-toggle";
 
-import { useNavigationSearch } from "../hooks/use-navigation-search";
-import { NavigationAuth } from "./navigation-auth";
-import { NavigationLinks } from "./navigation-links";
-import { NavigationSearch } from "./navigation-search";
+import { useNavbarSearch } from "../hooks/use-navbar-search";
+import { NavbarAuth } from "./navbar-auth";
+import { NavbarLinks } from "./navbar-links";
+import { NavbarSearch } from "./navbar-search";
 
-export type NavigationUser = {
+export type NavbarUser = {
   role?: string | null;
   username?: string | null;
 };
 
-export function SiteNavigation({ user }: { user: NavigationUser | null }) {
+export function Navbar({ user }: { user: NavbarUser | null }) {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const search = useNavigationSearch();
+  const search = useNavbarSearch();
 
   useLayoutEffect(() => () => setIsMobileMenuOpen(false), []);
 
@@ -32,7 +32,7 @@ export function SiteNavigation({ user }: { user: NavigationUser | null }) {
       <div className="container mx-auto px-4 xl:max-w-5xl">
         <div className="pointer-events-auto relative flex h-12 w-full items-center justify-between rounded-xl border border-black/5 bg-background px-3 shadow-2xl transition-all duration-300 dark:border-white/10 dark:bg-background/55 dark:backdrop-blur-2xl md:h-14 md:px-6">
           {search.isOpen ? (
-            <NavigationSearch
+            <NavbarSearch
               mediaType={search.mediaType}
               query={search.query}
               onChange={(value) => void search.setQuery(value || null)}
@@ -48,13 +48,13 @@ export function SiteNavigation({ user }: { user: NavigationUser | null }) {
                   </span>
                 </Link>
                 <div className="hidden items-center gap-6 sm:flex">
-                  <NavigationLinks pathname={pathname} user={user} />
+                  <NavbarLinks pathname={pathname} user={user} />
                 </div>
               </div>
 
               <div className="flex items-center gap-2">
                 <div className="hidden items-center gap-2 sm:flex">
-                  <NavigationAuth isAuthenticated={Boolean(user?.username)} />
+                  <NavbarAuth isAuthenticated={Boolean(user?.username)} />
                   <div className="mx-1 h-4 w-px bg-border" />
                   <ThemeToggle />
                 </div>
@@ -88,15 +88,10 @@ export function SiteNavigation({ user }: { user: NavigationUser | null }) {
 
         {isMobileMenuOpen && !search.isOpen ? (
           <div className="pointer-events-auto mt-2 flex flex-col gap-1 rounded-xl border border-black/5 bg-background/95 p-3 shadow-2xl backdrop-blur-2xl dark:border-white/10 dark:bg-background/80 sm:hidden">
-            <NavigationLinks
-              isMobile
-              pathname={pathname}
-              user={user}
-              onNavigate={closeMobileMenu}
-            />
+            <NavbarLinks isMobile pathname={pathname} user={user} onNavigate={closeMobileMenu} />
             <div className="my-2 h-px w-full bg-border" />
             <div className="flex items-center justify-between px-1">
-              <NavigationAuth
+              <NavbarAuth
                 isAuthenticated={Boolean(user?.username)}
                 isMobile
                 onNavigate={closeMobileMenu}
