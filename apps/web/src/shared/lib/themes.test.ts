@@ -51,7 +51,7 @@ describe("themes", () => {
   test("defines every preset with the required hex colors", () => {
     const cssThemeIds = [...themeCss.matchAll(/^\.([\w-]+) \{/gm)].map((match) => match[1]);
 
-    expect(cssThemeIds).toEqual(THEME_IDS);
+    expect([...cssThemeIds].sort()).toEqual([...THEME_IDS].sort());
     for (const id of THEME_IDS) {
       const block = getThemeBlock(id);
 

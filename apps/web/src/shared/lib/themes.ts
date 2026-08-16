@@ -1,6 +1,6 @@
 export const THEMES = [
-  { id: "light", name: "Light", color: "#526b3a", scheme: "light" },
-  { id: "dark", name: "Dark", color: "#e5e5e5", scheme: "dark" },
+  { id: "dark", name: "Ink", color: "#e5e5e5", scheme: "dark" },
+  { id: "light", name: "Matcha", color: "#526b3a", scheme: "light" },
   { id: "sakura", name: "Sakura", color: "#9b3f68", scheme: "light" },
   { id: "ocean", name: "Ocean", color: "#126782", scheme: "light" },
   { id: "forest", name: "Forest", color: "#84a98c", scheme: "dark" },
