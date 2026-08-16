@@ -15,11 +15,6 @@ const requiredColors = [
   "muted-foreground",
   "destructive",
   "border",
-  "chart-1",
-  "chart-2",
-  "chart-3",
-  "chart-4",
-  "chart-5",
 ] as const;
 
 function getThemeBlock(id: string): string {

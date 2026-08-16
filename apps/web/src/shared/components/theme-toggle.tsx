@@ -7,7 +7,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
-  DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
@@ -35,15 +34,11 @@ export function ThemeToggle() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-52">
         <DropdownMenuGroup>
-          <DropdownMenuLabel>Color theme</DropdownMenuLabel>
           <DropdownMenuRadioGroup
             value={theme}
             onValueChange={setTheme}
             className="grid grid-cols-2"
           >
-            <DropdownMenuRadioItem value="system" className="col-span-2">
-              System
-            </DropdownMenuRadioItem>
             {THEMES.map(({ id, name, color }) => (
               <DropdownMenuRadioItem key={id} value={id}>
                 <span
