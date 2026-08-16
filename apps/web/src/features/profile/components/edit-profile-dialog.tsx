@@ -4,7 +4,7 @@ import { useLayoutEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Edit2, LoaderCircle, Plus, Trash2 } from "lucide-react";
-import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import type { UserOverview } from "@tsuki/api/types";
@@ -38,7 +38,6 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
     control,
     formState: { errors, isSubmitting },
     reset,
-    setValue,
   } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues,
@@ -48,8 +47,6 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
     control,
     name: "socialLinks",
   });
-
-  const accentColorValue = useWatch({ control, name: "accentColor" });
 
   useLayoutEffect(() => () => setIsOpen(false), []);
 
@@ -121,36 +118,6 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
                 disabled={isSubmitting}
               />
               <FieldError errors={errors.bannerImage ? [errors.bannerImage] : []} />
-            </Field>
-
-            <Field data-invalid={!!errors.accentColor}>
-              <FieldLabel htmlFor="accentColor">Accent Color</FieldLabel>
-              <div className="flex items-center gap-3">
-                <Input
-                  id="accentColorPicker"
-                  type="color"
-                  aria-label="Choose accent color"
-                  value={accentColorValue || "#000000"}
-                  onChange={(e) =>
-                    setValue("accentColor", e.target.value, {
-                      shouldValidate: true,
-                      shouldDirty: true,
-                    })
-                  }
-                  className="w-12 h-12 p-1 cursor-pointer"
-                  disabled={isSubmitting}
-                />
-                <Input
-                  id="accentColor"
-                  type="text"
-                  placeholder="#000000"
-                  className="font-mono uppercase flex-1"
-                  {...register("accentColor")}
-                  aria-invalid={!!errors.accentColor}
-                  disabled={isSubmitting}
-                />
-              </div>
-              <FieldError errors={errors.accentColor ? [errors.accentColor] : []} />
             </Field>
 
             <div className="space-y-3 pt-2">
@@ -238,7 +205,6 @@ function createProfileFormValues(profile: Profile): ProfileFormValues {
   return {
     bio: profile?.bio || "",
     bannerImage: profile?.bannerImage || "",
-    accentColor: profile?.accentColor || "",
     socialLinks: Object.entries(profile?.socialLinks ?? {}).map(([platform, url]) => ({
       platform,
       url,

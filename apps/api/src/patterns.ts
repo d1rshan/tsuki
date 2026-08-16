@@ -5,6 +5,3 @@
 
 /** Absolute http(s) only — these are rendered as-is, so `javascript:` must not pass. */
 export const URL_PATTERN = "^https?://";
-
-/** Six-digit hex, `#rrggbb`. */
-export const HEX_COLOR_PATTERN = "^#[0-9a-fA-F]{6}$";
