@@ -10,12 +10,15 @@ import {
   Loader2Icon,
 } from "lucide-react";
 
+import { getThemeScheme } from "@/shared/lib/themes";
+
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme();
+  const { resolvedTheme, systemTheme } = useTheme();
+  const theme = getThemeScheme(resolvedTheme) ?? systemTheme ?? "system";
 
   return (
     <Sonner
-      theme={theme as ToasterProps["theme"]}
+      theme={theme}
       className="toaster group"
       icons={{
         success: <CircleCheckIcon className="size-4" />,
