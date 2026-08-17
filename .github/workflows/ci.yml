@@ -1,4 +1,4 @@
-name: Format, Lint, Test, Typecheck & Build
+name: Format, Lint, Typecheck & Build
 
 on:
   push:
