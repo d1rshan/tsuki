@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
 import { ProfileHeader } from "@/features/profile/components/profile-header";
+import { cn } from "@/shared/lib/utils";
 import { getSession } from "@/shared/lib/session";
 import { parseUsername } from "@/shared/lib/username";
 
@@ -32,7 +33,7 @@ async function ProfileLayoutContent({ children, params }: ProfileLayoutProps) {
   if (!profile) notFound();
 
   return (
-    <div className="min-h-screen pt-20 pb-10 md:pt-28 md:pb-16">
+    <div className={cn("min-h-screen pt-20 pb-10 md:pt-28 md:pb-16", profile.profile?.theme)}>
       <div className="mx-auto max-w-5xl px-4 md:px-6">
         <ProfileHeader
           user={profile.user}

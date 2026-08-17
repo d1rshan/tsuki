@@ -4,9 +4,28 @@ import { URL_PATTERN } from "../../patterns";
 import { LibraryEntryModel } from "../library/model";
 import { ReviewModel } from "../reviews/model";
 
+const ThemeModel = t.Union([
+  t.Literal("dark"),
+  t.Literal("light"),
+  t.Literal("sakura"),
+  t.Literal("ocean"),
+  t.Literal("forest"),
+  t.Literal("sunset"),
+  t.Literal("lavender"),
+  t.Literal("rose"),
+  t.Literal("mint"),
+  t.Literal("amber"),
+  t.Literal("nord"),
+  t.Literal("dracula"),
+  t.Literal("coffee"),
+  t.Literal("cyberpunk"),
+  t.Literal("midnight"),
+]);
+
 export const ProfileModel = t.Object({
   bio: t.Nullable(t.String({ maxLength: 500 })),
   bannerImage: t.Nullable(t.String({ pattern: URL_PATTERN })),
+  theme: t.Nullable(ThemeModel),
   socialLinks: t.Nullable(t.Record(t.String(), t.String({ pattern: URL_PATTERN }))),
 });
 

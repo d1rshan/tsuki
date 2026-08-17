@@ -14,8 +14,15 @@ import {
 import { THEMES } from "@/shared/lib/themes";
 import { Button } from "@/shared/components/ui/button";
 
+import { updateTheme } from "../../features/profile/actions";
+
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
+
+  async function handleThemeChange(value: string) {
+    const result = await updateTheme(value);
+    if (result.success) setTheme(value);
+  }
 
   return (
     <DropdownMenu>
@@ -36,7 +43,7 @@ export function ThemeToggle() {
         <DropdownMenuGroup>
           <DropdownMenuRadioGroup
             value={theme}
-            onValueChange={setTheme}
+            onValueChange={handleThemeChange}
             className="grid grid-cols-2"
           >
             {THEMES.map(({ id, name, color }) => (

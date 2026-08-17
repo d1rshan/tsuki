@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
+import { getProfileOverview } from "@/features/profile/data";
 import { AppProviders } from "@/shared/components/app-providers";
+import { getSession } from "@/shared/lib/session";
 
 import "./globals.css";
 
@@ -24,17 +26,20 @@ export const metadata: Metadata = {
   description: "Track, rate, and review anime and manga.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { user } = await getSession();
+  const profile = user?.username ? await getProfileOverview(user.username) : null;
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-background font-sans antialiased`}
       >
-        <AppProviders>{children}</AppProviders>
+        <AppProviders initialTheme={profile?.profile?.theme}>{children}</AppProviders>
       </body>
     </html>
   );
