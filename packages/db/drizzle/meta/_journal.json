@@ -22,6 +22,13 @@
       "when": 1786871520963,
       "tag": "0002_plain_drax",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1786954661262,
+      "tag": "0003_panoramic_timeslip",
+      "breakpoints": true
     }
   ]
 }

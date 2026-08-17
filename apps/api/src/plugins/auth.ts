@@ -19,4 +19,11 @@ export const authPlugin = new Elysia({ name: "better-auth" }).mount(auth.handler
       };
     },
   },
+  optionalAuth: {
+    async resolve({ request: { headers } }) {
+      const session = await auth.api.getSession({ headers });
+
+      return { viewer: session?.user ?? null };
+    },
+  },
 });

@@ -22,6 +22,27 @@ export const UserSummaryModel = t.Object({
   createdAt: t.Date(),
 });
 
+export const FollowRelationshipModel = t.Object({
+  following: t.Boolean(),
+  followedBy: t.Boolean(),
+});
+
+export const ProfileSocialModel = t.Object({
+  followers: t.Number(),
+  following: t.Number(),
+  viewer: t.Nullable(FollowRelationshipModel),
+});
+
+export const FollowListQueryModel = t.Object({
+  limit: t.Optional(t.Numeric({ minimum: 1, maximum: 100, multipleOf: 1 })),
+  offset: t.Optional(t.Numeric({ minimum: 0, maximum: Number.MAX_SAFE_INTEGER, multipleOf: 1 })),
+});
+
+export const FollowListModel = t.Object({
+  users: t.Array(UserSummaryModel),
+  total: t.Number(),
+});
+
 const MediaStatsModel = t.Object({
   total: t.Number(),
   /** Episodes watched or chapters read. */
@@ -51,8 +72,11 @@ export const UserOverviewModel = t.Object({
   favorites: t.Array(LibraryEntryModel),
   recentLogs: t.Array(LibraryEntryModel),
   recentReviews: t.Array(ReviewModel),
+  social: ProfileSocialModel,
   activity: ProfileActivityModel,
 });
 
 export type Profile = typeof ProfileModel.static;
+export type FollowRelationship = typeof FollowRelationshipModel.static;
+export type UserSummary = typeof UserSummaryModel.static;
 export type UserOverview = typeof UserOverviewModel.static;

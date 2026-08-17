@@ -25,10 +25,11 @@ async function ProfileLayoutContent({ children, params }: ProfileLayoutProps) {
   const username = parseUsername((await params).username);
   if (!username) notFound();
 
-  const profile = await getProfileOverview(username);
+  const [profile, { user: currentUser }] = await Promise.all([
+    getProfileOverview(username),
+    getSession(),
+  ]);
   if (!profile) notFound();
-
-  const { user: currentUser } = await getSession();
 
   return (
     <div className="min-h-screen pt-20 pb-10 md:pt-28 md:pb-16">
@@ -38,6 +39,7 @@ async function ProfileLayoutContent({ children, params }: ProfileLayoutProps) {
           stats={profile.stats}
           profile={profile.profile}
           isOwner={currentUser?.id === profile.user.id}
+          social={profile.social}
         />
         {children}
       </div>

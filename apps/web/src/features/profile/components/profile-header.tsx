@@ -1,19 +1,22 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Link as LinkIcon } from "lucide-react";
 
 import type { UserOverview } from "@tsuki/api/types";
 
 import { EditProfileDialog } from "./edit-profile-dialog";
+import { ProfileFollowButton } from "./profile-follow-button";
 import { ProfileTabs } from "./profile-tabs";
 
 type ProfileHeaderProps = {
   isOwner: boolean;
   profile: UserOverview["profile"];
+  social: UserOverview["social"];
   stats: UserOverview["stats"];
   user: UserOverview["user"];
 };
 
-export function ProfileHeader({ isOwner, profile, stats, user }: ProfileHeaderProps) {
+export function ProfileHeader({ isOwner, profile, social, stats, user }: ProfileHeaderProps) {
   const banner = profile?.bannerImage;
 
   return (
@@ -65,7 +68,9 @@ export function ProfileHeader({ isOwner, profile, stats, user }: ProfileHeaderPr
               <div className="hidden shrink-0 md:block">
                 <EditProfileDialog profile={profile} />
               </div>
-            ) : null}
+            ) : (
+              <ProfileFollowButton username={user.username} />
+            )}
           </div>
 
           {profile?.bio ? (
@@ -76,7 +81,18 @@ export function ProfileHeader({ isOwner, profile, stats, user }: ProfileHeaderPr
 
           <SocialLinks links={profile?.socialLinks} />
 
-          <div className="hidden w-full flex-row flex-wrap gap-x-8 gap-y-4 pt-6">
+          <div className="mt-5 flex gap-5 text-sm">
+            <Link href={`/profile/${user.username}/followers`} className="hover:text-primary">
+              <strong className="text-foreground">{social.followers}</strong>{" "}
+              <span className="text-muted-foreground">followers</span>
+            </Link>
+            <Link href={`/profile/${user.username}/following`} className="hover:text-primary">
+              <strong className="text-foreground">{social.following}</strong>{" "}
+              <span className="text-muted-foreground">following</span>
+            </Link>
+          </div>
+
+          <div className="flex w-full flex-row flex-wrap gap-6 pt-6 md:hidden">
             <ProfileStats stats={stats} />
           </div>
 
