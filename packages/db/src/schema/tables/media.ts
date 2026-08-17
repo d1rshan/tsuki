@@ -1,15 +1,6 @@
-import {
-  pgTable,
-  text,
-  timestamp,
-  boolean,
-  integer,
-  jsonb,
-  index,
-  unique,
-} from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, integer, jsonb, index, unique } from "drizzle-orm/pg-core";
 
-import type { FuzzyDate, MediaExternalLink, MediaTag, MediaTrailer } from "../types";
+import type { FuzzyDate, MediaExternalLink, MediaTrailer } from "../types";
 import {
   mediaFormatEnum,
   mediaSeasonEnum,
@@ -22,16 +13,13 @@ export const media = pgTable(
   "media",
   {
     id: integer("id").primaryKey(), // AniList id
-    idMal: integer("id_mal"),
     type: mediaTypeEnum("type").notNull(),
     titleRomaji: text("title_romaji"),
     titleEnglish: text("title_english"),
     titleNative: text("title_native"),
-    synonyms: jsonb("synonyms").$type<string[]>(),
     description: text("description"),
     coverImageExtraLarge: text("cover_image_extra_large"),
     coverImageLarge: text("cover_image_large"),
-    coverImageMedium: text("cover_image_medium"),
     coverImageColor: text("cover_image_color"),
     bannerImage: text("banner_image"),
     format: mediaFormatEnum("format"),
@@ -51,15 +39,11 @@ export const media = pgTable(
     season: mediaSeasonEnum("season"),
     seasonYear: integer("season_year"),
     averageScore: integer("average_score"),
-    meanScore: integer("mean_score"),
     popularity: integer("popularity"),
     favourites: integer("favourites"),
     genres: jsonb("genres").$type<string[]>(),
-    tags: jsonb("tags").$type<MediaTag[]>(),
     trailer: jsonb("trailer").$type<MediaTrailer>(),
     externalLinks: jsonb("external_links").$type<MediaExternalLink[]>(),
-    siteUrl: text("site_url"),
-    isAdult: boolean("is_adult").default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()

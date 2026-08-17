@@ -8,7 +8,6 @@ export const updateUserProfile = async (
   data: {
     bio?: string | null;
     bannerImage?: string | null;
-    accentColor?: string | null;
     socialLinks?: Record<string, string> | null;
   },
 ) => {

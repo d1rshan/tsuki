@@ -52,6 +52,9 @@ export const MEDIA = {
 export const MEDIA_TYPES = ["ANIME", "MANGA"] as const satisfies readonly MediaType[];
 export const MAX_MEDIA_ID = 2_147_483_647;
 
+const MONTH_FORMATTER = new Intl.DateTimeFormat("en", { month: "long", timeZone: "UTC" });
+const REGION_NAMES = new Intl.DisplayNames(["en"], { type: "region" });
+
 /**
  * The API stores one status vocabulary for both types, so CURRENT has to render
  * as "Watching" or "Reading" depending on what is being displayed.
@@ -76,6 +79,30 @@ export function mediaHref(mediaType: MediaType, id: number) {
 
 export function mediaImageClass(mediaType: MediaType) {
   return mediaType === "MANGA" ? "grayscale opacity-90" : undefined;
+}
+
+type ExternalLink = {
+  url: string;
+  site: string;
+  language?: string | null;
+};
+
+export function formatExternalLinks<T extends ExternalLink>(links: T[]): (T & { label: string })[] {
+  const uniqueLinks = links.filter(
+    (link, index) => links.findIndex(({ url }) => url === link.url) === index,
+  );
+  const siteCounts = new Map<string, number>();
+  for (const { site } of uniqueLinks) {
+    siteCounts.set(site, (siteCounts.get(site) ?? 0) + 1);
+  }
+
+  return uniqueLinks.map((link) => ({
+    ...link,
+    label:
+      siteCounts.get(link.site)! > 1 && link.language
+        ? `${link.site} (${link.language})`
+        : link.site,
+  }));
 }
 
 export function getMediaTitle(media: {
@@ -110,6 +137,43 @@ export function parseMediaId(value: string) {
 
 export function formatMediaStatus(value: string) {
   return value.toLowerCase().replaceAll("_", " ");
+}
+
+export function formatMediaSource(value: string) {
+  const label = formatMediaStatus(value);
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
+export function formatCountry(code: string | null) {
+  if (!code) return null;
+
+  const normalizedCode = code.toUpperCase();
+  try {
+    const name = REGION_NAMES.of(normalizedCode);
+    return name === normalizedCode ? null : name;
+  } catch {
+    return null;
+  }
+}
+
+export function formatFuzzyDate(
+  date: { year: number | null; month: number | null; day: number | null } | null,
+) {
+  if (!date) return null;
+
+  const year = date.year?.toString();
+  const month = date.month
+    ? MONTH_FORMATTER.format(new Date(Date.UTC(2000, date.month - 1)))
+    : null;
+  const day = date.day;
+
+  if (month && day && year) return `${month} ${day}, ${year}`;
+  if (month && day) return `${month} ${day}`;
+  if (month && year) return `${month} ${year}`;
+  if (month) return month;
+  if (day && year) return `Day ${day}, ${year}`;
+  if (day) return `Day ${day}`;
+  return year ?? null;
 }
 
 const NAMED_ENTITIES: Record<string, string> = {

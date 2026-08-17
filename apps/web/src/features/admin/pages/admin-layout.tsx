@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@/shared/components/ui/sidebar";
 import { LoadingIndicator } from "@/shared/components/loading-indicator";
 
 import { AdminSidebar } from "../components/admin-sidebar";

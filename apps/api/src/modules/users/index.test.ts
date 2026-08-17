@@ -21,6 +21,7 @@ mock.module("@tsuki/auth/server", () => ({
 }));
 
 mock.module("@tsuki/db", () => ({
+  activityDal: { getProgressActivity: async () => [] },
   libraryDal: {
     getLibraryStats: async () => [],
     getUserLibrary: async () => [],
@@ -36,6 +37,9 @@ mock.module("@tsuki/db", () => ({
       following: follows.has(`${viewerId}:${profileUserId}`),
     }),
     getFollowerCount: async () => 1,
+    getFollowing: async () => [],
+    getFollowingCount: async () => 0,
+    getFollowCounts: async () => ({ followers: 1, following: 0 }),
     getFollowers: async (_userId: string, options: { limit: number; offset: number }) => {
       lastListOptions = options;
       return [

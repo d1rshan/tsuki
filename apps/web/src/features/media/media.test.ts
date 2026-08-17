@@ -1,6 +1,14 @@
 import { describe, expect, test } from "bun:test";
 
-import { mediaDescriptionText, mediaImageClass, parseMediaId } from "./media";
+import {
+  formatCountry,
+  formatExternalLinks,
+  formatFuzzyDate,
+  formatMediaSource,
+  mediaDescriptionText,
+  mediaImageClass,
+  parseMediaId,
+} from "./media";
 import { mediaIdSchema } from "./schemas";
 
 describe("parseMediaId", () => {
@@ -46,6 +54,72 @@ describe("mediaDescriptionText", () => {
 describe("mediaImageClass", () => {
   test("uses monochrome styling only for manga", () => {
     expect(mediaImageClass("ANIME")).toBeUndefined();
-    expect(mediaImageClass("MANGA")).toBe("grayscale contrast-125");
+    expect(mediaImageClass("MANGA")).toBe("grayscale opacity-90");
+  });
+});
+
+describe("formatExternalLinks", () => {
+  test("deduplicates URLs and disambiguates repeated sites by language", () => {
+    expect(
+      formatExternalLinks([
+        { url: "https://webtoons.com/en", site: "WEBTOON", language: "English" },
+        { url: "https://webtoons.com/fr", site: "WEBTOON", language: "French" },
+        { url: "https://webtoons.com/en", site: "WEBTOON", language: "English" },
+        { url: "https://webtoons.com/legacy", site: "WEBTOON" },
+        { url: "https://naver.com", site: "Naver Webtoon", language: "Korean" },
+        { url: "https://legacy.example", site: "Legacy", language: null },
+      ]),
+    ).toEqual([
+      {
+        url: "https://webtoons.com/en",
+        site: "WEBTOON",
+        language: "English",
+        label: "WEBTOON (English)",
+      },
+      {
+        url: "https://webtoons.com/fr",
+        site: "WEBTOON",
+        language: "French",
+        label: "WEBTOON (French)",
+      },
+      {
+        url: "https://webtoons.com/legacy",
+        site: "WEBTOON",
+        label: "WEBTOON",
+      },
+      {
+        url: "https://naver.com",
+        site: "Naver Webtoon",
+        language: "Korean",
+        label: "Naver Webtoon",
+      },
+      {
+        url: "https://legacy.example",
+        site: "Legacy",
+        language: null,
+        label: "Legacy",
+      },
+    ]);
+  });
+});
+
+describe("media metadata formatting", () => {
+  test("formats every useful fuzzy date precision without inventing missing parts", () => {
+    expect(formatFuzzyDate({ year: 2024, month: 5, day: 12 })).toBe("May 12, 2024");
+    expect(formatFuzzyDate({ year: 2024, month: 5, day: null })).toBe("May 2024");
+    expect(formatFuzzyDate({ year: 2024, month: null, day: null })).toBe("2024");
+    expect(formatFuzzyDate({ year: null, month: 5, day: 12 })).toBe("May 12");
+    expect(formatFuzzyDate({ year: null, month: 5, day: null })).toBe("May");
+    expect(formatFuzzyDate({ year: 2024, month: null, day: 12 })).toBe("Day 12, 2024");
+    expect(formatFuzzyDate({ year: null, month: null, day: 12 })).toBe("Day 12");
+    expect(formatFuzzyDate({ year: null, month: null, day: null })).toBeNull();
+    expect(formatFuzzyDate(null)).toBeNull();
+  });
+
+  test("makes AniList enum and country values readable", () => {
+    expect(formatMediaSource("LIGHT_NOVEL")).toBe("Light novel");
+    expect(formatCountry("JP")).toBe("Japan");
+    expect(formatCountry(null)).toBeNull();
+    expect(formatCountry("not-a-country")).toBeNull();
   });
 });

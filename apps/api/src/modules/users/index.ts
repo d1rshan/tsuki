@@ -1,10 +1,11 @@
 import { Elysia, t, status } from "elysia";
 
-import { libraryDal, profileDal, reviewsDal, socialDal, userDal } from "@tsuki/db";
+import { activityDal, libraryDal, profileDal, reviewsDal, socialDal, userDal } from "@tsuki/db";
 
 import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
 import type { MediaType } from "../media/model";
+import { summarizeActivity } from "./activity";
 import {
   FollowListModel,
   FollowListQueryModel,
@@ -42,18 +43,28 @@ export const userRoutes = new Elysia()
       const user = await userDal.getUserByUsername(username);
       if (!user) return status(404, { error: "User not found" });
 
-      const [stats, favorites, recentLogs, recentReviews, profile, counts, relationship] =
-        await Promise.all([
-          libraryDal.getLibraryStats(user.id),
-          libraryDal.getUserLibrary(user.id, { isFavorite: true, limit: FAVORITES_LIMIT }),
-          libraryDal.getUserLibrary(user.id, { limit: RECENT_LOGS_LIMIT }),
-          reviewsDal.getUserReviews(user.id, { limit: RECENT_REVIEWS_LIMIT }),
-          profileDal.getProfileByUserId(user.id),
-          socialDal.getFollowCounts(user.id),
-          viewer && viewer.id !== user.id
-            ? socialDal.getFollowRelationship(viewer.id, user.id)
-            : null,
-        ]);
+      const today = new Date();
+      const [
+        stats,
+        favorites,
+        recentLogs,
+        recentReviews,
+        profile,
+        counts,
+        relationship,
+        activityRows,
+      ] = await Promise.all([
+        libraryDal.getLibraryStats(user.id),
+        libraryDal.getUserLibrary(user.id, { isFavorite: true, limit: FAVORITES_LIMIT }),
+        libraryDal.getUserLibrary(user.id, { limit: RECENT_LOGS_LIMIT }),
+        reviewsDal.getUserReviews(user.id, { limit: RECENT_REVIEWS_LIMIT }),
+        profileDal.getProfileByUserId(user.id),
+        socialDal.getFollowCounts(user.id),
+        viewer && viewer.id !== user.id
+          ? socialDal.getFollowRelationship(viewer.id, user.id)
+          : null,
+        activityDal.getProgressActivity(user.id),
+      ]);
 
       return {
         user: {
@@ -73,6 +84,7 @@ export const userRoutes = new Elysia()
         recentLogs,
         recentReviews,
         social: { ...counts, viewer: relationship },
+        activity: summarizeActivity(activityRows, today),
       };
     },
     {

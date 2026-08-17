@@ -5,5 +5,6 @@
     "moduleDetection": "force",
     "allowImportingTsExtensions": true,
     "types": ["node", "bun-types"]
-  }
+  },
+  "exclude": ["node_modules", "**/*.test.ts"]
 }

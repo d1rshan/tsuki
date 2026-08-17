@@ -2,9 +2,16 @@ import { ExternalLink } from "lucide-react";
 
 import type { Media } from "@tsuki/api/types";
 
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/shared/components/ui/badge";
 
-import { mediaDescriptionText, unitCount } from "../media";
+import {
+  formatCountry,
+  formatExternalLinks,
+  formatFuzzyDate,
+  formatMediaSource,
+  mediaDescriptionText,
+  unitCount,
+} from "../media";
 import { MediaActions } from "./media-actions";
 import { MediaTrailer } from "./media-trailer";
 
@@ -16,6 +23,8 @@ export function MediaDetails({ media }: { media: Media }) {
   return (
     <div className="mt-8 grid grid-cols-1 gap-12 md:grid-cols-[200px_1fr] lg:grid-cols-[250px_1fr]">
       <div className="space-y-8">
+        <MediaActions mediaType={media.type} mediaId={media.id} total={unitCount(media)} />
+
         {media.genres && media.genres.length > 0 ? (
           <div className="space-y-3">
             <h3 className="text-sm font-semibold tracking-wider text-muted-foreground uppercase">
@@ -35,11 +44,11 @@ export function MediaDetails({ media }: { media: Media }) {
           <h3 className="text-sm font-semibold tracking-wider text-muted-foreground uppercase">
             Details
           </h3>
-          <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-1">
+          <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm md:grid-cols-1">
             {detailItems.map((item) => (
               <InfoItem key={item.label} label={item.label} value={item.value} />
             ))}
-          </div>
+          </dl>
         </div>
 
         {links.items.length > 0 ? (
@@ -66,7 +75,7 @@ export function MediaDetails({ media }: { media: Media }) {
                     />
                   ) : null}
                   <span className="group-hover:underline group-hover:decoration-dashed group-hover:underline-offset-4">
-                    {link.site}
+                    {link.label}
                   </span>
                   <ExternalLink className="size-3 opacity-0 transition-opacity group-hover:opacity-100" />
                 </a>
@@ -74,9 +83,6 @@ export function MediaDetails({ media }: { media: Media }) {
             </div>
           </div>
         ) : null}
-        <div className="border-t pt-4">
-          <MediaActions mediaType={media.type} mediaId={media.id} total={unitCount(media)} />
-        </div>
       </div>
 
       <div className="min-w-0 space-y-4">
@@ -96,9 +102,9 @@ export function MediaDetails({ media }: { media: Media }) {
 function InfoItem({ label, value }: { label: string; value: React.ReactNode }) {
   if (value == null || value === "") return null;
   return (
-    <div className="flex flex-col gap-1">
-      <span className="text-muted-foreground">{label}</span>
-      <span className="font-medium text-foreground">{value}</span>
+    <div className="flex flex-col gap-0.5">
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className="font-medium text-foreground">{value}</dd>
     </div>
   );
 }
@@ -115,15 +121,30 @@ function getDetailItems(media: Media) {
           { label: "Volumes", value: media.volumes },
         ];
 
-  return [...typeSpecificItems, { label: "Popularity", value: media.popularity?.toLocaleString() }];
+  return [
+    ...typeSpecificItems,
+    { label: "Start date", value: formatFuzzyDate(media.startDate) },
+    { label: "End date", value: formatFuzzyDate(media.endDate) },
+    { label: "Source", value: media.source ? formatMediaSource(media.source) : null },
+    { label: "Country", value: formatCountry(media.countryOfOrigin) },
+    {
+      label: "AniList popularity",
+      value: media.popularity?.toLocaleString("en-US"),
+    },
+    {
+      label: "AniList favourites",
+      value: media.favourites?.toLocaleString("en-US"),
+    },
+  ];
 }
 
 function getMediaLinks(media: Media) {
   return {
-    heading: media.type === "ANIME" ? "Where to Watch" : "More Info",
-    items:
+    heading: media.type === "ANIME" ? "Where to Watch" : "Where to Read",
+    items: formatExternalLinks(
       media.type === "ANIME"
         ? (media.externalLinks?.filter((link) => link.type === "STREAMING") ?? [])
         : (media.externalLinks ?? []),
+    ),
   };
 }

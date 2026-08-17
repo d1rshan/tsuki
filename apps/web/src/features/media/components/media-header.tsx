@@ -3,7 +3,7 @@ import { Star } from "lucide-react";
 
 import type { Media } from "@tsuki/api/types";
 
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/shared/components/ui/badge";
 import { cn } from "@/shared/lib/utils";
 
 import { formatMediaStatus, mediaImageClass } from "../media";

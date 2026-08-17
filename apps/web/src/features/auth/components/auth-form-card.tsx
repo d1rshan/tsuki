@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { LoaderCircle } from "lucide-react";
 
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/shared/components/ui/button";
 import {
   Card,
   CardAction,
@@ -10,14 +10,13 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/shared/components/ui/card";
+import { FieldGroup, FieldSet } from "@/shared/components/ui/field";
 
 type AuthFormCardProps = {
-  alternateHref: string;
-  alternateLabel: string;
+  action: "sign-in" | "sign-up";
   children: React.ReactNode;
   description: string;
-  formId: string;
   isSubmitting: boolean;
   onSubmit: React.FormEventHandler<HTMLFormElement>;
   submitLabel: string;
@@ -25,36 +24,44 @@ type AuthFormCardProps = {
 };
 
 export function AuthFormCard({
-  alternateHref,
-  alternateLabel,
+  action,
   children,
   description,
-  formId,
   isSubmitting,
   onSubmit,
   submitLabel,
   title,
 }: AuthFormCardProps) {
+  const isSignUpAction = action === "sign-up";
+
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
         <CardAction>
-          <Link href={alternateHref} replace className={buttonVariants({ variant: "link" })}>
-            {alternateLabel}
+          <Link
+            href={isSignUpAction ? "/login?mode=signup" : "/login"}
+            replace
+            className={buttonVariants({ variant: "link" })}
+          >
+            {isSignUpAction ? "Sign up" : "Sign in"}
           </Link>
         </CardAction>
       </CardHeader>
-      <form id={formId} onSubmit={onSubmit}>
-        <CardContent>{children}</CardContent>
+      <form onSubmit={onSubmit}>
+        <CardContent>
+          <FieldSet disabled={isSubmitting}>
+            <FieldGroup>{children}</FieldGroup>
+          </FieldSet>
+        </CardContent>
+        <CardFooter className="flex-col items-stretch">
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? <LoaderCircle className="animate-spin" /> : null}
+            {submitLabel}
+          </Button>
+        </CardFooter>
       </form>
-      <CardFooter className="flex-col gap-2">
-        <Button type="submit" form={formId} className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? <LoaderCircle className="animate-spin" /> : null}
-          {submitLabel}
-        </Button>
-      </CardFooter>
     </Card>
   );
 }

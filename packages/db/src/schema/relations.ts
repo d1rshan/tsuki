@@ -4,6 +4,7 @@ import {
   account,
   libraryEntries,
   media,
+  progressActivity,
   reviews,
   session,
   user,
@@ -15,6 +16,7 @@ export const userRelations = relations(user, ({ many, one }) => ({
   sessions: many(session),
   accounts: many(account),
   libraryEntries: many(libraryEntries),
+  progressActivity: many(progressActivity),
   reviews: many(reviews),
   followers: many(userFollows, { relationName: "following" }),
   following: many(userFollows, { relationName: "follower" }),
@@ -22,6 +24,10 @@ export const userRelations = relations(user, ({ many, one }) => ({
     fields: [user.id],
     references: [userProfile.userId],
   }),
+}));
+
+export const progressActivityRelations = relations(progressActivity, ({ one }) => ({
+  user: one(user, { fields: [progressActivity.userId], references: [user.id] }),
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({

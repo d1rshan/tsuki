@@ -1,11 +1,12 @@
 # Database
 
-Tsuki uses Drizzle schema push rather than committed SQL migrations. Apply schema changes before
-deploying API or web code that reads them:
+Drizzle migrations are the source of truth for database structure and behavior.
 
 ```bash
-bun run db:push
+bun run db:generate # after changing the TypeScript schema
+bun run db:migrate  # apply pending migrations
+bun run db:studio
 ```
 
-Run this from the repository root with `DATABASE_URL` set for the target environment. Review the
-generated statements before confirming the push.
+PostgreSQL features that Drizzle cannot declare, such as triggers, belong in a
+custom migration created with `drizzle-kit generate --custom --name <name>`.

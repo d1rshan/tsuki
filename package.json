@@ -18,7 +18,8 @@
     "deploy:check": "bun run build && bun run typecheck",
     "deploy:web": "vercel --project tsuki-web --prod",
     "deploy:api": "vercel --project tsuki-api --prod",
-    "db:push": "turbo -F @tsuki/db db:push",
+    "db:generate": "turbo -F @tsuki/db db:generate",
+    "db:migrate": "turbo -F @tsuki/db db:migrate",
     "db:studio": "turbo -F @tsuki/db db:studio",
     "prepare": "husky"
   },

@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { RotateCw } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import { ErrorState } from "@/shared/components/content-state";
 
 /**

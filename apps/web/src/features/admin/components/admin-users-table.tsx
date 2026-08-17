@@ -8,7 +8,7 @@ import { toast } from "sonner";
 
 import { authClient } from "@tsuki/auth/client";
 
-import { DataTable } from "@/components/ui/data-table";
+import { DataTable } from "@/shared/components/ui/data-table";
 import { useDebouncedValue } from "@/shared/hooks/use-debounced-value";
 
 import { adminKeys } from "../query-keys";

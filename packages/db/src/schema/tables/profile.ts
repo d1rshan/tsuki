@@ -8,7 +8,6 @@ export const userProfile = pgTable("user_profile", {
     .references(() => user.id, { onDelete: "cascade" }),
   bio: text("bio"),
   bannerImage: text("banner_image"),
-  accentColor: text("accent_color"),
   socialLinks: jsonb("social_links").$type<Record<string, string>>().default({}),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")

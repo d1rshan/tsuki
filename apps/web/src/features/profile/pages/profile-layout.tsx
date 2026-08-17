@@ -31,12 +31,8 @@ async function ProfileLayoutContent({ children, params }: ProfileLayoutProps) {
   ]);
   if (!profile) notFound();
 
-  const style = profile.profile?.accentColor
-    ? ({ "--primary": profile.profile.accentColor } as React.CSSProperties)
-    : undefined;
-
   return (
-    <div className="min-h-screen pt-20 pb-10 md:pt-28 md:pb-16" style={style}>
+    <div className="min-h-screen pt-20 pb-10 md:pt-28 md:pb-16">
       <div className="mx-auto max-w-5xl px-4 md:px-6">
         <ProfileHeader
           user={profile.user}

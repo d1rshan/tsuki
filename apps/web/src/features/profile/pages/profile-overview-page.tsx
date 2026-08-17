@@ -5,6 +5,7 @@ import {
   FavoritesSection,
   RecentActivitySection,
 } from "@/features/profile/components/profile-overview";
+import { ProfileActivityHeatmap } from "@/features/profile/components/profile-activity-heatmap";
 import { parseUsername } from "@/shared/lib/username";
 
 import { getProfileOverview } from "../data";
@@ -26,6 +27,7 @@ async function ProfileOverviewContent({ params }: { params: Promise<{ username: 
 
   return (
     <div className="space-y-16 pb-16">
+      <ProfileActivityHeatmap activity={profile.activity} />
       <FavoritesSection title="Favorites" favorites={profile.favorites} />
       <RecentActivitySection
         title="Recent Activity"

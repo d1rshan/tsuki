@@ -1,13 +1,12 @@
 import { t } from "elysia";
 
-import { HEX_COLOR_PATTERN, URL_PATTERN } from "../../patterns";
+import { URL_PATTERN } from "../../patterns";
 import { LibraryEntryModel } from "../library/model";
 import { ReviewModel } from "../reviews/model";
 
 export const ProfileModel = t.Object({
   bio: t.Nullable(t.String({ maxLength: 500 })),
   bannerImage: t.Nullable(t.String({ pattern: URL_PATTERN })),
-  accentColor: t.Nullable(t.String({ pattern: HEX_COLOR_PATTERN })),
   socialLinks: t.Nullable(t.Record(t.String(), t.String({ pattern: URL_PATTERN }))),
 });
 
@@ -51,6 +50,18 @@ const MediaStatsModel = t.Object({
   meanScore: t.Number(),
 });
 
+const ActivityDayModel = t.Object({
+  date: t.Date(),
+  anime: t.Number(),
+  manga: t.Number(),
+});
+
+const ProfileActivityModel = t.Object({
+  days: t.Array(ActivityDayModel),
+  totals: t.Object({ anime: t.Number(), manga: t.Number() }),
+  currentStreak: t.Number(),
+});
+
 export const UserOverviewModel = t.Object({
   user: UserSummaryModel,
   profile: t.Nullable(ProfileModel),
@@ -62,6 +73,7 @@ export const UserOverviewModel = t.Object({
   recentLogs: t.Array(LibraryEntryModel),
   recentReviews: t.Array(ReviewModel),
   social: ProfileSocialModel,
+  activity: ProfileActivityModel,
 });
 
 export type Profile = typeof ProfileModel.static;
