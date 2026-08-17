@@ -1,7 +1,7 @@
 import { and, count, desc, eq, or } from "drizzle-orm";
 
 import { db } from "../db";
-import { user, userFollows } from "../schema";
+import { social, user } from "../schema";
 
 const PUBLIC_USER_COLUMNS = {
   id: user.id,
@@ -37,8 +37,8 @@ export function relationshipFromRows(
 
 export const getFollowCounts = async (userId: string) => {
   const [[followers], [following]] = await Promise.all([
-    db.select({ count: count() }).from(userFollows).where(eq(userFollows.followingId, userId)),
-    db.select({ count: count() }).from(userFollows).where(eq(userFollows.followerId, userId)),
+    db.select({ count: count() }).from(social).where(eq(social.followingId, userId)),
+    db.select({ count: count() }).from(social).where(eq(social.followerId, userId)),
   ]);
 
   return {
@@ -50,8 +50,8 @@ export const getFollowCounts = async (userId: string) => {
 export const getFollowerCount = async (userId: string) => {
   const [result] = await db
     .select({ count: count() })
-    .from(userFollows)
-    .where(eq(userFollows.followingId, userId));
+    .from(social)
+    .where(eq(social.followingId, userId));
 
   return result?.count ?? 0;
 };
@@ -59,20 +59,20 @@ export const getFollowerCount = async (userId: string) => {
 export const getFollowingCount = async (userId: string) => {
   const [result] = await db
     .select({ count: count() })
-    .from(userFollows)
-    .where(eq(userFollows.followerId, userId));
+    .from(social)
+    .where(eq(social.followerId, userId));
 
   return result?.count ?? 0;
 };
 
 export const getFollowRelationship = async (viewerId: string, profileUserId: string) => {
   const rows = await db
-    .select({ followerId: userFollows.followerId, followingId: userFollows.followingId })
-    .from(userFollows)
+    .select({ followerId: social.followerId, followingId: social.followingId })
+    .from(social)
     .where(
       or(
-        and(eq(userFollows.followerId, viewerId), eq(userFollows.followingId, profileUserId)),
-        and(eq(userFollows.followerId, profileUserId), eq(userFollows.followingId, viewerId)),
+        and(eq(social.followerId, viewerId), eq(social.followingId, profileUserId)),
+        and(eq(social.followerId, profileUserId), eq(social.followingId, viewerId)),
       ),
     );
 
@@ -81,24 +81,24 @@ export const getFollowRelationship = async (viewerId: string, profileUserId: str
 
 export const followUser = async (followerId: string, followingId: string) => {
   return db
-    .insert(userFollows)
+    .insert(social)
     .values({ followerId, followingId })
-    .onConflictDoNothing({ target: [userFollows.followerId, userFollows.followingId] });
+    .onConflictDoNothing({ target: [social.followerId, social.followingId] });
 };
 
 export const unfollowUser = async (followerId: string, followingId: string) => {
   return db
-    .delete(userFollows)
-    .where(and(eq(userFollows.followerId, followerId), eq(userFollows.followingId, followingId)));
+    .delete(social)
+    .where(and(eq(social.followerId, followerId), eq(social.followingId, followingId)));
 };
 
 export const getFollowers = async (userId: string, { limit, offset }: FollowListOptions) => {
   return db
     .select(PUBLIC_USER_COLUMNS)
-    .from(userFollows)
-    .innerJoin(user, eq(user.id, userFollows.followerId))
-    .where(eq(userFollows.followingId, userId))
-    .orderBy(desc(userFollows.createdAt), desc(userFollows.followerId))
+    .from(social)
+    .innerJoin(user, eq(user.id, social.followerId))
+    .where(eq(social.followingId, userId))
+    .orderBy(desc(social.createdAt), desc(social.followerId))
     .limit(limit)
     .offset(offset);
 };
@@ -106,10 +106,10 @@ export const getFollowers = async (userId: string, { limit, offset }: FollowList
 export const getFollowing = async (userId: string, { limit, offset }: FollowListOptions) => {
   return db
     .select(PUBLIC_USER_COLUMNS)
-    .from(userFollows)
-    .innerJoin(user, eq(user.id, userFollows.followingId))
-    .where(eq(userFollows.followerId, userId))
-    .orderBy(desc(userFollows.createdAt), desc(userFollows.followingId))
+    .from(social)
+    .innerJoin(user, eq(user.id, social.followingId))
+    .where(eq(social.followerId, userId))
+    .orderBy(desc(social.createdAt), desc(social.followingId))
     .limit(limit)
     .offset(offset);
 };

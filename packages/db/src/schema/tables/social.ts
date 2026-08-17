@@ -3,8 +3,8 @@ import { check, index, pgTable, primaryKey, text, timestamp } from "drizzle-orm/
 
 import { user } from "./auth";
 
-export const userFollows = pgTable(
-  "user_follows",
+export const social = pgTable(
+  "social",
   {
     followerId: text("follower_id")
       .notNull()
@@ -16,16 +16,16 @@ export const userFollows = pgTable(
   },
   (table) => [
     primaryKey({ columns: [table.followerId, table.followingId] }),
-    index("user_follows_follower_created_idx").on(
+    index("social_follower_created_idx").on(
       table.followerId,
       table.createdAt.desc(),
       table.followingId.desc(),
     ),
-    index("user_follows_following_created_idx").on(
+    index("social_following_created_idx").on(
       table.followingId,
       table.createdAt.desc(),
       table.followerId.desc(),
     ),
-    check("user_follows_no_self_follow", sql`${table.followerId} <> ${table.followingId}`),
+    check("social_no_self_follow", sql`${table.followerId} <> ${table.followingId}`),
   ],
 );

@@ -8,7 +8,7 @@ import {
   reviews,
   session,
   user,
-  userFollows,
+  social,
   userProfile,
 } from "./tables";
 
@@ -18,8 +18,8 @@ export const userRelations = relations(user, ({ many, one }) => ({
   libraryEntries: many(libraryEntries),
   progressActivity: many(progressActivity),
   reviews: many(reviews),
-  followers: many(userFollows, { relationName: "following" }),
-  following: many(userFollows, { relationName: "follower" }),
+  followers: many(social, { relationName: "following" }),
+  following: many(social, { relationName: "follower" }),
   profile: one(userProfile, {
     fields: [user.id],
     references: [userProfile.userId],
@@ -42,14 +42,14 @@ export const userProfileRelations = relations(userProfile, ({ one }) => ({
   user: one(user, { fields: [userProfile.userId], references: [user.id] }),
 }));
 
-export const userFollowsRelations = relations(userFollows, ({ one }) => ({
+export const socialRelations = relations(social, ({ one }) => ({
   follower: one(user, {
-    fields: [userFollows.followerId],
+    fields: [social.followerId],
     references: [user.id],
     relationName: "follower",
   }),
   following: one(user, {
-    fields: [userFollows.followingId],
+    fields: [social.followingId],
     references: [user.id],
     relationName: "following",
   }),
