@@ -1,9 +1,9 @@
-import { MediaDetailsPage, getMediaMetadata } from "@/features/media/pages/media-details-page";
+import { MediaDetailsView, getMediaMetadata } from "@/features/media/views/media-details-view";
 
 export function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   return getMediaMetadata("MANGA", params);
 }
 
-export default function MangaPage({ params }: { params: Promise<{ id: string }> }) {
-  return <MediaDetailsPage mediaType="MANGA" params={params} />;
+export default function Page({ params }: { params: Promise<{ id: string }> }) {
+  return <MediaDetailsView mediaType="MANGA" params={params} />;
 }

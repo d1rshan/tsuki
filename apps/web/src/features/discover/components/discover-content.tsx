@@ -20,7 +20,7 @@ const TOP_TEN_LIMIT = 10;
 const FEATURED_HEADING_CLASS = "text-3xl font-black uppercase md:text-5xl";
 const MEDIA_TYPE_STORAGE_KEY = "discover-media-type";
 
-export function DiscoverView({ trending }: { trending: Record<MediaType, MediaCompact[]> }) {
+export function DiscoverContent({ trending }: { trending: Record<MediaType, MediaCompact[]> }) {
   const [query] = useQueryState("q", { defaultValue: "" });
   const [includeNsfw, setIncludeNsfw] = useQueryState("nsfw", parseAsBoolean.withDefault(false));
   const [typeParam, setTypeParam] = useQueryState(

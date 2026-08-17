@@ -11,7 +11,7 @@ import { getProfileFollowers, getProfileFollowing } from "../data";
 type ConnectionType = "followers" | "following";
 const PAGE_SIZE = 40;
 
-export function ProfileConnectionsPage({
+export function ProfileConnectionsView({
   params,
   searchParams,
   type,

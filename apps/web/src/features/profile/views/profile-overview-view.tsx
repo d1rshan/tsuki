@@ -10,7 +10,7 @@ import { parseUsername } from "@/shared/lib/username";
 
 import { getProfileOverview } from "../data";
 
-export function ProfileOverviewPage({ params }: { params: Promise<{ username: string }> }) {
+export function ProfileOverviewView({ params }: { params: Promise<{ username: string }> }) {
   return (
     <Suspense fallback={null}>
       <ProfileOverviewContent params={params} />

@@ -31,7 +31,7 @@ function FavoritesForType({
   return <FavoritesSection title={`${MEDIA[mediaType].label} Favorites`} favorites={favorites} />;
 }
 
-export function ProfileFavoritesPage({ params }: { params: Promise<{ username: string }> }) {
+export function ProfileFavoritesView({ params }: { params: Promise<{ username: string }> }) {
   return (
     <Suspense fallback={<LoadingIndicator label="Loading favorites" />}>
       <ProfileFavoritesContent params={params} />

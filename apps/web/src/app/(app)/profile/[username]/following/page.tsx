@@ -1,11 +1,11 @@
-import { ProfileConnectionsPage } from "@/features/profile/pages/profile-connections-page";
+import { ProfileConnectionsView } from "@/features/profile/views/profile-connections-view";
 
-export default function FollowingPage({
+export default function Page({
   params,
   searchParams,
 }: {
   params: Promise<{ username: string }>;
   searchParams: Promise<{ page?: string }>;
 }) {
-  return <ProfileConnectionsPage params={params} searchParams={searchParams} type="following" />;
+  return <ProfileConnectionsView params={params} searchParams={searchParams} type="following" />;
 }

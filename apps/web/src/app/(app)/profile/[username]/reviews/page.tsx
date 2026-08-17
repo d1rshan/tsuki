@@ -1,1 +1,5 @@
-export { ProfileReviewsPage as default } from "@/features/profile/pages/profile-reviews-page";
+import { ProfileReviewsView } from "@/features/profile/views/profile-reviews-view";
+
+export default function Page({ params }: { params: Promise<{ username: string }> }) {
+  return <ProfileReviewsView params={params} />;
+}

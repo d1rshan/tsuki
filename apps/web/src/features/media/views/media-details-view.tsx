@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 
 import type { MediaType } from "@tsuki/api/types";
 
-import { getMedia } from "../data";
 import {
   getMediaBannerImage,
   getMediaCoverImage,
@@ -16,12 +15,13 @@ import { MediaBanner } from "../components/media-banner";
 import { MediaDetails } from "../components/media-details";
 import { MediaHeader } from "../components/media-header";
 import { MediaPageSkeleton } from "../components/media-skeletons";
+import { getMedia } from "../data";
 
 /**
  * Anime and manga keep separate URLs, but the page itself is identical — the
  * only difference is which type is fetched.
  */
-export function MediaDetailsPage({
+export function MediaDetailsView({
   mediaType,
   params,
 }: {

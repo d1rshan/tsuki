@@ -31,7 +31,7 @@ function LibraryForType({ entries, mediaType }: { entries: LibraryEntry[]; media
   ));
 }
 
-export function ProfileLibraryPage({ params }: { params: Promise<{ username: string }> }) {
+export function ProfileLibraryView({ params }: { params: Promise<{ username: string }> }) {
   return (
     <Suspense fallback={<LoadingIndicator label="Loading library" />}>
       <ProfileLibraryContent params={params} />

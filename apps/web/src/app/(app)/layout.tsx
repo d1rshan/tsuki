@@ -2,7 +2,7 @@ import { Suspense } from "react";
 
 import { NavbarServer } from "@/features/navbar/components/navbar-server";
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative flex min-h-screen flex-col">
       <Suspense fallback={null}>

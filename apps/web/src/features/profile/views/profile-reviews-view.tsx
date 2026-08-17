@@ -31,7 +31,7 @@ function ReviewsForType({ reviews, mediaType }: { reviews: Review[]; mediaType: 
   );
 }
 
-export function ProfileReviewsPage({ params }: { params: Promise<{ username: string }> }) {
+export function ProfileReviewsView({ params }: { params: Promise<{ username: string }> }) {
   return (
     <Suspense fallback={<LoadingIndicator label="Loading reviews" />}>
       <ProfileReviewsContent params={params} />
