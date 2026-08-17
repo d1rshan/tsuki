@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import type { UserSummary } from "@tsuki/api/types";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { EmptyState } from "@/shared/components/content-state";
 
 export function ProfileUserList({

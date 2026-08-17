@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 import { useSession } from "@tsuki/auth/client";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import { apiClient } from "@/shared/lib/api-client";
 
 import { setFollowingAction } from "../actions";

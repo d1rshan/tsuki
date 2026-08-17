@@ -4,7 +4,7 @@ import { useTransition } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { parseAsInteger, useQueryState } from "nuqs";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 
 export function ProfileConnectionsPagination({ pageCount }: { pageCount: number }) {
   const [isPending, startTransition] = useTransition();
