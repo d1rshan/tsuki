@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
 import { ProfileHeader } from "@/features/profile/components/profile-header";
+import { getThemeScheme } from "@/shared/lib/themes";
 import { cn } from "@/shared/lib/utils";
 import { getSession } from "@/shared/lib/session";
 import { parseUsername } from "@/shared/lib/username";
@@ -33,7 +34,13 @@ async function ProfileLayoutContent({ children, params }: ProfileLayoutProps) {
   if (!profile) notFound();
 
   return (
-    <div className={cn("min-h-screen pt-20 pb-10 md:pt-28 md:pb-16", profile.profile?.theme)}>
+    <div
+      className={cn(
+        "min-h-screen bg-background pt-20 pb-10 text-foreground md:pt-28 md:pb-16",
+        profile.profile?.theme,
+        getThemeScheme(profile.profile?.theme ?? undefined) === "light" && "profile-theme-light",
+      )}
+    >
       <div className="mx-auto max-w-5xl px-4 md:px-6">
         <ProfileHeader
           user={profile.user}

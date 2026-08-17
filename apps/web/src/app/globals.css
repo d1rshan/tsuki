@@ -3,7 +3,7 @@
 @import "shadcn/tailwind.css";
 @import "./themes.css";
 
-@custom-variant dark (&:is(.dark *, .forest *, .nord *, .dracula *, .coffee *, .cyberpunk *, .midnight *));
+@custom-variant dark (&:is(.dark *, .forest *, .nord *, .dracula *, .coffee *, .cyberpunk *, .midnight *):not(.profile-theme-light *));
 
 @theme inline {
   --color-background: var(--background);

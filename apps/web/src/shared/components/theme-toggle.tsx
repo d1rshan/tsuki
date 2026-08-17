@@ -20,8 +20,8 @@ export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
 
   async function handleThemeChange(value: string) {
-    const result = await updateTheme(value);
-    if (result.success) setTheme(value);
+    setTheme(value);
+    await updateTheme(value);
   }
 
   return (

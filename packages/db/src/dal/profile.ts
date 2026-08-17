@@ -1,13 +1,14 @@
 import { eq } from "drizzle-orm";
 
 import { db } from "../db";
-import { userProfile } from "../schema";
+import { userProfile, type Theme } from "../schema";
 
 export const updateUserProfile = async (
   userId: string,
   data: {
     bio?: string | null;
     bannerImage?: string | null;
+    theme?: Theme | null;
     socialLinks?: Record<string, string> | null;
   },
 ) => {
