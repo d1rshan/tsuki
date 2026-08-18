@@ -31,19 +31,19 @@ function LibraryForType({ entries, mediaType }: { entries: LibraryEntry[]; media
   ));
 }
 
-export function ProfileLibraryView({ params }: { params: Promise<{ username: string }> }) {
+export function ProfileLibraryView({ username }: { username: string }) {
   return (
     <Suspense fallback={<LoadingIndicator label="Loading library" />}>
-      <ProfileLibraryContent params={params} />
+      <ProfileLibraryContent username={username} />
     </Suspense>
   );
 }
 
-async function ProfileLibraryContent({ params }: { params: Promise<{ username: string }> }) {
-  const username = parseUsername((await params).username);
-  if (!username) notFound();
+async function ProfileLibraryContent({ username }: { username: string }) {
+  const parsedUsername = parseUsername(username);
+  if (!parsedUsername) notFound();
 
-  const entries = await getProfileLibrary(username);
+  const entries = await getProfileLibrary(parsedUsername);
   if (!entries) notFound();
 
   return (

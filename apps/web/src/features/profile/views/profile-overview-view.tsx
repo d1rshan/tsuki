@@ -10,19 +10,19 @@ import { parseUsername } from "@/shared/lib/username";
 
 import { getProfileOverview } from "../data";
 
-export function ProfileOverviewView({ params }: { params: Promise<{ username: string }> }) {
+export function ProfileOverviewView({ username }: { username: string }) {
   return (
     <Suspense fallback={null}>
-      <ProfileOverviewContent params={params} />
+      <ProfileOverviewContent username={username} />
     </Suspense>
   );
 }
 
-async function ProfileOverviewContent({ params }: { params: Promise<{ username: string }> }) {
-  const username = parseUsername((await params).username);
-  if (!username) notFound();
+async function ProfileOverviewContent({ username }: { username: string }) {
+  const parsedUsername = parseUsername(username);
+  if (!parsedUsername) notFound();
 
-  const profile = await getProfileOverview(username);
+  const profile = await getProfileOverview(parsedUsername);
   if (!profile) notFound();
 
   return (
@@ -32,7 +32,7 @@ async function ProfileOverviewContent({ params }: { params: Promise<{ username: 
       <RecentActivitySection
         title="Recent Activity"
         recentLogs={profile.recentLogs}
-        username={username}
+        username={parsedUsername}
       />
     </div>
   );

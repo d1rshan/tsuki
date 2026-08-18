@@ -12,40 +12,39 @@ type ConnectionType = "followers" | "following";
 const PAGE_SIZE = 40;
 
 export function ProfileConnectionsView({
-  params,
-  searchParams,
+  username,
+  page,
   type,
 }: {
-  params: Promise<{ username: string }>;
-  searchParams: Promise<{ page?: string }>;
+  username: string;
+  page?: string;
   type: ConnectionType;
 }) {
   return (
     <Suspense fallback={<LoadingIndicator label={`Loading ${type}`} />}>
-      <ProfileConnectionsContent params={params} searchParams={searchParams} type={type} />
+      <ProfileConnectionsContent username={username} page={page} type={type} />
     </Suspense>
   );
 }
 
 async function ProfileConnectionsContent({
-  params,
-  searchParams,
+  username,
+  page: rawPage,
   type,
 }: {
-  params: Promise<{ username: string }>;
-  searchParams: Promise<{ page?: string }>;
+  username: string;
+  page?: string;
   type: ConnectionType;
 }) {
-  const [{ username: rawUsername }, { page: rawPage }] = await Promise.all([params, searchParams]);
-  const username = parseUsername(rawUsername);
-  if (!username) notFound();
+  const parsedUsername = parseUsername(username);
+  if (!parsedUsername) notFound();
 
   const parsedPage = Number(rawPage ?? 1);
   const page = Number.isSafeInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1;
   const result =
     type === "followers"
-      ? await getProfileFollowers(username, PAGE_SIZE, (page - 1) * PAGE_SIZE)
-      : await getProfileFollowing(username, PAGE_SIZE, (page - 1) * PAGE_SIZE);
+      ? await getProfileFollowers(parsedUsername, PAGE_SIZE, (page - 1) * PAGE_SIZE)
+      : await getProfileFollowing(parsedUsername, PAGE_SIZE, (page - 1) * PAGE_SIZE);
   if (!result) notFound();
 
   const pageCount = Math.max(1, Math.ceil(result.total / PAGE_SIZE));

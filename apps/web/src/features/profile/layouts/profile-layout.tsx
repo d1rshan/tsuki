@@ -10,23 +10,23 @@ import { getProfileOverview } from "../data";
 
 type ProfileLayoutProps = {
   children: React.ReactNode;
-  params: Promise<{ username: string }>;
+  username: string;
 };
 
-export function ProfileLayout({ children, params }: ProfileLayoutProps) {
+export function ProfileLayout({ children, username }: ProfileLayoutProps) {
   return (
     <Suspense fallback={null}>
-      <ProfileLayoutContent params={params}>{children}</ProfileLayoutContent>
+      <ProfileLayoutContent username={username}>{children}</ProfileLayoutContent>
     </Suspense>
   );
 }
 
-async function ProfileLayoutContent({ children, params }: ProfileLayoutProps) {
-  const username = parseUsername((await params).username);
-  if (!username) notFound();
+async function ProfileLayoutContent({ children, username }: ProfileLayoutProps) {
+  const parsedUsername = parseUsername(username);
+  if (!parsedUsername) notFound();
 
   const [profile, { user: currentUser }] = await Promise.all([
-    getProfileOverview(username),
+    getProfileOverview(parsedUsername),
     getSession(),
   ]);
   if (!profile) notFound();
@@ -47,15 +47,11 @@ async function ProfileLayoutContent({ children, params }: ProfileLayoutProps) {
   );
 }
 
-export async function getProfileMetadata({
-  params,
-}: {
-  params: Promise<{ username: string }>;
-}): Promise<Metadata> {
-  const username = parseUsername((await params).username);
-  if (!username) return { title: "Profile not found" };
+export async function getProfileMetadata(username: string): Promise<Metadata> {
+  const parsedUsername = parseUsername(username);
+  if (!parsedUsername) return { title: "Profile not found" };
 
-  const profile = await getProfileOverview(username);
+  const profile = await getProfileOverview(parsedUsername);
   if (!profile) return { title: "Profile not found" };
 
   return {

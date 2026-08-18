@@ -31,19 +31,19 @@ function FavoritesForType({
   return <FavoritesSection title={`${MEDIA[mediaType].label} Favorites`} favorites={favorites} />;
 }
 
-export function ProfileFavoritesView({ params }: { params: Promise<{ username: string }> }) {
+export function ProfileFavoritesView({ username }: { username: string }) {
   return (
     <Suspense fallback={<LoadingIndicator label="Loading favorites" />}>
-      <ProfileFavoritesContent params={params} />
+      <ProfileFavoritesContent username={username} />
     </Suspense>
   );
 }
 
-async function ProfileFavoritesContent({ params }: { params: Promise<{ username: string }> }) {
-  const username = parseUsername((await params).username);
-  if (!username) notFound();
+async function ProfileFavoritesContent({ username }: { username: string }) {
+  const parsedUsername = parseUsername(username);
+  if (!parsedUsername) notFound();
 
-  const entries = await getProfileLibrary(username);
+  const entries = await getProfileLibrary(parsedUsername);
   if (!entries) notFound();
 
   return (

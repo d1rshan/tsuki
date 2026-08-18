@@ -21,28 +21,15 @@ import { getMedia } from "../data";
  * Anime and manga keep separate URLs, but the page itself is identical — the
  * only difference is which type is fetched.
  */
-export function MediaDetailsView({
-  mediaType,
-  params,
-}: {
-  mediaType: MediaType;
-  params: Promise<{ id: string }>;
-}) {
+export function MediaDetailsView({ mediaType, id }: { mediaType: MediaType; id: string }) {
   return (
     <Suspense fallback={<MediaPageSkeleton />}>
-      <MediaDetailsContent mediaType={mediaType} params={params} />
+      <MediaDetailsContent mediaType={mediaType} id={id} />
     </Suspense>
   );
 }
 
-async function MediaDetailsContent({
-  mediaType,
-  params,
-}: {
-  mediaType: MediaType;
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+async function MediaDetailsContent({ mediaType, id }: { mediaType: MediaType; id: string }) {
   const mediaId = parseMediaId(id);
   if (!mediaId) notFound();
 
@@ -71,11 +58,8 @@ async function MediaDetailsContent({
   );
 }
 
-export async function getMediaMetadata(
-  mediaType: MediaType,
-  params: Promise<{ id: string }>,
-): Promise<Metadata> {
-  const mediaId = parseMediaId((await params).id);
+export async function getMediaMetadata(mediaType: MediaType, id: string): Promise<Metadata> {
+  const mediaId = parseMediaId(id);
   if (!mediaId) return { title: "Media not found" };
 
   const media = await getMedia(mediaType, mediaId);

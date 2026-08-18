@@ -2,20 +2,22 @@ import type { Metadata } from "next";
 
 import { ProfileLayout, getProfileMetadata } from "@/features/profile/layouts/profile-layout";
 
-export function generateMetadata({
+export async function generateMetadata({
   params,
 }: {
   params: Promise<{ username: string }>;
 }): Promise<Metadata> {
-  return getProfileMetadata({ params });
+  const { username } = await params;
+  return getProfileMetadata(username);
 }
 
-export default function Layout({
+export default async function Layout({
   children,
   params,
 }: {
   children: React.ReactNode;
   params: Promise<{ username: string }>;
 }) {
-  return <ProfileLayout params={params}>{children}</ProfileLayout>;
+  const { username } = await params;
+  return <ProfileLayout username={username}>{children}</ProfileLayout>;
 }
