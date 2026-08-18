@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import { ProfileLayout, getProfileMetadata } from "@/features/profile/layouts/profile-layout";
 import { requireValidUsername } from "@/features/profile/valid";
 
+export const instant = false;
+
 export async function generateMetadata({
   params,
 }: {

@@ -1,6 +1,8 @@
 import { ProfileConnectionsView } from "@/features/profile/views/profile-connections-view";
 import { requireValidUsername } from "@/features/profile/valid";
 
+export const instant = false;
+
 export default async function Page({
   params,
   searchParams,
