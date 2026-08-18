@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { ProfileUserList } from "@/features/profile/components/profile-user-list";
 import { ProfileConnectionsPagination } from "@/features/profile/components/profile-connections-pagination";
 import { LoadingIndicator } from "@/shared/components/loading-indicator";
-import { parseUsername } from "@/shared/lib/username";
 
 import { getProfileFollowers, getProfileFollowing } from "../data";
 
@@ -36,15 +35,12 @@ async function ProfileConnectionsContent({
   page?: string;
   type: ConnectionType;
 }) {
-  const parsedUsername = parseUsername(username);
-  if (!parsedUsername) notFound();
-
   const parsedPage = Number(rawPage ?? 1);
   const page = Number.isSafeInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1;
   const result =
     type === "followers"
-      ? await getProfileFollowers(parsedUsername, PAGE_SIZE, (page - 1) * PAGE_SIZE)
-      : await getProfileFollowing(parsedUsername, PAGE_SIZE, (page - 1) * PAGE_SIZE);
+      ? await getProfileFollowers(username, PAGE_SIZE, (page - 1) * PAGE_SIZE)
+      : await getProfileFollowing(username, PAGE_SIZE, (page - 1) * PAGE_SIZE);
   if (!result) notFound();
 
   const pageCount = Math.max(1, Math.ceil(result.total / PAGE_SIZE));

@@ -4,7 +4,6 @@ import type { Metadata } from "next";
 
 import { ProfileHeader } from "@/features/profile/components/profile-header";
 import { getSession } from "@/shared/lib/session";
-import { parseUsername } from "@/shared/lib/username";
 
 import { getProfileOverview } from "../data";
 
@@ -22,11 +21,8 @@ export function ProfileLayout({ children, username }: ProfileLayoutProps) {
 }
 
 async function ProfileLayoutContent({ children, username }: ProfileLayoutProps) {
-  const parsedUsername = parseUsername(username);
-  if (!parsedUsername) notFound();
-
   const [profile, { user: currentUser }] = await Promise.all([
-    getProfileOverview(parsedUsername),
+    getProfileOverview(username),
     getSession(),
   ]);
   if (!profile) notFound();
@@ -48,10 +44,7 @@ async function ProfileLayoutContent({ children, username }: ProfileLayoutProps) 
 }
 
 export async function getProfileMetadata(username: string): Promise<Metadata> {
-  const parsedUsername = parseUsername(username);
-  if (!parsedUsername) return { title: "Profile not found" };
-
-  const profile = await getProfileOverview(parsedUsername);
+  const profile = await getProfileOverview(username);
   if (!profile) return { title: "Profile not found" };
 
   return {

@@ -7,7 +7,6 @@ import { MEDIA } from "@/features/media/media";
 import { ProfileMediaToggle } from "@/features/profile/components/profile-media-toggle";
 import { ReviewItem } from "@/features/profile/components/profile-reviews";
 import { LoadingIndicator } from "@/shared/components/loading-indicator";
-import { parseUsername } from "@/shared/lib/username";
 
 import { getProfileReviews } from "../data";
 
@@ -40,10 +39,7 @@ export function ProfileReviewsView({ username }: { username: string }) {
 }
 
 async function ProfileReviewsContent({ username }: { username: string }) {
-  const parsedUsername = parseUsername(username);
-  if (!parsedUsername) notFound();
-
-  const reviews = await getProfileReviews(parsedUsername);
+  const reviews = await getProfileReviews(username);
   if (!reviews) notFound();
 
   return (

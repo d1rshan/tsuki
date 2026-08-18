@@ -6,7 +6,6 @@ import {
   RecentActivitySection,
 } from "@/features/profile/components/profile-overview";
 import { ProfileActivityHeatmap } from "@/features/profile/components/profile-activity-heatmap";
-import { parseUsername } from "@/shared/lib/username";
 
 import { getProfileOverview } from "../data";
 
@@ -19,10 +18,7 @@ export function ProfileOverviewView({ username }: { username: string }) {
 }
 
 async function ProfileOverviewContent({ username }: { username: string }) {
-  const parsedUsername = parseUsername(username);
-  if (!parsedUsername) notFound();
-
-  const profile = await getProfileOverview(parsedUsername);
+  const profile = await getProfileOverview(username);
   if (!profile) notFound();
 
   return (
@@ -32,7 +28,7 @@ async function ProfileOverviewContent({ username }: { username: string }) {
       <RecentActivitySection
         title="Recent Activity"
         recentLogs={profile.recentLogs}
-        username={parsedUsername}
+        username={username}
       />
     </div>
   );

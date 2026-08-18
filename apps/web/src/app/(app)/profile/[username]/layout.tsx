@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 
 import { ProfileLayout, getProfileMetadata } from "@/features/profile/layouts/profile-layout";
+import { requireValidUsername } from "@/features/profile/valid";
 
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ username: string }>;
 }): Promise<Metadata> {
-  const { username } = await params;
-  return getProfileMetadata(username);
+  return getProfileMetadata(await requireValidUsername(params));
 }
 
 export default async function Layout({
@@ -18,6 +18,6 @@ export default async function Layout({
   children: React.ReactNode;
   params: Promise<{ username: string }>;
 }) {
-  const { username } = await params;
+  const username = await requireValidUsername(params);
   return <ProfileLayout username={username}>{children}</ProfileLayout>;
 }

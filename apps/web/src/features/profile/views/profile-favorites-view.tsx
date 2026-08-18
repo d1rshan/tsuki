@@ -7,7 +7,6 @@ import { MEDIA } from "@/features/media/media";
 import { FavoritesSection } from "@/features/profile/components/profile-overview";
 import { ProfileMediaToggle } from "@/features/profile/components/profile-media-toggle";
 import { LoadingIndicator } from "@/shared/components/loading-indicator";
-import { parseUsername } from "@/shared/lib/username";
 
 import { getProfileLibrary } from "../data";
 
@@ -40,10 +39,7 @@ export function ProfileFavoritesView({ username }: { username: string }) {
 }
 
 async function ProfileFavoritesContent({ username }: { username: string }) {
-  const parsedUsername = parseUsername(username);
-  if (!parsedUsername) notFound();
-
-  const entries = await getProfileLibrary(parsedUsername);
+  const entries = await getProfileLibrary(username);
   if (!entries) notFound();
 
   return (
