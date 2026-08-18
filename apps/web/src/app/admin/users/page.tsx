@@ -1,1 +1,5 @@
-export { AdminUsersPage as default } from "@/features/admin/pages/admin-users-page";
+import { AdminUsersView } from "@/features/admin/views/admin-users-view";
+
+export default function Page() {
+  return <AdminUsersView />;
+}

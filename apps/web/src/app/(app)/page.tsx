@@ -1,1 +1,5 @@
-export { DiscoverPage as default } from "@/features/discover/pages/discover-page";
+import { DiscoverView } from "@/features/discover/views/discover-view";
+
+export default function Page() {
+  return <DiscoverView />;
+}

@@ -6,22 +6,18 @@ import {
   RecentActivitySection,
 } from "@/features/profile/components/profile-overview";
 import { ProfileActivityHeatmap } from "@/features/profile/components/profile-activity-heatmap";
-import { parseUsername } from "@/shared/lib/username";
 
 import { getProfileOverview } from "../data";
 
-export function ProfileOverviewPage({ params }: { params: Promise<{ username: string }> }) {
+export function ProfileOverviewView({ username }: { username: string }) {
   return (
     <Suspense fallback={null}>
-      <ProfileOverviewContent params={params} />
+      <ProfileOverviewContent username={username} />
     </Suspense>
   );
 }
 
-async function ProfileOverviewContent({ params }: { params: Promise<{ username: string }> }) {
-  const username = parseUsername((await params).username);
-  if (!username) notFound();
-
+async function ProfileOverviewContent({ username }: { username: string }) {
   const profile = await getProfileOverview(username);
   if (!profile) notFound();
 

@@ -6,7 +6,7 @@ import { AdminDashboardStats } from "../components/admin-dashboard-stats";
 import { AdminPage } from "../components/admin-page";
 import { getUserCount } from "../data";
 
-export function AdminDashboardPage() {
+export function AdminDashboardView() {
   return (
     <Suspense fallback={<LoadingIndicator label="Loading overview" />}>
       <AdminDashboardContent />

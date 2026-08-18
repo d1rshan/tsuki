@@ -1,9 +1,13 @@
-import { MediaDetailsPage, getMediaMetadata } from "@/features/media/pages/media-details-page";
+import { MediaDetailsView, getMediaMetadata } from "@/features/media/views/media-details-view";
 
-export function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
-  return getMediaMetadata("ANIME", params);
+export const instant = false;
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return getMediaMetadata("ANIME", id);
 }
 
-export default function AnimePage({ params }: { params: Promise<{ id: string }> }) {
-  return <MediaDetailsPage mediaType="ANIME" params={params} />;
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return <MediaDetailsView mediaType="ANIME" id={id} />;
 }

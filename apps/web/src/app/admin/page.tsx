@@ -1,1 +1,5 @@
-export { AdminDashboardPage as default } from "@/features/admin/pages/admin-dashboard-page";
+import { AdminDashboardView } from "@/features/admin/views/admin-dashboard-view";
+
+export default function Page() {
+  return <AdminDashboardView />;
+}

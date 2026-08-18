@@ -4,42 +4,37 @@ import { notFound } from "next/navigation";
 import { ProfileUserList } from "@/features/profile/components/profile-user-list";
 import { ProfileConnectionsPagination } from "@/features/profile/components/profile-connections-pagination";
 import { LoadingIndicator } from "@/shared/components/loading-indicator";
-import { parseUsername } from "@/shared/lib/username";
 
 import { getProfileFollowers, getProfileFollowing } from "../data";
 
 type ConnectionType = "followers" | "following";
 const PAGE_SIZE = 40;
 
-export function ProfileConnectionsPage({
-  params,
-  searchParams,
+export function ProfileConnectionsView({
+  username,
+  page,
   type,
 }: {
-  params: Promise<{ username: string }>;
-  searchParams: Promise<{ page?: string }>;
+  username: string;
+  page?: string;
   type: ConnectionType;
 }) {
   return (
     <Suspense fallback={<LoadingIndicator label={`Loading ${type}`} />}>
-      <ProfileConnectionsContent params={params} searchParams={searchParams} type={type} />
+      <ProfileConnectionsContent username={username} page={page} type={type} />
     </Suspense>
   );
 }
 
 async function ProfileConnectionsContent({
-  params,
-  searchParams,
+  username,
+  page: rawPage,
   type,
 }: {
-  params: Promise<{ username: string }>;
-  searchParams: Promise<{ page?: string }>;
+  username: string;
+  page?: string;
   type: ConnectionType;
 }) {
-  const [{ username: rawUsername }, { page: rawPage }] = await Promise.all([params, searchParams]);
-  const username = parseUsername(rawUsername);
-  if (!username) notFound();
-
   const parsedPage = Number(rawPage ?? 1);
   const page = Number.isSafeInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1;
   const result =

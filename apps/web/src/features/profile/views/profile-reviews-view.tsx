@@ -7,7 +7,6 @@ import { MEDIA } from "@/features/media/media";
 import { ProfileMediaToggle } from "@/features/profile/components/profile-media-toggle";
 import { ReviewItem } from "@/features/profile/components/profile-reviews";
 import { LoadingIndicator } from "@/shared/components/loading-indicator";
-import { parseUsername } from "@/shared/lib/username";
 
 import { getProfileReviews } from "../data";
 
@@ -31,18 +30,15 @@ function ReviewsForType({ reviews, mediaType }: { reviews: Review[]; mediaType: 
   );
 }
 
-export function ProfileReviewsPage({ params }: { params: Promise<{ username: string }> }) {
+export function ProfileReviewsView({ username }: { username: string }) {
   return (
     <Suspense fallback={<LoadingIndicator label="Loading reviews" />}>
-      <ProfileReviewsContent params={params} />
+      <ProfileReviewsContent username={username} />
     </Suspense>
   );
 }
 
-async function ProfileReviewsContent({ params }: { params: Promise<{ username: string }> }) {
-  const username = parseUsername((await params).username);
-  if (!username) notFound();
-
+async function ProfileReviewsContent({ username }: { username: string }) {
   const reviews = await getProfileReviews(username);
   if (!reviews) notFound();
 

@@ -7,7 +7,6 @@ import { MEDIA } from "@/features/media/media";
 import { FavoritesSection } from "@/features/profile/components/profile-overview";
 import { ProfileMediaToggle } from "@/features/profile/components/profile-media-toggle";
 import { LoadingIndicator } from "@/shared/components/loading-indicator";
-import { parseUsername } from "@/shared/lib/username";
 
 import { getProfileLibrary } from "../data";
 
@@ -31,18 +30,15 @@ function FavoritesForType({
   return <FavoritesSection title={`${MEDIA[mediaType].label} Favorites`} favorites={favorites} />;
 }
 
-export function ProfileFavoritesPage({ params }: { params: Promise<{ username: string }> }) {
+export function ProfileFavoritesView({ username }: { username: string }) {
   return (
     <Suspense fallback={<LoadingIndicator label="Loading favorites" />}>
-      <ProfileFavoritesContent params={params} />
+      <ProfileFavoritesContent username={username} />
     </Suspense>
   );
 }
 
-async function ProfileFavoritesContent({ params }: { params: Promise<{ username: string }> }) {
-  const username = parseUsername((await params).username);
-  if (!username) notFound();
-
+async function ProfileFavoritesContent({ username }: { username: string }) {
   const entries = await getProfileLibrary(username);
   if (!entries) notFound();
 
