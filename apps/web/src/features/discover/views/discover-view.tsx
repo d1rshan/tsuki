@@ -1,32 +1,25 @@
-import { cacheLife } from "next/cache";
-import { Suspense } from "react";
+"use client";
 
-import { ErrorState } from "@/shared/components/content-state";
+import { useQueryState } from "nuqs";
 
-import { getTrending } from "../../media/data";
-import { DiscoverContent } from "../components/discover-content";
+import type { MediaCompact, MediaType } from "@tsuki/api/types";
 
-export async function DiscoverView() {
-  "use cache: remote";
-  cacheLife("days");
+import { DiscoverSearchResults } from "../components/discover-search-results";
+import { DiscoverMediaTrending } from "../components/discover-media-trending";
 
-  const trending = await Promise.all([getTrending("ANIME"), getTrending("MANGA")]).catch(
-    () => null,
-  );
-
-  if (!trending) {
-    return (
-      <div className="container mx-auto flex min-h-screen items-center justify-center px-4 pt-24">
-        <ErrorState title="Failed to load discover" description="Please try again in a moment." />
-      </div>
-    );
-  }
-
-  const [anime, manga] = trending;
+export function DiscoverView({ trending }: { trending: Record<MediaType, MediaCompact[]> }) {
+  const [query] = useQueryState("q", { defaultValue: "" });
+  const searchQuery = query.trim();
 
   return (
-    <Suspense>
-      <DiscoverContent trending={{ ANIME: anime, MANGA: manga }} />
-    </Suspense>
+    <div className="container mx-auto flex flex-col gap-12 px-4 pb-12 pt-24 md:gap-16 md:pb-24 md:pt-32">
+      {searchQuery ? (
+        <DiscoverSearchResults query={searchQuery} />
+      ) : (
+        <DiscoverMediaTrending trending={trending} />
+      )}
+    </div>
   );
 }
+
+// TODO: in discover make media type and nsfw a global state to avoid prop drilling.

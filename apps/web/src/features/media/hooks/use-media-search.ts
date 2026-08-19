@@ -32,6 +32,6 @@ export function useMediaSearch(mediaType: MediaType, query: string, includeNsfw:
 
   return {
     ...queryResult,
-    isDebouncing: query !== debouncedQuery,
+    isPending: queryResult.isFetching || query !== debouncedQuery,
   };
 }
