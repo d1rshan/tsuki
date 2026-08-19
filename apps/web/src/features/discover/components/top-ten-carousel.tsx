@@ -11,7 +11,7 @@ import {
 } from "@/shared/components/ui/carousel";
 import { cn } from "@/shared/lib/utils";
 
-import { MediaCard } from "./media-card";
+import { MediaCard } from "@/features/media/components/media-card";
 
 type TopTenCarouselProps = {
   actions?: React.ReactNode;

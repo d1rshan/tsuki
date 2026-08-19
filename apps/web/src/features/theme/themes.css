@@ -2,7 +2,7 @@
  * Theme contribution guide
  * ------------------------
  * 1. Add a class below with every core color as a hex value.
- * 2. Add matching metadata to shared/lib/themes.ts.
+ * 2. Add matching metadata to themes.ts.
  * 3. For a dark palette, include its class in the dark variant in globals.css.
  * Semantic component colors are derived from these core colors in :root.
  */

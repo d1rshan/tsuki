@@ -10,7 +10,7 @@ import {
   Loader2Icon,
 } from "lucide-react";
 
-import { getThemeScheme } from "@/shared/lib/themes";
+import { getThemeScheme } from "@/features/theme/themes";
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const { resolvedTheme, systemTheme } = useTheme();

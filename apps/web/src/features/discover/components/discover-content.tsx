@@ -9,7 +9,7 @@ import type { MediaCompact, MediaType } from "@tsuki/api/types";
 import { Button } from "@/shared/components/ui/button";
 import { MediaGrid } from "@/features/media/components/media-grid";
 import { MediaTypeToggle } from "@/features/media/components/media-type-toggle";
-import { TopTenCarousel } from "@/features/media/components/top-ten-carousel";
+import { TopTenCarousel } from "@/features/discover/components/top-ten-carousel";
 import { useMediaSearch } from "@/features/media/hooks/use-media-search";
 import { MEDIA_TYPES } from "@/features/media/media";
 import { cn } from "@/shared/lib/utils";

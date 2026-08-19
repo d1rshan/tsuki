@@ -11,10 +11,10 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
-import { THEMES } from "@/shared/lib/themes";
 import { Button } from "@/shared/components/ui/button";
+import { THEMES } from "@/features/theme/themes";
 
-export function ThemeToggle() {
+export function ThemeSelector() {
   const { theme, setTheme } = useTheme();
 
   return (

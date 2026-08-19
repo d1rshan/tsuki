@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import { getThemeScheme, THEMES, THEME_IDS } from "./themes";
 
-const themeCss = await Bun.file(new URL("../../app/themes.css", import.meta.url)).text();
+const themeCss = await Bun.file(new URL("./themes.css", import.meta.url)).text();
 const globalCss = await Bun.file(new URL("../../app/globals.css", import.meta.url)).text();
 const requiredColors = [
   "background",

@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { Menu, Search, X } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
-import { ThemeToggle } from "@/shared/components/theme-toggle";
+import { ThemeSelector } from "@/features/theme/components/theme-selector";
 
 import { useNavbarSearch } from "../hooks/use-navbar-search";
 import { NavbarAuth } from "./navbar-auth";
@@ -56,7 +56,7 @@ export function Navbar({ user }: { user: NavbarUser | null }) {
                 <div className="hidden items-center gap-2 sm:flex">
                   <NavbarAuth isAuthenticated={Boolean(user?.username)} />
                   <div className="mx-1 h-4 w-px bg-border" />
-                  <ThemeToggle />
+                  <ThemeSelector />
                 </div>
                 {search.isSearchable ? (
                   <Button
@@ -97,7 +97,7 @@ export function Navbar({ user }: { user: NavbarUser | null }) {
                 onNavigate={closeMobileMenu}
               />
               <div className="pr-2">
-                <ThemeToggle />
+                <ThemeSelector />
               </div>
             </div>
           </div>

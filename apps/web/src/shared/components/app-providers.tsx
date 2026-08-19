@@ -7,7 +7,7 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 import { Toaster } from "@/shared/components/ui/sonner";
 import { getQueryClient } from "@/shared/lib/query-client";
-import { THEME_IDS } from "@/shared/lib/themes";
+import { THEME_IDS } from "@/features/theme/themes";
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   const queryClient = getQueryClient();

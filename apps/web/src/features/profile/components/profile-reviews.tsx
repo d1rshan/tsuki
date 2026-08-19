@@ -4,7 +4,7 @@ import { formatDistanceToNow } from "date-fns";
 
 import type { Review } from "@tsuki/api/types";
 
-import { Spoiler } from "@/shared/components/spoiler";
+import { Spoiler } from "@/features/profile/components/spoiler";
 import {
   getMediaCoverImage,
   getMediaTitle,
