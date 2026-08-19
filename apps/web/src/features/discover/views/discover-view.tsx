@@ -21,3 +21,5 @@ export function DiscoverView({ trending }: { trending: Record<MediaType, MediaCo
     </div>
   );
 }
+
+// TODO: in discover make media type and nsfw a global state to avoid prop drilling.

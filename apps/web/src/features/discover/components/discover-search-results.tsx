@@ -94,8 +94,6 @@ function DiscoverSearchActions({
         size="lg"
         variant={includeNsfw ? "default" : "outline"}
         onClick={() => onNsfwChange(!includeNsfw)}
-        aria-pressed={includeNsfw}
-        aria-label={includeNsfw ? "Hide mature results" : "Show mature results"}
       >
         {includeNsfw ? <Eye data-icon="inline-start" /> : <EyeOff data-icon="inline-start" />}
         NSFW
