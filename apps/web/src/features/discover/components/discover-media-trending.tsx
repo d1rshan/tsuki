@@ -2,21 +2,18 @@ import type { MediaCompact, MediaType } from "@tsuki/api/types";
 
 import { MediaGrid } from "@/features/media/components/media-grid";
 import { MediaTypeToggle } from "@/features/media/components/media-type-toggle";
+import { useMediaType } from "@/features/media/hooks/use-media-type";
 
 import { DiscoverSection } from "./discover-section";
 import { DiscoverMediaCarousel } from "./discover-media-carousel";
 
-type DiscoverMediaTrendingProps = {
-  items: MediaCompact[];
-  mediaType: MediaType;
-  onMediaTypeChange: (value: MediaType) => void;
-};
-
 export function DiscoverMediaTrending({
-  items,
-  mediaType,
-  onMediaTypeChange,
-}: DiscoverMediaTrendingProps) {
+  trending,
+}: {
+  trending: Record<MediaType, MediaCompact[]>;
+}) {
+  const [mediaType, setMediaType] = useMediaType();
+  const items = trending[mediaType];
   const topToday = items.slice(0, 10);
   const moreTrending = items.slice(topToday.length);
 
@@ -24,7 +21,7 @@ export function DiscoverMediaTrending({
     <>
       <DiscoverSection
         title="Top 10 Today"
-        actions={<MediaTypeToggle value={mediaType} onChange={onMediaTypeChange} />}
+        actions={<MediaTypeToggle value={mediaType} onChange={setMediaType} />}
       >
         <DiscoverMediaCarousel items={topToday} mediaType={mediaType} />
       </DiscoverSection>
