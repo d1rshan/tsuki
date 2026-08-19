@@ -19,7 +19,7 @@ type DiscoverMediaCarouselProps = {
 
 export function DiscoverMediaCarousel({ items, mediaType }: DiscoverMediaCarouselProps) {
   return (
-    <Carousel opts={{ align: "start", dragFree: true }} className="w-full">
+    <Carousel opts={{ align: "start", dragFree: true }}>
       <CarouselContent className="ml-0 py-6 md:py-10">
         {items.map((media, index) => (
           <CarouselItem
@@ -52,8 +52,8 @@ export function DiscoverMediaCarousel({ items, mediaType }: DiscoverMediaCarouse
         ))}
       </CarouselContent>
 
-      <CarouselPrevious className="left-2 bg-background/70 backdrop-blur-xl md:left-0 md:size-12" />
-      <CarouselNext className="right-2 bg-background/70 backdrop-blur-xl md:right-0 md:size-12" />
+      <CarouselPrevious />
+      <CarouselNext />
     </Carousel>
   );
 }
