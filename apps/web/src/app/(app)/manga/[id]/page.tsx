@@ -1,4 +1,8 @@
-import { MediaDetailsView, getMediaMetadata } from "@/features/media/views/media-details-view";
+import { Suspense } from "react";
+
+import { MediaPageSkeleton } from "@/features/media/components/media-skeletons";
+import { getMediaMetadata } from "@/features/media/data";
+import { MediaView } from "@/features/media/views/media-view";
 
 export const instant = false;
 
@@ -9,5 +13,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  return <MediaDetailsView mediaType="MANGA" id={id} />;
+  return (
+    <Suspense fallback={<MediaPageSkeleton />}>
+      <MediaView mediaType="MANGA" id={id} />
+    </Suspense>
+  );
 }

@@ -4,13 +4,7 @@ import { Star } from "lucide-react";
 
 import type { MediaCompact, MediaType } from "@tsuki/api/types";
 
-import {
-  MEDIA,
-  getMediaCoverImage,
-  getMediaTitle,
-  mediaHref,
-  mediaImageClass,
-} from "@/features/media/media";
+import { MEDIA, mediaHref, mediaImageClass, normalizeMediaCompact } from "@/features/media/media";
 import { cn } from "@/shared/lib/utils";
 
 interface ProfileMediaCardProps {
@@ -22,8 +16,7 @@ interface ProfileMediaCardProps {
 }
 
 export function ProfileMediaCard({ media, mediaType, score, progress }: ProfileMediaCardProps) {
-  const cover = getMediaCoverImage(media);
-  const title = getMediaTitle(media);
+  const { coverImage: cover, title } = normalizeMediaCompact(media);
 
   return (
     <Link

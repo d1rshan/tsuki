@@ -29,9 +29,10 @@ export function useMediaActivity(mediaType: MediaType, mediaId: number) {
     entry: query.data?.entry ?? null,
     isAuthenticated,
     isError: query.isError,
-    isFetching: query.isFetching,
-    isLoading: isSessionPending || (isAuthenticated && query.isLoading),
+    isPending: isSessionPending || (isAuthenticated && query.isFetching),
     retry: query.refetch,
     review: query.data?.review ?? null,
   };
 }
+
+export type MediaActivity = ReturnType<typeof useMediaActivity>;

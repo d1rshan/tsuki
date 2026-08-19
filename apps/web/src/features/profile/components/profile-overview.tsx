@@ -6,8 +6,7 @@ import type { LibraryEntry } from "@tsuki/api/types";
 
 import {
   MEDIA,
-  getMediaCoverImage,
-  getMediaTitle,
+  normalizeMediaCompact,
   mediaHref,
   mediaImageClass,
   statusLabel,
@@ -84,8 +83,7 @@ export function RecentActivitySection({
 function RecentLogItem({ entry }: { entry: LibraryEntry }) {
   if (!entry.media) return null;
 
-  const cover = getMediaCoverImage(entry.media);
-  const title = getMediaTitle(entry.media);
+  const { coverImage: cover, title } = normalizeMediaCompact(entry.media);
 
   return (
     <Link

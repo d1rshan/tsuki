@@ -6,40 +6,47 @@ import { cn } from "@/shared/lib/utils";
 
 import { mediaImageClass } from "../media";
 
-export function MediaBanner({
-  bannerImage,
-  isFallbackImage,
-  mediaType,
-  title,
-}: {
-  bannerImage: string | null;
-  isFallbackImage: boolean;
-  mediaType: MediaType;
+type MediaBannerProps = {
+  image: string | null;
   title: string;
-}) {
-  return (
-    <div className="relative h-[250px] w-full overflow-hidden md:h-[350px]">
-      {bannerImage && isFallbackImage ? (
-        <>
-          <Image
-            src={bannerImage}
-            alt=""
-            fill
-            className={cn("scale-110 object-cover blur-xl", mediaImageClass(mediaType))}
-            sizes="100vw"
-          />
-          <div className="absolute inset-0 bg-background/30" />
-        </>
-      ) : bannerImage ? (
+  type: MediaType;
+  hasBannerImage: boolean;
+};
+
+export function MediaBanner({ image, title, type, hasBannerImage }: MediaBannerProps) {
+  function renderImage() {
+    if (!image) return null;
+
+    if (hasBannerImage) {
+      return (
         <Image
-          src={bannerImage}
+          src={image}
           alt={`${title} banner`}
           fill
-          className={cn("object-cover", mediaImageClass(mediaType))}
+          className={cn("object-cover", mediaImageClass(type))}
           priority
           sizes="100vw"
         />
-      ) : null}
+      );
+    }
+
+    return (
+      <>
+        <Image
+          src={image}
+          alt=""
+          fill
+          className={cn("scale-110 object-cover blur-xl", mediaImageClass(type))}
+          sizes="100vw"
+        />
+        <div className="absolute inset-0 bg-background/30" />
+      </>
+    );
+  }
+
+  return (
+    <div className="relative h-[250px] overflow-hidden md:h-[350px]">
+      {renderImage()}
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
     </div>
   );

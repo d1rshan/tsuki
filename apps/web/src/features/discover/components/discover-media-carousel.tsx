@@ -1,6 +1,6 @@
 "use client";
 
-import type { MediaCompact, MediaType } from "@tsuki/api/types";
+import type { MediaCompact } from "@tsuki/api/types";
 
 import { MediaCard } from "@/features/media/components/media-card";
 import {
@@ -12,12 +12,7 @@ import {
 } from "@/shared/components/ui/carousel";
 import { cn } from "@/shared/lib/utils";
 
-type DiscoverMediaCarouselProps = {
-  items: MediaCompact[];
-  mediaType: MediaType;
-};
-
-export function DiscoverMediaCarousel({ items, mediaType }: DiscoverMediaCarouselProps) {
+export function DiscoverMediaCarousel({ items }: { items: MediaCompact[] }) {
   return (
     <Carousel opts={{ align: "start", dragFree: true }}>
       <CarouselContent className="ml-0 py-6 md:py-10">
@@ -44,7 +39,6 @@ export function DiscoverMediaCarousel({ items, mediaType }: DiscoverMediaCarouse
               </span>
               <MediaCard
                 media={media}
-                mediaType={mediaType}
                 className="relative z-20 ml-auto w-[64%] shadow-md sm:w-[68%]"
               />
             </article>

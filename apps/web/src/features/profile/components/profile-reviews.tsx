@@ -5,12 +5,7 @@ import { formatDistanceToNow } from "date-fns";
 import type { Review } from "@tsuki/api/types";
 
 import { Spoiler } from "@/features/profile/components/spoiler";
-import {
-  getMediaCoverImage,
-  getMediaTitle,
-  mediaHref,
-  mediaImageClass,
-} from "@/features/media/media";
+import { mediaHref, mediaImageClass, normalizeMediaCompact } from "@/features/media/media";
 import { cn } from "@/shared/lib/utils";
 
 export function ReviewItem({ review }: { review: Review }) {
@@ -18,8 +13,7 @@ export function ReviewItem({ review }: { review: Review }) {
 
   if (!media) return null;
 
-  const cover = getMediaCoverImage(media);
-  const title = getMediaTitle(media);
+  const { coverImage: cover, title } = normalizeMediaCompact(media);
   const href = mediaHref(mediaType, mediaId);
 
   return (

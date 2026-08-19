@@ -1,12 +1,10 @@
 "use client";
 
-import { useId, useLayoutEffect, useState } from "react";
+import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Check, LoaderCircle, Plus, Star } from "lucide-react";
-import { toast } from "sonner";
 
-import type { LibraryEntry, ListStatus, MediaType, Review } from "@tsuki/api/types";
+import type { ListStatus, MediaType } from "@tsuki/api/types";
 
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
@@ -17,11 +15,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/shared/components/ui/dialog";
+import {
+  Field,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSeparator,
+  FieldSet,
+} from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -33,138 +39,111 @@ import {
   SCORE_OPTIONS,
   clampProgress,
   createActivityForm,
-  createLogMediaInput,
   hasLoggedActivity,
-  saveMediaActivity,
   type ActivityForm,
 } from "../activity";
-import { deleteReviewAction, logMediaAction, submitReviewAction } from "../actions";
+import type { MediaActivity } from "../hooks/use-media-activity";
+import { useSaveMediaActivityMutation } from "../hooks/use-save-media-activity-mutation";
 import { MEDIA } from "../media";
-import { mediaKeys } from "../query-keys";
-
-type LogMediaDialogProps = {
-  disabled: boolean;
-  entry: LibraryEntry | null;
-  isAuthenticated: boolean;
-  isFavorite: boolean;
-  mediaId: number;
-  mediaType: MediaType;
-  review: Review | null;
-  total?: number | null;
-};
 
 export function LogMediaDialog({
-  disabled,
-  entry,
-  isAuthenticated,
-  isFavorite,
+  activity,
   mediaId,
   mediaType,
-  review,
   total,
-}: LogMediaDialogProps) {
+}: {
+  activity: MediaActivity;
+  mediaId: number;
+  mediaType: MediaType;
+  total?: number | null;
+}) {
   const router = useRouter();
-  const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
-  const [form, setForm] = useState(() => createActivityForm(mediaType, entry, review));
+  const [form, setForm] = useState(() =>
+    createActivityForm(mediaType, activity.entry, activity.review),
+  );
   const config = MEDIA[mediaType];
-  const hasActivity = hasLoggedActivity(mediaType, entry, review);
-
-  useLayoutEffect(() => () => setIsOpen(false), []);
-
-  const saveMutation = useMutation({
-    mutationFn: () =>
-      saveMediaActivity(
-        () => logMediaAction(mediaType, mediaId, createLogMediaInput(form, isFavorite, total)),
-        async () => {
-          const reviewContent = form.reviewContent.trim();
-          if (reviewContent) {
-            await submitReviewAction(mediaType, mediaId, reviewContent, form.containsSpoilers);
-          } else if (review) {
-            await deleteReviewAction(mediaType, mediaId);
-          }
-        },
-      ),
-    onSuccess: async (result) => {
-      await queryClient.invalidateQueries({ queryKey: mediaKeys.activity(mediaType, mediaId) });
-
-      if (result === "review-failed") {
-        toast.error("Log saved, but the review failed. Try saving again.");
-        return;
-      }
-
-      setIsOpen(false);
-      toast.success(`${config.label} log saved`);
-    },
-    onError: () => toast.error(`Failed to save ${config.label.toLowerCase()} log`),
-  });
+  const isFavorite = activity.entry?.isFavorite ?? false;
+  const hasActivity = hasLoggedActivity(mediaType, activity.entry, activity.review);
+  const saveMutation = useSaveMediaActivityMutation(mediaType, mediaId);
 
   function updateForm(updates: Partial<ActivityForm>) {
     setForm((current) => ({ ...current, ...updates }));
   }
 
   function handleOpenChange(nextIsOpen: boolean) {
-    if (nextIsOpen && !isAuthenticated) {
+    if (nextIsOpen && !activity.isAuthenticated) {
       router.push("/login");
       return;
     }
 
     setIsOpen(nextIsOpen);
-    if (nextIsOpen) setForm(createActivityForm(mediaType, entry, review));
+    if (nextIsOpen) {
+      setForm(createActivityForm(mediaType, activity.entry, activity.review));
+    }
   }
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger
-        render={<Button disabled={disabled} className="flex-1" />}
+        render={<Button disabled={activity.isPending} className="flex-1" />}
         aria-label={hasActivity ? `Edit ${config.label.toLowerCase()} log` : undefined}
       >
-        {hasActivity ? <Check /> : <Plus />}
+        {hasActivity ? <Check data-icon="inline-start" /> : <Plus data-icon="inline-start" />}
         {hasActivity ? "Edit log" : "Add to list"}
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] gap-3 overflow-y-auto border-white/10 bg-background/80 backdrop-blur-xl sm:max-w-[20rem]">
+
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[20rem]">
         <DialogHeader>
-          <DialogTitle className="text-lg font-semibold tracking-tight">
-            Log {config.label}
-          </DialogTitle>
+          <DialogTitle>Log {config.label}</DialogTitle>
         </DialogHeader>
+
         <form
-          className="grid gap-3"
           onSubmit={(event) => {
             event.preventDefault();
-            saveMutation.mutate();
+            saveMutation.mutate(
+              { form, isFavorite, review: activity.review, total },
+              { onSuccess: (result) => result === "saved" && setIsOpen(false) },
+            );
           }}
         >
-          <div className="grid gap-3 sm:grid-cols-[3fr_2fr]">
-            <StatusField
-              statuses={config.statuses}
-              value={form.status}
-              onChange={(status) => updateForm({ status })}
+          <FieldGroup>
+            <FieldGroup className="sm:grid sm:grid-cols-[3fr_2fr]">
+              <StatusField
+                statuses={config.statuses}
+                value={form.status}
+                onChange={(status) => updateForm({ status })}
+              />
+              <ProgressField
+                label={config.unitLong}
+                value={form.progress}
+                total={total}
+                onChange={(progress) => updateForm({ progress })}
+              />
+            </FieldGroup>
+
+            <RatingField value={form.score} onChange={(score) => updateForm({ score })} />
+
+            <ReviewField
+              mediaType={mediaType}
+              content={form.reviewContent}
+              containsSpoilers={form.containsSpoilers}
+              onContentChange={(reviewContent) => updateForm({ reviewContent })}
+              onSpoilersChange={(containsSpoilers) => updateForm({ containsSpoilers })}
             />
-            <ProgressField
-              label={config.unitLong}
-              value={form.progress}
-              total={total}
-              onChange={(progress) => updateForm({ progress })}
-            />
-          </div>
-          <RatingField value={form.score} onChange={(score) => updateForm({ score })} />
-          <ReviewField
-            mediaType={mediaType}
-            content={form.reviewContent}
-            containsSpoilers={form.containsSpoilers}
-            onContentChange={(reviewContent) => updateForm({ reviewContent })}
-            onSpoilersChange={(containsSpoilers) => updateForm({ containsSpoilers })}
-          />
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={saveMutation.isPending}>
-              {saveMutation.isPending ? <LoaderCircle className="animate-spin" /> : null}
-              Save
-            </Button>
-          </div>
+
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={saveMutation.isPending}>
+                {saveMutation.isPending ? (
+                  <LoaderCircle data-icon="inline-start" className="animate-spin" />
+                ) : null}
+                Save
+              </Button>
+            </div>
+          </FieldGroup>
         </form>
       </DialogContent>
     </Dialog>
@@ -180,26 +159,30 @@ function StatusField({
   value: ListStatus;
   onChange: (value: ListStatus) => void;
 }) {
+  const id = useId();
+
   return (
-    <div className="grid gap-2">
-      <Label htmlFor="media-status">Status</Label>
+    <Field>
+      <FieldLabel htmlFor={id}>Status</FieldLabel>
       <Select
         value={value}
         onValueChange={(nextValue) => onChange(nextValue as ListStatus)}
         items={statuses}
       >
-        <SelectTrigger id="media-status" className="w-full">
+        <SelectTrigger id={id}>
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          {statuses.map((status) => (
-            <SelectItem key={status.value} value={status.value}>
-              {status.label}
-            </SelectItem>
-          ))}
+          <SelectGroup>
+            {statuses.map((status) => (
+              <SelectItem key={status.value} value={status.value}>
+                {status.label}
+              </SelectItem>
+            ))}
+          </SelectGroup>
         </SelectContent>
       </Select>
-    </div>
+    </Field>
   );
 }
 
@@ -214,14 +197,15 @@ function ProgressField({
   total?: number | null;
   onChange: (value: string) => void;
 }) {
+  const id = useId();
   const hasLimit = typeof total === "number" && total > 0;
 
   return (
-    <div className="grid gap-2">
-      <Label htmlFor="media-progress">{label}</Label>
+    <Field>
+      <FieldLabel htmlFor={id}>{label}</FieldLabel>
       <div className="relative">
         <Input
-          id="media-progress"
+          id={id}
           type="number"
           inputMode="numeric"
           min={0}
@@ -231,10 +215,7 @@ function ProgressField({
             const nextValue = event.target.value;
             onChange(nextValue ? String(clampProgress(Number.parseInt(nextValue, 10), total)) : "");
           }}
-          className={cn(
-            "w-full [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none",
-            hasLimit && "pr-16",
-          )}
+          className={cn(hasLimit && "pr-16")}
         />
         {hasLimit ? (
           <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-muted-foreground">
@@ -242,21 +223,21 @@ function ProgressField({
           </span>
         ) : null}
       </div>
-    </div>
+    </Field>
   );
 }
 
 function RatingField({ value, onChange }: { value: number; onChange: (value: number) => void }) {
   return (
-    <fieldset className="grid gap-2">
-      <legend className="text-left text-sm font-medium">Rating</legend>
+    <FieldSet>
+      <FieldLegend variant="label">Rating</FieldLegend>
       <div className="flex flex-wrap gap-1">
         {SCORE_OPTIONS.map((score) => (
           <button
             type="button"
             key={score}
             onClick={() => onChange(score === value ? 0 : score)}
-            className="group rounded-sm p-0.5 transition-transform hover:scale-110 active:scale-95 focus-visible:outline-2 focus-visible:outline-ring"
+            className="group rounded-sm p-0.5 focus-visible:outline-2 focus-visible:outline-ring"
             aria-label={`Rate ${score} out of 10`}
             aria-pressed={value === score}
           >
@@ -265,13 +246,13 @@ function RatingField({ value, onChange }: { value: number; onChange: (value: num
                 "size-5",
                 value >= score
                   ? "fill-primary text-primary"
-                  : "text-muted-foreground group-hover:fill-primary/20 group-hover:text-primary",
+                  : "text-muted-foreground group-hover:text-primary",
               )}
             />
           </button>
         ))}
       </div>
-    </fieldset>
+    </FieldSet>
   );
 }
 
@@ -292,23 +273,25 @@ function ReviewField({
   const spoilersId = useId();
 
   return (
-    <div className="grid gap-2 border-t pt-3">
-      <Label htmlFor={reviewId}>Review</Label>
-      <Textarea
-        id={reviewId}
-        placeholder={`What did you think about this ${MEDIA[mediaType].label.toLowerCase()}?`}
-        value={content}
-        onChange={(event) => onContentChange(event.target.value)}
-        rows={3}
-      />
+    <>
+      <FieldSeparator />
+      <Field>
+        <FieldLabel htmlFor={reviewId}>Review</FieldLabel>
+        <Textarea
+          id={reviewId}
+          placeholder={`What did you think about this ${MEDIA[mediaType].label.toLowerCase()}?`}
+          value={content}
+          onChange={(event) => onContentChange(event.target.value)}
+          rows={3}
+        />
+      </Field>
+
       {content.trim() ? (
-        <div className="flex items-center gap-2">
+        <Field orientation="horizontal">
           <Checkbox id={spoilersId} checked={containsSpoilers} onCheckedChange={onSpoilersChange} />
-          <Label htmlFor={spoilersId} className="cursor-pointer text-sm font-normal">
-            Contains spoilers
-          </Label>
-        </div>
+          <FieldLabel htmlFor={spoilersId}>Contains spoilers</FieldLabel>
+        </Field>
       ) : null}
-    </div>
+    </>
   );
 }

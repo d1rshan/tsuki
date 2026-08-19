@@ -1,4 +1,4 @@
-import type { ListStatus, MediaType } from "@tsuki/api/types";
+import type { ListStatus, Media, MediaCompact, MediaType } from "@tsuki/api/types";
 
 /**
  * Anime and manga are modelled identically by the API — one `mediaType`, one
@@ -63,16 +63,6 @@ export function statusLabel(mediaType: MediaType, status: ListStatus): string {
   return MEDIA[mediaType].statuses.find((entry) => entry.value === status)?.label ?? status;
 }
 
-/** Episodes or chapters — whichever unit this media counts. */
-export function unitCount(media: {
-  type: MediaType;
-  episodes: number | null;
-  chapters: number | null;
-}) {
-  return media.type === "ANIME" ? media.episodes : media.chapters;
-}
-
-/** Route segments stay lowercase — `/anime/21`, not the `ANIME` the data carries. */
 export function mediaHref(mediaType: MediaType, id: number) {
   return `/${mediaType.toLowerCase()}/${id}`;
 }
@@ -81,13 +71,37 @@ export function mediaImageClass(mediaType: MediaType) {
   return mediaType === "MANGA" ? "grayscale opacity-90" : undefined;
 }
 
+export type NormalizedMediaCompact = MediaCompact & {
+  title: string;
+  coverImage: string | null;
+  bannerImage: string | null;
+  hasBannerImage: boolean;
+  count: number | null;
+};
+
+export type NormalizedMedia = Media &
+  NormalizedMediaCompact & {
+    descriptionText: string;
+    statusLabel: string | null;
+    seasonLabel: string | null;
+    genres: string[];
+    details: RequiredMediaDetailItem[];
+    links: MediaLinks;
+    trailerUrl: string | null;
+  };
+
 type ExternalLink = {
   url: string;
   site: string;
   language?: string | null;
 };
 
-export function formatExternalLinks<T extends ExternalLink>(links: T[]): (T & { label: string })[] {
+type MediaLinks = {
+  heading: string;
+  items: (ExternalLink & { label: string })[];
+};
+
+function formatExternalLinks<T extends ExternalLink>(links: T[]): (T & { label: string })[] {
   const uniqueLinks = links.filter(
     (link, index) => links.findIndex(({ url }) => url === link.url) === index,
   );
@@ -105,27 +119,18 @@ export function formatExternalLinks<T extends ExternalLink>(links: T[]): (T & { 
   }));
 }
 
-export function getMediaTitle(media: {
-  titleEnglish?: string | null;
-  titleRomaji?: string | null;
-  titleNative?: string | null;
-}): string {
-  return media.titleEnglish || media.titleRomaji || media.titleNative || "Unknown Title";
-}
+export function normalizeMediaCompact(media: MediaCompact): NormalizedMediaCompact {
+  const title = media.titleEnglish || media.titleRomaji || media.titleNative || "Unknown Title";
+  const coverImage = media.coverImageExtraLarge || media.coverImageLarge || null;
 
-export function getMediaCoverImage(media: {
-  coverImageExtraLarge?: string | null;
-  coverImageLarge?: string | null;
-}): string {
-  return media.coverImageExtraLarge || media.coverImageLarge || "";
-}
-
-export function getMediaBannerImage(media: {
-  bannerImage?: string | null;
-  coverImageExtraLarge?: string | null;
-  coverImageLarge?: string | null;
-}): string {
-  return media.bannerImage || getMediaCoverImage(media);
+  return {
+    ...media,
+    title,
+    coverImage,
+    bannerImage: media.bannerImage || coverImage,
+    hasBannerImage: Boolean(media.bannerImage),
+    count: media.type === "ANIME" ? media.episodes : media.chapters,
+  };
 }
 
 export function parseMediaId(value: string) {
@@ -135,16 +140,16 @@ export function parseMediaId(value: string) {
   return Number.isSafeInteger(id) && id <= MAX_MEDIA_ID ? id : null;
 }
 
-export function formatMediaStatus(value: string) {
+function formatMediaStatus(value: string) {
   return value.toLowerCase().replaceAll("_", " ");
 }
 
-export function formatMediaSource(value: string) {
+function formatMediaSource(value: string) {
   const label = formatMediaStatus(value);
   return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
-export function formatCountry(code: string | null) {
+function formatCountry(code: string | null) {
   if (!code) return null;
 
   const normalizedCode = code.toUpperCase();
@@ -156,7 +161,7 @@ export function formatCountry(code: string | null) {
   }
 }
 
-export function formatFuzzyDate(
+function formatFuzzyDate(
   date: { year: number | null; month: number | null; day: number | null } | null,
 ) {
   if (!date) return null;
@@ -204,7 +209,7 @@ function decodeEntity(entity: string) {
   return NAMED_ENTITIES[entity] ?? `&${entity};`;
 }
 
-export function mediaDescriptionText(description: string | null) {
+function mediaDescriptionText(description: string | null) {
   if (!description) return "No synopsis available.";
 
   return description
@@ -214,4 +219,70 @@ export function mediaDescriptionText(description: string | null) {
     .replace(/&(#x?[\da-f]+|[a-z]+);/gi, (_, entity: string) => decodeEntity(entity.toLowerCase()))
     .replace(/\n{3,}/g, "\n\n")
     .trim();
+}
+
+type MediaDetailItem = {
+  label: string;
+  value: string | number | null | undefined;
+};
+
+type RequiredMediaDetailItem = {
+  label: string;
+  value: string | number;
+};
+
+function getMediaDetailItems(media: Media): MediaDetailItem[] {
+  const typeSpecificItems =
+    media.type === "ANIME"
+      ? [
+          { label: "Episodes", value: media.episodes },
+          { label: "Duration", value: media.duration ? `${media.duration} mins` : null },
+        ]
+      : [
+          { label: "Chapters", value: media.chapters },
+          { label: "Volumes", value: media.volumes },
+        ];
+
+  return [
+    ...typeSpecificItems,
+    { label: "Start date", value: formatFuzzyDate(media.startDate) },
+    { label: "End date", value: formatFuzzyDate(media.endDate) },
+    { label: "Source", value: media.source ? formatMediaSource(media.source) : null },
+    { label: "Country", value: formatCountry(media.countryOfOrigin) },
+    { label: "AniList popularity", value: media.popularity?.toLocaleString("en-US") },
+    { label: "AniList favourites", value: media.favourites?.toLocaleString("en-US") },
+  ];
+}
+
+function getMediaLinks(media: Media): MediaLinks {
+  return {
+    heading: media.type === "ANIME" ? "Where to Watch" : "Where to Read",
+    items: formatExternalLinks(
+      media.type === "ANIME"
+        ? (media.externalLinks?.filter((link) => link.type === "STREAMING") ?? [])
+        : (media.externalLinks ?? []),
+    ),
+  };
+}
+
+export function normalizeMedia(media: Media): NormalizedMedia {
+  const compact = normalizeMediaCompact(media);
+  const details = getMediaDetailItems(media).filter(
+    (item): item is RequiredMediaDetailItem => item.value != null && item.value !== "",
+  );
+
+  return {
+    ...media,
+    ...compact,
+    descriptionText: mediaDescriptionText(media.description),
+    statusLabel: media.status ? formatMediaStatus(media.status) : null,
+    seasonLabel: media.season && media.seasonYear ? `${media.season} ${media.seasonYear}` : null,
+    genres: media.genres ?? [],
+    details,
+    links: getMediaLinks(media),
+    trailerUrl:
+      media.trailer?.site === "youtube"
+        ? `https://www.youtube.com/embed/${media.trailer.id}?rel=0`
+        : null,
+  };
 }

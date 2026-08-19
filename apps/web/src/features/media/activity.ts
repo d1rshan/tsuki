@@ -45,10 +45,6 @@ export function createLogMediaInput(
   };
 }
 
-export function createFavoriteInput(isFavorite: boolean): LogMediaInput {
-  return { isFavorite };
-}
-
 export function hasLoggedActivity(
   mediaType: MediaType,
   entry: LibraryEntry | null,

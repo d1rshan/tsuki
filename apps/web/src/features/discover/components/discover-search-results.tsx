@@ -6,9 +6,9 @@ import { parseAsBoolean, useQueryState } from "nuqs";
 import type { MediaType } from "@tsuki/api/types";
 
 import { MediaGrid } from "@/features/media/components/media-grid";
-import { MediaTypeToggle } from "@/features/media/components/media-type-toggle";
 import { useMediaSearch } from "@/features/media/hooks/use-media-search";
 import { useMediaType } from "@/features/media/hooks/use-media-type";
+import { MEDIA } from "@/features/media/media";
 import { EmptyState, ErrorState } from "@/shared/components/content-state";
 import { Loader } from "@/shared/components/loader";
 import { Button } from "@/shared/components/ui/button";
@@ -51,7 +51,7 @@ export function DiscoverSearchResults({ query }: { query: string }) {
     return (
       <div className="relative" aria-busy={isPending}>
         <div className={cn("transition-opacity", isPending && "pointer-events-none opacity-50")}>
-          <MediaGrid items={items} mediaType={mediaType} />
+          <MediaGrid items={items} />
         </div>
         {isPending ? <Loader className="absolute inset-0 min-h-0" /> : null}
       </div>
@@ -86,9 +86,18 @@ function DiscoverSearchActions({
   onMediaTypeChange: (value: MediaType) => void;
   onNsfwChange: (value: boolean) => void;
 }) {
+  const nextMediaType = mediaType === "ANIME" ? "MANGA" : "ANIME";
+
   return (
     <div className="flex items-center gap-2">
-      <MediaTypeToggle value={mediaType} onChange={onMediaTypeChange} />
+      <Button
+        type="button"
+        size="lg"
+        onClick={() => onMediaTypeChange(nextMediaType)}
+        aria-label={`Switch from ${MEDIA[mediaType].label} to ${MEDIA[nextMediaType].label}`}
+      >
+        {MEDIA[mediaType].label}
+      </Button>
       <Button
         type="button"
         size="lg"
