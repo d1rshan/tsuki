@@ -4,15 +4,19 @@ import { MediaGrid } from "@/features/media/components/media-grid";
 import { MediaTypeToggle } from "@/features/media/components/media-type-toggle";
 
 import { DiscoverSection } from "./discover-section";
-import { RankedMediaCarousel } from "./ranked-media-carousel";
+import { DiscoverMediaCarousel } from "./discover-media-carousel";
 
-type DiscoverTrendingProps = {
+type DiscoverMediaTrendingProps = {
   items: MediaCompact[];
   mediaType: MediaType;
   onMediaTypeChange: (value: MediaType) => void;
 };
 
-export function DiscoverTrending({ items, mediaType, onMediaTypeChange }: DiscoverTrendingProps) {
+export function DiscoverMediaTrending({
+  items,
+  mediaType,
+  onMediaTypeChange,
+}: DiscoverMediaTrendingProps) {
   const topToday = items.slice(0, 10);
   const moreTrending = items.slice(topToday.length);
 
@@ -22,7 +26,7 @@ export function DiscoverTrending({ items, mediaType, onMediaTypeChange }: Discov
         title="Top 10 Today"
         actions={<MediaTypeToggle value={mediaType} onChange={onMediaTypeChange} />}
       >
-        <RankedMediaCarousel items={topToday} mediaType={mediaType} />
+        <DiscoverMediaCarousel items={topToday} mediaType={mediaType} />
       </DiscoverSection>
 
       <DiscoverSection title="More Trending">

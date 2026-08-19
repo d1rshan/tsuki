@@ -7,7 +7,7 @@ import type { MediaCompact, MediaType } from "@tsuki/api/types";
 import { useMediaType } from "@/features/media/hooks/use-media-type";
 
 import { DiscoverSearchResults } from "../components/discover-search-results";
-import { DiscoverTrending } from "../components/discover-trending";
+import { DiscoverMediaTrending } from "../components/discover-media-trending";
 
 type DiscoverViewProps = {
   trending: Record<MediaType, MediaCompact[]>;
@@ -30,7 +30,7 @@ export function DiscoverView({ trending }: DiscoverViewProps) {
           onNsfwChange={(value) => void setIncludeNsfw(value)}
         />
       ) : (
-        <DiscoverTrending
+        <DiscoverMediaTrending
           items={trending[mediaType]}
           mediaType={mediaType}
           onMediaTypeChange={setMediaType}

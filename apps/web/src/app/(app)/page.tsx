@@ -1,11 +1,11 @@
 import { Suspense } from "react";
 
-import { getDiscoverTrending } from "@/features/discover/data";
+import { getDiscoverMediaTrending } from "@/features/discover/data";
 import { DiscoverView } from "@/features/discover/views/discover-view";
 import { ErrorState } from "@/shared/components/content-state";
 
 export default async function Page() {
-  const trending = await getDiscoverTrending().catch(() => null);
+  const trending = await getDiscoverMediaTrending().catch(() => null);
 
   if (!trending) {
     return (

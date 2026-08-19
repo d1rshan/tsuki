@@ -12,12 +12,12 @@ import {
 } from "@/shared/components/ui/carousel";
 import { cn } from "@/shared/lib/utils";
 
-type RankedMediaCarouselProps = {
+type DiscoverMediaCarouselProps = {
   items: MediaCompact[];
   mediaType: MediaType;
 };
 
-export function RankedMediaCarousel({ items, mediaType }: RankedMediaCarouselProps) {
+export function DiscoverMediaCarousel({ items, mediaType }: DiscoverMediaCarouselProps) {
   return (
     <Carousel opts={{ align: "start", dragFree: true }} className="w-full">
       <CarouselContent className="ml-0 py-6 md:py-10">

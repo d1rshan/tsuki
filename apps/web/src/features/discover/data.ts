@@ -6,7 +6,7 @@ import type { MediaType } from "@tsuki/api/types";
 
 import { publicApi } from "@/shared/lib/public-api";
 
-export async function getDiscoverTrending() {
+export async function getDiscoverMediaTrending() {
   "use cache: remote";
   cacheLife("days");
 
