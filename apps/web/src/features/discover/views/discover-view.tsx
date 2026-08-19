@@ -1,32 +1,41 @@
-import { cacheLife } from "next/cache";
-import { Suspense } from "react";
+"use client";
 
-import { ErrorState } from "@/shared/components/content-state";
+import { parseAsBoolean, useQueryState } from "nuqs";
 
-import { getTrending } from "../../media/data";
-import { DiscoverContent } from "../components/discover-content";
+import type { MediaCompact, MediaType } from "@tsuki/api/types";
 
-export async function DiscoverView() {
-  "use cache: remote";
-  cacheLife("days");
+import { useMediaType } from "@/features/media/hooks/use-media-type";
 
-  const trending = await Promise.all([getTrending("ANIME"), getTrending("MANGA")]).catch(
-    () => null,
-  );
+import { DiscoverSearchResults } from "../components/discover-search-results";
+import { DiscoverTrending } from "../components/discover-trending";
 
-  if (!trending) {
-    return (
-      <div className="container mx-auto flex min-h-screen items-center justify-center px-4 pt-24">
-        <ErrorState title="Failed to load discover" description="Please try again in a moment." />
-      </div>
-    );
-  }
+type DiscoverViewProps = {
+  trending: Record<MediaType, MediaCompact[]>;
+};
 
-  const [anime, manga] = trending;
+export function DiscoverView({ trending }: DiscoverViewProps) {
+  const [query] = useQueryState("q", { defaultValue: "" });
+  const [includeNsfw, setIncludeNsfw] = useQueryState("nsfw", parseAsBoolean.withDefault(false));
+  const [mediaType, setMediaType] = useMediaType();
+  const searchQuery = query.trim();
 
   return (
-    <Suspense>
-      <DiscoverContent trending={{ ANIME: anime, MANGA: manga }} />
-    </Suspense>
+    <div className="container mx-auto flex flex-col gap-12 px-4 pb-12 pt-24 md:gap-16 md:pb-24 md:pt-32">
+      {searchQuery ? (
+        <DiscoverSearchResults
+          query={searchQuery}
+          mediaType={mediaType}
+          includeNsfw={includeNsfw}
+          onMediaTypeChange={setMediaType}
+          onNsfwChange={(value) => void setIncludeNsfw(value)}
+        />
+      ) : (
+        <DiscoverTrending
+          items={trending[mediaType]}
+          mediaType={mediaType}
+          onMediaTypeChange={setMediaType}
+        />
+      )}
+    </div>
   );
 }

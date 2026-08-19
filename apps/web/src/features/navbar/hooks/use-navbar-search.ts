@@ -2,25 +2,19 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { parseAsStringEnum, useQueryState } from "nuqs";
+import { useQueryState } from "nuqs";
 
-import type { MediaType } from "@tsuki/api/types";
-
+import { useMediaType } from "@/features/media/hooks/use-media-type";
 import { useHotkey } from "@/shared/hooks/use-hotkey";
-
-const MEDIA_TYPES = ["ANIME", "MANGA"] as const;
 
 export function useNavbarSearch() {
   const pathname = usePathname();
   const [isManuallyOpen, setIsManuallyOpen] = useState(false);
   const previousPathname = useRef(pathname);
   const [query, setQuery] = useQueryState("q", { defaultValue: "" });
-  const [mediaType] = useQueryState(
-    "type",
-    parseAsStringEnum<MediaType>([...MEDIA_TYPES]).withDefault("ANIME"),
-  );
 
   const isSearchable = pathname === "/";
+  const [mediaType] = useMediaType({ persistQuery: isSearchable });
   const isOpen = isSearchable && (isManuallyOpen || query.length > 0);
 
   useEffect(() => {
