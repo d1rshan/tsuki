@@ -6,7 +6,7 @@ import type { LibraryEntry, MediaType } from "@tsuki/api/types";
 import { MEDIA } from "@/features/media/media";
 import { FavoritesSection } from "@/features/profile/components/profile-overview";
 import { ProfileMediaToggle } from "@/features/profile/components/profile-media-toggle";
-import { LoadingIndicator } from "@/shared/components/loading-indicator";
+import { Loader } from "@/shared/components/loader";
 
 import { getProfileLibrary } from "../data";
 
@@ -32,7 +32,7 @@ function FavoritesForType({
 
 export function ProfileFavoritesView({ username }: { username: string }) {
   return (
-    <Suspense fallback={<LoadingIndicator label="Loading favorites" />}>
+    <Suspense fallback={<Loader />}>
       <ProfileFavoritesContent username={username} />
     </Suspense>
   );

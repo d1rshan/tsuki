@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 
-import { LoadingIndicator } from "@/shared/components/loading-indicator";
+import { Loader } from "@/shared/components/loader";
 
 import { AdminDashboardStats } from "../components/admin-dashboard-stats";
 import { AdminPage } from "../components/admin-page";
@@ -8,7 +8,7 @@ import { getUserCount } from "../data";
 
 export function AdminDashboardView() {
   return (
-    <Suspense fallback={<LoadingIndicator label="Loading overview" />}>
+    <Suspense fallback={<Loader />}>
       <AdminDashboardContent />
     </Suspense>
   );

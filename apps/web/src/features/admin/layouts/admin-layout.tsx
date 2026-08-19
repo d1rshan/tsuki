@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 
 import { SidebarInset, SidebarProvider } from "@/shared/components/ui/sidebar";
-import { LoadingIndicator } from "@/shared/components/loading-indicator";
+import { Loader } from "@/shared/components/loader";
 
 import { AdminSidebar } from "../components/admin-sidebar";
 import { AdminSiteHeader } from "../components/admin-site-header";
@@ -9,7 +9,7 @@ import { requireAdmin } from "../require-admin";
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <Suspense fallback={<LoadingIndicator className="min-h-screen" label="Loading admin" />}>
+    <Suspense fallback={<Loader className="min-h-screen" />}>
       <AdminLayoutContent>{children}</AdminLayoutContent>
     </Suspense>
   );

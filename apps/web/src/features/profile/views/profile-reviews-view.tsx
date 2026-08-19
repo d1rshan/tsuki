@@ -6,7 +6,7 @@ import type { MediaType, Review } from "@tsuki/api/types";
 import { MEDIA } from "@/features/media/media";
 import { ProfileMediaToggle } from "@/features/profile/components/profile-media-toggle";
 import { ReviewItem } from "@/features/profile/components/profile-reviews";
-import { LoadingIndicator } from "@/shared/components/loading-indicator";
+import { Loader } from "@/shared/components/loader";
 
 import { getProfileReviews } from "../data";
 
@@ -32,7 +32,7 @@ function ReviewsForType({ reviews, mediaType }: { reviews: Review[]; mediaType: 
 
 export function ProfileReviewsView({ username }: { username: string }) {
   return (
-    <Suspense fallback={<LoadingIndicator label="Loading reviews" />}>
+    <Suspense fallback={<Loader />}>
       <ProfileReviewsContent username={username} />
     </Suspense>
   );

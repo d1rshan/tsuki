@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 
 import { ProfileUserList } from "@/features/profile/components/profile-user-list";
 import { ProfileConnectionsPagination } from "@/features/profile/components/profile-connections-pagination";
-import { LoadingIndicator } from "@/shared/components/loading-indicator";
+import { Loader } from "@/shared/components/loader";
 
 import { getProfileFollowers, getProfileFollowing } from "../data";
 
@@ -20,7 +20,7 @@ export function ProfileConnectionsView({
   type: ConnectionType;
 }) {
   return (
-    <Suspense fallback={<LoadingIndicator label={`Loading ${type}`} />}>
+    <Suspense fallback={<Loader />}>
       <ProfileConnectionsContent username={username} page={page} type={type} />
     </Suspense>
   );

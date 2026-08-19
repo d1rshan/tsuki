@@ -4,17 +4,16 @@ import { motion } from "framer-motion";
 
 import { cn } from "@/shared/lib/utils";
 
-type LoadingIndicatorProps = {
+type LoaderProps = {
   className?: string;
-  label?: string;
 };
 
-export function LoadingIndicator({ className, label = "Loading" }: LoadingIndicatorProps) {
+export function Loader({ className }: LoaderProps) {
   return (
     <div
       className={cn("flex min-h-64 items-center justify-center", className)}
       role="status"
-      aria-label={label}
+      aria-label="Loading"
     >
       <div className="flex items-center gap-1.5">
         {[0, 1, 2].map((index) => (

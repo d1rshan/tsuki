@@ -14,7 +14,7 @@ import { useMediaSearch } from "@/features/media/hooks/use-media-search";
 import { MEDIA_TYPES } from "@/features/media/media";
 import { cn } from "@/shared/lib/utils";
 import { EmptyState, ErrorState } from "@/shared/components/content-state";
-import { LoadingIndicator } from "@/shared/components/loading-indicator";
+import { Loader } from "@/shared/components/loader";
 
 const TOP_TEN_LIMIT = 10;
 const FEATURED_HEADING_CLASS = "text-3xl font-black uppercase md:text-5xl";
@@ -120,7 +120,7 @@ function SearchResults({
       </div>
 
       {isLoading || (results.length === 0 && isPending) ? (
-        <LoadingIndicator />
+        <Loader />
       ) : isError ? (
         <ErrorState
           title={`Failed to search ${type.toLowerCase()}`}
@@ -146,7 +146,7 @@ function SearchResults({
           {isPending && (
             <div className="absolute inset-0 z-10 flex items-start justify-center pt-32 pointer-events-none">
               <div className="rounded-full bg-background/50 p-4 backdrop-blur-md">
-                <LoadingIndicator className="min-h-0" label="Updating results" />
+                <Loader className="min-h-0" />
               </div>
             </div>
           )}
