@@ -64,7 +64,7 @@ function ForgotPasswordCard() {
               >
                 <form.Field name="email">
                   {(field) => {
-                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                    const isInvalid = !field.state.meta.isValid;
 
                     return (
                       <Field data-invalid={isInvalid}>
