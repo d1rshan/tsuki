@@ -49,7 +49,7 @@ export function AuthFormCard({
           </Link>
         </CardAction>
       </CardHeader>
-      <form onSubmit={onSubmit}>
+      <form onSubmit={onSubmit} className="flex flex-col gap-(--card-spacing)">
         <CardContent>
           <FieldSet disabled={isSubmitting}>
             <FieldGroup>{children}</FieldGroup>

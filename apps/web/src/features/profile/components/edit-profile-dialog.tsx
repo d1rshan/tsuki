@@ -97,7 +97,7 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
                 <FieldGroup>
                   <form.Field name="bio">
                     {(field) => {
-                      const isInvalid = !field.state.meta.isValid;
+                      const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 
                       return (
                         <Field data-invalid={isInvalid}>
@@ -121,7 +121,7 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
 
                   <form.Field name="bannerImage">
                     {(field) => {
-                      const isInvalid = !field.state.meta.isValid;
+                      const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 
                       return (
                         <Field data-invalid={isInvalid}>
@@ -165,7 +165,8 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
                             >
                               <form.Field name={`socialLinks[${index}].platform`}>
                                 {(field) => {
-                                  const isInvalid = !field.state.meta.isValid;
+                                  const isInvalid =
+                                    field.state.meta.isTouched && !field.state.meta.isValid;
 
                                   return (
                                     <Field data-invalid={isInvalid}>
@@ -188,7 +189,8 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
                               </form.Field>
                               <form.Field name={`socialLinks[${index}].url`}>
                                 {(field) => {
-                                  const isInvalid = !field.state.meta.isValid;
+                                  const isInvalid =
+                                    field.state.meta.isTouched && !field.state.meta.isValid;
 
                                   return (
                                     <Field data-invalid={isInvalid}>

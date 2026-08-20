@@ -46,6 +46,7 @@ function LoginCard() {
       }
 
       router.push("/");
+      router.refresh();
     },
   });
 
@@ -65,7 +66,7 @@ function LoginCard() {
         >
           <form.Field name="emailOrUsername">
             {(field) => {
-              const isInvalid = !field.state.meta.isValid;
+              const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 
               return (
                 <Field data-invalid={isInvalid}>
@@ -86,7 +87,7 @@ function LoginCard() {
           </form.Field>
           <form.Field name="password">
             {(field) => {
-              const isInvalid = !field.state.meta.isValid;
+              const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 
               return (
                 <Field data-invalid={isInvalid}>
@@ -167,7 +168,7 @@ function SignupCard() {
         >
           <form.Field name="name">
             {(field) => {
-              const isInvalid = !field.state.meta.isValid;
+              const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 
               return (
                 <Field data-invalid={isInvalid}>
@@ -188,7 +189,7 @@ function SignupCard() {
           </form.Field>
           <form.Field name="username">
             {(field) => {
-              const isInvalid = !field.state.meta.isValid;
+              const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 
               return (
                 <Field data-invalid={isInvalid}>
@@ -209,7 +210,7 @@ function SignupCard() {
           </form.Field>
           <form.Field name="email">
             {(field) => {
-              const isInvalid = !field.state.meta.isValid;
+              const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 
               return (
                 <Field data-invalid={isInvalid}>
@@ -231,7 +232,7 @@ function SignupCard() {
           </form.Field>
           <form.Field name="password">
             {(field) => {
-              const isInvalid = !field.state.meta.isValid;
+              const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 
               return (
                 <Field data-invalid={isInvalid}>

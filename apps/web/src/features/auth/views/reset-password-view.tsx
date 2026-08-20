@@ -67,7 +67,7 @@ function ResetPasswordCard({ token }: { token?: string }) {
               >
                 <form.Field name="password">
                   {(field) => {
-                    const isInvalid = !field.state.meta.isValid;
+                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 
                     return (
                       <Field data-invalid={isInvalid}>
@@ -89,7 +89,7 @@ function ResetPasswordCard({ token }: { token?: string }) {
                 </form.Field>
                 <form.Field name="confirmPassword">
                   {(field) => {
-                    const isInvalid = !field.state.meta.isValid;
+                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 
                     return (
                       <Field data-invalid={isInvalid}>
