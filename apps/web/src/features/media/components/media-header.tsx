@@ -42,7 +42,7 @@ export function MediaHeader({
       </Badge>
     ),
     statusLabel && (
-      <Badge key="status" variant="outline">
+      <Badge key="status" variant="outline" className="uppercase">
         {statusLabel}
       </Badge>
     ),
