@@ -41,7 +41,8 @@ export function FriendsView() {
   const followMutation = useMutation({
     mutationFn: ({ username, following }: { username: string; following: boolean }) =>
       setFollowingAction(username, following),
-    onSuccess: (relationship, { username }) => {
+    onSuccess: async (relationship, { username }) => {
+      await queryClient.cancelQueries({ queryKey: friendsKeys.all }, { silent: true });
       queryClient.setQueriesData<DiscoveryUserSummary[]>({ queryKey: friendsKeys.all }, (users) =>
         users?.map((user) => (user.username === username ? { ...user, relationship } : user)),
       );
