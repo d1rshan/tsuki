@@ -7,7 +7,7 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 import { Toaster } from "@/shared/components/ui/sonner";
 import { getQueryClient } from "@/shared/lib/query-client";
-import { THEME_IDS } from "@/features/theme/themes";
+import { THEME_CLASSES } from "@/features/theme/themes";
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
@@ -18,7 +18,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       defaultTheme="system"
       enableSystem
       disableTransitionOnChange
-      themes={THEME_IDS}
+      themes={THEME_CLASSES}
     >
       <QueryClientProvider client={queryClient}>
         <NuqsAdapter>{children}</NuqsAdapter>

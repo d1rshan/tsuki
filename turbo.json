@@ -17,6 +17,9 @@
     "typecheck": {
       "dependsOn": ["^typecheck"]
     },
+    "generate:themes": {
+      "cache": false
+    },
     "//#lint:check": {},
     "//#lint:fix": {
       "cache": false

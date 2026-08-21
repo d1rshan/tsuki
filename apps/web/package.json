@@ -3,8 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "bun run generate:themes && next dev",
+    "build": "bun run generate:themes && next build",
+    "generate:themes": "bun scripts/generate-themes.ts",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
