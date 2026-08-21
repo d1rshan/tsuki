@@ -14,6 +14,7 @@
     "format:check": "oxfmt --check .",
     "format:fix": "oxfmt --write .",
     "typecheck": "turbo run typecheck",
+    "generate:themes": "turbo run generate:themes --filter=web",
     "deploy": "bun run deploy:check && bun run deploy:web && bun run deploy:api",
     "deploy:check": "bun run build && bun run typecheck",
     "deploy:web": "vercel --project tsuki-web --prod",

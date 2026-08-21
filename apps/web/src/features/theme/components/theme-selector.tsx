@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { Button } from "@/shared/components/ui/button";
-import { THEMES } from "@/features/theme/themes";
+import { getThemeId, THEMES } from "@/features/theme/themes";
 
 export function ThemeSelector() {
   const { theme, setTheme } = useTheme();
@@ -39,13 +39,13 @@ export function ThemeSelector() {
             onValueChange={setTheme}
             className="grid grid-cols-2"
           >
-            {THEMES.map(({ id, name, color }) => (
-              <DropdownMenuRadioItem key={id} value={id}>
+            {THEMES.map((theme) => (
+              <DropdownMenuRadioItem key={getThemeId(theme)} value={getThemeId(theme)}>
                 <span
                   className="size-2.5 shrink-0 rounded-full ring-1 ring-foreground/15"
-                  style={{ backgroundColor: color }}
+                  style={{ backgroundColor: theme.colors.primary }}
                 />
-                {name}
+                {theme.name}
               </DropdownMenuRadioItem>
             ))}
           </DropdownMenuRadioGroup>
