@@ -1,7 +1,10 @@
-import { and, count, desc, eq, or } from "drizzle-orm";
+import { and, count, desc, eq, ilike, ne, or, sql } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 
 import { db } from "../db";
 import { social, user } from "../schema";
+
+import { usernamePrefixPattern } from "./discovery";
 
 const PUBLIC_USER_COLUMNS = {
   id: user.id,
@@ -20,6 +23,15 @@ export type FollowRelationship = {
 type FollowListOptions = {
   limit: number;
   offset: number;
+};
+
+const followers = alias(social, "followers");
+const viewerFollowing = alias(social, "viewer_following");
+const viewerFollowedBy = alias(social, "viewer_followed_by");
+
+type DiscoveryOptions = {
+  limit: number;
+  usernamePrefix?: string;
 };
 
 export function relationshipFromRows(
@@ -112,4 +124,36 @@ export const getFollowing = async (userId: string, { limit, offset }: FollowList
     .orderBy(desc(social.createdAt), desc(social.followingId))
     .limit(limit)
     .offset(offset);
+};
+
+/** Public discovery data, with the viewer's Follow state in the same bounded query. */
+export const getUserDiscovery = async (
+  viewerId: string,
+  { limit, usernamePrefix }: DiscoveryOptions,
+) => {
+  const conditions = [ne(user.id, viewerId)];
+  if (usernamePrefix) conditions.push(ilike(user.username, usernamePrefixPattern(usernamePrefix)));
+
+  return db
+    .select({
+      ...PUBLIC_USER_COLUMNS,
+      relationship: {
+        following: sql<boolean>`count(${viewerFollowing.followerId}) > 0`,
+        followedBy: sql<boolean>`count(${viewerFollowedBy.followerId}) > 0`,
+      },
+    })
+    .from(user)
+    .leftJoin(followers, eq(followers.followingId, user.id))
+    .leftJoin(
+      viewerFollowing,
+      and(eq(viewerFollowing.followerId, viewerId), eq(viewerFollowing.followingId, user.id)),
+    )
+    .leftJoin(
+      viewerFollowedBy,
+      and(eq(viewerFollowedBy.followerId, user.id), eq(viewerFollowedBy.followingId, viewerId)),
+    )
+    .where(and(...conditions))
+    .groupBy(user.id, user.name, user.username, user.displayUsername, user.image, user.createdAt)
+    .orderBy(desc(count(followers.followerId)), desc(user.createdAt))
+    .limit(limit);
 };

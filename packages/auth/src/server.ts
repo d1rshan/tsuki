@@ -6,6 +6,7 @@ import { db } from "@tsuki/db";
 import { env } from "@tsuki/env/api";
 
 import { ac, adminRolesObj } from "./permissions";
+import { isAvailableUsername } from "./username";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -51,7 +52,7 @@ export const auth = betterAuth({
     storage: "database",
   },
   plugins: [
-    username(),
+    username({ usernameValidator: isAvailableUsername }),
     haveIBeenPwned({
       customPasswordCompromisedMessage: "Choose a password that has not appeared in a data breach.",
     }),

@@ -82,11 +82,11 @@ export function ProfileHeader({ isOwner, profile, social, stats, user }: Profile
           <SocialLinks links={profile?.socialLinks} />
 
           <div className="mt-5 flex gap-5 text-sm">
-            <Link href={`/profile/${user.username}/followers`} className="hover:text-primary">
+            <Link href={`/${user.username}/followers`} className="hover:text-primary">
               <strong className="text-foreground">{social.followers}</strong>{" "}
               <span className="text-muted-foreground">followers</span>
             </Link>
-            <Link href={`/profile/${user.username}/following`} className="hover:text-primary">
+            <Link href={`/${user.username}/following`} className="hover:text-primary">
               <strong className="text-foreground">{social.following}</strong>{" "}
               <span className="text-muted-foreground">following</span>
             </Link>

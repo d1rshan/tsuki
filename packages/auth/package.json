@@ -5,6 +5,7 @@
     "./server": "./src/server.ts",
     "./client": "./src/client.ts",
     "./cookies": "./src/cookies.ts",
+    "./username": "./src/username.ts",
     "./permissions": "./src/permissions.ts"
   },
   "scripts": {
@@ -13,7 +14,7 @@
   "dependencies": {
     "@tsuki/db": "workspace:*",
     "@tsuki/env": "workspace:*",
-    "better-auth": "^1.6.17"
+    "better-auth": "1.6.17"
   },
   "devDependencies": {
     "@types/node": "^20",

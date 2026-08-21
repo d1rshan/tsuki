@@ -9,10 +9,10 @@ export function ProfileTabs({ username }: { username: string }) {
   const pathname = usePathname();
 
   const tabs = [
-    { name: "Overview", href: `/profile/${username}` },
-    { name: "Favorites", href: `/profile/${username}/favorites` },
-    { name: "Library", href: `/profile/${username}/library` },
-    { name: "Reviews", href: `/profile/${username}/reviews` },
+    { name: "Overview", href: `/${username}` },
+    { name: "Favorites", href: `/${username}/favorites` },
+    { name: "Library", href: `/${username}/library` },
+    { name: "Reviews", href: `/${username}/reviews` },
   ];
 
   return (

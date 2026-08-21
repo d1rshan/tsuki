@@ -22,9 +22,14 @@ export function NavbarLinks({ isMobile = false, onNavigate, pathname, user }: Na
     ...(user?.username
       ? [
           {
-            href: `/profile/${user.username}`,
+            href: "/friends",
+            label: "Friends",
+            isActive: pathname.startsWith("/friends"),
+          },
+          {
+            href: `/${user.username}`,
             label: "Profile",
-            isActive: pathname.startsWith(`/profile/${user.username}`),
+            isActive: pathname === `/${user.username}` || pathname.startsWith(`/${user.username}/`),
           },
         ]
       : []),

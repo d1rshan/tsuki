@@ -5,6 +5,6 @@ import { user } from "../schema";
 
 export const getUserByUsername = async (username: string) => {
   return db.query.user.findFirst({
-    where: eq(user.username, username),
+    where: eq(user.username, username.toLowerCase()),
   });
 };
