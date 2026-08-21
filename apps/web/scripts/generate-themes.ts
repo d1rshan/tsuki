@@ -8,6 +8,7 @@ const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const outputPath = resolve(scriptDirectory, "../src/features/theme/themes.generated.css");
 const defaultTheme = THEMES.find(({ scheme }) => scheme === "light");
 const defaultDarkTheme = THEMES.find(({ scheme }) => scheme === "dark");
+const hexColorPattern = /^#[0-9a-f]{6}(?:[0-9a-f]{2})?$/i;
 
 if (!defaultTheme || !defaultDarkTheme) {
   throw new Error("Themes must include light and dark palettes for system mode.");
@@ -16,6 +17,14 @@ if (!defaultTheme || !defaultDarkTheme) {
 const themeIds = THEMES.map(getThemeId);
 if (new Set(themeIds).size !== themeIds.length) {
   throw new Error("Theme names must produce unique slugs.");
+}
+
+for (const theme of THEMES) {
+  for (const [token, color] of Object.entries(theme.colors)) {
+    if (!hexColorPattern.test(color)) {
+      throw new Error(`${theme.name}: ${token} must be a 6- or 8-digit hex color.`);
+    }
+  }
 }
 
 const variables = (colors: Record<string, string>) =>
