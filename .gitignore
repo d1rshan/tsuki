@@ -39,8 +39,8 @@ build/
 bun.lockb
 bun.lock
 
-docs/
-docs/*
+anilist-docs/
+anilist-docs/*
 
 # husky
 .husky/_
