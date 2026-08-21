@@ -19,7 +19,7 @@ export function ProfileUserList({
       {users.map((user) => (
         <li key={user.id}>
           <Link
-            href={`/profile/${user.username}`}
+            href={`/${user.username}`}
             className="flex items-center gap-3 rounded-xl border p-4 transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
           >
             <Avatar size="lg">

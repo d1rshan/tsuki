@@ -6,12 +6,15 @@ import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
 import type { MediaType } from "../media/model";
 import { summarizeActivity } from "./activity";
+import { discoverUsers } from "./discovery";
 import {
   FollowListModel,
   FollowListQueryModel,
   FollowRelationshipModel,
   ProfileModel,
   UpdateProfileModel,
+  UserDiscoveryModel,
+  UserDiscoveryQueryModel,
   UserOverviewModel,
 } from "./model";
 
@@ -37,6 +40,19 @@ function statsFor(rows: libraryDal.LibraryStatsRow[], type: MediaType) {
 
 export const userRoutes = new Elysia()
   .use(authPlugin)
+  .get(
+    "/users/discover",
+    async ({ query, user }) => discoverUsers(user.id, query.username, socialDal.getUserDiscovery),
+    {
+      auth: true,
+      query: UserDiscoveryQueryModel,
+      response: { 200: UserDiscoveryModel },
+      detail: {
+        summary: "Discover users",
+        description: "Popular users or Username-prefix matches, excluding the viewer.",
+      },
+    },
+  )
   .get(
     "/users/:username",
     async ({ params: { username }, viewer }) => {

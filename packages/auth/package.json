@@ -5,6 +5,7 @@
     "./server": "./src/server.ts",
     "./client": "./src/client.ts",
     "./cookies": "./src/cookies.ts",
+    "./username": "./src/username.ts",
     "./permissions": "./src/permissions.ts"
   },
   "scripts": {

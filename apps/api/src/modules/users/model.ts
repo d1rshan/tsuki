@@ -27,6 +27,24 @@ export const FollowRelationshipModel = t.Object({
   followedBy: t.Boolean(),
 });
 
+export const DiscoveryUserSummaryModel = t.Object({
+  id: t.String(),
+  name: t.String(),
+  username: t.String(),
+  displayUsername: t.String(),
+  image: t.Nullable(t.String()),
+  createdAt: t.Date(),
+  relationship: FollowRelationshipModel,
+});
+
+export const UserDiscoveryQueryModel = t.Object({
+  username: t.Optional(t.String({ minLength: 1, maxLength: 30, pattern: "^[a-zA-Z0-9_.]+$" })),
+});
+
+export const UserDiscoveryModel = t.Object({
+  users: t.Array(DiscoveryUserSummaryModel),
+});
+
 export const ProfileSocialModel = t.Object({
   followers: t.Number(),
   following: t.Number(),
@@ -78,5 +96,6 @@ export const UserOverviewModel = t.Object({
 
 export type Profile = typeof ProfileModel.static;
 export type FollowRelationship = typeof FollowRelationshipModel.static;
+export type DiscoveryUserSummary = typeof DiscoveryUserSummaryModel.static;
 export type UserSummary = typeof UserSummaryModel.static;
 export type UserOverview = typeof UserOverviewModel.static;

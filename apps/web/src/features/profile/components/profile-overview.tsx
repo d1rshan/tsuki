@@ -57,7 +57,7 @@ export function RecentActivitySection({
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
         <Link
-          href={`/profile/${username}/library`}
+          href={`/${username}/library`}
           className="group flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
         >
           View Library
