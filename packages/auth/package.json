@@ -14,7 +14,7 @@
   "dependencies": {
     "@tsuki/db": "workspace:*",
     "@tsuki/env": "workspace:*",
-    "better-auth": "^1.6.17"
+    "better-auth": "1.6.17"
   },
   "devDependencies": {
     "@types/node": "^20",
