@@ -49,7 +49,7 @@ export function AuthFormCard({
           </Link>
         </CardAction>
       </CardHeader>
-      <form onSubmit={onSubmit}>
+      <form onSubmit={onSubmit} className="flex flex-col gap-(--card-spacing)">
         <CardContent>
           <FieldSet disabled={isSubmitting}>
             <FieldGroup>{children}</FieldGroup>
@@ -57,7 +57,7 @@ export function AuthFormCard({
         </CardContent>
         <CardFooter className="flex-col items-stretch">
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? <LoaderCircle className="animate-spin" /> : null}
+            {isSubmitting && <LoaderCircle data-icon="inline-start" className="animate-spin" />}
             {submitLabel}
           </Button>
         </CardFooter>

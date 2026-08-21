@@ -1,83 +1,121 @@
 "use client";
 
 import Link from "next/link";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { revalidateLogic, useForm } from "@tanstack/react-form";
 import { CircleCheck, KeyRound } from "lucide-react";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { authClient } from "@tsuki/auth/client";
 
 import { Button } from "@/shared/components/ui/button";
+import { Field, FieldError, FieldLabel } from "@/shared/components/ui/field";
+import { Input } from "@/shared/components/ui/input";
 
-import { resetPasswordSchema, type ResetPasswordValues } from "../schemas";
-import { AuthField } from "../components/auth-field";
 import { AuthFormCard } from "../components/auth-form-card";
 import { AuthStatusCard } from "../components/auth-status-card";
+import { resetPasswordSchema } from "../schemas";
 
 export function ResetPasswordView({ token }: { token?: string }) {
   return <ResetPasswordCard token={token} />;
 }
 
 function ResetPasswordCard({ token }: { token?: string }) {
-  const [isComplete, setIsComplete] = useState(false);
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<ResetPasswordValues>({
-    resolver: zodResolver(resetPasswordSchema),
-  });
+  const form = useForm({
+    defaultValues: {
+      password: "",
+      confirmPassword: "",
+    },
+    validationLogic: revalidateLogic(),
+    validators: { onDynamic: resetPasswordSchema },
+    onSubmit: async ({ value }) => {
+      if (!token) return;
 
-  async function submit({ password }: ResetPasswordValues) {
-    if (!token) return;
+      const { error } = await authClient
+        .resetPassword({ newPassword: value.password, token })
+        .catch(() => {
+          toast.error("Unable to reach the server. Try again.");
+          throw new Error("Unable to reach the server");
+        });
 
-    try {
-      const { error: resetError } = await authClient.resetPassword({
-        newPassword: password,
-        token,
-      });
-
-      if (resetError) {
-        toast.error(resetError.message || "Unable to reset your password.");
-        return;
+      if (error) {
+        const message = error.message || "Unable to reset your password.";
+        toast.error(message);
+        throw new Error(message);
       }
-
-      setIsComplete(true);
-    } catch {
-      toast.error("Unable to reach the server. Try again.");
-    }
-  }
+    },
+  });
 
   if (!token) return <ResetLinkUnavailableCard />;
 
-  if (isComplete) return <PasswordUpdatedCard />;
-
   return (
-    <AuthFormCard
-      title="Choose a new password"
-      description="Use at least 8 characters."
-      action="sign-in"
-      isSubmitting={isSubmitting}
-      onSubmit={handleSubmit(submit)}
-      submitLabel="Reset password"
-    >
-      <AuthField
-        label="New password"
-        type="password"
-        autoComplete="new-password"
-        registration={register("password")}
-        error={errors.password}
-      />
-      <AuthField
-        label="Confirm new password"
-        type="password"
-        autoComplete="new-password"
-        registration={register("confirmPassword")}
-        error={errors.confirmPassword}
-      />
-    </AuthFormCard>
+    <form.Subscribe selector={(state) => state.isSubmitSuccessful}>
+      {(isComplete) =>
+        isComplete ? (
+          <PasswordUpdatedCard />
+        ) : (
+          <form.Subscribe selector={(state) => state.isSubmitting}>
+            {(isSubmitting) => (
+              <AuthFormCard
+                title="Choose a new password"
+                description="Use at least 8 characters."
+                action="sign-in"
+                isSubmitting={isSubmitting}
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  void form.handleSubmit().catch(() => undefined);
+                }}
+                submitLabel="Reset password"
+              >
+                <form.Field name="password">
+                  {(field) => {
+                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <FieldLabel htmlFor={field.name}>New password</FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          type="password"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(event) => field.handleChange(event.target.value)}
+                          autoComplete="new-password"
+                          aria-invalid={isInvalid}
+                        />
+                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
+                <form.Field name="confirmPassword">
+                  {(field) => {
+                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <FieldLabel htmlFor={field.name}>Confirm new password</FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          type="password"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(event) => field.handleChange(event.target.value)}
+                          autoComplete="new-password"
+                          aria-invalid={isInvalid}
+                        />
+                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
+              </AuthFormCard>
+            )}
+          </form.Subscribe>
+        )
+      }
+    </form.Subscribe>
   );
 }
 

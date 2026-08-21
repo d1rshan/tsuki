@@ -2,15 +2,16 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { revalidateLogic, useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 
 import { signIn, signUp } from "@tsuki/auth/client";
 
-import { loginSchema, signUpSchema, type LoginValues, type SignUpValues } from "../schemas";
-import { AuthField } from "../components/auth-field";
+import { Field, FieldError, FieldLabel } from "@/shared/components/ui/field";
+import { Input } from "@/shared/components/ui/input";
+
 import { AuthFormCard } from "../components/auth-form-card";
+import { loginSchema, signUpSchema } from "../schemas";
 
 export function LoginView({ mode }: { mode?: string }) {
   return mode === "signup" ? <SignupCard /> : <LoginCard />;
@@ -18,132 +19,243 @@ export function LoginView({ mode }: { mode?: string }) {
 
 function LoginCard() {
   const router = useRouter();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<LoginValues>({
-    resolver: zodResolver(loginSchema),
-  });
-
-  async function submit(values: LoginValues) {
-    try {
+  const form = useForm({
+    defaultValues: {
+      emailOrUsername: "",
+      password: "",
+    },
+    validationLogic: revalidateLogic(),
+    validators: { onDynamic: loginSchema },
+    onSubmit: async ({ value }) => {
+      const values = loginSchema.parse(value);
       const credentials = { password: values.password };
-      const { error } = values.emailOrUsername.includes("@")
-        ? await signIn.email({ ...credentials, email: values.emailOrUsername })
-        : await signIn.username({ ...credentials, username: values.emailOrUsername });
+      const request = values.emailOrUsername.includes("@")
+        ? signIn.email({ ...credentials, email: values.emailOrUsername })
+        : signIn.username({ ...credentials, username: values.emailOrUsername });
+      const { error } = await request.catch(() => {
+        toast.error("Unable to reach the server. Try again.");
+        throw new Error("Unable to reach the server");
+      });
 
       if (error) {
-        toast.error(
+        const message =
           error.code === "EMAIL_NOT_VERIFIED"
             ? "Verify your email with the link we sent, then sign in."
-            : error.message || "Failed to sign in",
-        );
-        return;
+            : error.message || "Failed to sign in";
+        toast.error(message);
+        throw new Error(message);
       }
 
       router.push("/");
-    } catch {
-      toast.error("Unable to reach the server. Try again.");
-    }
-  }
+      router.refresh();
+    },
+  });
 
   return (
-    <AuthFormCard
-      title="Welcome back"
-      description="Sign in with your email or username."
-      action="sign-up"
-      isSubmitting={isSubmitting}
-      onSubmit={handleSubmit(submit)}
-      submitLabel="Sign in"
-    >
-      <AuthField
-        label="Email or username"
-        autoComplete="username"
-        registration={register("emailOrUsername")}
-        error={errors.emailOrUsername}
-      />
-      <AuthField
-        label="Password"
-        type="password"
-        autoComplete="current-password"
-        registration={register("password")}
-        error={errors.password}
-      />
-      <Link
-        href="/forgot-password"
-        className="text-sm text-primary underline-offset-4 hover:underline"
-      >
-        Forgot password?
-      </Link>
-    </AuthFormCard>
+    <form.Subscribe selector={(state) => state.isSubmitting}>
+      {(isSubmitting) => (
+        <AuthFormCard
+          title="Welcome back"
+          description="Sign in with your email or username."
+          action="sign-up"
+          isSubmitting={isSubmitting}
+          onSubmit={(event) => {
+            event.preventDefault();
+            void form.handleSubmit().catch(() => undefined);
+          }}
+          submitLabel="Sign in"
+        >
+          <form.Field name="emailOrUsername">
+            {(field) => {
+              const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+
+              return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel htmlFor={field.name}>Email or username</FieldLabel>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(event) => field.handleChange(event.target.value)}
+                    autoComplete="username"
+                    aria-invalid={isInvalid}
+                  />
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                </Field>
+              );
+            }}
+          </form.Field>
+          <form.Field name="password">
+            {(field) => {
+              const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+
+              return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel htmlFor={field.name}>Password</FieldLabel>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    type="password"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(event) => field.handleChange(event.target.value)}
+                    autoComplete="current-password"
+                    aria-invalid={isInvalid}
+                  />
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                </Field>
+              );
+            }}
+          </form.Field>
+          <Link
+            href="/forgot-password"
+            className="text-sm text-primary underline-offset-4 hover:underline"
+          >
+            Forgot password?
+          </Link>
+        </AuthFormCard>
+      )}
+    </form.Subscribe>
   );
 }
 
 function SignupCard() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<SignUpValues>({
-    resolver: zodResolver(signUpSchema),
-  });
-
-  async function submit(values: SignUpValues) {
-    try {
-      const { error } = await signUp.email({
-        ...values,
-        callbackURL: window.location.origin,
-      });
+  const form = useForm({
+    defaultValues: {
+      name: "",
+      username: "",
+      email: "",
+      password: "",
+    },
+    validationLogic: revalidateLogic(),
+    validators: { onDynamic: signUpSchema },
+    onSubmit: async ({ value }) => {
+      const values = signUpSchema.parse(value);
+      const { error } = await signUp
+        .email({
+          ...values,
+          callbackURL: window.location.origin,
+        })
+        .catch(() => {
+          toast.error("Unable to reach the server. Try again.");
+          throw new Error("Unable to reach the server");
+        });
 
       if (error) {
-        toast.error(error.message || "Failed to create account");
-        return;
+        const message = error.message || "Failed to create account";
+        toast.error(message);
+        throw new Error(message);
       }
 
       const destination = new URL("/verify-email", window.location.origin);
       destination.searchParams.set("email", values.email);
       window.location.assign(destination);
-    } catch {
-      toast.error("Unable to reach the server. Try again.");
-    }
-  }
+    },
+  });
 
   return (
-    <AuthFormCard
-      title="Create an account"
-      description="Start tracking anime and manga on Tsuki."
-      action="sign-in"
-      isSubmitting={isSubmitting}
-      onSubmit={handleSubmit(submit)}
-      submitLabel="Create account"
-    >
-      <AuthField
-        label="Name"
-        autoComplete="name"
-        registration={register("name")}
-        error={errors.name}
-      />
-      <AuthField
-        label="Username"
-        autoComplete="username"
-        registration={register("username")}
-        error={errors.username}
-      />
-      <AuthField
-        label="Email"
-        type="email"
-        autoComplete="email"
-        registration={register("email")}
-        error={errors.email}
-      />
-      <AuthField
-        label="Password"
-        type="password"
-        autoComplete="new-password"
-        registration={register("password")}
-        error={errors.password}
-      />
-    </AuthFormCard>
+    <form.Subscribe selector={(state) => state.isSubmitting}>
+      {(isSubmitting) => (
+        <AuthFormCard
+          title="Create an account"
+          description="Start tracking anime and manga on Tsuki."
+          action="sign-in"
+          isSubmitting={isSubmitting}
+          onSubmit={(event) => {
+            event.preventDefault();
+            void form.handleSubmit().catch(() => undefined);
+          }}
+          submitLabel="Create account"
+        >
+          <form.Field name="name">
+            {(field) => {
+              const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+
+              return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel htmlFor={field.name}>Name</FieldLabel>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(event) => field.handleChange(event.target.value)}
+                    autoComplete="name"
+                    aria-invalid={isInvalid}
+                  />
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                </Field>
+              );
+            }}
+          </form.Field>
+          <form.Field name="username">
+            {(field) => {
+              const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+
+              return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel htmlFor={field.name}>Username</FieldLabel>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(event) => field.handleChange(event.target.value)}
+                    autoComplete="username"
+                    aria-invalid={isInvalid}
+                  />
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                </Field>
+              );
+            }}
+          </form.Field>
+          <form.Field name="email">
+            {(field) => {
+              const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+
+              return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    type="email"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(event) => field.handleChange(event.target.value)}
+                    autoComplete="email"
+                    aria-invalid={isInvalid}
+                  />
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                </Field>
+              );
+            }}
+          </form.Field>
+          <form.Field name="password">
+            {(field) => {
+              const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+
+              return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel htmlFor={field.name}>Password</FieldLabel>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    type="password"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(event) => field.handleChange(event.target.value)}
+                    autoComplete="new-password"
+                    aria-invalid={isInvalid}
+                  />
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                </Field>
+              );
+            }}
+          </form.Field>
+        </AuthFormCard>
+      )}
+    </form.Subscribe>
   );
 }
