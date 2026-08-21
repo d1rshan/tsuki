@@ -2,7 +2,7 @@
 
 import { useLayoutEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "@tanstack/react-form";
+import { revalidateLogic, useForm } from "@tanstack/react-form";
 import { Edit2, LoaderCircle, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -39,7 +39,8 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
   const defaultValues = createProfileFormValues(profile);
   const form = useForm({
     defaultValues,
-    validators: { onSubmit: profileFormSchema },
+    validationLogic: revalidateLogic(),
+    validators: { onDynamic: profileFormSchema },
     onSubmit: async ({ value }) => {
       const result = await updateProfile(createProfileUpdate(value)).catch(() => {
         toast.error("An unexpected error occurred.");

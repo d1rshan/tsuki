@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useForm } from "@tanstack/react-form";
+import { revalidateLogic, useForm } from "@tanstack/react-form";
 import { MailCheck } from "lucide-react";
 import { toast } from "sonner";
 
@@ -23,7 +23,8 @@ export function ForgotPasswordView() {
 function ForgotPasswordCard() {
   const form = useForm({
     defaultValues: { email: "" },
-    validators: { onSubmit: forgotPasswordSchema },
+    validationLogic: revalidateLogic(),
+    validators: { onDynamic: forgotPasswordSchema },
     onSubmit: async ({ value }) => {
       const { error } = await authClient
         .requestPasswordReset({

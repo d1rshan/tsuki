@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useForm } from "@tanstack/react-form";
+import { revalidateLogic, useForm } from "@tanstack/react-form";
 import { CircleCheck, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 
@@ -25,7 +25,8 @@ function ResetPasswordCard({ token }: { token?: string }) {
       password: "",
       confirmPassword: "",
     },
-    validators: { onSubmit: resetPasswordSchema },
+    validationLogic: revalidateLogic(),
+    validators: { onDynamic: resetPasswordSchema },
     onSubmit: async ({ value }) => {
       if (!token) return;
 

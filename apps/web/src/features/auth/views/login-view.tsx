@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useForm } from "@tanstack/react-form";
+import { revalidateLogic, useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 
 import { signIn, signUp } from "@tsuki/auth/client";
@@ -24,7 +24,8 @@ function LoginCard() {
       emailOrUsername: "",
       password: "",
     },
-    validators: { onSubmit: loginSchema },
+    validationLogic: revalidateLogic(),
+    validators: { onDynamic: loginSchema },
     onSubmit: async ({ value }) => {
       const values = loginSchema.parse(value);
       const credentials = { password: values.password };
@@ -127,7 +128,8 @@ function SignupCard() {
       email: "",
       password: "",
     },
-    validators: { onSubmit: signUpSchema },
+    validationLogic: revalidateLogic(),
+    validators: { onDynamic: signUpSchema },
     onSubmit: async ({ value }) => {
       const values = signUpSchema.parse(value);
       const { error } = await signUp
