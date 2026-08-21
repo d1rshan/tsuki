@@ -1,10 +1,21 @@
 import { Suspense } from "react";
 
+import { io } from "next/cache";
+
 import { getDiscoverMediaTrending } from "@/features/discover/data";
 import { DiscoverView } from "@/features/discover/views/discover-view";
 import { ErrorState } from "@/shared/components/content-state";
 
-export default async function Page() {
+export default function Page() {
+  return (
+    <Suspense fallback={null}>
+      <DiscoverContent />
+    </Suspense>
+  );
+}
+
+async function DiscoverContent() {
+  await io();
   const trending = await getDiscoverMediaTrending().catch(() => null);
 
   if (!trending) {
@@ -15,9 +26,5 @@ export default async function Page() {
     );
   }
 
-  return (
-    <Suspense>
-      <DiscoverView trending={trending} />
-    </Suspense>
-  );
+  return <DiscoverView trending={trending} />;
 }

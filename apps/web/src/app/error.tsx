@@ -7,9 +7,8 @@ import { Button } from "@/shared/components/ui/button";
 import { ErrorState } from "@/shared/components/content-state";
 
 /**
- * Catches what the cached queries throw when the API or AniList is unreachable.
- * Those failures are never cached, so retrying re-fetches rather than replaying
- * the same bad response.
+ * Catches server query failures when the API or AniList is unreachable.
+ * Retrying re-fetches rather than replaying the same bad response.
  */
 export default function Error({
   error,

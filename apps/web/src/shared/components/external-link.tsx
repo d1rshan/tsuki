@@ -6,10 +6,15 @@ export function ExternalLink({ href, children }: { href: string; children: React
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:underline hover:underline-offset-4"
+      className="group inline-flex w-fit items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
     >
-      {children}
-      <ExternalLinkIcon aria-hidden="true" className="size-3" />
+      <span className="group-hover:underline group-hover:decoration-dashed group-hover:underline-offset-4">
+        {children}
+      </span>
+      <ExternalLinkIcon
+        aria-hidden="true"
+        className="size-3 opacity-0 transition-opacity group-hover:opacity-100"
+      />
     </a>
   );
 }

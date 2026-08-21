@@ -1,0 +1,2 @@
+# Keep reusable worktrees, dependencies, and build caches with this checkout.
+root = "."
