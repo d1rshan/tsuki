@@ -53,13 +53,9 @@ export function FriendsView() {
   const users = discoveryQuery.data ?? [];
 
   return (
-    <div className="container mx-auto max-w-5xl px-4 pt-28 pb-16 md:pt-32">
+    <div className="container mx-auto max-w-6xl px-4 pt-28 pb-16 md:pt-32">
       <header className="max-w-2xl space-y-3">
-        <p className="text-xs font-black uppercase tracking-[0.24em] text-primary">Friends</p>
-        <h1 className="text-4xl font-black tracking-tight sm:text-5xl">Find your people.</h1>
-        <p className="text-muted-foreground">
-          Explore people on Tsuki and follow the Profiles you want to keep up with.
-        </p>
+        <h1 className="text-4xl font-black tracking-tight sm:text-5xl">Friends</h1>
       </header>
 
       <div className="relative mt-10 max-w-xl">

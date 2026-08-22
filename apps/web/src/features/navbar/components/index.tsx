@@ -29,7 +29,7 @@ export function Navbar({ user }: { user: NavbarUser | null }) {
 
   return (
     <nav className="pointer-events-none fixed inset-x-0 top-0 z-40 pt-4 md:pt-6" aria-label="Main">
-      <div className="container mx-auto px-4 xl:max-w-5xl">
+      <div className="container mx-auto max-w-6xl px-4">
         <div className="pointer-events-auto relative flex h-12 w-full items-center justify-between rounded-xl border border-black/5 bg-background/80 px-3 shadow-2xl backdrop-blur-2xl transition-all duration-300 dark:border-white/10 dark:bg-background/55 md:h-14 md:px-6">
           {search.isOpen ? (
             <NavbarSearch

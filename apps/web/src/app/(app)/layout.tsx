@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 
 import { NavbarServer } from "@/features/navbar/components/navbar-server";
+import { Footer } from "@/shared/components/footer";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -9,6 +10,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <NavbarServer />
       </Suspense>
       <main className="flex-1">{children}</main>
+      <Footer />
     </div>
   );
 }
