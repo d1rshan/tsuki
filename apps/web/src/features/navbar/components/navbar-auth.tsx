@@ -80,7 +80,7 @@ export function NavbarAuth({
       size="sm"
       disabled={isSigningOut}
       className={cn(
-        "text-xs font-black uppercase tracking-widest text-muted-foreground hover:!bg-transparent hover:text-foreground",
+        "text-xs font-black uppercase tracking-widest",
         isMobile && "justify-start px-2 py-3",
       )}
       onClick={handleSignOut}
