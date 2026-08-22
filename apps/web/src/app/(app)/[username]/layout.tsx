@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
@@ -15,13 +16,20 @@ export async function generateMetadata({
   return getProfileMetadata(username);
 }
 
-export default async function Layout({
-  children,
-  params,
-}: {
+type ProfileLayoutProps = {
   children: React.ReactNode;
   params: Promise<{ username: string }>;
-}) {
+};
+
+export default function Layout(props: ProfileLayoutProps) {
+  return (
+    <Suspense fallback={null}>
+      <ProfileLayoutContent {...props} />
+    </Suspense>
+  );
+}
+
+async function ProfileLayoutContent({ children, params }: ProfileLayoutProps) {
   const username = parseProfileUsername((await params).username);
   if (!username) notFound();
 
