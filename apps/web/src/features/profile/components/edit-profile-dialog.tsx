@@ -27,7 +27,7 @@ import {
 import { Input } from "@/shared/components/ui/input";
 import { Textarea } from "@/shared/components/ui/textarea";
 
-import { updateProfile } from "../actions";
+import { useProfileUpdateMutation } from "../hooks/use-profile-update-mutation";
 import { createProfileUpdate, profileFormSchema, type ProfileFormValues } from "../schemas";
 
 type Profile = UserOverview["profile"];
@@ -35,6 +35,7 @@ type Profile = UserOverview["profile"];
 export function EditProfileDialog({ profile }: { profile: Profile }) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const updateMutation = useProfileUpdateMutation();
 
   const defaultValues = createProfileFormValues(profile);
   const form = useForm({
@@ -42,7 +43,7 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
     validationLogic: revalidateLogic(),
     validators: { onDynamic: profileFormSchema },
     onSubmit: async ({ value }) => {
-      const result = await updateProfile(createProfileUpdate(value)).catch(() => {
+      const result = await updateMutation.mutateAsync(createProfileUpdate(value)).catch(() => {
         toast.error("An unexpected error occurred.");
         throw new Error("Failed to update profile");
       });

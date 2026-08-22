@@ -1,7 +1,7 @@
-import { ProfileConnectionsView } from "@/features/profile/views/profile-connections-view";
-import { requireValidUsername } from "@/features/profile/valid";
+import { notFound } from "next/navigation";
 
-export const instant = false;
+import { ProfileConnectionsView } from "@/features/profile/views/profile-connections-view";
+import { parseConnectionPage, parseProfileUsername } from "@/features/profile/utils";
 
 export default async function Page({
   params,
@@ -10,6 +10,15 @@ export default async function Page({
   params: Promise<{ username: string }>;
   searchParams: Promise<{ page?: string }>;
 }) {
-  const [username, { page }] = await Promise.all([requireValidUsername(params), searchParams]);
-  return <ProfileConnectionsView username={username} page={page} type="following" />;
+  const [{ username: rawUsername }, { page: rawPage }] = await Promise.all([params, searchParams]);
+  const username = parseProfileUsername(rawUsername);
+  if (!username) notFound();
+
+  return (
+    <ProfileConnectionsView
+      username={username}
+      page={parseConnectionPage(rawPage)}
+      type="following"
+    />
+  );
 }

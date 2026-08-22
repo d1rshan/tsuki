@@ -5,7 +5,7 @@ import type { UserOverview } from "@tsuki/api/types";
 import { HeatmapCalendar } from "@/shared/components/heatmap-calendar";
 import { useIsMobile } from "@/shared/hooks/use-is-mobile";
 
-import { activityDateKey, activityLevel, activityTooltip } from "../activity";
+import { activityDateKey, activityLevel, activityTooltip } from "../utils";
 
 type ProfileActivity = UserOverview["activity"];
 
