@@ -21,13 +21,7 @@ export function ThemeSelector() {
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="text-muted-foreground hover:!bg-transparent hover:text-foreground"
-            aria-label="Choose color theme"
-          />
+          <Button type="button" variant="ghost" size="icon" aria-label="Choose color theme" />
         }
       >
         <Palette />
