@@ -19,6 +19,7 @@ export async function ProfileViewerActions({
   const relationship = user ? await getProfileViewerRelationship(profileUser.username) : null;
   return (
     <ProfileFollowButton
+      key={profileUser.username}
       initialRelationship={relationship}
       isAuthenticated={Boolean(user)}
       username={profileUser.username}
