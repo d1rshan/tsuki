@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Search } from "lucide-react";
-import { toast } from "sonner";
 
 import type { DiscoveryUserSummary } from "@tsuki/api/types";
 
@@ -15,8 +14,8 @@ import { Loader } from "@/shared/components/loader";
 import { Input } from "@/shared/components/ui/input";
 import { useDebouncedValue } from "@/shared/hooks/use-debounced-value";
 import { apiClient } from "@/shared/lib/api-client";
-import { setFollowingAction } from "@/features/profile/actions";
-import { followButtonLabel } from "@/features/profile/follow";
+import { useFollowMutation } from "@/features/social/hooks/use-follow-mutation";
+import { followButtonLabel } from "@/features/social/utils";
 
 import { friendsKeys } from "../query-keys";
 
@@ -38,16 +37,11 @@ export function FriendsView() {
     queryFn: () => getDiscovery(debouncedSearch),
     placeholderData: keepPreviousData,
   });
-  const followMutation = useMutation({
-    mutationFn: ({ username, following }: { username: string; following: boolean }) =>
-      setFollowingAction(username, following),
-    onSuccess: async (relationship, { username }) => {
-      await queryClient.cancelQueries({ queryKey: friendsKeys.all }, { silent: true });
-      queryClient.setQueriesData<DiscoveryUserSummary[]>({ queryKey: friendsKeys.all }, (users) =>
-        users?.map((user) => (user.username === username ? { ...user, relationship } : user)),
-      );
-    },
-    onError: () => toast.error("Failed to update follow"),
+  const followMutation = useFollowMutation(async (relationship, username) => {
+    await queryClient.cancelQueries({ queryKey: friendsKeys.all }, { silent: true });
+    queryClient.setQueriesData<DiscoveryUserSummary[]>({ queryKey: friendsKeys.all }, (users) =>
+      users?.map((user) => (user.username === username ? { ...user, relationship } : user)),
+    );
   });
   const isSearching = search.trim() !== debouncedSearch || discoveryQuery.isFetching;
   const users = discoveryQuery.data ?? [];

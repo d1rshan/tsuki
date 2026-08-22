@@ -16,7 +16,7 @@ export function ProfileConnectionsView({
   type,
 }: {
   username: string;
-  page?: string;
+  page: number;
   type: ConnectionType;
 }) {
   return (
@@ -28,15 +28,13 @@ export function ProfileConnectionsView({
 
 async function ProfileConnectionsContent({
   username,
-  page: rawPage,
+  page,
   type,
 }: {
   username: string;
-  page?: string;
+  page: number;
   type: ConnectionType;
 }) {
-  const parsedPage = Number(rawPage ?? 1);
-  const page = Number.isSafeInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1;
   const result =
     type === "followers"
       ? await getProfileFollowers(username, PAGE_SIZE, (page - 1) * PAGE_SIZE)

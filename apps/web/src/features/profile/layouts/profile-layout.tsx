@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
 import { ProfileHeader } from "@/features/profile/components/profile-header";
-import { getSession } from "@/shared/lib/session";
 
+import { ProfileViewerActions } from "../components/profile-viewer-actions";
 import { getProfileOverview } from "../data";
 
 type ProfileLayoutProps = {
@@ -13,18 +13,11 @@ type ProfileLayoutProps = {
 };
 
 export function ProfileLayout({ children, username }: ProfileLayoutProps) {
-  return (
-    <Suspense fallback={null}>
-      <ProfileLayoutContent username={username}>{children}</ProfileLayoutContent>
-    </Suspense>
-  );
+  return <ProfileLayoutContent username={username}>{children}</ProfileLayoutContent>;
 }
 
 async function ProfileLayoutContent({ children, username }: ProfileLayoutProps) {
-  const [profile, { user: currentUser }] = await Promise.all([
-    getProfileOverview(username),
-    getSession(),
-  ]);
+  const profile = await getProfileOverview(username);
   if (!profile) notFound();
 
   return (
@@ -34,8 +27,12 @@ async function ProfileLayoutContent({ children, username }: ProfileLayoutProps) 
           user={profile.user}
           stats={profile.stats}
           profile={profile.profile}
-          isOwner={currentUser?.id === profile.user.id}
           social={profile.social}
+          actions={
+            <Suspense fallback={null}>
+              <ProfileViewerActions profile={profile.profile} user={profile.user} />
+            </Suspense>
+          }
         />
         {children}
       </div>

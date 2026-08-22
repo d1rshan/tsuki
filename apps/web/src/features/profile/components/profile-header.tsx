@@ -4,19 +4,17 @@ import { Link as LinkIcon } from "lucide-react";
 
 import type { UserOverview } from "@tsuki/api/types";
 
-import { EditProfileDialog } from "./edit-profile-dialog";
-import { ProfileFollowButton } from "./profile-follow-button";
 import { ProfileTabs } from "./profile-tabs";
 
 type ProfileHeaderProps = {
-  isOwner: boolean;
+  actions: React.ReactNode;
   profile: UserOverview["profile"];
   social: UserOverview["social"];
   stats: UserOverview["stats"];
   user: UserOverview["user"];
 };
 
-export function ProfileHeader({ isOwner, profile, social, stats, user }: ProfileHeaderProps) {
+export function ProfileHeader({ actions, profile, social, stats, user }: ProfileHeaderProps) {
   const banner = profile?.bannerImage;
 
   return (
@@ -49,11 +47,7 @@ export function ProfileHeader({ isOwner, profile, social, stats, user }: Profile
             )}
           </div>
 
-          {isOwner ? (
-            <div className="mb-2 shrink-0 md:hidden">
-              <EditProfileDialog profile={profile} />
-            </div>
-          ) : null}
+          <div className="mb-2 shrink-0 md:hidden">{actions}</div>
         </div>
 
         <div className="flex w-full flex-1 flex-col pt-1">
@@ -64,13 +58,7 @@ export function ProfileHeader({ isOwner, profile, social, stats, user }: Profile
               </h1>
               <p className="mt-0.5 truncate text-sm font-medium text-primary">@{user.username}</p>
             </div>
-            {isOwner ? (
-              <div className="hidden shrink-0 md:block">
-                <EditProfileDialog profile={profile} />
-              </div>
-            ) : (
-              <ProfileFollowButton username={user.username} />
-            )}
+            <div className="hidden shrink-0 md:block">{actions}</div>
           </div>
 
           {profile?.bio ? (

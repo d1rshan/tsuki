@@ -5,6 +5,7 @@ import { cacheLife, cacheTag } from "next/cache";
 import type { MediaType } from "@tsuki/api/types";
 
 import { publicApi } from "@/shared/lib/public-api";
+import { getServerApi } from "@/shared/lib/server-api";
 
 type ProfileSection = "followers" | "following" | "library" | "overview" | "reviews";
 
@@ -82,6 +83,15 @@ export async function getProfileFollowing(username: string, limit: number, offse
   });
   if (isNotFound(error)) return null;
   if (error) throw new Error(`Failed to load following for ${username}`, { cause: error });
+
+  return data;
+}
+
+/** Viewer-specific data must never share the public Profile cache. */
+export async function getProfileViewerRelationship(username: string) {
+  const { data, error } = await (await getServerApi()).users({ username }).relationship.get();
+  if (error || !data)
+    throw new Error(`Failed to load follow state for ${username}`, { cause: error });
 
   return data;
 }
