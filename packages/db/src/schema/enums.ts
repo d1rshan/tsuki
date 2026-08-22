@@ -60,3 +60,5 @@ export const listStatusEnum = pgEnum("list_status", [
   "PAUSED",
   "REPEATING",
 ]);
+
+export const feedActivityTypeEnum = pgEnum("feed_activity_type", ["LOG", "REVIEW", "FOLLOW"]);

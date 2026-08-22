@@ -1,25 +1,37 @@
+import { Suspense } from "react";
+import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
 import { ProfileLayout, getProfileMetadata } from "@/features/profile/layouts/profile-layout";
-import { requireValidUsername } from "@/features/profile/valid";
-
-export const instant = false;
+import { parseProfileUsername } from "@/features/profile/utils";
 
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ username: string }>;
 }): Promise<Metadata> {
-  return getProfileMetadata(await requireValidUsername(params));
+  const username = parseProfileUsername((await params).username);
+  if (!username) notFound();
+
+  return getProfileMetadata(username);
 }
 
-export default async function Layout({
-  children,
-  params,
-}: {
+type ProfileLayoutProps = {
   children: React.ReactNode;
   params: Promise<{ username: string }>;
-}) {
-  const username = await requireValidUsername(params);
+};
+
+export default function Layout(props: ProfileLayoutProps) {
+  return (
+    <Suspense fallback={null}>
+      <ProfileLayoutContent {...props} />
+    </Suspense>
+  );
+}
+
+async function ProfileLayoutContent({ children, params }: ProfileLayoutProps) {
+  const username = parseProfileUsername((await params).username);
+  if (!username) notFound();
+
   return <ProfileLayout username={username}>{children}</ProfileLayout>;
 }

@@ -10,6 +10,7 @@ export type { LibraryEntry, ListStatus } from "./modules/library/model";
 export type { Review } from "./modules/reviews/model";
 export type {
   DiscoveryUserSummary,
+  FeedActivity,
   FollowRelationship,
   Profile,
   UserOverview,

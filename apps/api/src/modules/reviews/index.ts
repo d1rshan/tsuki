@@ -1,6 +1,6 @@
 import { Elysia, t, status } from "elysia";
 
-import { reviewsDal, userDal } from "@tsuki/db";
+import { activityDal, reviewsDal, userDal } from "@tsuki/db";
 
 import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
@@ -45,6 +45,15 @@ export const reviewRoutes = new Elysia()
       const review = await reviewsDal.getReview(user.id, id);
       if (!review) return status(500, { error: "Failed to save review" });
 
+      await activityDal.upsertFeedActivity({
+        actorId: user.id,
+        type: "REVIEW",
+        sourceId: String(id),
+        mediaId: id,
+        mediaType,
+        snapshot: { content: review.content, containsSpoilers: review.containsSpoilers },
+      });
+
       return review;
     },
     {
@@ -61,7 +70,10 @@ export const reviewRoutes = new Elysia()
   .delete(
     "/me/reviews/:type/:id",
     async ({ params: { id }, user, set }) => {
-      await reviewsDal.deleteReview(user.id, id);
+      await Promise.all([
+        reviewsDal.deleteReview(user.id, id),
+        activityDal.deleteFeedActivity(user.id, "REVIEW", String(id)),
+      ]);
       set.status = 204;
     },
     {

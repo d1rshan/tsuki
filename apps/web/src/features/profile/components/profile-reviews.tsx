@@ -4,8 +4,8 @@ import { formatDistanceToNow } from "date-fns";
 
 import type { Review } from "@tsuki/api/types";
 
-import { Spoiler } from "@/features/profile/components/spoiler";
 import { mediaHref, mediaImageClass, normalizeMediaCompact } from "@/features/media/media";
+import { Spoiler } from "@/shared/components/spoiler";
 import { cn } from "@/shared/lib/utils";
 
 export function ReviewItem({ review }: { review: Review }) {
