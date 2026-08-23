@@ -1,6 +1,6 @@
 import { Elysia, t, status } from "elysia";
 
-import { libraryDal, reviewsDal, userDal } from "@tsuki/db";
+import { activityDal, libraryDal, reviewsDal, userDal } from "@tsuki/db";
 
 import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
@@ -69,6 +69,21 @@ export const libraryRoutes = new Elysia()
       const entry = await libraryDal.getEntry(user.id, id);
       if (!entry) return status(500, { error: "Failed to save entry" });
 
+      await activityDal.upsertFeedActivity({
+        actorId: user.id,
+        type: "LOG",
+        sourceId: String(id),
+        mediaId: id,
+        mediaType,
+        snapshot: {
+          status: entry.status,
+          score: entry.score,
+          progress: entry.progress,
+          progressVolumes: entry.progressVolumes,
+          repeat: entry.repeat,
+        },
+      });
+
       return entry;
     },
     {
@@ -85,7 +100,10 @@ export const libraryRoutes = new Elysia()
   .delete(
     "/me/library/:type/:id",
     async ({ params: { id }, user, set }) => {
-      await libraryDal.deleteEntry(user.id, id);
+      await Promise.all([
+        libraryDal.deleteEntry(user.id, id),
+        activityDal.deleteFeedActivity(user.id, "LOG", String(id)),
+      ]);
       set.status = 204;
     },
     {

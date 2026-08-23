@@ -27,10 +27,21 @@ activity. A mutual Follow does not create a separate relationship type.
 _Avoid_: friendship, friend request
 
 **Friends**:
-The product area at `/friends` for discovering people and, later, viewing
-activity from Followed users. It is available to signed-in users and does not
-denote a separate relationship type.
+The signed-in product area at `/friends` for discovering people and viewing
+Activity. It does not denote a separate relationship type.
 _Avoid_: friends relationship, friendship
+
+**Activity**:
+A chronological, user-visible record of a person's social action, such as a
+log, rating, review, library change, or Follow. It reflects the action's
+current visible state: edits update its Activity and deletion removes it.
+_Avoid_: heatmap activity, progress activity, notification
+
+**Activity Feed**:
+The newest-first Activity stream in Friends. Its Following mode contains
+Activity by accounts the viewer currently Follows; its Public mode contains
+Activity by all users.
+_Avoid_: timeline, newsfeed
 
 **Username Search**:
 An authenticated, debounced prefix search over Usernames. Results omit the

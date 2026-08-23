@@ -95,7 +95,8 @@ export const followUser = async (followerId: string, followingId: string) => {
   return db
     .insert(social)
     .values({ followerId, followingId })
-    .onConflictDoNothing({ target: [social.followerId, social.followingId] });
+    .onConflictDoNothing({ target: [social.followerId, social.followingId] })
+    .returning({ followingId: social.followingId });
 };
 
 export const unfollowUser = async (followerId: string, followingId: string) => {

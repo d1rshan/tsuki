@@ -2,61 +2,214 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
+import { formatDistanceToNow } from "date-fns";
 import { Search } from "lucide-react";
 
-import type { DiscoveryUserSummary } from "@tsuki/api/types";
+import type { FeedActivity } from "@tsuki/api/types";
 
+import { followButtonLabel } from "@/features/social/utils";
+import { mediaHref, normalizeMediaCompact, statusLabel } from "@/features/media/media";
+import { Spoiler } from "@/shared/components/spoiler";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { ErrorState, EmptyState } from "@/shared/components/content-state";
-import { Loader } from "@/shared/components/loader";
 import { Input } from "@/shared/components/ui/input";
+import { Loader } from "@/shared/components/loader";
 import { useDebouncedValue } from "@/shared/hooks/use-debounced-value";
-import { apiClient } from "@/shared/lib/api-client";
-import { useFollowMutation } from "@/features/social/hooks/use-follow-mutation";
-import { followButtonLabel } from "@/features/social/utils";
 
-import { friendsKeys } from "../query-keys";
+import type { FriendsFeedType } from "../data";
+import { useDiscoveryFollowMutation } from "../hooks/use-discovery-follow-mutation";
+import { useFriendsDiscovery } from "../hooks/use-friends-discovery";
+import { useFriendsFeed } from "../hooks/use-friends-feed";
 
-async function getDiscovery(username: string) {
-  const { data, error } = await apiClient.users.discover.get({
-    query: username ? { username } : {},
-  });
-  if (error || !data) throw error ?? new Error("Failed to load Friends");
-
-  return data.users;
-}
-
-export function FriendsView() {
-  const [search, setSearch] = useState("");
-  const debouncedSearch = useDebouncedValue(search.trim(), 250);
-  const queryClient = useQueryClient();
-  const discoveryQuery = useQuery({
-    queryKey: friendsKeys.discovery(debouncedSearch),
-    queryFn: () => getDiscovery(debouncedSearch),
-    placeholderData: keepPreviousData,
-  });
-  const followMutation = useFollowMutation(async (relationship, username) => {
-    await queryClient.cancelQueries({ queryKey: friendsKeys.all }, { silent: true });
-    queryClient.setQueriesData<DiscoveryUserSummary[]>({ queryKey: friendsKeys.all }, (users) =>
-      users?.map((user) => (user.username === username ? { ...user, relationship } : user)),
-    );
-  });
-  const isSearching = search.trim() !== debouncedSearch || discoveryQuery.isFetching;
-  const users = discoveryQuery.data ?? [];
+function ActivityCard({ activity }: { activity: FeedActivity }) {
+  const media = activity.media ? normalizeMediaCompact(activity.media) : null;
+  const actor = (
+    <Link
+      href={`/${activity.actor.username}`}
+      className="font-semibold text-foreground hover:text-primary"
+    >
+      {activity.actor.displayUsername}
+    </Link>
+  );
+  const details =
+    media && activity.type === "LOG"
+      ? [
+          activity.snapshot.status ? statusLabel(media.type, activity.snapshot.status) : null,
+          activity.snapshot.progress === undefined
+            ? null
+            : `${activity.snapshot.progress} ${media.type === "ANIME" ? "episodes" : "chapters"}`,
+          activity.snapshot.progressVolumes === undefined ||
+          activity.snapshot.progressVolumes === null
+            ? null
+            : `${activity.snapshot.progressVolumes} volumes`,
+          activity.snapshot.score ? `${activity.snapshot.score}/10` : null,
+          activity.snapshot.repeat ? `×${activity.snapshot.repeat}` : null,
+        ]
+          .filter(Boolean)
+          .join(" · ")
+      : null;
 
   return (
-    <div className="container mx-auto max-w-5xl px-4 pt-28 pb-16 md:pt-32">
-      <header className="max-w-2xl space-y-3">
-        <p className="text-xs font-black uppercase tracking-[0.24em] text-primary">Friends</p>
-        <h1 className="text-4xl font-black tracking-tight sm:text-5xl">Find your people.</h1>
-        <p className="text-muted-foreground">
-          Explore people on Tsuki and follow the Profiles you want to keep up with.
+    <article className="flex gap-3 border-b py-5 last:border-0">
+      <Link href={`/${activity.actor.username}`}>
+        <Avatar>
+          {activity.actor.image ? <AvatarImage src={activity.actor.image} alt="" /> : null}
+          <AvatarFallback>{activity.actor.displayUsername[0]?.toUpperCase()}</AvatarFallback>
+        </Avatar>
+      </Link>
+      <div className="min-w-0 flex-1 space-y-2">
+        <p className="text-sm text-muted-foreground">
+          {activity.type === "FOLLOW" ? (
+            <>
+              {actor} followed{" "}
+              {activity.target ? (
+                <Link
+                  href={`/${activity.target.username}`}
+                  className="font-semibold text-foreground hover:text-primary"
+                >
+                  {activity.target.displayUsername}
+                </Link>
+              ) : (
+                "a Profile"
+              )}
+            </>
+          ) : (
+            <>
+              {actor} {activity.type === "REVIEW" ? "reviewed" : "logged"}{" "}
+              {media ? (
+                <Link
+                  href={mediaHref(media.type, media.id)}
+                  className="font-semibold text-foreground hover:text-primary"
+                >
+                  {media.title}
+                </Link>
+              ) : (
+                "a title"
+              )}
+            </>
+          )}
         </p>
-      </header>
+        {details ? <p className="text-sm">{details}</p> : null}
+        {activity.type === "REVIEW" ? (
+          <div className="whitespace-pre-wrap text-sm text-foreground">
+            {activity.snapshot.containsSpoilers ? (
+              <Spoiler>{activity.snapshot.content ?? ""}</Spoiler>
+            ) : (
+              activity.snapshot.content
+            )}
+            <Link
+              href={`/${activity.actor.username}/reviews`}
+              className="ml-2 text-xs font-medium text-primary hover:underline"
+            >
+              View review
+            </Link>
+          </div>
+        ) : null}
+        <time
+          className="block text-xs text-muted-foreground"
+          dateTime={activity.occurredAt.toISOString()}
+        >
+          {formatDistanceToNow(new Date(activity.occurredAt), { addSuffix: true })}
+        </time>
+      </div>
+    </article>
+  );
+}
 
-      <div className="relative mt-10 max-w-xl">
+function Feed({ type }: { type: FriendsFeedType }) {
+  const query = useFriendsFeed(type);
+  const activities = query.data?.pages.flatMap((page) => page.activities) ?? [];
+
+  function renderFeed() {
+    if (query.isLoading) return <Loader />;
+    if (query.isError)
+      return <ErrorState title="Could not load Activity" description="Try again in a moment." />;
+    if (!activities.length)
+      return (
+        <EmptyState
+          title={
+            type === "following" ? "No Activity from people you Follow yet" : "No Activity yet"
+          }
+        />
+      );
+
+    return (
+      <div>
+        {activities.map((activity) => (
+          <ActivityCard key={activity.id} activity={activity} />
+        ))}
+        {query.hasNextPage ? (
+          <Button
+            className="mt-6"
+            variant="outline"
+            disabled={query.isFetchingNextPage}
+            onClick={() => void query.fetchNextPage()}
+          >
+            {query.isFetchingNextPage ? "Loading…" : "Load older Activity"}
+          </Button>
+        ) : null}
+      </div>
+    );
+  }
+
+  return renderFeed();
+}
+
+function Discover() {
+  const [search, setSearch] = useState("");
+  const username = useDebouncedValue(search.trim(), 250);
+  const query = useFriendsDiscovery(username);
+  const follow = useDiscoveryFollowMutation();
+  const users = query.data ?? [];
+
+  function renderResults() {
+    if (query.isLoading) return <Loader />;
+    if (query.isError)
+      return <ErrorState title="Could not load people" description="Try again in a moment." />;
+    if (!users.length)
+      return (
+        <EmptyState
+          title={username ? `No Profiles match “${username}”` : "No people to show yet"}
+        />
+      );
+
+    return (
+      <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {users.map((user) => (
+          <li key={user.id} className="flex items-center gap-3 rounded-xl border p-4">
+            <Link href={`/${user.username}`} className="flex min-w-0 flex-1 items-center gap-3">
+              <Avatar size="lg">
+                {user.image ? <AvatarImage src={user.image} alt={user.name} /> : null}
+                <AvatarFallback>{user.displayUsername[0]?.toUpperCase()}</AvatarFallback>
+              </Avatar>
+              <span className="min-w-0">
+                <span className="block truncate font-semibold">{user.displayUsername}</span>
+                <span className="block truncate text-sm text-muted-foreground">
+                  @{user.username}
+                </span>
+              </span>
+            </Link>
+            <Button
+              size="sm"
+              variant={user.relationship.following ? "secondary" : "default"}
+              disabled={follow.isPending}
+              onClick={() =>
+                follow.mutate({ username: user.username, following: !user.relationship.following })
+              }
+            >
+              {followButtonLabel(user.relationship)}
+            </Button>
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
+  return (
+    <>
+      <div className="relative max-w-xl">
         <Search className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           value={search}
@@ -66,74 +219,36 @@ export function FriendsView() {
           className="h-12 rounded-xl pl-11"
         />
       </div>
-
-      <section className="mt-10" aria-busy={isSearching}>
-        <div className="mb-5 flex items-baseline justify-between gap-4">
-          <h2 className="text-2xl font-bold tracking-tight">
-            {debouncedSearch ? "Username Search" : "Popular on Tsuki"}
-          </h2>
-          {isSearching ? <span className="text-sm text-muted-foreground">Searching…</span> : null}
-        </div>
-
-        {discoveryQuery.isLoading ? (
-          <Loader />
-        ) : discoveryQuery.isError ? (
-          <div className="space-y-3">
-            <ErrorState title="Could not load people" description="Try again in a moment." />
-            <div className="text-center">
-              <Button variant="outline" onClick={() => void discoveryQuery.refetch()}>
-                Retry
-              </Button>
-            </div>
-          </div>
-        ) : users.length === 0 && !isSearching ? (
-          <EmptyState
-            title={
-              debouncedSearch ? `No Profiles match “${debouncedSearch}”` : "No people to show yet"
-            }
-            description={debouncedSearch ? "Try a different Username prefix." : undefined}
-          />
-        ) : (
-          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-label="People">
-            {users.map((user) => (
-              <li key={user.id} className="rounded-xl border p-4">
-                <div className="flex items-center gap-3">
-                  <Link
-                    href={`/${user.username}`}
-                    className="flex min-w-0 flex-1 items-center gap-3"
-                  >
-                    <Avatar size="lg">
-                      {user.image ? <AvatarImage src={user.image} alt={user.name} /> : null}
-                      <AvatarFallback>
-                        {user.displayUsername.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="min-w-0">
-                      <span className="block truncate font-semibold">{user.displayUsername}</span>
-                      <span className="block truncate text-sm text-muted-foreground">
-                        @{user.username}
-                      </span>
-                    </span>
-                  </Link>
-                  <Button
-                    size="sm"
-                    variant={user.relationship.following ? "secondary" : "default"}
-                    disabled={followMutation.isPending}
-                    onClick={() =>
-                      followMutation.mutate({
-                        username: user.username,
-                        following: !user.relationship.following,
-                      })
-                    }
-                  >
-                    {followButtonLabel(user.relationship)}
-                  </Button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+      <section className="mt-8">
+        <h2 className="mb-5 text-2xl font-bold tracking-tight">
+          {username ? "Username Search" : "Popular on Tsuki"}
+        </h2>
+        {renderResults()}
       </section>
+    </>
+  );
+}
+
+export function FriendsView() {
+  return (
+    <div className="container mx-auto max-w-5xl px-4 pt-28 pb-16 md:pt-32">
+      <h1 className="text-4xl font-black tracking-tight sm:text-5xl">Friends</h1>
+      <Tabs defaultValue="following" className="mt-8">
+        <TabsList>
+          <TabsTrigger value="following">Following</TabsTrigger>
+          <TabsTrigger value="public">Public</TabsTrigger>
+          <TabsTrigger value="discover">Discover</TabsTrigger>
+        </TabsList>
+        <TabsContent value="following">
+          <Feed type="following" />
+        </TabsContent>
+        <TabsContent value="public">
+          <Feed type="public" />
+        </TabsContent>
+        <TabsContent value="discover">
+          <Discover />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
