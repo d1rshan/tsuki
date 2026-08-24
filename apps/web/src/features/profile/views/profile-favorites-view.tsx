@@ -7,6 +7,7 @@ import { MEDIA } from "@/features/media/media";
 import { FavoritesSection } from "@/features/profile/components/profile-overview";
 import { ProfileMediaToggle } from "@/features/profile/components/profile-media-toggle";
 import { Loader } from "@/shared/components/loader";
+import { ContentState } from "@/shared/components/content-state";
 
 import { getProfileLibrary } from "../data";
 
@@ -20,11 +21,7 @@ function FavoritesForType({
   const favorites = entries.filter((entry) => entry.mediaType === mediaType && entry.isFavorite);
 
   if (favorites.length === 0) {
-    return (
-      <p className="py-20 text-center text-sm text-muted-foreground">
-        No favorite {MEDIA[mediaType].label.toLowerCase()} yet.
-      </p>
-    );
+    return <ContentState title={`No favorite ${MEDIA[mediaType].label.toLowerCase()} yet`} />;
   }
 
   return <FavoritesSection title={`${MEDIA[mediaType].label} Favorites`} favorites={favorites} />;

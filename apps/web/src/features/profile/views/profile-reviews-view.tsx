@@ -7,6 +7,7 @@ import { MEDIA } from "@/features/media/media";
 import { ProfileMediaToggle } from "@/features/profile/components/profile-media-toggle";
 import { ReviewItem } from "@/features/profile/components/profile-reviews";
 import { Loader } from "@/shared/components/loader";
+import { ContentState } from "@/shared/components/content-state";
 
 import { getProfileReviews } from "../data";
 
@@ -14,11 +15,7 @@ function ReviewsForType({ reviews, mediaType }: { reviews: Review[]; mediaType: 
   const matchingReviews = reviews.filter((review) => review.mediaType === mediaType);
 
   if (matchingReviews.length === 0) {
-    return (
-      <p className="py-20 text-center text-sm text-muted-foreground">
-        This user hasn&apos;t written any {MEDIA[mediaType].label.toLowerCase()} reviews yet.
-      </p>
-    );
+    return <ContentState title={`No ${MEDIA[mediaType].label.toLowerCase()} reviews yet`} />;
   }
 
   return (
