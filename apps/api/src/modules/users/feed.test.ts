@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { encodeFeedCursor, parseFeedCursor } from "./feed";
+import { encodeFeedCursor, parseFeedCursor } from "./cursor";
 
 describe("Activity Feed cursor", () => {
   test("round-trips through the wire format", () => {

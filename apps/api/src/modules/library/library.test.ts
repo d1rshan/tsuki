@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { logSnapshot } from "./library";
+import { logSnapshot } from "./snapshot";
 
 describe("LOG Activity snapshot", () => {
   test("mirrors the viewer-facing fields of the entry", () => {

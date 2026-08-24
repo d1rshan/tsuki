@@ -1,29 +1,11 @@
 import { status } from "elysia";
 
 import { activityDal, libraryDal } from "@tsuki/db";
-import type { FeedActivitySnapshot } from "@tsuki/db";
 
 import { ensureMedia } from "../media/cache";
 import type { MediaType } from "../media/model";
 import type { LibraryEntryInputModel } from "./model";
-
-type LibraryEntryRow = NonNullable<Awaited<ReturnType<typeof libraryDal.getEntry>>>;
-
-/**
- * The LOG card shows what the entry looked like when it was logged, so the
- * snapshot copies the viewer-facing fields of the saved entry.
- */
-export function logSnapshot(
-  entry: Pick<LibraryEntryRow, "status" | "score" | "progress" | "progressVolumes" | "repeat">,
-): FeedActivitySnapshot {
-  return {
-    status: entry.status,
-    score: entry.score,
-    progress: entry.progress,
-    progressVolumes: entry.progressVolumes,
-    repeat: entry.repeat,
-  };
-}
+import { logSnapshot } from "./snapshot";
 
 /** Log media: creates or updates the entry, mirroring it into Activity. */
 export async function logMedia(
