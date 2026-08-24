@@ -231,7 +231,7 @@ function Discover() {
 
 export function FriendsView() {
   return (
-    <div className="container mx-auto max-w-5xl px-4 pt-28 pb-16 md:pt-32">
+    <div className="pt-28 pb-16 md:pt-32">
       <h1 className="text-4xl font-black tracking-tight sm:text-5xl">Friends</h1>
       <Tabs defaultValue="following" className="mt-8">
         <TabsList>
