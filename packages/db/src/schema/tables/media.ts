@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, integer, jsonb, index, uniqueIndex } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, integer, jsonb, index, unique } from "drizzle-orm/pg-core";
 
 import type { FuzzyDate, MediaExternalLink, MediaTrailer } from "../types";
 import {
@@ -52,11 +52,8 @@ export const media = pgTable(
   },
   (table) => [
     // Redundant for uniqueness (id is the PK) but required as the target of the
-    // composite foreign keys on library_entries and reviews. Declared as a
-    // unique index, not a constraint: drizzle-kit push can't diff named unique
-    // constraints and re-suggests them forever.
-    // ponytail: if drizzle-kit ever fixes constraint diffing, switch back to unique().
-    uniqueIndex("media_id_type_unique").on(table.id, table.type),
+    // composite foreign keys on library and reviews.
+    unique("media_id_type_unique").on(table.id, table.type),
     index("media_type_popularity_idx").on(table.type, table.popularity),
   ],
 );

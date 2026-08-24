@@ -2,43 +2,43 @@ import { relations } from "drizzle-orm";
 
 import {
   account,
-  feedActivities,
-  libraryEntries,
+  feed,
+  library,
   media,
-  progressActivity,
+  progress,
   reviews,
   session,
   user,
   social,
-  userProfile,
+  profile,
 } from "./tables";
 
 export const userRelations = relations(user, ({ many, one }) => ({
   sessions: many(session),
   accounts: many(account),
-  libraryEntries: many(libraryEntries),
-  progressActivity: many(progressActivity),
-  feedActivities: many(feedActivities, { relationName: "activityActor" }),
+  library: many(library),
+  progress: many(progress),
+  feed: many(feed, { relationName: "activityActor" }),
   reviews: many(reviews),
   followers: many(social, { relationName: "following" }),
   following: many(social, { relationName: "follower" }),
-  profile: one(userProfile, {
+  profile: one(profile, {
     fields: [user.id],
-    references: [userProfile.userId],
+    references: [profile.userId],
   }),
 }));
 
-export const progressActivityRelations = relations(progressActivity, ({ one }) => ({
-  user: one(user, { fields: [progressActivity.userId], references: [user.id] }),
+export const progressRelations = relations(progress, ({ one }) => ({
+  user: one(user, { fields: [progress.userId], references: [user.id] }),
 }));
 
-export const feedActivityRelations = relations(feedActivities, ({ one }) => ({
+export const feedRelations = relations(feed, ({ one }) => ({
   actor: one(user, {
-    fields: [feedActivities.actorId],
+    fields: [feed.actorId],
     references: [user.id],
     relationName: "activityActor",
   }),
-  media: one(media, { fields: [feedActivities.mediaId], references: [media.id] }),
+  media: one(media, { fields: [feed.mediaId], references: [media.id] }),
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({
@@ -49,8 +49,8 @@ export const accountRelations = relations(account, ({ one }) => ({
   user: one(user, { fields: [account.userId], references: [user.id] }),
 }));
 
-export const userProfileRelations = relations(userProfile, ({ one }) => ({
-  user: one(user, { fields: [userProfile.userId], references: [user.id] }),
+export const profileRelations = relations(profile, ({ one }) => ({
+  user: one(user, { fields: [profile.userId], references: [user.id] }),
 }));
 
 export const socialRelations = relations(social, ({ one }) => ({
@@ -67,14 +67,14 @@ export const socialRelations = relations(social, ({ one }) => ({
 }));
 
 export const mediaRelations = relations(media, ({ many }) => ({
-  libraryEntries: many(libraryEntries),
+  library: many(library),
   reviews: many(reviews),
-  feedActivities: many(feedActivities),
+  feed: many(feed),
 }));
 
-export const libraryEntriesRelations = relations(libraryEntries, ({ one }) => ({
-  user: one(user, { fields: [libraryEntries.userId], references: [user.id] }),
-  media: one(media, { fields: [libraryEntries.mediaId], references: [media.id] }),
+export const libraryRelations = relations(library, ({ one }) => ({
+  user: one(user, { fields: [library.userId], references: [user.id] }),
+  media: one(media, { fields: [library.mediaId], references: [media.id] }),
 }));
 
 export const reviewsRelations = relations(reviews, ({ one }) => ({

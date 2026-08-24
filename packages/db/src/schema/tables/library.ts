@@ -22,8 +22,8 @@ import { media } from "./media";
  * `MediaList`: `progress` counts episodes watched or chapters read, and
  * `status` uses their type-agnostic vocabulary.
  */
-export const libraryEntries = pgTable(
-  "library_entries",
+export const library = pgTable(
+  "library",
   {
     userId: text("user_id")
       .notNull()
@@ -33,7 +33,7 @@ export const libraryEntries = pgTable(
     mediaType: mediaTypeEnum("media_type").notNull(),
     status: listStatusEnum("status"),
     /**
-     * 1–10, enforced by `library_entries_score_range` below. Null means unscored.
+     * 1–10, enforced by `library_score_range` below. Null means unscored.
      * Not the same scale as `media.averageScore`, which comes from AniList as 0–100.
      */
     score: integer("score"),
@@ -64,14 +64,14 @@ export const libraryEntries = pgTable(
     foreignKey({
       columns: [table.mediaId, table.mediaType],
       foreignColumns: [media.id, media.type],
-      name: "library_entries_media_fk",
+      name: "library_media_fk",
     }).onDelete("cascade"),
-    index("library_entries_user_type_updated_idx").on(
+    index("library_user_type_updated_idx").on(
       table.userId,
       table.mediaType,
       table.updatedAt.desc(),
     ),
-    index("library_entries_media_idx").on(table.mediaId),
-    check("library_entries_score_range", sql`${table.score} BETWEEN 1 AND 10`), // TODO: we moved from rating to score to reflect anilist but we gave limit of 1-10 (fyi)
+    index("library_media_idx").on(table.mediaId),
+    check("library_score_range", sql`${table.score} BETWEEN 1 AND 10`), // TODO: we moved from rating to score to reflect anilist but we gave limit of 1-10 (fyi)
   ],
 );

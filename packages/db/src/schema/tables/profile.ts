@@ -2,7 +2,7 @@ import { pgTable, text, timestamp, jsonb } from "drizzle-orm/pg-core";
 
 import { user } from "./auth";
 
-export const userProfile = pgTable("user_profile", {
+export const profile = pgTable("profile", {
   userId: text("user_id")
     .primaryKey()
     .references(() => user.id, { onDelete: "cascade" }),

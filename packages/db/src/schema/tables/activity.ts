@@ -16,8 +16,8 @@ import { listStatusEnum, mediaTypeEnum } from "../enums";
 import { user } from "./auth";
 import { feedActivityTypeEnum } from "../enums";
 
-export const progressActivity = pgTable(
-  "progress_activity",
+export const progress = pgTable(
+  "progress",
   {
     userId: text("user_id")
       .notNull()
@@ -34,7 +34,7 @@ export const progressActivity = pgTable(
   },
   (table) => [
     primaryKey({ columns: [table.userId, table.mediaType, table.activityDate] }),
-    check("progress_activity_amount_positive", sql`${table.amount} > 0`),
+    check("progress_amount_positive", sql`${table.amount} > 0`),
   ],
 );
 
@@ -48,8 +48,8 @@ export type FeedActivitySnapshot = {
   containsSpoilers?: boolean;
 };
 
-export const feedActivities = pgTable(
-  "feed_activities",
+export const feed = pgTable(
+  "feed",
   {
     id: text("id")
       .primaryKey()
@@ -67,17 +67,9 @@ export const feedActivities = pgTable(
     occurredAt: timestamp("occurred_at").defaultNow().notNull(),
   },
   (table) => [
-    uniqueIndex("feed_activities_actor_source_unique_idx").on(
-      table.actorId,
-      table.type,
-      table.sourceId,
-    ),
-    index("feed_activities_occurred_idx").on(table.occurredAt.desc(), table.id.desc()),
-    index("feed_activities_actor_occurred_idx").on(
-      table.actorId,
-      table.occurredAt.desc(),
-      table.id.desc(),
-    ),
-    index("feed_activities_target_user_idx").on(table.targetUserId),
+    uniqueIndex("feed_actor_source_unique_idx").on(table.actorId, table.type, table.sourceId),
+    index("feed_occurred_idx").on(table.occurredAt.desc(), table.id.desc()),
+    index("feed_actor_occurred_idx").on(table.actorId, table.occurredAt.desc(), table.id.desc()),
+    index("feed_target_user_idx").on(table.targetUserId),
   ],
 );

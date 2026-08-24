@@ -1,10 +1,10 @@
 import { and, count, desc, eq, sum } from "drizzle-orm";
 
 import { db } from "../db";
-import { libraryEntries, type MediaType } from "../schema";
+import { library, type MediaType } from "../schema";
 import { MEDIA_COMPACT_COLUMNS } from "./media";
 
-export type InsertLibraryEntry = typeof libraryEntries.$inferInsert;
+export type InsertLibraryEntry = typeof library.$inferInsert;
 
 export type LibraryQueryOptions = {
   /** Omit to return anime and manga together, newest first. */
@@ -15,8 +15,8 @@ export type LibraryQueryOptions = {
 };
 
 export const getEntry = async (userId: string, mediaId: number) => {
-  return db.query.libraryEntries.findFirst({
-    where: and(eq(libraryEntries.userId, userId), eq(libraryEntries.mediaId, mediaId)),
+  return db.query.library.findFirst({
+    where: and(eq(library.userId, userId), eq(library.mediaId, mediaId)),
     with: { media: { columns: MEDIA_COMPACT_COLUMNS } },
   });
 };
@@ -24,15 +24,15 @@ export const getEntry = async (userId: string, mediaId: number) => {
 export const getUserLibrary = async (userId: string, options: LibraryQueryOptions = {}) => {
   const { type, isFavorite, limit, offset } = options;
 
-  return db.query.libraryEntries.findMany({
+  return db.query.library.findMany({
     // `and` drops the undefined conditions, so each filter is opt-in.
     where: and(
-      eq(libraryEntries.userId, userId),
-      type ? eq(libraryEntries.mediaType, type) : undefined,
-      isFavorite ? eq(libraryEntries.isFavorite, true) : undefined,
+      eq(library.userId, userId),
+      type ? eq(library.mediaType, type) : undefined,
+      isFavorite ? eq(library.isFavorite, true) : undefined,
     ),
     with: { media: { columns: MEDIA_COMPACT_COLUMNS } },
-    orderBy: [desc(libraryEntries.updatedAt)],
+    orderBy: [desc(library.updatedAt)],
     limit,
     offset,
   });
@@ -46,16 +46,16 @@ export const getUserLibrary = async (userId: string, options: LibraryQueryOption
 export const getLibraryStats = async (userId: string) => {
   return db
     .select({
-      mediaType: libraryEntries.mediaType,
+      mediaType: library.mediaType,
       total: count(),
-      progress: sum(libraryEntries.progress).mapWith(Number),
+      progress: sum(library.progress).mapWith(Number),
       /** Counts non-null scores, so unscored entries are excluded. */
-      scoredCount: count(libraryEntries.score),
-      scoreSum: sum(libraryEntries.score).mapWith(Number),
+      scoredCount: count(library.score),
+      scoreSum: sum(library.score).mapWith(Number),
     })
-    .from(libraryEntries)
-    .where(eq(libraryEntries.userId, userId))
-    .groupBy(libraryEntries.mediaType);
+    .from(library)
+    .where(eq(library.userId, userId))
+    .groupBy(library.mediaType);
 };
 
 export type LibraryStatsRow = Awaited<ReturnType<typeof getLibraryStats>>[number];
@@ -68,10 +68,10 @@ export type LibraryStatsRow = Awaited<ReturnType<typeof getLibraryStats>>[number
  */
 export const upsertEntry = async (entry: InsertLibraryEntry) => {
   const [result] = await db
-    .insert(libraryEntries)
+    .insert(library)
     .values(entry)
     .onConflictDoUpdate({
-      target: [libraryEntries.userId, libraryEntries.mediaId],
+      target: [library.userId, library.mediaId],
       set: {
         status: entry.status,
         score: entry.score,
@@ -90,7 +90,5 @@ export const upsertEntry = async (entry: InsertLibraryEntry) => {
 };
 
 export const deleteEntry = async (userId: string, mediaId: number) => {
-  return db
-    .delete(libraryEntries)
-    .where(and(eq(libraryEntries.userId, userId), eq(libraryEntries.mediaId, mediaId)));
+  return db.delete(library).where(and(eq(library.userId, userId), eq(library.mediaId, mediaId)));
 };

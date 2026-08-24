@@ -2,42 +2,35 @@ import { and, asc, desc, eq, lt, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 
 import { db } from "../db";
-import {
-  feedActivities,
-  feedActivityTypeEnum,
-  media,
-  progressActivity,
-  social,
-  user,
-} from "../schema";
+import { feed, feedActivityTypeEnum, media, progress, social, user } from "../schema";
 import type { FeedActivitySnapshot } from "../schema";
 
 /**
  * Rows are stored by the progress trigger defined in
- * `drizzle/0001_record_progress_activity.sql` whenever library progress increases.
+ * `src/triggers.ts` whenever library progress increases.
  */
 export const getProgressActivity = async (userId: string) => {
   return db
     .select({
-      date: progressActivity.activityDate,
-      mediaType: progressActivity.mediaType,
-      amount: progressActivity.amount,
+      date: progress.activityDate,
+      mediaType: progress.mediaType,
+      amount: progress.amount,
     })
-    .from(progressActivity)
-    .where(eq(progressActivity.userId, userId))
-    .orderBy(asc(progressActivity.activityDate));
+    .from(progress)
+    .where(eq(progress.userId, userId))
+    .orderBy(asc(progress.activityDate));
 };
 
 export type FeedActivityType = (typeof feedActivityTypeEnum.enumValues)[number];
 
-type FeedActivityInput = typeof feedActivities.$inferInsert;
+type FeedActivityInput = typeof feed.$inferInsert;
 
 export const upsertFeedActivity = async (activity: FeedActivityInput) => {
   return db
-    .insert(feedActivities)
+    .insert(feed)
     .values(activity)
     .onConflictDoUpdate({
-      target: [feedActivities.actorId, feedActivities.type, feedActivities.sourceId],
+      target: [feed.actorId, feed.type, feed.sourceId],
       set: {
         mediaId: activity.mediaId,
         mediaType: activity.mediaType,
@@ -53,14 +46,8 @@ export const deleteFeedActivity = async (
   sourceId: string,
 ) => {
   return db
-    .delete(feedActivities)
-    .where(
-      and(
-        eq(feedActivities.actorId, actorId),
-        eq(feedActivities.type, type),
-        eq(feedActivities.sourceId, sourceId),
-      ),
-    );
+    .delete(feed)
+    .where(and(eq(feed.actorId, actorId), eq(feed.type, type), eq(feed.sourceId, sourceId)));
 };
 
 type FeedQuery = { cursor?: { occurredAt: Date; id: string }; limit: number };
@@ -74,10 +61,10 @@ async function getFeed(
 ) {
   const rows = await db
     .select({
-      id: feedActivities.id,
-      type: feedActivities.type,
-      snapshot: feedActivities.snapshot,
-      occurredAt: feedActivities.occurredAt,
+      id: feed.id,
+      type: feed.type,
+      snapshot: feed.snapshot,
+      occurredAt: feed.occurredAt,
       actor: {
         username: actor.username,
         displayUsername: actor.displayUsername,
@@ -89,28 +76,22 @@ async function getFeed(
         displayUsername: target.displayUsername,
       },
     })
-    .from(feedActivities)
-    .innerJoin(actor, eq(actor.id, feedActivities.actorId))
-    .leftJoin(
-      media,
-      and(eq(media.id, feedActivities.mediaId), eq(media.type, feedActivities.mediaType)),
-    )
-    .leftJoin(target, eq(target.id, feedActivities.targetUserId))
+    .from(feed)
+    .innerJoin(actor, eq(actor.id, feed.actorId))
+    .leftJoin(media, and(eq(media.id, feed.mediaId), eq(media.type, feed.mediaType)))
+    .leftJoin(target, eq(target.id, feed.targetUserId))
     .where(
       and(
         where,
         cursor
           ? or(
-              lt(feedActivities.occurredAt, cursor.occurredAt),
-              and(
-                eq(feedActivities.occurredAt, cursor.occurredAt),
-                lt(feedActivities.id, cursor.id),
-              ),
+              lt(feed.occurredAt, cursor.occurredAt),
+              and(eq(feed.occurredAt, cursor.occurredAt), lt(feed.id, cursor.id)),
             )
           : undefined,
       ),
     )
-    .orderBy(desc(feedActivities.occurredAt), desc(feedActivities.id))
+    .orderBy(desc(feed.occurredAt), desc(feed.id))
     .limit(limit + 1);
 
   const hasNextPage = rows.length > limit;
@@ -126,6 +107,6 @@ export const getPublicFeed = (query: FeedQuery) => getFeed(sql`true`, query);
 
 export const getFollowingFeed = (viewerId: string, query: FeedQuery) =>
   getFeed(
-    sql`exists (select 1 from ${social} where ${social.followerId} = ${viewerId} and ${social.followingId} = ${feedActivities.actorId})`,
+    sql`exists (select 1 from ${social} where ${social.followerId} = ${viewerId} and ${social.followingId} = ${feed.actorId})`,
     query,
   );

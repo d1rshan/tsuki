@@ -19,18 +19,18 @@ BEGIN
 	END IF;
 
 	IF progress_added > 0 THEN
-		INSERT INTO public.progress_activity (user_id, media_type, amount)
+		INSERT INTO public.progress (user_id, media_type, amount)
 		VALUES (NEW.user_id, NEW.media_type, progress_added)
 		ON CONFLICT (user_id, media_type, activity_date)
-		DO UPDATE SET amount = progress_activity.amount + EXCLUDED.amount;
+		DO UPDATE SET amount = progress.amount + EXCLUDED.amount;
 	END IF;
 
 	RETURN NEW;
 END;
 $$;`,
-  `DROP TRIGGER IF EXISTS "record_progress_activity" ON "public"."library_entries";`,
+  `DROP TRIGGER IF EXISTS "record_progress_activity" ON "public"."library";`,
   `CREATE TRIGGER "record_progress_activity"
-AFTER INSERT OR UPDATE OF "progress" ON "public"."library_entries"
+AFTER INSERT OR UPDATE OF "progress" ON "public"."library"
 FOR EACH ROW
 EXECUTE FUNCTION "public"."record_progress_activity"();`,
 ];
