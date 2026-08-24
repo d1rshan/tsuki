@@ -20,7 +20,7 @@ async function DiscoverContent() {
 
   if (!trending) {
     return (
-      <div className="container mx-auto flex min-h-screen items-center justify-center px-4 pt-24">
+      <div className="flex min-h-screen items-center justify-center pt-24">
         <ErrorState title="Failed to load discover" description="Please try again in a moment." />
       </div>
     );

@@ -9,7 +9,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <Suspense fallback={null}>
         <NavbarServer />
       </Suspense>
-      <main className="flex-1">{children}</main>
+      <main className="container mx-auto max-w-6xl flex-1 px-4">{children}</main>
       <Footer />
     </div>
   );

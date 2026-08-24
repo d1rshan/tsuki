@@ -5,7 +5,7 @@ export function MediaPageSkeleton() {
     <>
       <Skeleton className="h-[250px] rounded-none md:h-[350px]" />
 
-      <div className="container mx-auto max-w-6xl px-4 pb-16">
+      <div className="pb-16">
         <div className="-mt-20 flex flex-col gap-6 border-b pb-8 md:-mt-32 md:flex-row md:items-end md:gap-8">
           <Skeleton className="aspect-[3/4] w-40 shrink-0 rounded-xl md:w-56" />
           <div className="flex flex-1 flex-col gap-3 pb-2 md:pb-4">

@@ -45,7 +45,7 @@ export async function MediaView({ mediaType, id }: { mediaType: MediaType; id: s
         type={normalizedType}
         hasBannerImage={hasBannerImage}
       />
-      <div className="container mx-auto max-w-6xl px-4 pb-16">
+      <div className="pb-16">
         <MediaHeader
           averageScore={averageScore}
           coverImage={coverImage}
