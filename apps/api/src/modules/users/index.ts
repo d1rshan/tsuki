@@ -1,12 +1,13 @@
 import { Elysia, t, status } from "elysia";
 
-import { activityDal, libraryDal, profileDal, reviewsDal, socialDal, userDal } from "@tsuki/db";
+import { profileDal, socialDal } from "@tsuki/db";
 
 import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
-import type { MediaType } from "../media/model";
-import { summarizeActivity } from "./activity";
-import { discoverUsers } from "./discovery";
+import { requireUser } from "./user";
+import { followProfile, unfollowProfile } from "./follows";
+import { getActivityFeed } from "./feed";
+import { buildUserOverview } from "./overview";
 import {
   FeedModel,
   FeedQueryModel,
@@ -20,31 +21,19 @@ import {
   UserOverviewModel,
 } from "./model";
 
-const FAVORITES_LIMIT = 10;
-const RECENT_LOGS_LIMIT = 10;
-const RECENT_REVIEWS_LIMIT = 5;
-
-/**
- * The database counts; the two judgement calls live here. Unscored entries sit
- * out of the mean rather than counting as zero, and a user with nothing scored
- * reads as 0 rather than null. A type with no entries has no row at all.
- */
-function statsFor(rows: libraryDal.LibraryStatsRow[], type: MediaType) {
-  const row = rows.find((entry) => entry.mediaType === type);
-  if (!row) return { total: 0, progress: 0, meanScore: 0 };
-
-  return {
-    total: row.total,
-    progress: row.progress,
-    meanScore: row.scoredCount ? row.scoreSum / row.scoredCount : 0,
-  };
-}
+/** Popular on Tsuki: the default Friends list size. */
+const DISCOVERY_LIMIT = 24;
 
 export const userRoutes = new Elysia()
   .use(authPlugin)
   .get(
     "/users/discover",
-    async ({ query, user }) => discoverUsers(user.id, query.username, socialDal.getUserDiscovery),
+    async ({ query, user }) => ({
+      users: await socialDal.getUserDiscovery(user.id, {
+        limit: DISCOVERY_LIMIT,
+        usernamePrefix: query.username,
+      }),
+    }),
     {
       auth: true,
       query: UserDiscoveryQueryModel,
@@ -55,85 +44,20 @@ export const userRoutes = new Elysia()
       },
     },
   )
-  .get(
-    "/me/activity",
-    async ({ query, user }) => {
-      const [occurredAt, id] = query.cursor?.split("|") ?? [];
-      const cursor =
-        occurredAt && id && !Number.isNaN(Date.parse(occurredAt))
-          ? { occurredAt: new Date(occurredAt), id }
-          : undefined;
-      const feed =
-        query.type === "following"
-          ? await activityDal.getFollowingFeed(user.id, { cursor, limit: query.limit ?? 20 })
-          : await activityDal.getPublicFeed({ cursor, limit: query.limit ?? 20 });
-
-      return {
-        ...feed,
-        nextCursor: feed.nextCursor
-          ? `${feed.nextCursor.occurredAt.toISOString()}|${feed.nextCursor.id}`
-          : null,
-      };
+  .get("/me/activity", ({ query, user }) => getActivityFeed(user.id, query.type, query), {
+    auth: true,
+    query: FeedQueryModel,
+    response: { 200: FeedModel },
+    detail: {
+      summary: "Get the Activity Feed",
+      description: "Newest-first Activity for Following or Public.",
     },
-    {
-      auth: true,
-      query: FeedQueryModel,
-      response: { 200: FeedModel },
-      detail: {
-        summary: "Get the Activity Feed",
-        description: "Newest-first Activity for Following or Public.",
-      },
-    },
-  )
+  })
   .get(
     "/users/:username",
     async ({ params: { username }, viewer }) => {
-      const user = await userDal.getUserByUsername(username);
-      if (!user) return status(404, { error: "User not found" });
-
-      const today = new Date();
-      const [
-        stats,
-        favorites,
-        recentLogs,
-        recentReviews,
-        profile,
-        counts,
-        relationship,
-        activityRows,
-      ] = await Promise.all([
-        libraryDal.getLibraryStats(user.id),
-        libraryDal.getUserLibrary(user.id, { isFavorite: true, limit: FAVORITES_LIMIT }),
-        libraryDal.getUserLibrary(user.id, { limit: RECENT_LOGS_LIMIT }),
-        reviewsDal.getUserReviews(user.id, { limit: RECENT_REVIEWS_LIMIT }),
-        profileDal.getProfileByUserId(user.id),
-        socialDal.getFollowCounts(user.id),
-        viewer && viewer.id !== user.id
-          ? socialDal.getFollowRelationship(viewer.id, user.id)
-          : null,
-        activityDal.getProgressActivity(user.id),
-      ]);
-
-      return {
-        user: {
-          id: user.id,
-          name: user.name,
-          username: user.username,
-          displayUsername: user.displayUsername,
-          image: user.image,
-          createdAt: user.createdAt,
-        },
-        profile: profile ?? null,
-        stats: {
-          ANIME: statsFor(stats, "ANIME"),
-          MANGA: statsFor(stats, "MANGA"),
-        },
-        favorites,
-        recentLogs,
-        recentReviews,
-        social: { ...counts, viewer: relationship },
-        activity: summarizeActivity(activityRows, today),
-      };
+      const user = await requireUser(username);
+      return buildUserOverview(user, viewer);
     },
     {
       optionalAuth: true,
@@ -148,8 +72,7 @@ export const userRoutes = new Elysia()
   .get(
     "/users/:username/followers",
     async ({ params: { username }, query }) => {
-      const user = await userDal.getUserByUsername(username);
-      if (!user) return status(404, { error: "User not found" });
+      const user = await requireUser(username);
 
       const options = { limit: query.limit ?? 40, offset: query.offset ?? 0 };
       const [users, total] = await Promise.all([
@@ -169,8 +92,7 @@ export const userRoutes = new Elysia()
   .get(
     "/users/:username/following",
     async ({ params: { username }, query }) => {
-      const user = await userDal.getUserByUsername(username);
-      if (!user) return status(404, { error: "User not found" });
+      const user = await requireUser(username);
 
       const options = { limit: query.limit ?? 40, offset: query.offset ?? 0 };
       const [users, total] = await Promise.all([
@@ -190,8 +112,7 @@ export const userRoutes = new Elysia()
   .get(
     "/users/:username/relationship",
     async ({ params: { username }, user }) => {
-      const profileUser = await userDal.getUserByUsername(username);
-      if (!profileUser) return status(404, { error: "User not found" });
+      const profileUser = await requireUser(username);
       if (profileUser.id === user.id) {
         return { following: false, followedBy: false };
       }
@@ -208,23 +129,8 @@ export const userRoutes = new Elysia()
   .post(
     "/users/:username/follow",
     async ({ params: { username }, user }) => {
-      const profileUser = await userDal.getUserByUsername(username);
-      if (!profileUser) return status(404, { error: "User not found" });
-      if (profileUser.id === user.id) {
-        return status(400, { error: "You cannot follow yourself" });
-      }
-
-      const created = await socialDal.followUser(user.id, profileUser.id);
-      if (created.length) {
-        await activityDal.upsertFeedActivity({
-          actorId: user.id,
-          type: "FOLLOW",
-          sourceId: crypto.randomUUID(),
-          targetUserId: profileUser.id,
-          snapshot: {},
-        });
-      }
-      return socialDal.getFollowRelationship(user.id, profileUser.id);
+      const profileUser = await requireUser(username);
+      return followProfile(user.id, profileUser.id);
     },
     {
       auth: true,
@@ -236,14 +142,8 @@ export const userRoutes = new Elysia()
   .delete(
     "/users/:username/follow",
     async ({ params: { username }, user }) => {
-      const profileUser = await userDal.getUserByUsername(username);
-      if (!profileUser) return status(404, { error: "User not found" });
-      if (profileUser.id === user.id) {
-        return status(400, { error: "You cannot follow yourself" });
-      }
-
-      await socialDal.unfollowUser(user.id, profileUser.id);
-      return socialDal.getFollowRelationship(user.id, profileUser.id);
+      const profileUser = await requireUser(username);
+      return unfollowProfile(user.id, profileUser.id);
     },
     {
       auth: true,

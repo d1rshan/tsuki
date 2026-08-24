@@ -1,21 +1,20 @@
-import { Elysia, t, status } from "elysia";
+import { Elysia, t } from "elysia";
 
-import { activityDal, reviewsDal, userDal } from "@tsuki/db";
+import { reviewsDal } from "@tsuki/db";
 
 import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
-import { ensureMedia } from "../media";
 import { MediaTypeEnum } from "../media/model";
+import { requireUser } from "../users/user";
 import { ReviewInputModel, ReviewModel, ReviewQueryModel } from "./model";
+import { removeReview, submitReview } from "./reviews";
 
 export const reviewRoutes = new Elysia()
   .use(authPlugin)
   .get(
     "/users/:username/reviews",
     async ({ params: { username }, query }) => {
-      const user = await userDal.getUserByUsername(username);
-      if (!user) return status(404, { error: "User not found" });
-
+      const user = await requireUser(username);
       return reviewsDal.getUserReviews(user.id, query);
     },
     {
@@ -30,32 +29,7 @@ export const reviewRoutes = new Elysia()
   )
   .put(
     "/me/reviews/:type/:id",
-    async ({ params: { type: mediaType, id }, body, user }) => {
-      const media = await ensureMedia(mediaType, id);
-      if (!media) return status(404, { error: "Media not found" });
-
-      await reviewsDal.upsertReview({
-        userId: user.id,
-        mediaId: id,
-        mediaType,
-        content: body.content,
-        containsSpoilers: body.containsSpoilers ?? false,
-      });
-
-      const review = await reviewsDal.getReview(user.id, id);
-      if (!review) return status(500, { error: "Failed to save review" });
-
-      await activityDal.upsertFeedActivity({
-        actorId: user.id,
-        type: "REVIEW",
-        sourceId: String(id),
-        mediaId: id,
-        mediaType,
-        snapshot: { content: review.content, containsSpoilers: review.containsSpoilers },
-      });
-
-      return review;
-    },
+    ({ params: { type, id }, body, user }) => submitReview(user.id, type, id, body),
     {
       auth: true,
       params: t.Object({ type: MediaTypeEnum, id: t.Numeric() }),
@@ -70,10 +44,7 @@ export const reviewRoutes = new Elysia()
   .delete(
     "/me/reviews/:type/:id",
     async ({ params: { id }, user, set }) => {
-      await Promise.all([
-        reviewsDal.deleteReview(user.id, id),
-        activityDal.deleteFeedActivity(user.id, "REVIEW", String(id)),
-      ]);
+      await removeReview(user.id, id);
       set.status = 204;
     },
     {
