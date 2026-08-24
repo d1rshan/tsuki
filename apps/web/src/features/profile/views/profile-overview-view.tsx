@@ -6,12 +6,13 @@ import {
   RecentActivitySection,
 } from "@/features/profile/components/profile-overview";
 import { ProfileActivityHeatmap } from "@/features/profile/components/profile-activity-heatmap";
+import { Loader } from "@/shared/components/loader";
 
 import { getProfileOverview } from "../data";
 
 export function ProfileOverviewView({ username }: { username: string }) {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<Loader />}>
       <ProfileOverviewContent username={username} />
     </Suspense>
   );

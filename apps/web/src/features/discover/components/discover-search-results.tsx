@@ -10,7 +10,6 @@ import { useMediaSearch } from "@/features/media/hooks/use-media-search";
 import { useMediaType } from "@/features/media/hooks/use-media-type";
 import { MEDIA } from "@/features/media/media";
 import { ContentState } from "@/shared/components/content-state";
-import { Loader } from "@/shared/components/loader";
 import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
 
@@ -19,17 +18,9 @@ import { DiscoverSection } from "./discover-section";
 export function DiscoverSearchResults({ query }: { query: string }) {
   const [includeNsfw, setIncludeNsfw] = useQueryState("nsfw", parseAsBoolean.withDefault(false));
   const [mediaType, setMediaType] = useMediaType();
-  const {
-    data: items = [],
-    isError,
-    isLoading,
-    isPending,
-  } = useMediaSearch(mediaType, query, includeNsfw);
-  const isInitialLoad = isLoading || (items.length === 0 && isPending);
+  const { data: items = [], isError, isPending } = useMediaSearch(mediaType, query, includeNsfw);
 
   function renderResults() {
-    if (isInitialLoad) return <Loader />;
-
     if (isError) {
       return (
         <ContentState
@@ -40,7 +31,22 @@ export function DiscoverSearchResults({ query }: { query: string }) {
       );
     }
 
-    if (items.length === 0) {
+    if (items.length > 0) {
+      return (
+        <div className="relative" aria-busy={isPending}>
+          <div
+            className={cn(
+              "transition-all",
+              isPending && "pointer-events-none opacity-70 blur-[2px]",
+            )}
+          >
+            <MediaGrid items={items} />
+          </div>
+        </div>
+      );
+    }
+
+    if (!isPending) {
       return (
         <ContentState
           icon={SearchX}
@@ -50,19 +56,11 @@ export function DiscoverSearchResults({ query }: { query: string }) {
       );
     }
 
-    return (
-      <div className="relative" aria-busy={isPending}>
-        <div className={cn("transition-opacity", isPending && "pointer-events-none opacity-50")}>
-          <MediaGrid items={items} />
-        </div>
-        {isPending ? <Loader className="absolute inset-0 min-h-0" /> : null}
-      </div>
-    );
+    return null;
   }
 
   return (
     <DiscoverSection
-      title={`Results for “${query}”`}
       actions={
         <DiscoverSearchActions
           includeNsfw={includeNsfw}

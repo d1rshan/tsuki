@@ -1,9 +1,25 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 
 import { ProfileConnectionsView } from "@/features/profile/views/profile-connections-view";
 import { parseConnectionPage, parseProfileUsername } from "@/features/profile/utils";
+import { Loader } from "@/shared/components/loader";
 
-export default async function Page({
+export default function Page({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ username: string }>;
+  searchParams: Promise<{ page?: string }>;
+}) {
+  return (
+    <Suspense fallback={<Loader />}>
+      <FollowingContent params={params} searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+async function FollowingContent({
   params,
   searchParams,
 }: {
