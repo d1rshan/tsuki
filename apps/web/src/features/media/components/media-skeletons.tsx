@@ -3,7 +3,9 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 export function MediaPageSkeleton() {
   return (
     <>
-      <Skeleton className="h-[250px] rounded-none md:h-[350px]" />
+      <div className="relative left-1/2 w-screen -translate-x-1/2">
+        <Skeleton className="h-[250px] rounded-none md:h-[350px]" />
+      </div>
 
       <div className="pb-16">
         <div className="-mt-20 flex flex-col gap-6 border-b pb-8 md:-mt-32 md:flex-row md:items-end md:gap-8">

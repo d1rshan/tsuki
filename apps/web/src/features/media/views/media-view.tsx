@@ -39,12 +39,14 @@ export async function MediaView({ mediaType, id }: { mediaType: MediaType; id: s
 
   return (
     <>
-      <MediaBanner
-        image={bannerImage}
-        title={title}
-        type={normalizedType}
-        hasBannerImage={hasBannerImage}
-      />
+      <div className="relative left-1/2 w-screen -translate-x-1/2">
+        <MediaBanner
+          image={bannerImage}
+          title={title}
+          type={normalizedType}
+          hasBannerImage={hasBannerImage}
+        />
+      </div>
       <div className="pb-16">
         <MediaHeader
           averageScore={averageScore}
