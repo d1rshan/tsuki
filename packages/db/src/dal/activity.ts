@@ -2,9 +2,15 @@ import { and, asc, desc, eq, lt, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 
 import { db } from "../db";
-import { feedActivities, progressActivity, social, user } from "../schema";
-import type { FeedActivitySnapshot, MediaType } from "../schema";
-import { media } from "../schema";
+import {
+  feedActivities,
+  feedActivityTypeEnum,
+  media,
+  progressActivity,
+  social,
+  user,
+} from "../schema";
+import type { FeedActivitySnapshot } from "../schema";
 
 /**
  * Rows are stored by the progress trigger defined in
@@ -22,17 +28,9 @@ export const getProgressActivity = async (userId: string) => {
     .orderBy(asc(progressActivity.activityDate));
 };
 
-export type FeedActivityType = "LOG" | "REVIEW" | "FOLLOW";
+export type FeedActivityType = (typeof feedActivityTypeEnum.enumValues)[number];
 
-type FeedActivityInput = {
-  actorId: string;
-  type: FeedActivityType;
-  sourceId: string;
-  mediaId?: number;
-  mediaType?: MediaType;
-  targetUserId?: string;
-  snapshot: FeedActivitySnapshot;
-};
+type FeedActivityInput = typeof feedActivities.$inferInsert;
 
 export const upsertFeedActivity = async (activity: FeedActivityInput) => {
   return db

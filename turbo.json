@@ -36,12 +36,7 @@
       "cache": false,
       "persistent": true
     },
-    "db:generate": {
-      "env": ["DATABASE_URL"],
-      "cache": false,
-      "interactive": true
-    },
-    "db:migrate": {
+    "db:push": {
       "env": ["DATABASE_URL"],
       "cache": false
     },

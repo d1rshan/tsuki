@@ -15,7 +15,10 @@ export const social = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [
-    primaryKey({ columns: [table.followerId, table.followingId] }),
+    primaryKey({
+      name: "social_follower_id_following_id_pk",
+      columns: [table.followerId, table.followingId],
+    }),
     index("social_follower_created_idx").on(
       table.followerId,
       table.createdAt.desc(),

@@ -1,4 +1,10 @@
-CREATE FUNCTION "public"."record_progress_activity"()
+import { neon } from "@neondatabase/serverless";
+import { env } from "@tsuki/env/db";
+
+const sql = neon(env.DATABASE_URL);
+
+const statements = [
+  `CREATE OR REPLACE FUNCTION "public"."record_progress_activity"()
 RETURNS trigger
 LANGUAGE plpgsql
 SET search_path = ''
@@ -21,9 +27,15 @@ BEGIN
 
 	RETURN NEW;
 END;
-$$;
---> statement-breakpoint
-CREATE TRIGGER "record_progress_activity"
+$$;`,
+  `DROP TRIGGER IF EXISTS "record_progress_activity" ON "public"."library_entries";`,
+  `CREATE TRIGGER "record_progress_activity"
 AFTER INSERT OR UPDATE OF "progress" ON "public"."library_entries"
 FOR EACH ROW
-EXECUTE FUNCTION "public"."record_progress_activity"();
+EXECUTE FUNCTION "public"."record_progress_activity"();`,
+];
+
+for (const statement of statements) {
+  await sql.query(statement);
+}
+console.log(`Applied ${statements.length} trigger statements.`);

@@ -12,7 +12,7 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 
-import { mediaTypeEnum } from "../enums";
+import { listStatusEnum, mediaTypeEnum } from "../enums";
 import { user } from "./auth";
 import { feedActivityTypeEnum } from "../enums";
 
@@ -24,7 +24,11 @@ export const progressActivity = pgTable(
       .references(() => user.id, { onDelete: "cascade" }),
     mediaType: mediaTypeEnum("media_type").notNull(),
     activityDate: date("activity_date")
-      .default(sql`(now() at time zone 'UTC')::date`)
+      // ponytail: no explicit ::date cast here AND written PG-normalized —
+      // drizzle-kit strips a trailing cast from the introspected default but
+      // not from the schema side, so any other spelling churns a no-op
+      // SET DEFAULT on every push.
+      .default(sql`(now() AT TIME ZONE 'UTC'::text)`)
       .notNull(),
     amount: integer("amount").notNull(),
   },
@@ -35,7 +39,7 @@ export const progressActivity = pgTable(
 );
 
 export type FeedActivitySnapshot = {
-  status?: "CURRENT" | "PLANNING" | "COMPLETED" | "DROPPED" | "PAUSED" | "REPEATING" | null;
+  status?: (typeof listStatusEnum.enumValues)[number] | null;
   score?: number | null;
   progress?: number;
   progressVolumes?: number | null;

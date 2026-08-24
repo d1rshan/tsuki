@@ -1,1 +1,0 @@
-ALTER TABLE "user_profile" DROP COLUMN "accent_color";
