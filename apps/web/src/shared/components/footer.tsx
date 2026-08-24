@@ -48,7 +48,7 @@ export function Footer() {
               </p>
               <ExternalLink href={GITHUB_URL}>GitHub</ExternalLink>
               <ExternalLink href={GITHUB_ISSUES_URL}>Report an issue</ExternalLink>
-              <ExternalLink href={ANILIST_URL}>AniList</ExternalLink>
+              <ExternalLink href={ANILIST_URL}>Data provided by AniList</ExternalLink>
             </div>
           </nav>
         </div>
