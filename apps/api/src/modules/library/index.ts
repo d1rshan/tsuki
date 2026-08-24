@@ -1,6 +1,6 @@
-import { Elysia, t, status } from "elysia";
+import { Elysia, t } from "elysia";
 
-import { libraryDal, reviewsDal, userDal } from "@tsuki/db";
+import { libraryDal, reviewsDal } from "@tsuki/db";
 
 import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
