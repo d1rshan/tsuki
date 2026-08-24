@@ -1,4 +1,4 @@
-import { Elysia, t, status } from "elysia";
+import { Elysia, ElysiaCustomStatusResponse, t, status } from "elysia";
 
 import { AnilistError } from "@tsuki/anilist";
 
@@ -16,6 +16,12 @@ export const ErrorModel = t.Object({
 export const errorsPlugin = new Elysia({ name: "errors" })
   .error({ ANILIST: AnilistError })
   .onError({ as: "global" }, ({ code, error, request }) => {
+    // A thrown `status()` is a deliberate short-circuit from deep in a module;
+    // pass its status and body through untouched.
+    if (error instanceof ElysiaCustomStatusResponse) {
+      return status(error.code, error.response);
+    }
+
     // Elysia's untouched 422 already matches the shape it puts on the route type.
     if (code === "VALIDATION") return;
 
