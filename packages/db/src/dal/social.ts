@@ -4,7 +4,9 @@ import { alias } from "drizzle-orm/pg-core";
 import { db } from "../db";
 import { social, user } from "../schema";
 
-import { usernamePrefixPattern } from "./discovery";
+function usernamePrefixPattern(prefix: string) {
+  return `${prefix.toLowerCase().replace(/[\\%_]/g, "\\$&")}%`;
+}
 
 const PUBLIC_USER_COLUMNS = {
   id: user.id,
@@ -34,7 +36,7 @@ type DiscoveryOptions = {
   usernamePrefix?: string;
 };
 
-export function relationshipFromRows(
+function relationshipFromRows(
   rows: { followerId: string; followingId: string }[],
   viewerId: string,
   profileUserId: string,
@@ -48,15 +50,12 @@ export function relationshipFromRows(
 }
 
 export const getFollowCounts = async (userId: string) => {
-  const [[followers], [following]] = await Promise.all([
-    db.select({ count: count() }).from(social).where(eq(social.followingId, userId)),
-    db.select({ count: count() }).from(social).where(eq(social.followerId, userId)),
+  const [followers, following] = await Promise.all([
+    getFollowerCount(userId),
+    getFollowingCount(userId),
   ]);
 
-  return {
-    followers: followers?.count ?? 0,
-    following: following?.count ?? 0,
-  };
+  return { followers, following };
 };
 
 export const getFollowerCount = async (userId: string) => {
@@ -95,7 +94,8 @@ export const followUser = async (followerId: string, followingId: string) => {
   return db
     .insert(social)
     .values({ followerId, followingId })
-    .onConflictDoNothing({ target: [social.followerId, social.followingId] });
+    .onConflictDoNothing({ target: [social.followerId, social.followingId] })
+    .returning({ followingId: social.followingId });
 };
 
 export const unfollowUser = async (followerId: string, followingId: string) => {

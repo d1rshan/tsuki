@@ -65,16 +65,15 @@ export function Navbar({ user }: { user: NavbarUser | null }) {
                     size="icon"
                     onClick={search.open}
                     aria-label="Open search"
-                    className="text-muted-foreground hover:!bg-transparent hover:text-foreground"
                   >
-                    <Search className="size-4" />
+                    <Search />
                   </Button>
                 ) : null}
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="text-muted-foreground hover:!bg-transparent hover:text-foreground sm:hidden"
+                  className="sm:hidden"
                   onClick={() => setIsMobileMenuOpen((isOpen) => !isOpen)}
                   aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
                   aria-expanded={isMobileMenuOpen}

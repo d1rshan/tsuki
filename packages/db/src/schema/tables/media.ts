@@ -52,7 +52,7 @@ export const media = pgTable(
   },
   (table) => [
     // Redundant for uniqueness (id is the PK) but required as the target of the
-    // composite foreign keys on library_entries and reviews.
+    // composite foreign keys on library and reviews.
     unique("media_id_type_unique").on(table.id, table.type),
     index("media_type_popularity_idx").on(table.type, table.popularity),
   ],

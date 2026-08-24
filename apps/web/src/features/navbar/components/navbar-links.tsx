@@ -1,8 +1,5 @@
-import Link from "next/link";
-
-import { cn } from "@/shared/lib/utils";
-
 import type { NavbarUser } from "./";
+import { NavbarLink } from "./navbar-link";
 
 type NavbarLinksProps = {
   isMobile?: boolean;
@@ -39,33 +36,15 @@ export function NavbarLinks({ isMobile = false, onNavigate, pathname, user }: Na
   ];
 
   return links.map((link) => (
-    <Link
+    <NavbarLink
       key={link.href}
       href={link.href}
-      prefetch={link.label === "Profile"}
+      isActive={link.isActive}
+      isMobile={isMobile}
       onNavigate={onNavigate}
-      className={cn(
-        isMobile
-          ? "flex w-full items-center rounded-lg px-3 py-3 text-xs font-black uppercase tracking-widest transition-all duration-300"
-          : "group/link inline-flex items-center py-2 text-xs font-black uppercase tracking-widest transition-all duration-300 hover:text-foreground",
-        link.isActive ? "text-foreground" : "text-muted-foreground",
-        isMobile &&
-          (link.isActive ? "bg-foreground/5" : "hover:bg-foreground/5 hover:text-foreground"),
-      )}
+      prefetch={link.label === "Profile"}
     >
-      {isMobile ? (
-        link.label
-      ) : (
-        <span className="relative">
-          {link.label}
-          <span
-            className={cn(
-              "absolute -bottom-1 left-0 h-px bg-foreground transition-all duration-300",
-              link.isActive ? "w-full" : "w-0 group-hover/link:w-full",
-            )}
-          />
-        </span>
-      )}
-    </Link>
+      {link.label}
+    </NavbarLink>
   ));
 }

@@ -8,6 +8,8 @@ import type { MediaType } from "../media/model";
 import { summarizeActivity } from "./activity";
 import { discoverUsers } from "./discovery";
 import {
+  FeedModel,
+  FeedQueryModel,
   FollowListModel,
   FollowListQueryModel,
   FollowRelationshipModel,
@@ -50,6 +52,36 @@ export const userRoutes = new Elysia()
       detail: {
         summary: "Discover users",
         description: "Popular users or Username-prefix matches, excluding the viewer.",
+      },
+    },
+  )
+  .get(
+    "/me/activity",
+    async ({ query, user }) => {
+      const [occurredAt, id] = query.cursor?.split("|") ?? [];
+      const cursor =
+        occurredAt && id && !Number.isNaN(Date.parse(occurredAt))
+          ? { occurredAt: new Date(occurredAt), id }
+          : undefined;
+      const feed =
+        query.type === "following"
+          ? await activityDal.getFollowingFeed(user.id, { cursor, limit: query.limit ?? 20 })
+          : await activityDal.getPublicFeed({ cursor, limit: query.limit ?? 20 });
+
+      return {
+        ...feed,
+        nextCursor: feed.nextCursor
+          ? `${feed.nextCursor.occurredAt.toISOString()}|${feed.nextCursor.id}`
+          : null,
+      };
+    },
+    {
+      auth: true,
+      query: FeedQueryModel,
+      response: { 200: FeedModel },
+      detail: {
+        summary: "Get the Activity Feed",
+        description: "Newest-first Activity for Following or Public.",
       },
     },
   )
@@ -182,7 +214,16 @@ export const userRoutes = new Elysia()
         return status(400, { error: "You cannot follow yourself" });
       }
 
-      await socialDal.followUser(user.id, profileUser.id);
+      const created = await socialDal.followUser(user.id, profileUser.id);
+      if (created.length) {
+        await activityDal.upsertFeedActivity({
+          actorId: user.id,
+          type: "FOLLOW",
+          sourceId: crypto.randomUUID(),
+          targetUserId: profileUser.id,
+          snapshot: {},
+        });
+      }
       return socialDal.getFollowRelationship(user.id, profileUser.id);
     },
     {

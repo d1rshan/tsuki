@@ -1,46 +1,28 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { RefreshCw } from "lucide-react";
-import { toast } from "sonner";
 
-import { useSession } from "@tsuki/auth/client";
+import type { FollowRelationship } from "@tsuki/api/types";
 
+import { useFollowMutation } from "@/features/social/hooks/use-follow-mutation";
+import { followButtonLabel } from "@/features/social/utils";
 import { Button } from "@/shared/components/ui/button";
-import { apiClient } from "@/shared/lib/api-client";
 
-import { setFollowingAction } from "../actions";
-import { followButtonLabel } from "../follow";
-import { profileKeys } from "../query-keys";
-
-async function getRelationship(username: string) {
-  const { data, error } = await apiClient.users({ username }).relationship.get();
-  if (error) throw error;
-
-  return data;
-}
-
-export function ProfileFollowButton({ username }: { username: string }) {
+export function ProfileFollowButton({
+  initialRelationship,
+  isAuthenticated,
+  username,
+}: {
+  initialRelationship: FollowRelationship | null;
+  isAuthenticated: boolean;
+  username: string;
+}) {
   const router = useRouter();
-  const queryClient = useQueryClient();
-  const { data: session, isPending: isSessionPending } = useSession();
-  const viewerId = session?.user.id ?? null;
-  const isAuthenticated = Boolean(viewerId);
-  const queryKey = profileKeys.relationship(viewerId, username);
-  const relationshipQuery = useQuery({
-    queryKey,
-    queryFn: () => getRelationship(username),
-    enabled: isAuthenticated,
-  });
-  const relationship = relationshipQuery.data;
-  const mutation = useMutation({
-    mutationFn: (following: boolean) => setFollowingAction(username, following),
-    onSuccess: (nextRelationship) => {
-      queryClient.setQueryData(queryKey, nextRelationship);
-      router.refresh();
-    },
-    onError: () => toast.error("Failed to update follow"),
+  const [relationship, setRelationship] = useState(initialRelationship);
+  const mutation = useFollowMutation((nextRelationship) => {
+    setRelationship(nextRelationship);
+    router.refresh();
   });
 
   function toggleFollow() {
@@ -49,30 +31,14 @@ export function ProfileFollowButton({ username }: { username: string }) {
       return;
     }
 
-    mutation.mutate(!relationship?.following);
-  }
-
-  if (relationshipQuery.isError) {
-    return (
-      <Button
-        type="button"
-        variant="outline"
-        disabled={relationshipQuery.isFetching}
-        onClick={() => void relationshipQuery.refetch()}
-      >
-        <RefreshCw data-icon="inline-start" />
-        Retry follow
-      </Button>
-    );
+    mutation.mutate({ username, following: !relationship?.following });
   }
 
   return (
     <Button
       type="button"
       variant={relationship?.following ? "secondary" : "default"}
-      disabled={
-        isSessionPending || mutation.isPending || (isAuthenticated && relationshipQuery.isLoading)
-      }
+      disabled={mutation.isPending}
       onClick={toggleFollow}
       aria-busy={mutation.isPending}
       aria-pressed={relationship?.following ?? false}

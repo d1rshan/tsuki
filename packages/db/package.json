@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "main": "src/index.ts",
   "scripts": {
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push && bun run src/triggers.ts",
     "db:studio": "drizzle-kit studio",
     "typecheck": "tsc --noEmit"
   },

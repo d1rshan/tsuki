@@ -19,8 +19,7 @@
     "deploy:check": "bun run build && bun run typecheck",
     "deploy:web": "vercel --project tsuki-web --prod",
     "deploy:api": "vercel --project tsuki-api --prod",
-    "db:generate": "turbo -F @tsuki/db db:generate",
-    "db:migrate": "turbo -F @tsuki/db db:migrate",
+    "db:push": "turbo -F @tsuki/db db:push",
     "db:studio": "turbo -F @tsuki/db db:studio",
     "prepare": "husky"
   },
@@ -41,5 +40,8 @@
       "oxfmt --write"
     ]
   },
-  "packageManager": "bun@1.3.13"
+  "packageManager": "bun@1.3.13",
+  "patchedDependencies": {
+    "drizzle-kit@0.31.10": "patches/drizzle-kit@0.31.10.patch"
+  }
 }

@@ -120,8 +120,7 @@ function RoleBadge({ role }: { role?: string | null }) {
 
   return (
     <Badge variant={isAdminRole(value) ? "default" : "outline"} className="capitalize">
-      {isAdminRole(value) ? <Shield className="mr-1 h-3 w-3" /> : <User className="mr-1 h-3 w-3" />}
-      {value}
+      {isAdminRole(value) ? <Shield /> : <User />} {value}
     </Badge>
   );
 }
@@ -129,11 +128,11 @@ function RoleBadge({ role }: { role?: string | null }) {
 function BanBadge({ isBanned }: { isBanned: boolean }) {
   return isBanned ? (
     <Badge variant="destructive">
-      <Ban className="mr-1 h-3 w-3" /> Banned
+      <Ban /> Banned
     </Badge>
   ) : (
     <Badge variant="outline">
-      <CheckCircle2 className="mr-1 h-3 w-3" /> Active
+      <CheckCircle2 /> Active
     </Badge>
   );
 }
@@ -141,11 +140,11 @@ function BanBadge({ isBanned }: { isBanned: boolean }) {
 function VerificationBadge({ isVerified }: { isVerified: boolean }) {
   return isVerified ? (
     <Badge variant="outline">
-      <ShieldCheck className="mr-1 h-3 w-3" /> Verified
+      <ShieldCheck /> Verified
     </Badge>
   ) : (
     <Badge variant="secondary">
-      <ShieldAlert className="mr-1 h-3 w-3" /> Unverified
+      <ShieldAlert /> Unverified
     </Badge>
   );
 }
@@ -190,11 +189,11 @@ function AdminUserActions({ user }: { user: AdminUser }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        render={<Button variant="ghost" className="h-8 w-8 p-0" />}
+        render={<Button variant="ghost" size="icon" />}
         aria-label={`Actions for ${user.displayUsername}`}
       >
         <span className="sr-only">Open menu</span>
-        <MoreHorizontal className="h-4 w-4" />
+        <MoreHorizontal />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
         <DropdownMenuGroup>
