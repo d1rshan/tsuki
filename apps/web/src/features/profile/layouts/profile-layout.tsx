@@ -22,20 +22,18 @@ async function ProfileLayoutContent({ children, username }: ProfileLayoutProps) 
 
   return (
     <div className="min-h-screen pt-20 pb-10 md:pt-28 md:pb-16">
-      <div className="mx-auto max-w-5xl px-4 md:px-6">
-        <ProfileHeader
-          user={profile.user}
-          stats={profile.stats}
-          profile={profile.profile}
-          social={profile.social}
-          actions={
-            <Suspense fallback={null}>
-              <ProfileViewerActions profile={profile.profile} user={profile.user} />
-            </Suspense>
-          }
-        />
-        {children}
-      </div>
+      <ProfileHeader
+        user={profile.user}
+        stats={profile.stats}
+        profile={profile.profile}
+        social={profile.social}
+        actions={
+          <Suspense fallback={null}>
+            <ProfileViewerActions profile={profile.profile} user={profile.user} />
+          </Suspense>
+        }
+      />
+      {children}
     </div>
   );
 }
