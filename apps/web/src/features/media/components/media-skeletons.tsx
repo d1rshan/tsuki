@@ -3,7 +3,7 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 export function MediaPageSkeleton() {
   return (
     <>
-      <div className="relative left-1/2 w-screen -translate-x-1/2">
+      <div className="relative left-1/2 w-dvw -translate-x-1/2">
         <Skeleton className="h-[250px] rounded-none md:h-[350px]" />
       </div>
 

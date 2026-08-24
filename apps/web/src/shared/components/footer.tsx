@@ -5,6 +5,7 @@ import { ExternalLink } from "@/shared/components/external-link";
 const GITHUB_URL = "https://github.com/d1rshan/tsuki";
 const GITHUB_ISSUES_URL = "https://github.com/d1rshan/tsuki/issues";
 const AUTHOR_URL = "https://github.com/d1rshan";
+const ANILIST_URL = "https://anilist.co";
 
 export function Footer() {
   return (
@@ -47,6 +48,7 @@ export function Footer() {
               </p>
               <ExternalLink href={GITHUB_URL}>GitHub</ExternalLink>
               <ExternalLink href={GITHUB_ISSUES_URL}>Report an issue</ExternalLink>
+              <ExternalLink href={ANILIST_URL}>AniList</ExternalLink>
             </div>
           </nav>
         </div>

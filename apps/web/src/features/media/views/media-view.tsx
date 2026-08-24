@@ -39,7 +39,7 @@ export async function MediaView({ mediaType, id }: { mediaType: MediaType; id: s
 
   return (
     <>
-      <div className="relative left-1/2 w-screen -translate-x-1/2">
+      <div className="relative left-1/2 w-dvw -translate-x-1/2">
         <MediaBanner
           image={bannerImage}
           title={title}
