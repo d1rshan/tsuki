@@ -19,7 +19,7 @@ export function ContentState({ title, description, icon: Icon, error }: ContentS
     >
       {Icon ? <Icon className="size-8 opacity-40" /> : null}
       <p className="font-medium">{title}</p>
-      {description ? <p className={cn("text-sm", !error && "opacity-80")}>{description}</p> : null}
+      {description ? <p className={cn("text-sm", error && "opacity-80")}>{description}</p> : null}
     </div>
   );
 }
