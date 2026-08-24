@@ -11,6 +11,7 @@ import {
   mediaImageClass,
   statusLabel,
 } from "@/features/media/media";
+import { ContentState } from "@/shared/components/content-state";
 import { cn } from "@/shared/lib/utils";
 
 import { ProfileMediaCard } from "./profile-media-card";
@@ -71,8 +72,8 @@ export function RecentActivitySection({
             <RecentLogItem key={`${entry.mediaType}-${entry.mediaId}`} entry={entry} />
           ))
         ) : (
-          <div className="col-span-full py-12 text-center text-sm font-medium text-muted-foreground">
-            No recent activity.
+          <div className="col-span-full">
+            <ContentState title="No recent activity" />
           </div>
         )}
       </div>

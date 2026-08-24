@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { UserSummary } from "@tsuki/api/types";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
-import { EmptyState } from "@/shared/components/content-state";
+import { ContentState } from "@/shared/components/content-state";
 
 export function ProfileUserList({
   emptyMessage,
@@ -12,7 +12,7 @@ export function ProfileUserList({
   emptyMessage: string;
   users: UserSummary[];
 }) {
-  if (users.length === 0) return <EmptyState title={emptyMessage} />;
+  if (users.length === 0) return <ContentState title={emptyMessage} />;
 
   return (
     <ul className="grid gap-3 pb-8 sm:grid-cols-2" aria-label="Users">

@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, SearchX } from "lucide-react";
 import { parseAsBoolean, useQueryState } from "nuqs";
 
 import type { MediaType } from "@tsuki/api/types";
@@ -9,7 +9,7 @@ import { MediaGrid } from "@/features/media/components/media-grid";
 import { useMediaSearch } from "@/features/media/hooks/use-media-search";
 import { useMediaType } from "@/features/media/hooks/use-media-type";
 import { MEDIA } from "@/features/media/media";
-import { EmptyState, ErrorState } from "@/shared/components/content-state";
+import { ContentState } from "@/shared/components/content-state";
 import { Loader } from "@/shared/components/loader";
 import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
@@ -32,7 +32,8 @@ export function DiscoverSearchResults({ query }: { query: string }) {
 
     if (isError) {
       return (
-        <ErrorState
+        <ContentState
+          error
           title={`Failed to search ${mediaType.toLowerCase()}`}
           description="Please try again in a moment."
         />
@@ -41,7 +42,8 @@ export function DiscoverSearchResults({ query }: { query: string }) {
 
     if (items.length === 0) {
       return (
-        <EmptyState
+        <ContentState
+          icon={SearchX}
           title="No results found"
           description={`We couldn't find anything for "${query}".`}
         />

@@ -7,6 +7,7 @@ import { MEDIA } from "@/features/media/media";
 import { LibrarySection } from "@/features/profile/components/profile-library";
 import { ProfileMediaToggle } from "@/features/profile/components/profile-media-toggle";
 import { Loader } from "@/shared/components/loader";
+import { ContentState } from "@/shared/components/content-state";
 
 import { getProfileLibrary } from "../data";
 
@@ -15,9 +16,9 @@ function LibraryForType({ entries, mediaType }: { entries: LibraryEntry[]; media
 
   if (matchingEntries.length === 0) {
     return (
-      <p className="py-20 text-center text-sm text-muted-foreground">
-        This user&apos;s {MEDIA[mediaType].label.toLowerCase()} library is empty.
-      </p>
+      <ContentState
+        title={`This user's ${MEDIA[mediaType].label.toLowerCase()} library is empty`}
+      />
     );
   }
 

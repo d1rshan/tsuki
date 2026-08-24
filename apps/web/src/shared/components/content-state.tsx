@@ -1,25 +1,25 @@
-import { Search } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+
+import { cn } from "@/shared/lib/utils";
 
 type ContentStateProps = {
-  description?: string;
   title: string;
+  description?: string;
+  icon?: LucideIcon;
+  error?: boolean;
 };
 
-export function EmptyState({ title, description }: ContentStateProps) {
+export function ContentState({ title, description, icon: Icon, error }: ContentStateProps) {
   return (
-    <div className="flex h-64 flex-col items-center justify-center gap-2 text-muted-foreground">
-      <Search className="size-8 opacity-40" />
+    <div
+      className={cn(
+        "flex h-64 flex-col items-center justify-center gap-2 text-muted-foreground",
+        error && "text-destructive",
+      )}
+    >
+      {Icon ? <Icon className="size-8 opacity-40" /> : null}
       <p className="font-medium">{title}</p>
-      {description ? <p className="text-sm">{description}</p> : null}
-    </div>
-  );
-}
-
-export function ErrorState({ title, description }: ContentStateProps) {
-  return (
-    <div className="flex h-64 flex-col items-center justify-center gap-1 text-destructive">
-      <p className="font-medium">{title}</p>
-      {description ? <p className="text-sm opacity-80">{description}</p> : null}
+      {description ? <p className={cn("text-sm", error && "opacity-80")}>{description}</p> : null}
     </div>
   );
 }
