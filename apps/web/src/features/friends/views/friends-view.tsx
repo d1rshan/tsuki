@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
-import { Search } from "lucide-react";
+import { Search, UserX } from "lucide-react";
 
 import type { FeedActivity } from "@tsuki/api/types";
 
@@ -13,7 +13,7 @@ import { Spoiler } from "@/shared/components/spoiler";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
-import { ErrorState, EmptyState } from "@/shared/components/content-state";
+import { ContentState } from "@/shared/components/content-state";
 import { Input } from "@/shared/components/ui/input";
 import { Loader } from "@/shared/components/loader";
 import { useDebouncedValue } from "@/shared/hooks/use-debounced-value";
@@ -125,10 +125,12 @@ function Feed({ type }: { type: FriendsFeedType }) {
   function renderFeed() {
     if (query.isLoading) return <Loader />;
     if (query.isError)
-      return <ErrorState title="Could not load Activity" description="Try again in a moment." />;
+      return (
+        <ContentState error title="Could not load Activity" description="Try again in a moment." />
+      );
     if (!activities.length)
       return (
-        <EmptyState
+        <ContentState
           title={
             type === "following" ? "No Activity from people you Follow yet" : "No Activity yet"
           }
@@ -167,10 +169,13 @@ function Discover() {
   function renderResults() {
     if (query.isLoading) return <Loader />;
     if (query.isError)
-      return <ErrorState title="Could not load people" description="Try again in a moment." />;
+      return (
+        <ContentState error title="Could not load people" description="Try again in a moment." />
+      );
     if (!users.length)
       return (
-        <EmptyState
+        <ContentState
+          icon={UserX}
           title={username ? `No Profiles match “${username}”` : "No people to show yet"}
         />
       );

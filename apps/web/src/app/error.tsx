@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { RotateCw } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
-import { ErrorState } from "@/shared/components/content-state";
+import { ContentState } from "@/shared/components/content-state";
 
 /**
  * Catches server query failures when the API or AniList is unreachable.
@@ -23,7 +23,11 @@ export default function Error({
 
   return (
     <div className="flex min-h-[80vh] flex-col items-center justify-center gap-6 p-4">
-      <ErrorState title="Something went wrong" description="Please try again in a moment." />
+      <ContentState
+        error
+        title="Something went wrong"
+        description="Please try again in a moment."
+      />
 
       <Button onClick={() => unstable_retry()} variant="outline">
         <RotateCw />

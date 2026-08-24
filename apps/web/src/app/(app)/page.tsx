@@ -4,7 +4,7 @@ import { io } from "next/cache";
 
 import { getDiscoverMediaTrending } from "@/features/discover/data";
 import { DiscoverView } from "@/features/discover/views/discover-view";
-import { ErrorState } from "@/shared/components/content-state";
+import { ContentState } from "@/shared/components/content-state";
 
 export default function Page() {
   return (
@@ -21,7 +21,11 @@ async function DiscoverContent() {
   if (!trending) {
     return (
       <div className="container mx-auto flex min-h-screen items-center justify-center px-4 pt-24">
-        <ErrorState title="Failed to load discover" description="Please try again in a moment." />
+        <ContentState
+          error
+          title="Failed to load discover"
+          description="Please try again in a moment."
+        />
       </div>
     );
   }
