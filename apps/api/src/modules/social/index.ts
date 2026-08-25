@@ -14,7 +14,7 @@ import {
 } from "./model";
 import { followProfile, unfollowProfile } from "./service";
 
-/** Popular on Tsuki: the default Friends list size. */
+/** Popular on Tsuki: the default Discover list size. */
 const DISCOVERY_LIMIT = 24;
 
 export const socialRoutes = new Elysia({ tags: ["Social"] })

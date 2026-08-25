@@ -18,10 +18,10 @@ import { Input } from "@/shared/components/ui/input";
 import { QueryState } from "@/shared/components/query-state";
 import { useDebouncedValue } from "@/shared/hooks/use-debounced-value";
 
-import type { FriendsFeedType } from "../data";
+import type { SocialFeedType } from "../data";
 import { useDiscoveryFollowMutation } from "../hooks/use-discovery-follow-mutation";
-import { useFriendsDiscovery } from "../hooks/use-friends-discovery";
-import { useFriendsFeed } from "../hooks/use-friends-feed";
+import { useSocialDiscovery } from "../hooks/use-social-discovery";
+import { useSocialFeed } from "../hooks/use-social-feed";
 
 function ActivityCard({ activity }: { activity: FeedActivity }) {
   const media = activity.media ? normalizeMediaCompact(activity.media) : null;
@@ -108,8 +108,8 @@ function ActivityCard({ activity }: { activity: FeedActivity }) {
   );
 }
 
-function Feed({ type }: { type: FriendsFeedType }) {
-  const query = useFriendsFeed(type);
+function Feed({ type }: { type: SocialFeedType }) {
+  const query = useSocialFeed(type);
   const activities = query.data?.pages.flatMap((page) => page.activities) ?? [];
 
   return (
@@ -148,7 +148,7 @@ function Feed({ type }: { type: FriendsFeedType }) {
 function Discover() {
   const [search, setSearch] = useState("");
   const username = useDebouncedValue(search.trim(), 250);
-  const query = useFriendsDiscovery(username);
+  const query = useSocialDiscovery(username);
   const follow = useDiscoveryFollowMutation();
   const users = query.data ?? [];
 
@@ -217,10 +217,10 @@ function Discover() {
   );
 }
 
-export function FriendsView() {
+export function SocialView() {
   return (
     <div className="pt-28 pb-16 md:pt-32">
-      <h1 className="text-4xl font-black tracking-tight sm:text-5xl">Friends</h1>
+      <h1 className="text-4xl font-black tracking-tight sm:text-5xl">Social</h1>
       <Tabs defaultValue="following" className="mt-8">
         <TabsList>
           <TabsTrigger value="following">Following</TabsTrigger>
