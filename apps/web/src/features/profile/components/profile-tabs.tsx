@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { cn } from "@/shared/lib/utils";
+import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 
 export function ProfileTabs({ username }: { username: string }) {
   const pathname = usePathname();
@@ -16,27 +16,14 @@ export function ProfileTabs({ username }: { username: string }) {
   ];
 
   return (
-    <nav
-      className="flex w-fit max-w-full items-center gap-2 overflow-x-auto rounded-2xl border border-border/50 bg-muted/30 p-1.5 shadow-sm backdrop-blur-md"
-      aria-label="Profile"
-    >
-      {tabs.map((tab) => {
-        const isActive = pathname === tab.href;
-        return (
-          <Link
-            key={tab.name}
-            href={tab.href}
-            className={cn(
-              "rounded-xl px-5 py-2 text-sm font-semibold transition-all duration-300",
-              isActive
-                ? "bg-primary text-primary-foreground shadow-md"
-                : "text-muted-foreground hover:text-primary hover:bg-primary/10",
-            )}
-          >
+    <Tabs value={pathname}>
+      <TabsList aria-label="Profile">
+        {tabs.map((tab) => (
+          <TabsTrigger key={tab.name} value={tab.href} render={<Link href={tab.href} />}>
             {tab.name}
-          </Link>
-        );
-      })}
-    </nav>
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
   );
 }

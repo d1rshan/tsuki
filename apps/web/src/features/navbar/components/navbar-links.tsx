@@ -19,9 +19,9 @@ export function NavbarLinks({ isMobile = false, onNavigate, pathname, user }: Na
     ...(user?.username
       ? [
           {
-            href: "/friends",
-            label: "Friends",
-            isActive: pathname.startsWith("/friends"),
+            href: "/social",
+            label: "Social",
+            isActive: pathname.startsWith("/social"),
           },
           {
             href: `/${user.username}`,
