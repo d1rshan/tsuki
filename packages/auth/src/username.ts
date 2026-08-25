@@ -7,10 +7,10 @@ export const RESERVED_USERNAMES = new Set([
   "anime",
   "api",
   "forgot-password",
-  "friends",
   "login",
   "manga",
   "reset-password",
+  "social",
   "verify-email",
 ]);
 

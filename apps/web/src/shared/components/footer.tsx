@@ -36,9 +36,9 @@ export function Footer() {
               </Link>
               <Link
                 className="text-muted-foreground transition-colors hover:text-primary"
-                href="/friends"
+                href="/social"
               >
-                Friends
+                Social
               </Link>
             </div>
 

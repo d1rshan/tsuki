@@ -4,7 +4,7 @@ import { parseUsername, usernameSchema } from "./username";
 
 describe("username validation", () => {
   test("rejects root application routes", () => {
-    expect(usernameSchema.safeParse("friends").success).toBeFalse();
+    expect(usernameSchema.safeParse("social").success).toBeFalse();
     expect(usernameSchema.safeParse("ADMIN").success).toBeFalse();
   });
 
