@@ -3,17 +3,13 @@
 import { updateTag } from "next/cache";
 
 import type { MediaType } from "@tsuki/api/types";
+import type { RichContent } from "@tsuki/rich-content";
+import { validateRichContent } from "@tsuki/rich-content";
 
 import { getServerApi } from "@/shared/lib/server-api";
 import { getSession } from "@/shared/lib/session";
 
-import {
-  logMediaSchema,
-  mediaIdSchema,
-  mediaTypeSchema,
-  reviewSchema,
-  type LogMediaInput,
-} from "./schemas";
+import { logMediaSchema, mediaIdSchema, mediaTypeSchema, type LogMediaInput } from "./schemas";
 
 type ServerApi = Awaited<ReturnType<typeof getServerApi>>;
 
@@ -52,15 +48,17 @@ export async function logMediaAction(mediaType: MediaType, mediaId: number, data
 export async function submitReviewAction(
   mediaType: MediaType,
   mediaId: number,
-  content: string,
-  containsSpoilers: boolean,
+  content: RichContent,
 ) {
   const type = mediaTypeSchema.parse(mediaType);
   const id = mediaIdSchema.parse(mediaId);
-  const input = reviewSchema.parse({ content, containsSpoilers });
+
+  // Fail fast on invalid documents; the API re-validates as the boundary.
+  const parsed = validateRichContent(content, "review");
+  if (!parsed.ok) throw new Error(parsed.reason);
 
   await mediaAction("submitReviewAction", "reviews", (api) =>
-    api.me.reviews({ type })({ id }).put(input),
+    api.me.reviews({ type })({ id }).put({ content: parsed.value }),
   );
 }
 

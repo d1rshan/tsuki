@@ -1,0 +1,23 @@
+{
+  "name": "@tsuki/rich-content",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./extensions": "./src/extensions.ts"
+  },
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tiptap/core": "^3.30.3",
+    "@tiptap/extension-image": "^3.30.3",
+    "@tiptap/extension-youtube": "^3.30.3",
+    "@tiptap/starter-kit": "^3.30.3",
+    "@tiptap/static-renderer": "^3.30.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.3.0"
+  }
+}

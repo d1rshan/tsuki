@@ -1,21 +1,20 @@
 import { t } from "elysia";
 
 import { MediaCompactModel, MediaTypeEnum } from "../media/model";
+import { RichContentModel } from "../rich-content/model";
 
 export const ReviewModel = t.Object({
   id: t.String(),
   mediaType: MediaTypeEnum,
   mediaId: t.Number(),
   media: t.Nullable(MediaCompactModel),
-  content: t.String(),
-  containsSpoilers: t.Boolean(),
+  content: RichContentModel,
   createdAt: t.Date(),
   updatedAt: t.Date(),
 });
 
 export const ReviewInputModel = t.Object({
-  content: t.String({ minLength: 1 }),
-  containsSpoilers: t.Optional(t.Boolean()),
+  content: RichContentModel,
 });
 
 export const ReviewQueryModel = t.Object({

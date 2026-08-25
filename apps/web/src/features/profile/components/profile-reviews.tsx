@@ -5,11 +5,11 @@ import { formatDistanceToNow } from "date-fns";
 import type { Review } from "@tsuki/api/types";
 
 import { mediaHref, mediaImageClass, normalizeMediaCompact } from "@/features/media/media";
-import { Spoiler } from "@/shared/components/spoiler";
+import { RichContentView } from "@/features/rich-content/components/rich-content-view";
 import { cn } from "@/shared/lib/utils";
 
 export function ReviewItem({ review }: { review: Review }) {
-  const { mediaType, mediaId, media, content, containsSpoilers, createdAt, updatedAt } = review;
+  const { mediaType, mediaId, media, content, createdAt, updatedAt } = review;
 
   if (!media) return null;
 
@@ -51,13 +51,10 @@ export function ReviewItem({ review }: { review: Review }) {
           </div>
         </div>
 
-        <div className="prose prose-sm md:prose-base dark:prose-invert max-w-none text-muted-foreground leading-relaxed">
-          {containsSpoilers ? (
-            <Spoiler>{content}</Spoiler>
-          ) : (
-            <p className="whitespace-pre-wrap text-foreground/90">{content}</p>
-          )}
-        </div>
+        <RichContentView
+          content={content}
+          className="max-w-none text-muted-foreground leading-relaxed"
+        />
       </div>
     </article>
   );

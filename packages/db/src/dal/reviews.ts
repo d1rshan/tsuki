@@ -43,7 +43,6 @@ export const upsertReview = async (review: InsertReview) => {
       target: [reviews.userId, reviews.mediaId],
       set: {
         content: review.content,
-        containsSpoilers: review.containsSpoilers,
         updatedAt: new Date(),
       },
     })

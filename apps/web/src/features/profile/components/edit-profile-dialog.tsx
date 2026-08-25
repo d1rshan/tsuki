@@ -9,6 +9,11 @@ import { toast } from "sonner";
 
 import type { UserOverview } from "@tsuki/api/types";
 
+import {
+  DiscardChangesDialog,
+  useUnloadWarning,
+} from "@/features/rich-content/components/discard-changes";
+import { RichContentEditor } from "@/features/rich-content/components/rich-content-editor";
 import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,
@@ -17,7 +22,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/shared/components/ui/dialog";
-import { FieldGroup, FieldLegend, FieldSet } from "@/shared/components/ui/field";
+import { Field, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "@/shared/components/ui/field";
 import { TextField } from "@/shared/components/text-field";
 
 import { updateProfile } from "../actions";
@@ -26,6 +31,7 @@ import { createProfileUpdate, profileFormSchema, type ProfileFormValues } from "
 export function EditProfileDialog({ profile }: { profile: UserOverview["profile"] }) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [isConfirmingClose, setIsConfirmingClose] = useState(false);
   const defaultValues = createProfileFormValues(profile);
   const update = useMutation({ mutationFn: updateProfile });
 
@@ -49,10 +55,23 @@ export function EditProfileDialog({ profile }: { profile: UserOverview["profile"
     },
   });
 
+  useUnloadWarning(form.state.isDirty);
   useLayoutEffect(() => () => setIsOpen(false), []);
 
   function handleOpenChange(nextIsOpen: boolean) {
+    // Changed editor content must not be lost to a stray click.
+    if (!nextIsOpen && form.state.isDirty) {
+      setIsConfirmingClose(true);
+      return;
+    }
+
     setIsOpen(nextIsOpen);
+    form.reset(defaultValues);
+  }
+
+  function discardAndClose() {
+    setIsConfirmingClose(false);
+    setIsOpen(false);
     form.reset(defaultValues);
   }
 
@@ -87,15 +106,20 @@ export function EditProfileDialog({ profile }: { profile: UserOverview["profile"
             {(isSubmitting) => (
               <FieldSet disabled={isSubmitting}>
                 <FieldGroup>
-                  <TextField
-                    form={form}
-                    name="bio"
-                    label="Bio"
-                    textarea
-                    rows={3}
-                    className="resize-none"
-                    placeholder="Tell us about yourself..."
-                  />
+                  <form.Field name="bio">
+                    {(field) => (
+                      <Field>
+                        <FieldLabel htmlFor="edit-profile-bio">Bio</FieldLabel>
+                        <RichContentEditor
+                          preset="bio"
+                          value={field.state.value}
+                          onChange={(value) => field.handleChange(value)}
+                          disabled={isSubmitting}
+                          ariaLabel="Bio"
+                        />
+                      </Field>
+                    )}
+                  </form.Field>
                   <TextField
                     form={form}
                     name="bannerImage"
@@ -174,13 +198,18 @@ export function EditProfileDialog({ profile }: { profile: UserOverview["profile"
           </form.Subscribe>
         </form>
       </DialogContent>
+      <DiscardChangesDialog
+        open={isConfirmingClose}
+        onDiscard={discardAndClose}
+        onKeepEditing={() => setIsConfirmingClose(false)}
+      />
     </Dialog>
   );
 }
 
 function createProfileFormValues(profile: UserOverview["profile"]): ProfileFormValues {
   return {
-    bio: profile?.bio || "",
+    bio: profile?.bio ?? null,
     bannerImage: profile?.bannerImage || "",
     socialLinks: Object.entries(profile?.socialLinks ?? {}).map(([platform, url]) => ({
       platform,

@@ -7,8 +7,13 @@ import { Check, LoaderCircle, Plus, Star } from "lucide-react";
 
 import type { ListStatus, MediaType } from "@tsuki/api/types";
 
+import {
+  DiscardChangesDialog,
+  useUnloadWarning,
+} from "@/features/rich-content/components/discard-changes";
+import { RichContentEditor } from "@/features/rich-content/components/rich-content-editor";
+
 import { Button } from "@/shared/components/ui/button";
-import { Checkbox } from "@/shared/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -33,7 +38,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
-import { Textarea } from "@/shared/components/ui/textarea";
 import { cn } from "@/shared/lib/utils";
 
 import { SCORE_OPTIONS, clampProgress, createActivityForm, hasLoggedActivity } from "../activity";
@@ -55,6 +59,7 @@ export function LogMediaDialog({
   const router = useRouter();
   const formId = useId();
   const [isOpen, setIsOpen] = useState(false);
+  const [isConfirmingClose, setIsConfirmingClose] = useState(false);
   const config = MEDIA[mediaType];
   const isFavorite = activity.entry?.isFavorite ?? false;
   const hasActivity = hasLoggedActivity(mediaType, activity.entry, activity.review);
@@ -69,9 +74,16 @@ export function LogMediaDialog({
         total,
       });
 
-      if (result === "saved") setIsOpen(false);
+      if (result === "saved") close();
     },
   });
+
+  useUnloadWarning(form.state.isDirty);
+
+  function close() {
+    setIsOpen(false);
+    form.reset(createActivityForm(mediaType, activity.entry, activity.review));
+  }
 
   function handleOpenChange(nextIsOpen: boolean) {
     if (nextIsOpen && !activity.isAuthenticated) {
@@ -79,9 +91,17 @@ export function LogMediaDialog({
       return;
     }
 
-    setIsOpen(nextIsOpen);
+    // Changed editor content must not be lost to a stray click.
+    if (!nextIsOpen && form.state.isDirty) {
+      setIsConfirmingClose(true);
+      return;
+    }
+
     if (nextIsOpen) {
+      setIsOpen(true);
       form.reset(createActivityForm(mediaType, activity.entry, activity.review));
+    } else {
+      close();
     }
   }
 
@@ -95,7 +115,7 @@ export function LogMediaDialog({
         {hasActivity ? "Edit log" : "Add to list"}
       </DialogTrigger>
 
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[20rem]">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Log {config.label}</DialogTitle>
         </DialogHeader>
@@ -200,43 +220,26 @@ export function LogMediaDialog({
               )}
             </form.Field>
 
-            <form.Field name="reviewContent">
+            <form.Field name="review">
               {(field) => (
                 <>
                   <FieldSeparator />
                   <Field>
-                    <FieldLabel htmlFor={`${formId}-review`}>Review</FieldLabel>
-                    <Textarea
-                      id={`${formId}-review`}
-                      name={field.name}
-                      placeholder={`What did you think about this ${config.label.toLowerCase()}?`}
+                    <FieldLabel>Review</FieldLabel>
+                    <RichContentEditor
+                      preset="review"
                       value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(event) => field.handleChange(event.target.value)}
-                      rows={3}
+                      onChange={(value) => field.handleChange(value)}
+                      disabled={saveMutation.isPending}
+                      ariaLabel="Review"
                     />
                   </Field>
-                  {field.state.value.trim() && (
-                    <form.Field name="containsSpoilers">
-                      {(spoilersField) => (
-                        <Field orientation="horizontal">
-                          <Checkbox
-                            id={`${formId}-spoilers`}
-                            name={spoilersField.name}
-                            checked={spoilersField.state.value}
-                            onCheckedChange={spoilersField.handleChange}
-                          />
-                          <FieldLabel htmlFor={`${formId}-spoilers`}>Contains spoilers</FieldLabel>
-                        </Field>
-                      )}
-                    </form.Field>
-                  )}
                 </>
               )}
             </form.Field>
 
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
+              <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
                 Cancel
               </Button>
               <form.Subscribe selector={(state) => state.isSubmitting}>
@@ -253,6 +256,11 @@ export function LogMediaDialog({
           </FieldGroup>
         </form>
       </DialogContent>
+      <DiscardChangesDialog
+        open={isConfirmingClose}
+        onDiscard={close}
+        onKeepEditing={() => setIsConfirmingClose(false)}
+      />
     </Dialog>
   );
 }

@@ -12,6 +12,8 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 
+import type { RichContent } from "@tsuki/rich-content";
+
 import { listStatusEnum, mediaTypeEnum } from "../enums";
 import { user } from "./auth";
 import { feedActivityTypeEnum } from "../enums";
@@ -44,8 +46,8 @@ export type FeedActivitySnapshot = {
   progress?: number;
   progressVolumes?: number | null;
   repeat?: number;
-  content?: string;
-  containsSpoilers?: boolean;
+  /** Rich Content document (review preset) for REVIEW cards. */
+  content?: RichContent;
 };
 
 export const feed = pgTable(
