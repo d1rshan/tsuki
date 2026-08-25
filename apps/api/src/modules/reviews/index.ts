@@ -5,7 +5,7 @@ import { reviewsDal } from "@tsuki/db";
 import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
 import { MediaTypeEnum } from "../media/model";
-import { requireUser } from "../users/service";
+import { requireUser } from "../profiles/service";
 import { ReviewInputModel, ReviewModel, ReviewQueryModel } from "./model";
 import { removeReview, submitReview } from "./service";
 

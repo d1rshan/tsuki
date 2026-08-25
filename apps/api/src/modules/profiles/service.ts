@@ -4,8 +4,6 @@ import { activityDal, libraryDal, profileDal, reviewsDal, socialDal, userDal } f
 
 import type { MediaType } from "../media/model";
 
-// ── Profile resolution ──────────────────────────────────────────────────────
-
 /**
  * Resolve a Username to the owner of that Profile, or short-circuit with 404.
  * Every route addressed by `:username` goes through here.
@@ -16,84 +14,6 @@ export async function requireUser(username: string) {
 
   return user;
 }
-
-// ── Follow ──────────────────────────────────────────────────────────────────
-
-/**
- * Follow a Profile: records Activity only when the Follow is newly created, so
- * re-following someone never duplicates their card in the feed.
- */
-export async function followProfile(viewerId: string, profileUserId: string) {
-  if (viewerId === profileUserId) {
-    return status(400, { error: "You cannot follow yourself" });
-  }
-
-  const created = await socialDal.followUser(viewerId, profileUserId);
-  if (created.length) {
-    // A Follow has no media and no prior identity to key off, so its own
-    // random id is the source id.
-    await activityDal.upsertFeedActivity({
-      actorId: viewerId,
-      type: "FOLLOW",
-      sourceId: crypto.randomUUID(),
-      targetUserId: profileUserId,
-      snapshot: {},
-    });
-  }
-
-  return socialDal.getFollowRelationship(viewerId, profileUserId);
-}
-
-export async function unfollowProfile(viewerId: string, profileUserId: string) {
-  if (viewerId === profileUserId) {
-    return status(400, { error: "You cannot follow yourself" });
-  }
-
-  await socialDal.unfollowUser(viewerId, profileUserId);
-  return socialDal.getFollowRelationship(viewerId, profileUserId);
-}
-
-// ── Activity Feed ───────────────────────────────────────────────────────────
-
-type Cursor = { occurredAt: Date; id: string };
-
-/**
- * The wire format is `occurredAt ISO|id`. Anything unparseable — a client
- * guessing the format, an old shape — reads as "start from the top" rather
- * than erroring.
- */
-function parseFeedCursor(raw?: string | null): Cursor | undefined {
-  const [occurredAt, id] = raw?.split("|") ?? [];
-  if (!occurredAt || !id || Number.isNaN(Date.parse(occurredAt))) return undefined;
-
-  return { occurredAt: new Date(occurredAt), id };
-}
-
-function encodeFeedCursor(cursor: Cursor | null): string | null {
-  return cursor ? `${cursor.occurredAt.toISOString()}|${cursor.id}` : null;
-}
-
-/** The Activity Feed: Following mode shows Followed accounts, Public shows everyone. */
-export async function getActivityFeed(
-  viewerId: string,
-  mode: "following" | "public",
-  query: { cursor?: string; limit?: number },
-) {
-  const feed =
-    mode === "following"
-      ? await activityDal.getFollowingFeed(viewerId, {
-          cursor: parseFeedCursor(query.cursor),
-          limit: query.limit ?? 20,
-        })
-      : await activityDal.getPublicFeed({
-          cursor: parseFeedCursor(query.cursor),
-          limit: query.limit ?? 20,
-        });
-
-  return { ...feed, nextCursor: encodeFeedCursor(feed.nextCursor) };
-}
-
-// ── Profile overview ────────────────────────────────────────────────────────
 
 const FAVORITES_LIMIT = 10;
 const RECENT_LOGS_LIMIT = 10;
@@ -123,6 +43,8 @@ function statsFor(rows: libraryDal.LibraryStatsRow[], type: MediaType) {
     meanScore: row.scoredCount ? row.scoreSum / row.scoredCount : 0,
   };
 }
+
+// ── Activity heatmap ────────────────────────────────────────────────────────
 
 const DAYS_SHOWN = 365;
 const DAY_MS = 24 * 60 * 60 * 1000;
