@@ -5,10 +5,10 @@ import { libraryDal, reviewsDal } from "@tsuki/db";
 import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
 import { MediaTypeEnum } from "../media/model";
-import { requireUser } from "../users/user";
+import { requireUser } from "../users/service";
 import { ReviewModel } from "../reviews/model";
 import { LibraryEntryInputModel, LibraryEntryModel, LibraryQueryModel } from "./model";
-import { logMedia, removeEntry } from "./library";
+import { logMedia, removeEntry } from "./service";
 
 export const libraryRoutes = new Elysia()
   .use(authPlugin)

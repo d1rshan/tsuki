@@ -5,9 +5,9 @@ import { reviewsDal } from "@tsuki/db";
 import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
 import { MediaTypeEnum } from "../media/model";
-import { requireUser } from "../users/user";
+import { requireUser } from "../users/service";
 import { ReviewInputModel, ReviewModel, ReviewQueryModel } from "./model";
-import { removeReview, submitReview } from "./reviews";
+import { removeReview, submitReview } from "./service";
 
 export const reviewRoutes = new Elysia()
   .use(authPlugin)

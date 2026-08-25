@@ -4,7 +4,7 @@ import { anilistTrendingMedia } from "@tsuki/anilist";
 import { mediaDal } from "@tsuki/db";
 
 import { ErrorModel } from "../../plugins/errors";
-import { ensureMedia } from "./cache";
+import { ensureMedia } from "./service";
 import { MediaCompactModel, MediaModel, MediaTypeEnum } from "./model";
 
 export const mediaRoutes = new Elysia({ prefix: "/media" })

@@ -4,10 +4,13 @@ import { profileDal, socialDal } from "@tsuki/db";
 
 import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
-import { requireUser } from "./user";
-import { followProfile, unfollowProfile } from "./follows";
-import { getActivityFeed } from "./feed";
-import { buildUserOverview } from "./overview";
+import {
+  buildUserOverview,
+  followProfile,
+  getActivityFeed,
+  requireUser,
+  unfollowProfile,
+} from "./service";
 import {
   FeedModel,
   FeedQueryModel,

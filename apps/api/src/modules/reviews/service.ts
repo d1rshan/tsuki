@@ -2,12 +2,12 @@ import { status } from "elysia";
 
 import { activityDal, reviewsDal } from "@tsuki/db";
 
-import { ensureMedia } from "../media/cache";
+import { ensureMedia } from "../media/service";
 import type { MediaType } from "../media/model";
 import type { ReviewInputModel } from "./model";
 
 /** The REVIEW card carries the review text and its spoiler state. */
-export function reviewSnapshot(review: { content: string; containsSpoilers: boolean }) {
+function reviewSnapshot(review: { content: string; containsSpoilers: boolean }) {
   return { content: review.content, containsSpoilers: review.containsSpoilers };
 }
 
