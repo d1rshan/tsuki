@@ -76,6 +76,26 @@ describe("marks and links", () => {
     expect(validateRichContent(value, "bio").ok).toBeTrue();
   });
 
+  test("accepts Tiptap v3 link marks with null attribute defaults", () => {
+    const value = doc(
+      para(
+        text("l", [
+          {
+            type: "link",
+            attrs: {
+              href: "https://tsuki.app",
+              target: "_blank",
+              rel: "noopener noreferrer nofollow",
+              class: null,
+              title: null,
+            },
+          },
+        ]),
+      ),
+    );
+    expect(validateRichContent(value, "review").ok).toBeTrue();
+  });
+
   test("rejects insecure or malformed link targets", () => {
     for (const href of [
       "javascript:alert(1)",
@@ -218,6 +238,57 @@ describe("review preset", () => {
       content: [para(text("s"))],
     });
     expect(validateRichContent(value, "review").ok).toBeFalse();
+  });
+});
+
+describe("lists", () => {
+  const list = (type: string, attrs?: unknown, content?: unknown) => ({
+    type,
+    ...(attrs === undefined ? {} : { attrs }),
+    content: content ?? [{ type: "listItem", content: [para(text("x"))] }],
+  });
+
+  test("accepts v3 orderedList default attrs and custom numbering", () => {
+    // Tiptap always serializes {start, type} even at their defaults.
+    expect(
+      validateRichContent(doc(list("orderedList", { start: 1, type: null })), "review").ok,
+    ).toBeTrue();
+    expect(
+      validateRichContent(doc(list("orderedList", { start: 5, type: "a" })), "review").ok,
+    ).toBeTrue();
+  });
+
+  test("rejects out-of-range or hostile orderedList attrs", () => {
+    for (const attrs of [
+      { start: 0 },
+      { start: -1 },
+      { start: 1.5 },
+      { start: "1" },
+      { type: "<script>" },
+      { start: 1, evil: true },
+    ]) {
+      expect(validateRichContent(doc(list("orderedList", attrs)), "review").ok).toBeFalse();
+    }
+  });
+
+  test("still rejects bulletLists carrying attrs", () => {
+    expect(validateRichContent(doc(list("bulletList")), "review").ok).toBeTrue();
+    expect(validateRichContent(doc(list("bulletList", { tight: true })), "review").ok).toBeFalse();
+  });
+
+  test("accepts nested lists from Tab-indenting list items", () => {
+    const value = doc(
+      list("bulletList", undefined, [
+        {
+          type: "listItem",
+          content: [
+            para(text("outer")),
+            list("bulletList", undefined, [{ type: "listItem", content: [para(text("inner"))] }]),
+          ],
+        },
+      ]),
+    );
+    expect(validateRichContent(value, "review").ok).toBeTrue();
   });
 });
 

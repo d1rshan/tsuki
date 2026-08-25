@@ -25,6 +25,39 @@ const MAX_SPOILER_LABEL_CHARS = 100;
 
 const TEXT_ALIGNS: ReadonlySet<string> = new Set(["left", "center", "right", "justify"]);
 
+/** Blocks Tiptap allows inside a list item (paragraph plus nested lists). */
+const LIST_ITEM_BLOCKS: ReadonlySet<string> = new Set(["paragraph", "bulletList", "orderedList"]);
+
+/** The HTML <ol type> enum. */
+const OL_TYPES: ReadonlySet<string> = new Set(["1", "a", "A", "i", "I"]);
+
+/** Shared item-shape rules for both list flavours; false when malformed. */
+function validListItems(node: Record<string, unknown>): boolean {
+  if (!Array.isArray(node.content) || node.content.length === 0) return false;
+  return node.content.every((item) => {
+    if (!isPlainObject(item) || item.type !== "listItem") return false;
+    if (item.marks !== undefined || item.text !== undefined) return false;
+    return Array.isArray(item.content) && item.content.some((c) => c?.type === "paragraph");
+  });
+}
+
+/** Sums visible text across list items (shape already verified). */
+function listChars(
+  node: Record<string, unknown>,
+  presetName: RichContentPresetName,
+): { chars: number } | null {
+  let chars = 0;
+  for (const item of node.content as Record<string, unknown>[]) {
+    for (const child of item.content as unknown[]) {
+      // Lists nest via Tab-indent, so items may contain paragraphs and lists.
+      const result = walkBlock(child, presetName, LIST_ITEM_BLOCKS);
+      if (!result) return null;
+      chars += result.chars;
+    }
+  }
+  return { chars };
+}
+
 /** Alignment is a review-preset capability; null/absent means default (left). */
 function validTextAlign(
   node: Record<string, unknown>,
@@ -109,10 +142,11 @@ function validLinkAttrs(attrs: Record<string, unknown>): boolean {
   } catch {
     return false;
   }
-  for (const key of ["target", "rel", "title"]) {
-    if (attrs[key] !== undefined && typeof attrs[key] !== "string") return false;
-  }
-  return true;
+  // Tiptap v3 serializes every mark attr, including null defaults like `class`.
+  const known = ["href", "target", "rel", "title", "class"];
+  return Object.entries(attrs).every(
+    ([key, value]) => value === null || (known.includes(key) && typeof value === "string"),
+  );
 }
 
 function validMarks(marks: unknown): marks is RichContentMark[] {
@@ -192,23 +226,28 @@ function walkBlock(
       chars += inline;
       break;
     }
-    case "bulletList":
-    case "orderedList": {
+    case "bulletList": {
+      // BulletList defines no attributes, so its JSON never carries attrs.
       if (node.attrs !== undefined) return null;
-      if (!Array.isArray(node.content) || node.content.length === 0) return null;
-      for (const item of node.content) {
-        if (!isPlainObject(item) || item.type !== "listItem") return null;
-        if (item.marks !== undefined || item.text !== undefined) return null;
-        if (!Array.isArray(item.content) || !item.content.some((c) => c?.type === "paragraph")) {
-          return null;
-        }
-        for (const child of item.content) {
-          const result = walkBlock(child, presetName, new Set(["paragraph"]));
-          if (!result) return null;
-          chars += result.chars;
-          embeds += result.embeds;
-        }
-      }
+      if (!validListItems(node)) return null;
+      const counted = listChars(node, presetName);
+      if (!counted) return null;
+      chars += counted.chars;
+      break;
+    }
+    case "orderedList": {
+      // v3 OrderedList always serializes attrs {start, type} (defaults 1/null).
+      // Both render into <ol> attributes, so bound them to the HTML enum.
+      if (!hasOnlyKnownAttrs(node, ["start", "type"])) return null;
+      const attrs = (node.attrs ?? {}) as Record<string, RichContentAttr>;
+      const start = attrs.start ?? 1;
+      const listType = attrs.type ?? null;
+      if (typeof start !== "number" || !Number.isInteger(start) || start < 1) return null;
+      if (listType !== null && !OL_TYPES.has(listType as string)) return null;
+      if (!validListItems(node)) return null;
+      const counted = listChars(node, presetName);
+      if (!counted) return null;
+      chars += counted.chars;
       break;
     }
     case "blockquote":
@@ -297,9 +336,12 @@ export function validateRichContent(
   let chars = 0;
   let embeds = 0;
 
-  for (const block of value.doc.content ?? []) {
+  for (const [index, block] of (value.doc.content ?? []).entries()) {
     const result = walkBlock(block, presetName, allowedBlocks);
-    if (!result) return fail(`block not allowed in "${presetName}" preset`);
+    if (!result) {
+      const shape = JSON.stringify(block) ?? String(block);
+      return fail(`block ${index} not allowed in "${presetName}" preset: ${shape.slice(0, 300)}`);
+    }
     chars += result.chars;
     embeds += result.embeds;
   }

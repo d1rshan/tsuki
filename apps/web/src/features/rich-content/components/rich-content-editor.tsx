@@ -15,10 +15,14 @@ import { MediaEmbedDialog } from "./insert-dialogs";
 import { LinkDialog } from "./link-dialog";
 import { SpoilerDialog } from "./spoiler-dialog";
 
-/** Wraps an editor JSON tree in the versioned Rich Content envelope. */
+/**
+ * Wraps an editor JSON tree in the versioned Rich Content envelope.
+ * The round-trip through JSON strips reactive proxies (TanStack Form, etc.):
+ * values that survive into server-action arguments must be plain data, or
+ * Flight turns their properties into unresolvable temporary references.
+ */
 function toRichContent(json: Record<string, unknown>): RichContent {
-  // ponytail: editor output is trusted client-side; the API re-validates deeply.
-  return { version: 1, doc: json as RichContent["doc"] };
+  return JSON.parse(JSON.stringify({ version: 1, doc: json })) as RichContent;
 }
 
 const EMPTY_DOC: JSONContent = { type: "doc", content: [{ type: "paragraph" }] };
