@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
+    "@tsuki/anilist": "workspace:*",
     "@tsuki/env": "workspace:*",
     "drizzle-orm": "^0.45.2"
   },

@@ -17,7 +17,10 @@ function backoffMs(response: Response | null, attempt: number) {
 }
 
 /** Each attempt gets its own timeout, so a hung socket cannot stall a request. */
-const fetchWithRetry = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+const fetchWithRetry = async (
+  input: string | URL | Request,
+  init?: RequestInit,
+): Promise<Response> => {
   for (let attempt = 1; ; attempt++) {
     let response: Response | null = null;
 

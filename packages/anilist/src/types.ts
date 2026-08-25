@@ -4,40 +4,73 @@
  * Reference: docs/docs/reference/object/media.md
  */
 
-export type MediaType = "ANIME" | "MANGA";
+/**
+ * Canonical restatements of AniList's GraphQL enum vocabularies. Everything
+ * downstream — database pgEnums, API validators, client types — derives from
+ * these arrays, so adding a value happens here and nowhere else.
+ */
 
-type MediaFormat =
-  | "TV"
-  | "TV_SHORT"
-  | "MOVIE"
-  | "SPECIAL"
-  | "OVA"
-  | "ONA"
-  | "MUSIC"
-  | "MANGA"
-  | "NOVEL"
-  | "ONE_SHOT";
+export const MEDIA_TYPES = ["ANIME", "MANGA"] as const;
+export type MediaType = (typeof MEDIA_TYPES)[number];
 
-type MediaStatus = "FINISHED" | "RELEASING" | "NOT_YET_RELEASED" | "CANCELLED" | "HIATUS";
+export const MEDIA_FORMATS = [
+  "TV",
+  "TV_SHORT",
+  "MOVIE",
+  "SPECIAL",
+  "OVA",
+  "ONA",
+  "MUSIC",
+  "MANGA",
+  "NOVEL",
+  "ONE_SHOT",
+] as const;
+type MediaFormat = (typeof MEDIA_FORMATS)[number];
 
-type MediaSeason = "WINTER" | "SPRING" | "SUMMER" | "FALL";
+export const MEDIA_STATUSES = [
+  "FINISHED",
+  "RELEASING",
+  "NOT_YET_RELEASED",
+  "CANCELLED",
+  "HIATUS",
+] as const;
+type MediaStatus = (typeof MEDIA_STATUSES)[number];
 
-type MediaSource =
-  | "ORIGINAL"
-  | "MANGA"
-  | "LIGHT_NOVEL"
-  | "VISUAL_NOVEL"
-  | "VIDEO_GAME"
-  | "OTHER"
-  | "NOVEL"
-  | "DOUJINSHI"
-  | "ANIME"
-  | "WEB_NOVEL"
-  | "LIVE_ACTION"
-  | "GAME"
-  | "COMIC"
-  | "MULTIMEDIA_PROJECT"
-  | "PICTURE_BOOK";
+export const MEDIA_SEASONS = ["WINTER", "SPRING", "SUMMER", "FALL"] as const;
+type MediaSeason = (typeof MEDIA_SEASONS)[number];
+
+export const MEDIA_SOURCES = [
+  "ORIGINAL",
+  "MANGA",
+  "LIGHT_NOVEL",
+  "VISUAL_NOVEL",
+  "VIDEO_GAME",
+  "OTHER",
+  "NOVEL",
+  "DOUJINSHI",
+  "ANIME",
+  "WEB_NOVEL",
+  "LIVE_ACTION",
+  "GAME",
+  "COMIC",
+  "MULTIMEDIA_PROJECT",
+  "PICTURE_BOOK",
+] as const;
+type MediaSource = (typeof MEDIA_SOURCES)[number];
+
+/**
+ * AniList's `MediaListStatus`. Deliberately type-agnostic — CURRENT reads as
+ * "Watching" for anime and "Reading" for manga, which is a display concern.
+ */
+export const LIST_STATUSES = [
+  "CURRENT",
+  "PLANNING",
+  "COMPLETED",
+  "DROPPED",
+  "PAUSED",
+  "REPEATING",
+] as const;
+export type ListStatus = (typeof LIST_STATUSES)[number];
 
 /** AniList dates are fuzzy — any component may be unknown. */
 export type FuzzyDate = {
