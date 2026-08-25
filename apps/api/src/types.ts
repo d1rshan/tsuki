@@ -8,11 +8,6 @@
 export type { MediaType, Media, MediaCompact } from "./modules/media/model";
 export type { LibraryEntry, ListStatus } from "./modules/library/model";
 export type { Review } from "./modules/reviews/model";
-export type {
-  DiscoveryUserSummary,
-  FeedActivity,
-  FollowRelationship,
-  Profile,
-  UserOverview,
-  UserSummary,
-} from "./modules/users/model";
+export type { FeedActivity } from "./modules/activity/model";
+export type { DiscoveryUserSummary, FollowRelationship, UserSummary } from "./modules/social/model";
+export type { Profile, UserOverview } from "./modules/profiles/model";

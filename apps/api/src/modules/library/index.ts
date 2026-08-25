@@ -1,22 +1,21 @@
-import { Elysia, t, status } from "elysia";
+import { Elysia, t } from "elysia";
 
-import { activityDal, libraryDal, reviewsDal, userDal } from "@tsuki/db";
+import { libraryDal, reviewsDal } from "@tsuki/db";
 
 import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
-import { ensureMedia } from "../media";
 import { MediaTypeEnum } from "../media/model";
+import { requireUser } from "../profiles/service";
 import { ReviewModel } from "../reviews/model";
 import { LibraryEntryInputModel, LibraryEntryModel, LibraryQueryModel } from "./model";
+import { logMedia, removeEntry } from "./service";
 
 export const libraryRoutes = new Elysia()
   .use(authPlugin)
   .get(
     "/users/:username/library",
     async ({ params: { username }, query }) => {
-      const user = await userDal.getUserByUsername(username);
-      if (!user) return status(404, { error: "User not found" });
-
+      const user = await requireUser(username);
       return libraryDal.getUserLibrary(user.id, query);
     },
     {
@@ -59,33 +58,7 @@ export const libraryRoutes = new Elysia()
   )
   .put(
     "/me/library/:type/:id",
-    async ({ params: { type: mediaType, id }, body, user }) => {
-      // Logging from a search result can be the first time we have seen this title.
-      const media = await ensureMedia(mediaType, id);
-      if (!media) return status(404, { error: "Media not found" });
-
-      await libraryDal.upsertEntry({ userId: user.id, mediaId: id, mediaType, ...body });
-
-      const entry = await libraryDal.getEntry(user.id, id);
-      if (!entry) return status(500, { error: "Failed to save entry" });
-
-      await activityDal.upsertFeedActivity({
-        actorId: user.id,
-        type: "LOG",
-        sourceId: String(id),
-        mediaId: id,
-        mediaType,
-        snapshot: {
-          status: entry.status,
-          score: entry.score,
-          progress: entry.progress,
-          progressVolumes: entry.progressVolumes,
-          repeat: entry.repeat,
-        },
-      });
-
-      return entry;
-    },
+    ({ params: { type, id }, body, user }) => logMedia(user.id, type, id, body),
     {
       auth: true,
       params: t.Object({ type: MediaTypeEnum, id: t.Numeric() }),
@@ -100,10 +73,7 @@ export const libraryRoutes = new Elysia()
   .delete(
     "/me/library/:type/:id",
     async ({ params: { id }, user, set }) => {
-      await Promise.all([
-        libraryDal.deleteEntry(user.id, id),
-        activityDal.deleteFeedActivity(user.id, "LOG", String(id)),
-      ]);
+      await removeEntry(user.id, id);
       set.status = 204;
     },
     {
