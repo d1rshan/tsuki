@@ -1,4 +1,5 @@
 import { Node, mergeAttributes } from "@tiptap/core";
+import TextAlign from "@tiptap/extension-text-align";
 import StarterKit from "@tiptap/starter-kit";
 
 declare module "@tiptap/core" {
@@ -135,6 +136,7 @@ export function richContentExtensions(options?: { undoRedo?: boolean }) {
       },
       undoRedo: options?.undoRedo === false ? false : undefined,
     }),
+    TextAlign.configure({ types: ["paragraph", "heading"] }),
     Spoiler,
     MediaEmbed,
   ];

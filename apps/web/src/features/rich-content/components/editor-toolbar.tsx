@@ -3,6 +3,10 @@
 import type { Editor } from "@tiptap/react";
 import { useEditorState } from "@tiptap/react";
 import {
+  AlignCenter,
+  AlignJustify,
+  AlignLeft,
+  AlignRight,
   Bold,
   Clapperboard,
   EyeOff,
@@ -88,6 +92,9 @@ export function EditorToolbar({
       isOrderedList: editor.isActive("orderedList"),
       isBlockquote: editor.isActive("blockquote"),
       isLink: editor.isActive("link"),
+      isAlignCenter: editor.isActive({ textAlign: "center" }),
+      isAlignRight: editor.isActive({ textAlign: "right" }),
+      isAlignJustify: editor.isActive({ textAlign: "justify" }),
     }),
   });
 
@@ -166,6 +173,34 @@ export function EditorToolbar({
             </ToolButton>
             <ToolButton label="Spoiler" onClick={() => onOpenDialog("spoiler")}>
               <EyeOff />
+            </ToolButton>
+            <ToolButton
+              label="Align left"
+              active={!(state.isAlignCenter || state.isAlignRight || state.isAlignJustify)}
+              onClick={() => editor.chain().focus().unsetTextAlign().run()}
+            >
+              <AlignLeft />
+            </ToolButton>
+            <ToolButton
+              label="Align center"
+              active={state.isAlignCenter}
+              onClick={() => editor.chain().focus().setTextAlign("center").run()}
+            >
+              <AlignCenter />
+            </ToolButton>
+            <ToolButton
+              label="Align right"
+              active={state.isAlignRight}
+              onClick={() => editor.chain().focus().setTextAlign("right").run()}
+            >
+              <AlignRight />
+            </ToolButton>
+            <ToolButton
+              label="Align justify"
+              active={state.isAlignJustify}
+              onClick={() => editor.chain().focus().setTextAlign("justify").run()}
+            >
+              <AlignJustify />
             </ToolButton>
           </>
         )}

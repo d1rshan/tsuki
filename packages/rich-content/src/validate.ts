@@ -23,6 +23,20 @@ const INNER_BLOCKS: ReadonlySet<string> = new Set([
 ]);
 const MAX_SPOILER_LABEL_CHARS = 100;
 
+const TEXT_ALIGNS: ReadonlySet<string> = new Set(["left", "center", "right", "justify"]);
+
+/** Alignment is a review-preset capability; null/absent means default (left). */
+function validTextAlign(
+  node: Record<string, unknown>,
+  knownAttrs: readonly string[],
+  presetName: RichContentPresetName,
+): boolean {
+  if (!hasOnlyKnownAttrs(node, knownAttrs)) return false;
+  const align = (node.attrs as Record<string, RichContentAttr> | undefined)?.textAlign ?? null;
+  if (align === null) return true;
+  return presetName === "review" && TEXT_ALIGNS.has(align as string);
+}
+
 function fail(reason: string): ValidateRichContentResult {
   return { ok: false, reason };
 }
@@ -161,14 +175,14 @@ function walkBlock(
 
   switch (type) {
     case "paragraph": {
-      if (!hasOnlyKnownAttrs(node, [])) return null;
+      if (!validTextAlign(node, ["textAlign"], presetName)) return null;
       const inline = validInline(node.content);
       if (inline === null) return null;
       chars += inline;
       break;
     }
     case "heading": {
-      if (!hasOnlyKnownAttrs(node, ["level"])) return null;
+      if (!validTextAlign(node, ["level", "textAlign"], presetName)) return null;
       const attrs = node.attrs as Record<string, RichContentAttr> | undefined;
       const level = (attrs?.level ?? null) as number | null;
       // Author-facing Heading/Subheading render semantic H2/H3; no H1 exists.

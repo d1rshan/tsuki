@@ -13,6 +13,7 @@
   "dependencies": {
     "@tiptap/core": "^3.30.3",
     "@tiptap/extension-image": "^3.30.3",
+    "@tiptap/extension-text-align": "^3.30.3",
     "@tiptap/extension-youtube": "^3.30.3",
     "@tiptap/starter-kit": "^3.30.3",
     "@tiptap/static-renderer": "^3.30.3"

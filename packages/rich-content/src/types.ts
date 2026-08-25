@@ -44,6 +44,9 @@ export function richContentText(content: RichContent | null | undefined): string
 
 export type MediaEmbedKind = "image" | "video" | "gif";
 
+/** Block text alignment. Absence/null means the default (left). */
+export type RichContentTextAlign = "left" | "center" | "right" | "justify";
+
 export type RichContentPresetName = "bio" | "review";
 
 export type RichContentPreset = {

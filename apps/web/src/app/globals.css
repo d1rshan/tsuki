@@ -175,6 +175,13 @@
     .rich-content-editing [data-spoiler] {
       outline: 1px dashed var(--ring);
     }
+
+    /* Selected media embeds show a ring so users can see what they'll delete. */
+    .rich-content-editing .ProseMirror-selectednode {
+      outline: 2px solid var(--ring);
+      outline-offset: 2px;
+      border-radius: var(--radius-sm);
+    }
   }
 
   .rich-content--compact {

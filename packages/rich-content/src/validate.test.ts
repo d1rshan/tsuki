@@ -221,6 +221,37 @@ describe("review preset", () => {
   });
 });
 
+describe("text alignment", () => {
+  const aligned = (align: unknown, type = "paragraph") => ({
+    type,
+    attrs: { textAlign: align, ...(type === "heading" ? { level: 2 } : {}) },
+    content: [text("x")],
+  });
+
+  test("accepts every alignment on paragraphs and headings in reviews", () => {
+    for (const align of ["left", "center", "right", "justify", null]) {
+      expect(validateRichContent(doc(aligned(align)), "review").ok).toBeTrue();
+      expect(validateRichContent(doc(aligned(align, "heading")), "review").ok).toBeTrue();
+    }
+  });
+
+  test("rejects alignment in the bio preset", () => {
+    expect(validateRichContent(doc(aligned("center")), "bio").ok).toBeFalse();
+  });
+
+  test("rejects bogus alignment values", () => {
+    for (const align of ["middle", 42, true, { dir: "rtl" }]) {
+      expect(validateRichContent(doc(aligned(align)), "review").ok).toBeFalse();
+    }
+  });
+
+  test("rejects alignment attributes on non-text blocks", () => {
+    const embed = gif();
+    embed.attrs = { ...embed.attrs, textAlign: "center" };
+    expect(validateRichContent(doc(embed), "review").ok).toBeFalse();
+  });
+});
+
 describe("isEmptyRichContent", () => {
   test("is true only when there is nothing worth persisting", () => {
     expect(isEmptyRichContent(null)).toBeTrue();
