@@ -3,12 +3,10 @@
 import { Eye, EyeOff, SearchX } from "lucide-react";
 import { parseAsBoolean, useQueryState } from "nuqs";
 
-import type { MediaType } from "@tsuki/api/types";
-
 import { MediaGrid } from "@/features/media/components/media-grid";
+import { MediaTypeToggleButton } from "@/features/media/components/media-type-toggle-button";
 import { useMediaSearch } from "@/features/media/hooks/use-media-search";
 import { useMediaType } from "@/features/media/hooks/use-media-type";
-import { MEDIA } from "@/features/media/media";
 import { ContentState } from "@/shared/components/content-state";
 import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
@@ -21,7 +19,7 @@ export function DiscoverSearchResults({ query }: { query: string }) {
   const { data: items = [], isError, isPending } = useMediaSearch(mediaType, query, includeNsfw);
 
   function renderResults() {
-    if (isError) {
+    if (isError)
       return (
         <ContentState
           error
@@ -29,24 +27,18 @@ export function DiscoverSearchResults({ query }: { query: string }) {
           description="Please try again in a moment."
         />
       );
-    }
 
-    if (items.length > 0) {
+    if (items.length > 0)
       return (
-        <div className="relative" aria-busy={isPending}>
-          <div
-            className={cn(
-              "transition-all",
-              isPending && "pointer-events-none opacity-70 blur-[2px]",
-            )}
-          >
-            <MediaGrid items={items} />
-          </div>
+        <div
+          className={cn(isPending && "pointer-events-none opacity-70 blur-[2px]")}
+          aria-busy={isPending}
+        >
+          <MediaGrid items={items} />
         </div>
       );
-    }
 
-    if (!isPending) {
+    if (!isPending)
       return (
         <ContentState
           icon={SearchX}
@@ -54,7 +46,6 @@ export function DiscoverSearchResults({ query }: { query: string }) {
           description={`We couldn't find anything for "${query}".`}
         />
       );
-    }
 
     return null;
   }
@@ -62,51 +53,21 @@ export function DiscoverSearchResults({ query }: { query: string }) {
   return (
     <DiscoverSection
       actions={
-        <DiscoverSearchActions
-          includeNsfw={includeNsfw}
-          mediaType={mediaType}
-          onMediaTypeChange={setMediaType}
-          onNsfwChange={(value) => void setIncludeNsfw(value)}
-        />
+        <div className="flex items-center gap-2">
+          <MediaTypeToggleButton mediaType={mediaType} onChange={setMediaType} />
+          <Button
+            type="button"
+            size="lg"
+            variant={includeNsfw ? "default" : "outline"}
+            onClick={() => void setIncludeNsfw(!includeNsfw)}
+          >
+            {includeNsfw ? <Eye data-icon="inline-start" /> : <EyeOff data-icon="inline-start" />}
+            NSFW
+          </Button>
+        </div>
       }
     >
       {renderResults()}
     </DiscoverSection>
-  );
-}
-
-function DiscoverSearchActions({
-  includeNsfw,
-  mediaType,
-  onMediaTypeChange,
-  onNsfwChange,
-}: {
-  includeNsfw: boolean;
-  mediaType: MediaType;
-  onMediaTypeChange: (value: MediaType) => void;
-  onNsfwChange: (value: boolean) => void;
-}) {
-  const nextMediaType = mediaType === "ANIME" ? "MANGA" : "ANIME";
-
-  return (
-    <div className="flex items-center gap-2">
-      <Button
-        type="button"
-        size="lg"
-        onClick={() => onMediaTypeChange(nextMediaType)}
-        aria-label={`Switch from ${MEDIA[mediaType].label} to ${MEDIA[nextMediaType].label}`}
-      >
-        {MEDIA[mediaType].label}
-      </Button>
-      <Button
-        type="button"
-        size="lg"
-        variant={includeNsfw ? "default" : "outline"}
-        onClick={() => onNsfwChange(!includeNsfw)}
-      >
-        {includeNsfw ? <Eye data-icon="inline-start" /> : <EyeOff data-icon="inline-start" />}
-        NSFW
-      </Button>
-    </div>
   );
 }

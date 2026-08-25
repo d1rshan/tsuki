@@ -1,39 +1,20 @@
-import { Suspense } from "react";
 import { notFound } from "next/navigation";
 
 import { ProfileUserList } from "@/features/profile/components/profile-user-list";
 import { ProfileConnectionsPagination } from "@/features/profile/components/profile-connections-pagination";
-import { Loader } from "@/shared/components/loader";
 
 import { getProfileFollowers, getProfileFollowing } from "../data";
 
-type ConnectionType = "followers" | "following";
 const PAGE_SIZE = 40;
 
-export function ProfileConnectionsView({
-  username,
+export async function ProfileConnectionsView({
   page,
   type,
-}: {
-  username: string;
-  page: number;
-  type: ConnectionType;
-}) {
-  return (
-    <Suspense fallback={<Loader />}>
-      <ProfileConnectionsContent username={username} page={page} type={type} />
-    </Suspense>
-  );
-}
-
-async function ProfileConnectionsContent({
   username,
-  page,
-  type,
 }: {
-  username: string;
   page: number;
-  type: ConnectionType;
+  type: "followers" | "following";
+  username: string;
 }) {
   const result =
     type === "followers"

@@ -1,8 +1,8 @@
 import { Suspense } from "react";
-import { notFound } from "next/navigation";
 
+import { resolveUsername } from "@/features/profile/data";
+import { parseConnectionPage } from "@/features/profile/utils";
 import { ProfileConnectionsView } from "@/features/profile/views/profile-connections-view";
-import { parseConnectionPage, parseProfileUsername } from "@/features/profile/utils";
 import { Loader } from "@/shared/components/loader";
 
 export default function Page({
@@ -26,15 +26,13 @@ async function FollowersContent({
   params: Promise<{ username: string }>;
   searchParams: Promise<{ page?: string }>;
 }) {
-  const [{ username: rawUsername }, { page: rawPage }] = await Promise.all([params, searchParams]);
-  const username = parseProfileUsername(rawUsername);
-  if (!username) notFound();
+  const [{ username }, { page }] = await Promise.all([params, searchParams]);
 
   return (
     <ProfileConnectionsView
-      username={username}
-      page={parseConnectionPage(rawPage)}
       type="followers"
+      username={resolveUsername(username)}
+      page={parseConnectionPage(page)}
     />
   );
 }

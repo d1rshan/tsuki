@@ -1,22 +1,18 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import type { Metadata } from "next";
 
 import { ProfileHeader } from "@/features/profile/components/profile-header";
 
 import { ProfileViewerActions } from "../components/profile-viewer-actions";
 import { getProfileOverview } from "../data";
 
-type ProfileLayoutProps = {
+export async function ProfileLayout({
+  children,
+  username,
+}: {
   children: React.ReactNode;
   username: string;
-};
-
-export function ProfileLayout({ children, username }: ProfileLayoutProps) {
-  return <ProfileLayoutContent username={username}>{children}</ProfileLayoutContent>;
-}
-
-async function ProfileLayoutContent({ children, username }: ProfileLayoutProps) {
+}) {
   const profile = await getProfileOverview(username);
   if (!profile) notFound();
 
@@ -36,14 +32,4 @@ async function ProfileLayoutContent({ children, username }: ProfileLayoutProps) 
       {children}
     </div>
   );
-}
-
-export async function getProfileMetadata(username: string): Promise<Metadata> {
-  const profile = await getProfileOverview(username);
-  if (!profile) return { title: "Profile not found" };
-
-  return {
-    title: profile.user.displayUsername,
-    description: profile.profile?.bio?.slice(0, 160) || `View @${profile.user.username} on Tsuki.`,
-  };
 }

@@ -15,7 +15,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { ContentState } from "@/shared/components/content-state";
 import { Input } from "@/shared/components/ui/input";
-import { Loader } from "@/shared/components/loader";
+import { QueryState } from "@/shared/components/query-state";
 import { useDebouncedValue } from "@/shared/hooks/use-debounced-value";
 
 import type { FriendsFeedType } from "../data";
@@ -25,12 +25,9 @@ import { useFriendsFeed } from "../hooks/use-friends-feed";
 
 function ActivityCard({ activity }: { activity: FeedActivity }) {
   const media = activity.media ? normalizeMediaCompact(activity.media) : null;
-  const actor = (
-    <Link
-      href={`/${activity.actor.username}`}
-      className="font-semibold text-foreground hover:text-primary"
-    >
-      {activity.actor.displayUsername}
+  const profileLink = (username: string, displayUsername: string) => (
+    <Link href={`/${username}`} className="font-semibold text-foreground hover:text-primary">
+      {displayUsername}
     </Link>
   );
   const details =
@@ -40,8 +37,7 @@ function ActivityCard({ activity }: { activity: FeedActivity }) {
           activity.snapshot.progress === undefined
             ? null
             : `${activity.snapshot.progress} ${media.type === "ANIME" ? "episodes" : "chapters"}`,
-          activity.snapshot.progressVolumes === undefined ||
-          activity.snapshot.progressVolumes === null
+          activity.snapshot.progressVolumes == null
             ? null
             : `${activity.snapshot.progressVolumes} volumes`,
           activity.snapshot.score ? `${activity.snapshot.score}/10` : null,
@@ -63,21 +59,15 @@ function ActivityCard({ activity }: { activity: FeedActivity }) {
         <p className="text-sm text-muted-foreground">
           {activity.type === "FOLLOW" ? (
             <>
-              {actor} followed{" "}
-              {activity.target ? (
-                <Link
-                  href={`/${activity.target.username}`}
-                  className="font-semibold text-foreground hover:text-primary"
-                >
-                  {activity.target.displayUsername}
-                </Link>
-              ) : (
-                "a Profile"
-              )}
+              {profileLink(activity.actor.username, activity.actor.displayUsername)} followed{" "}
+              {activity.target
+                ? profileLink(activity.target.username, activity.target.displayUsername)
+                : "a Profile"}
             </>
           ) : (
             <>
-              {actor} {activity.type === "REVIEW" ? "reviewed" : "logged"}{" "}
+              {profileLink(activity.actor.username, activity.actor.displayUsername)}{" "}
+              {activity.type === "REVIEW" ? "reviewed" : "logged"}{" "}
               {media ? (
                 <Link
                   href={mediaHref(media.type, media.id)}
@@ -122,27 +112,25 @@ function Feed({ type }: { type: FriendsFeedType }) {
   const query = useFriendsFeed(type);
   const activities = query.data?.pages.flatMap((page) => page.activities) ?? [];
 
-  function renderFeed() {
-    if (query.isLoading) return <Loader />;
-    if (query.isError)
-      return (
-        <ContentState error title="Could not load Activity" description="Try again in a moment." />
-      );
-    if (!activities.length)
-      return (
+  return (
+    <QueryState
+      isLoading={query.isLoading}
+      isError={query.isError}
+      isEmpty={!activities.length}
+      errorTitle="Could not load Activity"
+      empty={
         <ContentState
           title={
             type === "following" ? "No Activity from people you Follow yet" : "No Activity yet"
           }
         />
-      );
-
-    return (
+      }
+    >
       <div>
         {activities.map((activity) => (
           <ActivityCard key={activity.id} activity={activity} />
         ))}
-        {query.hasNextPage ? (
+        {query.hasNextPage && (
           <Button
             className="mt-6"
             variant="outline"
@@ -151,12 +139,10 @@ function Feed({ type }: { type: FriendsFeedType }) {
           >
             {query.isFetchingNextPage ? "Loading…" : "Load older Activity"}
           </Button>
-        ) : null}
+        )}
       </div>
-    );
-  }
-
-  return renderFeed();
+    </QueryState>
+  );
 }
 
 function Discover() {
@@ -165,52 +151,6 @@ function Discover() {
   const query = useFriendsDiscovery(username);
   const follow = useDiscoveryFollowMutation();
   const users = query.data ?? [];
-
-  function renderResults() {
-    if (query.isLoading) return <Loader />;
-    if (query.isError)
-      return (
-        <ContentState error title="Could not load people" description="Try again in a moment." />
-      );
-    if (!users.length)
-      return (
-        <ContentState
-          icon={UserX}
-          title={username ? `No Profiles match “${username}”` : "No people to show yet"}
-        />
-      );
-
-    return (
-      <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {users.map((user) => (
-          <li key={user.id} className="flex items-center gap-3 rounded-xl border p-4">
-            <Link href={`/${user.username}`} className="flex min-w-0 flex-1 items-center gap-3">
-              <Avatar size="lg">
-                {user.image ? <AvatarImage src={user.image} alt={user.name} /> : null}
-                <AvatarFallback>{user.displayUsername[0]?.toUpperCase()}</AvatarFallback>
-              </Avatar>
-              <span className="min-w-0">
-                <span className="block truncate font-semibold">{user.displayUsername}</span>
-                <span className="block truncate text-sm text-muted-foreground">
-                  @{user.username}
-                </span>
-              </span>
-            </Link>
-            <Button
-              size="sm"
-              variant={user.relationship.following ? "secondary" : "default"}
-              disabled={follow.isPending}
-              onClick={() =>
-                follow.mutate({ username: user.username, following: !user.relationship.following })
-              }
-            >
-              {followButtonLabel(user.relationship)}
-            </Button>
-          </li>
-        ))}
-      </ul>
-    );
-  }
 
   return (
     <>
@@ -228,7 +168,50 @@ function Discover() {
         <h2 className="mb-5 text-2xl font-bold tracking-tight">
           {username ? "Username Search" : "Popular on Tsuki"}
         </h2>
-        {renderResults()}
+        <QueryState
+          isLoading={query.isLoading}
+          isError={query.isError}
+          isEmpty={!users.length}
+          errorTitle="Could not load people"
+          empty={
+            <ContentState
+              icon={UserX}
+              title={username ? `No Profiles match “${username}”` : "No people to show yet"}
+            />
+          }
+        >
+          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {users.map((user) => (
+              <li key={user.id} className="flex items-center gap-3 rounded-xl border p-4">
+                <Link href={`/${user.username}`} className="flex min-w-0 flex-1 items-center gap-3">
+                  <Avatar size="lg">
+                    {user.image ? <AvatarImage src={user.image} alt={user.name} /> : null}
+                    <AvatarFallback>{user.displayUsername[0]?.toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                  <span className="min-w-0">
+                    <span className="block truncate font-semibold">{user.displayUsername}</span>
+                    <span className="block truncate text-sm text-muted-foreground">
+                      @{user.username}
+                    </span>
+                  </span>
+                </Link>
+                <Button
+                  size="sm"
+                  variant={user.relationship.following ? "secondary" : "default"}
+                  disabled={follow.isPending}
+                  onClick={() =>
+                    follow.mutate({
+                      username: user.username,
+                      following: !user.relationship.following,
+                    })
+                  }
+                >
+                  {followButtonLabel(user.relationship)}
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </QueryState>
       </section>
     </>
   );
