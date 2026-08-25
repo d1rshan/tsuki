@@ -13,7 +13,7 @@ export default function Page() {
 }
 
 async function DiscoverContent() {
-  const trending = await getDiscoverMediaTrending().catch(() => null);
+  const trending = await getDiscoverMediaTrending();
 
   if (!trending) {
     return (
