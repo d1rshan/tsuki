@@ -1,7 +1,18 @@
+import {
+  MEDIA_FORMATS,
+  MEDIA_SEASONS,
+  MEDIA_SOURCES,
+  MEDIA_STATUSES,
+  MEDIA_TYPES,
+} from "@tsuki/anilist";
 import { t } from "elysia";
 
-/** AniList's vocabulary, carried unchanged from the database through to the client. */
-export const MediaTypeEnum = t.Union([t.Literal("ANIME"), t.Literal("MANGA")]);
+/**
+ * AniList's vocabulary, carried unchanged from the database through to the
+ * client. Built from the canonical arrays in @tsuki/anilist rather than
+ * restated here.
+ */
+export const MediaTypeEnum = t.UnionEnum(MEDIA_TYPES);
 export type MediaType = typeof MediaTypeEnum.static;
 
 export const FuzzyDateModel = t.Object({
@@ -10,51 +21,13 @@ export const FuzzyDateModel = t.Object({
   day: t.Nullable(t.Number()),
 });
 
-export const MediaFormatEnum = t.Union([
-  t.Literal("TV"),
-  t.Literal("TV_SHORT"),
-  t.Literal("MOVIE"),
-  t.Literal("SPECIAL"),
-  t.Literal("OVA"),
-  t.Literal("ONA"),
-  t.Literal("MUSIC"),
-  t.Literal("MANGA"),
-  t.Literal("NOVEL"),
-  t.Literal("ONE_SHOT"),
-]);
+export const MediaFormatEnum = t.UnionEnum(MEDIA_FORMATS);
 
-export const MediaStatusEnum = t.Union([
-  t.Literal("FINISHED"),
-  t.Literal("RELEASING"),
-  t.Literal("NOT_YET_RELEASED"),
-  t.Literal("CANCELLED"),
-  t.Literal("HIATUS"),
-]);
+export const MediaStatusEnum = t.UnionEnum(MEDIA_STATUSES);
 
-export const MediaSeasonEnum = t.Union([
-  t.Literal("WINTER"),
-  t.Literal("SPRING"),
-  t.Literal("SUMMER"),
-  t.Literal("FALL"),
-]);
+export const MediaSeasonEnum = t.UnionEnum(MEDIA_SEASONS);
 
-export const MediaSourceEnum = t.Union([
-  t.Literal("ORIGINAL"),
-  t.Literal("MANGA"),
-  t.Literal("LIGHT_NOVEL"),
-  t.Literal("VISUAL_NOVEL"),
-  t.Literal("VIDEO_GAME"),
-  t.Literal("OTHER"),
-  t.Literal("NOVEL"),
-  t.Literal("DOUJINSHI"),
-  t.Literal("ANIME"),
-  t.Literal("WEB_NOVEL"),
-  t.Literal("LIVE_ACTION"),
-  t.Literal("GAME"),
-  t.Literal("COMIC"),
-  t.Literal("MULTIMEDIA_PROJECT"),
-  t.Literal("PICTURE_BOOK"),
-]);
+export const MediaSourceEnum = t.UnionEnum(MEDIA_SOURCES);
 
 /** The shape embedded in cards, grids, library entries and reviews. */
 export const MediaCompactModel = t.Object({

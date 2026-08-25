@@ -1,64 +1,29 @@
+import {
+  LIST_STATUSES,
+  MEDIA_FORMATS,
+  MEDIA_SEASONS,
+  MEDIA_SOURCES,
+  MEDIA_STATUSES,
+  MEDIA_TYPES,
+} from "@tsuki/anilist";
 import { pgEnum } from "drizzle-orm/pg-core";
 
-// Enums mirror AniList's GraphQL schema so fetched values store without
-// translation. See docs/docs/reference/enum/.
+// Enums derive from AniList's vocabulary in @tsuki/anilist so fetched values
+// store without translation. Changing a value there requires a migration here.
 
-export const mediaTypeEnum = pgEnum("media_type", ["ANIME", "MANGA"]);
+export const mediaTypeEnum = pgEnum("media_type", MEDIA_TYPES);
 
 export type MediaType = (typeof mediaTypeEnum.enumValues)[number];
 
-export const mediaFormatEnum = pgEnum("media_format", [
-  "TV",
-  "TV_SHORT",
-  "MOVIE",
-  "SPECIAL",
-  "OVA",
-  "ONA",
-  "MUSIC",
-  "MANGA",
-  "NOVEL",
-  "ONE_SHOT",
-]);
+export const mediaFormatEnum = pgEnum("media_format", MEDIA_FORMATS);
 
-export const mediaStatusEnum = pgEnum("media_status", [
-  "FINISHED",
-  "RELEASING",
-  "NOT_YET_RELEASED",
-  "CANCELLED",
-  "HIATUS",
-]);
+export const mediaStatusEnum = pgEnum("media_status", MEDIA_STATUSES);
 
-export const mediaSeasonEnum = pgEnum("media_season", ["WINTER", "SPRING", "SUMMER", "FALL"]);
+export const mediaSeasonEnum = pgEnum("media_season", MEDIA_SEASONS);
 
-export const mediaSourceEnum = pgEnum("media_source", [
-  "ORIGINAL",
-  "MANGA",
-  "LIGHT_NOVEL",
-  "VISUAL_NOVEL",
-  "VIDEO_GAME",
-  "OTHER",
-  "NOVEL",
-  "DOUJINSHI",
-  "ANIME",
-  "WEB_NOVEL",
-  "LIVE_ACTION",
-  "GAME",
-  "COMIC",
-  "MULTIMEDIA_PROJECT",
-  "PICTURE_BOOK",
-]);
+export const mediaSourceEnum = pgEnum("media_source", MEDIA_SOURCES);
 
-/**
- * AniList `MediaListStatus`. Deliberately type-agnostic — CURRENT reads as
- * "Watching" for anime and "Reading" for manga, which is a display concern.
- */
-export const listStatusEnum = pgEnum("list_status", [
-  "CURRENT",
-  "PLANNING",
-  "COMPLETED",
-  "DROPPED",
-  "PAUSED",
-  "REPEATING",
-]);
+/** AniList's MediaListStatus — see @tsuki/anilist for the display note. */
+export const listStatusEnum = pgEnum("list_status", LIST_STATUSES);
 
 export const feedActivityTypeEnum = pgEnum("feed_activity_type", ["LOG", "REVIEW", "FOLLOW"]);

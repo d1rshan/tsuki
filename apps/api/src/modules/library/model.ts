@@ -1,16 +1,10 @@
+import { LIST_STATUSES } from "@tsuki/anilist";
 import { t } from "elysia";
 
 import { FuzzyDateModel, MediaCompactModel, MediaTypeEnum } from "../media/model";
 
 /** AniList's MediaListStatus — type-agnostic, so anime and manga share it. */
-export const ListStatusEnum = t.Union([
-  t.Literal("CURRENT"),
-  t.Literal("PLANNING"),
-  t.Literal("COMPLETED"),
-  t.Literal("DROPPED"),
-  t.Literal("PAUSED"),
-  t.Literal("REPEATING"),
-]);
+export const ListStatusEnum = t.UnionEnum(LIST_STATUSES);
 
 export const LibraryEntryModel = t.Object({
   mediaType: MediaTypeEnum,
