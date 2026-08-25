@@ -32,6 +32,8 @@ export function EditProfileDialog({ profile }: { profile: UserOverview["profile"
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [isConfirmingClose, setIsConfirmingClose] = useState(false);
+  // Remounts the uncontrolled editor whenever the form resets (discard/close).
+  const [editorResetKey, setEditorResetKey] = useState(0);
   const defaultValues = createProfileFormValues(profile);
   const update = useMutation({ mutationFn: updateProfile });
 
@@ -67,12 +69,14 @@ export function EditProfileDialog({ profile }: { profile: UserOverview["profile"
 
     setIsOpen(nextIsOpen);
     form.reset(defaultValues);
+    setEditorResetKey((key) => key + 1);
   }
 
   function discardAndClose() {
     setIsConfirmingClose(false);
     setIsOpen(false);
     form.reset(defaultValues);
+    setEditorResetKey((key) => key + 1);
   }
 
   return (
@@ -111,6 +115,7 @@ export function EditProfileDialog({ profile }: { profile: UserOverview["profile"
                       <Field>
                         <FieldLabel htmlFor="edit-profile-bio">Bio</FieldLabel>
                         <RichContentEditor
+                          key={editorResetKey}
                           preset="bio"
                           value={field.state.value}
                           onChange={(value) => field.handleChange(value)}

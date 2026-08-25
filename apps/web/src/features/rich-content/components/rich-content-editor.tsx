@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import type { JSONContent } from "@tiptap/react";
 import { EditorContent, useEditor } from "@tiptap/react";
 
@@ -52,6 +52,7 @@ export function RichContentEditor({
     editorProps: {
       attributes: {
         class: cn(
+          "rich-content-editing",
           "min-h-24 w-full rounded-md border border-input bg-transparent px-3 py-2",
           "text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30",
           "[&_p:first-child]:mt-0 [&_p:last-child]:mb-0",
@@ -61,17 +62,6 @@ export function RichContentEditor({
       },
     },
   });
-
-  // Sync external resets (form.reset) into the editor without echo loops.
-  useEffect(() => {
-    if (!editor) return;
-    const incoming = JSON.stringify(value?.doc ?? EMPTY_DOC);
-    if (incoming === JSON.stringify(editor.getJSON())) return;
-
-    editor.commands.setContent((value?.doc as JSONContent) ?? EMPTY_DOC, {
-      emitUpdate: false,
-    });
-  }, [editor, value]);
 
   const [dialog, setDialog] = useState<InsertKind>(null);
 

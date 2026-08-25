@@ -1,6 +1,7 @@
 "use client";
 
 import type { Editor } from "@tiptap/react";
+import { useEditorState } from "@tiptap/react";
 import {
   Bold,
   Clapperboard,
@@ -74,6 +75,22 @@ export function EditorToolbar({
 }) {
   const isReview = preset === "review";
 
+  const state = useEditorState({
+    editor,
+    selector: ({ editor }) => ({
+      isBold: editor.isActive("bold"),
+      isItalic: editor.isActive("italic"),
+      isUnderline: editor.isActive("underline"),
+      isStrike: editor.isActive("strike"),
+      isHeading2: editor.isActive("heading", { level: 2 }),
+      isHeading3: editor.isActive("heading", { level: 3 }),
+      isBulletList: editor.isActive("bulletList"),
+      isOrderedList: editor.isActive("orderedList"),
+      isBlockquote: editor.isActive("blockquote"),
+      isLink: editor.isActive("link"),
+    }),
+  });
+
   return (
     <TooltipProvider>
       <div
@@ -83,28 +100,28 @@ export function EditorToolbar({
       >
         <ToolButton
           label="Bold"
-          active={editor.isActive("bold")}
+          active={state.isBold}
           onClick={() => editor.chain().focus().toggleBold().run()}
         >
           <Bold />
         </ToolButton>
         <ToolButton
           label="Italic"
-          active={editor.isActive("italic")}
+          active={state.isItalic}
           onClick={() => editor.chain().focus().toggleItalic().run()}
         >
           <Italic />
         </ToolButton>
         <ToolButton
           label="Underline"
-          active={editor.isActive("underline")}
+          active={state.isUnderline}
           onClick={() => editor.chain().focus().toggleUnderline().run()}
         >
           <UnderlineIcon />
         </ToolButton>
         <ToolButton
           label="Strikethrough"
-          active={editor.isActive("strike")}
+          active={state.isStrike}
           onClick={() => editor.chain().focus().toggleStrike().run()}
         >
           <Strikethrough />
@@ -114,35 +131,35 @@ export function EditorToolbar({
           <>
             <ToolButton
               label="Heading"
-              active={editor.isActive("heading", { level: 2 })}
+              active={state.isHeading2}
               onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
             >
               <Heading2 />
             </ToolButton>
             <ToolButton
               label="Subheading"
-              active={editor.isActive("heading", { level: 3 })}
+              active={state.isHeading3}
               onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
             >
               <Heading3 />
             </ToolButton>
             <ToolButton
               label="Bullet list"
-              active={editor.isActive("bulletList")}
+              active={state.isBulletList}
               onClick={() => editor.chain().focus().toggleBulletList().run()}
             >
               <List />
             </ToolButton>
             <ToolButton
               label="Numbered list"
-              active={editor.isActive("orderedList")}
+              active={state.isOrderedList}
               onClick={() => editor.chain().focus().toggleOrderedList().run()}
             >
               <ListOrdered />
             </ToolButton>
             <ToolButton
               label="Quote"
-              active={editor.isActive("blockquote")}
+              active={state.isBlockquote}
               onClick={() => editor.chain().focus().toggleBlockquote().run()}
             >
               <QuoteIcon />
@@ -153,11 +170,7 @@ export function EditorToolbar({
           </>
         )}
 
-        <ToolButton
-          label="Link"
-          active={editor.isActive("link")}
-          onClick={() => onOpenDialog("link")}
-        >
+        <ToolButton label="Link" active={state.isLink} onClick={() => onOpenDialog("link")}>
           <Link2 />
         </ToolButton>
 

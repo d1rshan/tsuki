@@ -60,6 +60,8 @@ export function LogMediaDialog({
   const formId = useId();
   const [isOpen, setIsOpen] = useState(false);
   const [isConfirmingClose, setIsConfirmingClose] = useState(false);
+  // Remounts the uncontrolled editor whenever the form resets (discard/close).
+  const [editorResetKey, setEditorResetKey] = useState(0);
   const config = MEDIA[mediaType];
   const isFavorite = activity.entry?.isFavorite ?? false;
   const hasActivity = hasLoggedActivity(mediaType, activity.entry, activity.review);
@@ -83,6 +85,7 @@ export function LogMediaDialog({
   function close() {
     setIsOpen(false);
     form.reset(createActivityForm(mediaType, activity.entry, activity.review));
+    setEditorResetKey((key) => key + 1);
   }
 
   function handleOpenChange(nextIsOpen: boolean) {
@@ -100,6 +103,7 @@ export function LogMediaDialog({
     if (nextIsOpen) {
       setIsOpen(true);
       form.reset(createActivityForm(mediaType, activity.entry, activity.review));
+      setEditorResetKey((key) => key + 1);
     } else {
       close();
     }
@@ -227,6 +231,7 @@ export function LogMediaDialog({
                   <Field>
                     <FieldLabel>Review</FieldLabel>
                     <RichContentEditor
+                      key={editorResetKey}
                       preset="review"
                       value={field.state.value}
                       onChange={(value) => field.handleChange(value)}

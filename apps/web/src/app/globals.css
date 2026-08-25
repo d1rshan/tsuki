@@ -55,8 +55,10 @@
 }
 
 @layer components {
-  /* Rich Content display (rendered statically by @tsuki/rich-content). */
-  .rich-content {
+  /* Rich Content display (rendered statically by @tsuki/rich-content) and
+     the editor surface — shared so editing is WYSIWYG with what renders. */
+  .rich-content,
+  .rich-content-editing {
     & > * + * {
       margin-top: 0.75em;
     }
@@ -122,8 +124,8 @@
       }
     }
 
-    /* Reddit-style concealed Spoiler blocks; revealed via .revealed (JS). */
-    [data-spoiler] {
+    /* Concealed Spoiler blocks in read mode; revealed via .revealed (JS). */
+    .rich-content [data-spoiler] {
       position: relative;
       border-radius: var(--radius-sm);
       cursor: pointer;
@@ -160,6 +162,11 @@
           outline: 2px solid var(--ring);
         }
       }
+    }
+
+    /* Spoilers stay editable in the editor: visible, not concealed. */
+    .rich-content-editing [data-spoiler] {
+      outline: 1px dashed var(--ring);
     }
   }
 
