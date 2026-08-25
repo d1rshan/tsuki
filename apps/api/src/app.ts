@@ -1,4 +1,5 @@
 import { Elysia } from "elysia";
+import { openapi } from "@elysiajs/openapi";
 
 import { authPlugin } from "./plugins/auth";
 import { errorsPlugin } from "./plugins/errors";
@@ -11,6 +12,17 @@ import { reviewRoutes } from "./modules/reviews";
 import { socialRoutes } from "./modules/social";
 
 export const app = new Elysia()
+  .use(
+    openapi({
+      documentation: {
+        info: {
+          title: "Tsuki API",
+          description: "Anime tracking platform API",
+          version: "1.0.50",
+        },
+      },
+    }),
+  )
   .use(errorsPlugin)
   .use(loggerPlugin)
   .use(authPlugin)
