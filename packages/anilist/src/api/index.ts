@@ -1,5 +1,5 @@
 import { AnilistError, anilistRequest } from "../client";
-import { toMediaRow, toMediaCompactRow } from "./mappers";
+import { toMediaRow, toMediaCompactRow, type MediaRow } from "./mappers";
 import {
   MEDIA_BY_ID_QUERY,
   SEARCH_MEDIA_QUERY,
@@ -9,6 +9,8 @@ import {
   type TrendingMediaResponse,
 } from "../queries";
 import type { MediaType } from "../types";
+
+export type { MediaRow };
 
 /**
  * Searches AniList for media of the given type. Leaving `isAdult` unset is what

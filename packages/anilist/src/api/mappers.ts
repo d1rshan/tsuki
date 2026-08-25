@@ -49,6 +49,8 @@ export function toMediaRow(media: AnilistMedia) {
   };
 }
 
+export type MediaRow = ReturnType<typeof toMediaRow>;
+
 /** Maps the trimmed AniList selection used by search results and grids. */
 export function toMediaCompactRow(media: AnilistMediaCompact) {
   return {
