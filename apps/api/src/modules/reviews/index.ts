@@ -9,7 +9,7 @@ import { requireUser } from "../profiles/service";
 import { ReviewInputModel, ReviewModel, ReviewQueryModel } from "./model";
 import { removeReview, submitReview } from "./service";
 
-export const reviewRoutes = new Elysia()
+export const reviewRoutes = new Elysia({ tags: ["Reviews"] })
   .use(authPlugin)
   .get(
     "/users/:username/reviews",

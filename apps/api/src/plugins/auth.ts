@@ -8,6 +8,7 @@ export const authPlugin = new Elysia({ name: "better-auth" }).mount(auth.handler
     // Declared here so every `auth: true` route carries a typed 401, rather than
     // each one repeating it in its own response map.
     response: { 401: ErrorModel },
+    detail: { security: [{ sessionCookie: [] }] },
     async resolve({ request: { headers } }) {
       const session = await auth.api.getSession({ headers });
 

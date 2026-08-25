@@ -12,7 +12,7 @@ import { ProfileModel, UpdateProfileModel, UserOverviewModel } from "./model";
 // app's Eden clients are updated alongside. Routes kept as-is for now to
 // avoid a breaking change.
 
-export const profilesRoutes = new Elysia()
+export const profilesRoutes = new Elysia({ tags: ["Profiles"] })
   .use(authPlugin)
   .get(
     "/users/:username",

@@ -14,12 +14,22 @@ import { socialRoutes } from "./modules/social";
 export const app = new Elysia()
   .use(
     openapi({
+      path: "/docs",
       documentation: {
         info: {
           title: "Tsuki API",
           description: "Anime tracking platform API",
           version: "1.0.50",
         },
+        tags: [
+          { name: "Media", description: "Anime & manga from AniList" },
+          { name: "Library", description: "Personal watch/read lists" },
+          { name: "Reviews", description: "Scored reviews" },
+          { name: "Social", description: "Follows and discovery" },
+          { name: "Activity", description: "Activity feed" },
+          { name: "Profiles", description: "User profiles" },
+          { name: "Auth", description: "Better Auth endpoints (mounted)" },
+        ],
       },
     }),
   )
