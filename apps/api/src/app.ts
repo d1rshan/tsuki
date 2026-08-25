@@ -30,6 +30,15 @@ export const app = new Elysia()
           { name: "Profiles", description: "User profiles" },
           { name: "Auth", description: "Better Auth endpoints (mounted)" },
         ],
+        components: {
+          securitySchemes: {
+            sessionCookie: {
+              type: "apiKey",
+              in: "cookie",
+              name: "better-auth.session_token",
+            },
+          },
+        },
       },
     }),
   )
