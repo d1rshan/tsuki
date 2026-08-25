@@ -1,7 +1,5 @@
 import { Suspense } from "react";
 
-import { io } from "next/cache";
-
 import { getDiscoverMediaTrending } from "@/features/discover/data";
 import { DiscoverView } from "@/features/discover/views/discover-view";
 import { ContentState } from "@/shared/components/content-state";
@@ -15,8 +13,7 @@ export default function Page() {
 }
 
 async function DiscoverContent() {
-  await io();
-  const trending = await getDiscoverMediaTrending().catch(() => null);
+  const trending = await getDiscoverMediaTrending();
 
   if (!trending) {
     return (
