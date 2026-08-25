@@ -1,9 +1,12 @@
 import "server-only";
 
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { cacheLife, cacheTag } from "next/cache";
 
 import type { MediaType } from "@tsuki/api/types";
 
+import { parseUsername } from "@/shared/lib/username";
 import { publicApi } from "@/shared/lib/public-api";
 import { getServerApi } from "@/shared/lib/server-api";
 
@@ -13,8 +16,25 @@ function tagProfile(username: string, section: ProfileSection) {
   cacheTag("profiles", `profile-${username}`, `profile-${username}-${section}`);
 }
 
-function isNotFound(error: { status?: number } | null) {
-  return error?.status === 404;
+/** 404 means "no such Profile" — an answer, not a failure, so callers get null. */
+function resolve<T>(
+  username: string,
+  what: string,
+  result: { data?: T | null; error?: { status?: number } | null },
+): T | null {
+  if (result.error?.status === 404) return null;
+  if (result.error)
+    throw new Error(`Failed to load ${what} for ${username}`, { cause: result.error });
+
+  return result.data ?? null;
+}
+
+/** Parses a route Username, rendering 404 when it cannot be one. */
+export function resolveUsername(value: string) {
+  const username = parseUsername(value);
+  if (!username) notFound();
+
+  return username;
 }
 
 export async function getProfileOverview(username: string) {
@@ -23,10 +43,7 @@ export async function getProfileOverview(username: string) {
   tagProfile(username, "overview");
 
   const { data, error } = await publicApi.users({ username }).get();
-  if (isNotFound(error)) return null;
-  if (error) throw new Error(`Failed to load profile for ${username}`, { cause: error });
-
-  return data;
+  return resolve(username, "profile", { data, error });
 }
 
 export async function getProfileLibrary(username: string, mediaType?: MediaType) {
@@ -37,11 +54,7 @@ export async function getProfileLibrary(username: string, mediaType?: MediaType)
   const { data, error } = await publicApi
     .users({ username })
     .library.get({ query: mediaType ? { type: mediaType } : {} });
-
-  if (isNotFound(error)) return null;
-  if (error) throw new Error(`Failed to load library for ${username}`, { cause: error });
-
-  return data;
+  return resolve(username, "library", { data, error });
 }
 
 export async function getProfileReviews(username: string, mediaType?: MediaType) {
@@ -52,40 +65,30 @@ export async function getProfileReviews(username: string, mediaType?: MediaType)
   const { data, error } = await publicApi
     .users({ username })
     .reviews.get({ query: mediaType ? { type: mediaType } : {} });
-
-  if (isNotFound(error)) return null;
-  if (error) throw new Error(`Failed to load reviews for ${username}`, { cause: error });
-
-  return data;
+  return resolve(username, "reviews", { data, error });
 }
 
-export async function getProfileFollowers(username: string, limit: number, offset: number) {
+async function getProfileConnections(
+  username: string,
+  section: "followers" | "following",
+  limit: number,
+  offset: number,
+) {
   "use cache: remote";
   cacheLife("minutes");
-  tagProfile(username, "followers");
+  tagProfile(username, section);
 
-  const { data, error } = await publicApi.users({ username }).followers.get({
+  const { data, error } = await publicApi.users({ username })[section].get({
     query: { limit, offset },
   });
-  if (isNotFound(error)) return null;
-  if (error) throw new Error(`Failed to load followers for ${username}`, { cause: error });
-
-  return data;
+  return resolve(username, section, { data, error });
 }
 
-export async function getProfileFollowing(username: string, limit: number, offset: number) {
-  "use cache: remote";
-  cacheLife("minutes");
-  tagProfile(username, "following");
+export const getProfileFollowers = (username: string, limit: number, offset: number) =>
+  getProfileConnections(username, "followers", limit, offset);
 
-  const { data, error } = await publicApi.users({ username }).following.get({
-    query: { limit, offset },
-  });
-  if (isNotFound(error)) return null;
-  if (error) throw new Error(`Failed to load following for ${username}`, { cause: error });
-
-  return data;
-}
+export const getProfileFollowing = (username: string, limit: number, offset: number) =>
+  getProfileConnections(username, "following", limit, offset);
 
 /** Viewer-specific data must never share the public Profile cache. */
 export async function getProfileViewerRelationship(username: string) {
@@ -94,4 +97,14 @@ export async function getProfileViewerRelationship(username: string) {
     throw new Error(`Failed to load follow state for ${username}`, { cause: error });
 
   return data;
+}
+
+export async function getProfileMetadata(username: string): Promise<Metadata> {
+  const profile = await getProfileOverview(username);
+  if (!profile) return { title: "Profile not found" };
+
+  return {
+    title: profile.user.displayUsername,
+    description: profile.profile?.bio?.slice(0, 160) || `View @${profile.user.username} on Tsuki.`,
+  };
 }

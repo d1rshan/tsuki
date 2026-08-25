@@ -1,22 +1,18 @@
-import { Suspense } from "react";
 import { notFound } from "next/navigation";
 
 import type { MediaType, Review } from "@tsuki/api/types";
 
 import { MEDIA } from "@/features/media/media";
-import { ProfileMediaToggle } from "@/features/profile/components/profile-media-toggle";
-import { ReviewItem } from "@/features/profile/components/profile-reviews";
-import { Loader } from "@/shared/components/loader";
 import { ContentState } from "@/shared/components/content-state";
 
+import { ProfileMediaToggle } from "../components/profile-media-toggle";
+import { ReviewItem } from "../components/profile-reviews";
 import { getProfileReviews } from "../data";
 
 function ReviewsForType({ reviews, mediaType }: { reviews: Review[]; mediaType: MediaType }) {
   const matchingReviews = reviews.filter((review) => review.mediaType === mediaType);
-
-  if (matchingReviews.length === 0) {
+  if (matchingReviews.length === 0)
     return <ContentState title={`No ${MEDIA[mediaType].label.toLowerCase()} reviews yet`} />;
-  }
 
   return (
     <div className="flex flex-col gap-10">
@@ -27,15 +23,7 @@ function ReviewsForType({ reviews, mediaType }: { reviews: Review[]; mediaType: 
   );
 }
 
-export function ProfileReviewsView({ username }: { username: string }) {
-  return (
-    <Suspense fallback={<Loader />}>
-      <ProfileReviewsContent username={username} />
-    </Suspense>
-  );
-}
-
-async function ProfileReviewsContent({ username }: { username: string }) {
+export async function ProfileReviewsView({ username }: { username: string }) {
   const reviews = await getProfileReviews(username);
   if (!reviews) notFound();
 

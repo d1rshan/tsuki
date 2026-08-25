@@ -1,21 +1,15 @@
 import { Suspense } from "react";
-import { notFound } from "next/navigation";
 
+import { resolveUsername } from "@/features/profile/data";
 import { ProfileFavoritesView } from "@/features/profile/views/profile-favorites-view";
-import { parseProfileUsername } from "@/features/profile/utils";
 import { Loader } from "@/shared/components/loader";
 
-export default function Page({ params }: { params: Promise<{ username: string }> }) {
+export default async function Page({ params }: { params: Promise<{ username: string }> }) {
+  const username = resolveUsername((await params).username);
+
   return (
     <Suspense fallback={<Loader />}>
-      <FavoritesContent params={params} />
+      <ProfileFavoritesView username={username} />
     </Suspense>
   );
-}
-
-async function FavoritesContent({ params }: { params: Promise<{ username: string }> }) {
-  const username = parseProfileUsername((await params).username);
-  if (!username) notFound();
-
-  return <ProfileFavoritesView username={username} />;
 }

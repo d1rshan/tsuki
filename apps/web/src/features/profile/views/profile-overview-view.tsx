@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { notFound } from "next/navigation";
 
 import {
@@ -6,19 +5,10 @@ import {
   RecentActivitySection,
 } from "@/features/profile/components/profile-overview";
 import { ProfileActivityHeatmap } from "@/features/profile/components/profile-activity-heatmap";
-import { Loader } from "@/shared/components/loader";
 
 import { getProfileOverview } from "../data";
 
-export function ProfileOverviewView({ username }: { username: string }) {
-  return (
-    <Suspense fallback={<Loader />}>
-      <ProfileOverviewContent username={username} />
-    </Suspense>
-  );
-}
-
-async function ProfileOverviewContent({ username }: { username: string }) {
+export async function ProfileOverviewView({ username }: { username: string }) {
   const profile = await getProfileOverview(username);
   if (!profile) notFound();
 

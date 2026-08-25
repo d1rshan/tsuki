@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { LoaderCircle } from "lucide-react";
 
+import type { AnyForm } from "@/shared/components/text-field";
+
 import { Button, buttonVariants } from "@/shared/components/ui/button";
 import {
   Card,
@@ -13,25 +15,21 @@ import {
 } from "@/shared/components/ui/card";
 import { FieldGroup, FieldSet } from "@/shared/components/ui/field";
 
-type AuthFormCardProps = {
-  action: "sign-in" | "sign-up";
-  children: React.ReactNode;
-  description: string;
-  isSubmitting: boolean;
-  onSubmit: React.FormEventHandler<HTMLFormElement>;
-  submitLabel: string;
-  title: string;
-};
-
 export function AuthFormCard({
   action,
   children,
   description,
-  isSubmitting,
-  onSubmit,
+  form,
   submitLabel,
   title,
-}: AuthFormCardProps) {
+}: {
+  action: "sign-in" | "sign-up";
+  children: React.ReactNode;
+  description: string;
+  form: AnyForm;
+  submitLabel: string;
+  title: string;
+}) {
   const isSignUpAction = action === "sign-up";
 
   return (
@@ -49,18 +47,36 @@ export function AuthFormCard({
           </Link>
         </CardAction>
       </CardHeader>
-      <form onSubmit={onSubmit} className="flex flex-col gap-(--card-spacing)">
-        <CardContent>
-          <FieldSet disabled={isSubmitting}>
-            <FieldGroup>{children}</FieldGroup>
-          </FieldSet>
-        </CardContent>
-        <CardFooter className="flex-col items-stretch">
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting && <LoaderCircle data-icon="inline-start" className="animate-spin" />}
-            {submitLabel}
-          </Button>
-        </CardFooter>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          void form.handleSubmit().catch(() => undefined);
+        }}
+        className="flex flex-col gap-(--card-spacing)"
+      >
+        {/* ponytail: loose seam — concrete useForm generics resist widening */}
+        <form.Subscribe
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          selector={(state: any) => state.isSubmitting}
+        >
+          {(isSubmitting: boolean) => (
+            <>
+              <CardContent>
+                <FieldSet disabled={isSubmitting}>
+                  <FieldGroup>{children}</FieldGroup>
+                </FieldSet>
+              </CardContent>
+              <CardFooter className="flex-col items-stretch">
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting && (
+                    <LoaderCircle data-icon="inline-start" className="animate-spin" />
+                  )}
+                  {submitLabel}
+                </Button>
+              </CardFooter>
+            </>
+          )}
+        </form.Subscribe>
       </form>
     </Card>
   );

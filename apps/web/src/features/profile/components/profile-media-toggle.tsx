@@ -5,8 +5,7 @@ import { useQueryState, parseAsStringEnum } from "nuqs";
 
 import type { MediaType } from "@tsuki/api/types";
 
-import { MEDIA } from "@/features/media/media";
-import { Button } from "@/shared/components/ui/button";
+import { MediaTypeToggleButton } from "@/features/media/components/media-type-toggle-button";
 
 export function ProfileMediaToggle({ anime, manga }: { anime: ReactNode; manga: ReactNode }) {
   const [type, setType] = useQueryState(
@@ -14,18 +13,9 @@ export function ProfileMediaToggle({ anime, manga }: { anime: ReactNode; manga: 
     parseAsStringEnum<MediaType>(["ANIME", "MANGA"]).withDefault("ANIME"),
   );
 
-  const nextType = type === "ANIME" ? "MANGA" : "ANIME";
-
   return (
     <div className="space-y-8">
-      <Button
-        type="button"
-        size="lg"
-        onClick={() => void setType(nextType)}
-        aria-label={`Switch from ${MEDIA[type].label} to ${MEDIA[nextType].label}`}
-      >
-        {MEDIA[type].label}
-      </Button>
+      <MediaTypeToggleButton mediaType={type} onChange={(next) => void setType(next)} />
       {type === "ANIME" ? anime : manga}
     </div>
   );

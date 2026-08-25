@@ -3,6 +3,7 @@
 import { useLayoutEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { revalidateLogic, useForm } from "@tanstack/react-form";
+import { useMutation } from "@tanstack/react-query";
 import { Edit2, LoaderCircle, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -16,38 +17,27 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/shared/components/ui/dialog";
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-  FieldLegend,
-  FieldSet,
-} from "@/shared/components/ui/field";
-import { Input } from "@/shared/components/ui/input";
-import { Textarea } from "@/shared/components/ui/textarea";
+import { FieldGroup, FieldLegend, FieldSet } from "@/shared/components/ui/field";
+import { TextField } from "@/shared/components/text-field";
 
-import { useProfileUpdateMutation } from "../hooks/use-profile-update-mutation";
+import { updateProfile } from "../actions";
 import { createProfileUpdate, profileFormSchema, type ProfileFormValues } from "../schemas";
 
-type Profile = UserOverview["profile"];
-
-export function EditProfileDialog({ profile }: { profile: Profile }) {
+export function EditProfileDialog({ profile }: { profile: UserOverview["profile"] }) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const updateMutation = useProfileUpdateMutation();
-
   const defaultValues = createProfileFormValues(profile);
+  const update = useMutation({ mutationFn: updateProfile });
+
   const form = useForm({
     defaultValues,
     validationLogic: revalidateLogic(),
     validators: { onDynamic: profileFormSchema },
     onSubmit: async ({ value }) => {
-      const result = await updateMutation.mutateAsync(createProfileUpdate(value)).catch(() => {
+      const result = await update.mutateAsync(createProfileUpdate(value)).catch(() => {
         toast.error("An unexpected error occurred.");
         throw new Error("Failed to update profile");
       });
-
       if (!result.success) {
         toast.error(result.error);
         throw new Error(result.error);
@@ -61,8 +51,8 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
 
   useLayoutEffect(() => () => setIsOpen(false), []);
 
-  function handleOpenChange(open: boolean) {
-    setIsOpen(open);
+  function handleOpenChange(nextIsOpen: boolean) {
+    setIsOpen(nextIsOpen);
     form.reset(defaultValues);
   }
 
@@ -73,7 +63,7 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
           <Button
             variant="outline"
             size="sm"
-            className="gap-2 rounded-full border-border/50 transition-colors hover:border-primary/50 hover:bg-primary/10 hover:text-primary"
+            className="rounded-full border-border/50 transition-colors hover:border-primary/50 hover:bg-primary/10 hover:text-primary"
           >
             <Edit2 data-icon="inline-start" />
             Edit Profile
@@ -97,52 +87,22 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
             {(isSubmitting) => (
               <FieldSet disabled={isSubmitting}>
                 <FieldGroup>
-                  <form.Field name="bio">
-                    {(field) => {
-                      const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
-
-                      return (
-                        <Field data-invalid={isInvalid}>
-                          <FieldLabel htmlFor={field.name}>Bio</FieldLabel>
-                          <Textarea
-                            id={field.name}
-                            name={field.name}
-                            value={field.state.value}
-                            onBlur={field.handleBlur}
-                            onChange={(event) => field.handleChange(event.target.value)}
-                            placeholder="Tell us about yourself..."
-                            className="resize-none"
-                            rows={3}
-                            aria-invalid={isInvalid}
-                          />
-                          {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                        </Field>
-                      );
-                    }}
-                  </form.Field>
-
-                  <form.Field name="bannerImage">
-                    {(field) => {
-                      const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
-
-                      return (
-                        <Field data-invalid={isInvalid}>
-                          <FieldLabel htmlFor={field.name}>Banner Image URL</FieldLabel>
-                          <Input
-                            id={field.name}
-                            name={field.name}
-                            type="url"
-                            value={field.state.value}
-                            onBlur={field.handleBlur}
-                            onChange={(event) => field.handleChange(event.target.value)}
-                            placeholder="https://example.com/banner.jpg"
-                            aria-invalid={isInvalid}
-                          />
-                          {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                        </Field>
-                      );
-                    }}
-                  </form.Field>
+                  <TextField
+                    form={form}
+                    name="bio"
+                    label="Bio"
+                    textarea
+                    rows={3}
+                    className="resize-none"
+                    placeholder="Tell us about yourself..."
+                  />
+                  <TextField
+                    form={form}
+                    name="bannerImage"
+                    label="Banner Image URL"
+                    type="url"
+                    placeholder="https://example.com/banner.jpg"
+                  />
 
                   <form.Field name="socialLinks" mode="array">
                     {(socialLinksField) => (
@@ -165,55 +125,21 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
                               key={index}
                               className="grid grid-cols-[1fr_2fr_auto] items-start gap-2"
                             >
-                              <form.Field name={`socialLinks[${index}].platform`}>
-                                {(field) => {
-                                  const isInvalid =
-                                    field.state.meta.isTouched && !field.state.meta.isValid;
-
-                                  return (
-                                    <Field data-invalid={isInvalid}>
-                                      <FieldLabel htmlFor={field.name} className="sr-only">
-                                        Platform {index + 1}
-                                      </FieldLabel>
-                                      <Input
-                                        id={field.name}
-                                        name={field.name}
-                                        value={field.state.value}
-                                        onBlur={field.handleBlur}
-                                        onChange={(event) => field.handleChange(event.target.value)}
-                                        placeholder="Platform"
-                                        aria-invalid={isInvalid}
-                                      />
-                                      {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                                    </Field>
-                                  );
-                                }}
-                              </form.Field>
-                              <form.Field name={`socialLinks[${index}].url`}>
-                                {(field) => {
-                                  const isInvalid =
-                                    field.state.meta.isTouched && !field.state.meta.isValid;
-
-                                  return (
-                                    <Field data-invalid={isInvalid}>
-                                      <FieldLabel htmlFor={field.name} className="sr-only">
-                                        URL {index + 1}
-                                      </FieldLabel>
-                                      <Input
-                                        id={field.name}
-                                        name={field.name}
-                                        type="url"
-                                        value={field.state.value}
-                                        onBlur={field.handleBlur}
-                                        onChange={(event) => field.handleChange(event.target.value)}
-                                        placeholder="https://x.com/..."
-                                        aria-invalid={isInvalid}
-                                      />
-                                      {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                                    </Field>
-                                  );
-                                }}
-                              </form.Field>
+                              <TextField
+                                form={form}
+                                name={`socialLinks[${index}].platform`}
+                                label={`Platform ${index + 1}`}
+                                hideLabel
+                                placeholder="Platform"
+                              />
+                              <TextField
+                                form={form}
+                                name={`socialLinks[${index}].url`}
+                                label={`URL ${index + 1}`}
+                                hideLabel
+                                type="url"
+                                placeholder="https://x.com/..."
+                              />
                               <Button
                                 type="button"
                                 variant="ghost"
@@ -230,19 +156,19 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
                       </FieldSet>
                     )}
                   </form.Field>
-                </FieldGroup>
 
-                <div className="flex justify-end gap-2 pt-2">
-                  <Button type="button" variant="ghost" onClick={() => handleOpenChange(false)}>
-                    Cancel
-                  </Button>
-                  <Button type="submit">
-                    {isSubmitting && (
-                      <LoaderCircle data-icon="inline-start" className="animate-spin" />
-                    )}
-                    Save Changes
-                  </Button>
-                </div>
+                  <div className="flex justify-end gap-2 pt-2">
+                    <Button type="button" variant="ghost" onClick={() => handleOpenChange(false)}>
+                      Cancel
+                    </Button>
+                    <Button type="submit">
+                      {isSubmitting && (
+                        <LoaderCircle data-icon="inline-start" className="animate-spin" />
+                      )}
+                      Save Changes
+                    </Button>
+                  </div>
+                </FieldGroup>
               </FieldSet>
             )}
           </form.Subscribe>
@@ -252,7 +178,7 @@ export function EditProfileDialog({ profile }: { profile: Profile }) {
   );
 }
 
-function createProfileFormValues(profile: Profile): ProfileFormValues {
+function createProfileFormValues(profile: UserOverview["profile"]): ProfileFormValues {
   return {
     bio: profile?.bio || "",
     bannerImage: profile?.bannerImage || "",
