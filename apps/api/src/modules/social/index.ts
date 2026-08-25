@@ -17,7 +17,7 @@ import { followProfile, unfollowProfile } from "./service";
 /** Popular on Tsuki: the default Friends list size. */
 const DISCOVERY_LIMIT = 24;
 
-export const socialRoutes = new Elysia()
+export const socialRoutes = new Elysia({ tags: ["Social"] })
   .use(authPlugin)
   .get(
     "/users/discover",

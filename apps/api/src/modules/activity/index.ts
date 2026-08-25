@@ -4,7 +4,7 @@ import { authPlugin } from "../../plugins/auth";
 import { getActivityFeed } from "./service";
 import { FeedModel, FeedQueryModel } from "./model";
 
-export const activityRoutes = new Elysia()
+export const activityRoutes = new Elysia({ tags: ["Activity"] })
   .use(authPlugin)
   .get("/me/activity", ({ query, user }) => getActivityFeed(user.id, query.type, query), {
     auth: true,

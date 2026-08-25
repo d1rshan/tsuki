@@ -7,7 +7,7 @@ import { ErrorModel } from "../../plugins/errors";
 import { ensureMedia } from "./service";
 import { MediaCompactModel, MediaModel, MediaTypeEnum } from "./model";
 
-export const mediaRoutes = new Elysia({ prefix: "/media" })
+export const mediaRoutes = new Elysia({ prefix: "/media", tags: ["Media"] })
   .get(
     "/:type/trending",
     async ({ params: { type } }) => {

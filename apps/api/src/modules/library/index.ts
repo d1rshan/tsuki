@@ -10,7 +10,7 @@ import { ReviewModel } from "../reviews/model";
 import { LibraryEntryInputModel, LibraryEntryModel, LibraryQueryModel } from "./model";
 import { logMedia, removeEntry } from "./service";
 
-export const libraryRoutes = new Elysia()
+export const libraryRoutes = new Elysia({ tags: ["Library"] })
   .use(authPlugin)
   .get(
     "/users/:username/library",
