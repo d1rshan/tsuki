@@ -14,6 +14,8 @@ type ThemeColors = {
   "muted-foreground": HexColor;
   destructive: HexColor;
   border: HexColor;
+  input?: HexColor;
+  ring?: HexColor;
 };
 
 type Theme = {
@@ -23,6 +25,24 @@ type Theme = {
 };
 
 export const THEMES = [
+  {
+    name: "Paper",
+    scheme: "light",
+    colors: {
+      background: "#ffffff",
+      foreground: "#0a0a0a",
+      surface: "#ffffff",
+      "surface-muted": "#fafafa",
+      primary: "#171717",
+      "primary-foreground": "#fafafa",
+      secondary: "#f5f5f5",
+      "muted-foreground": "#737373",
+      destructive: "#dc2626",
+      border: "#e5e5e5",
+      input: "#e5e5e5",
+      ring: "#a3a3a3",
+    },
+  },
   {
     name: "Ink",
     scheme: "dark",
@@ -34,9 +54,11 @@ export const THEMES = [
       primary: "#e5e5e5",
       "primary-foreground": "#171717",
       secondary: "#262626",
-      "muted-foreground": "#a1a1a1",
-      destructive: "#ff6467",
+      "muted-foreground": "#a3a3a3",
+      destructive: "#f87171",
       border: "#ffffff1a",
+      input: "#ffffff26",
+      ring: "#737373",
     },
   },
   {
