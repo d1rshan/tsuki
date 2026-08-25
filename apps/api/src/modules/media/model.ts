@@ -4,6 +4,7 @@ import {
   MEDIA_SOURCES,
   MEDIA_STATUSES,
   MEDIA_TYPES,
+  type MediaRow,
 } from "@tsuki/anilist";
 import { t } from "elysia";
 
@@ -84,3 +85,8 @@ export const MediaModel = t.Composite([
 
 export type Media = typeof MediaModel.static;
 export type MediaCompact = typeof MediaCompactModel.static;
+
+// Fails to compile if the AniList mapper gains a field this client-facing
+// model lacks — add it to MediaCompactModel/MediaModel when that happens.
+type MissingModelFields = Exclude<keyof MediaRow, keyof Media>;
+const _mediaRowFieldsCovered: [MissingModelFields] extends [never] ? true : false = true;
