@@ -37,8 +37,8 @@ build/
 *.tsbuildinfo
 
 # bun
-bun.lockb
-bun.lock
+# bun.lockb
+# bun.lock
 
 anilist-docs/
 anilist-docs/*
