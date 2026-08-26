@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -32,12 +32,15 @@ export function MediaEmbedDialog({
   const [src, setSrc] = useState("");
   const [alt, setAlt] = useState("");
 
-  useEffect(() => {
+  // Reset fields whenever the dialog reopens (React's adjust-state-on-prop-change).
+  const [wasOpen, setWasOpen] = useState(open);
+  if (open !== wasOpen) {
+    setWasOpen(open);
     if (open) {
       setSrc("");
       setAlt("");
     }
-  }, [open]);
+  }
 
   const valid = /^https:\/\/\S+/.test(src.trim()) && (!isImage || alt.trim().length > 0);
 

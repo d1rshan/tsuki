@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { Editor } from "@tiptap/react";
 
 import { Button } from "@/shared/components/ui/button";
@@ -27,9 +27,12 @@ export function LinkDialog({
   const [href, setHref] = useState("");
   const isActive = editor.isActive("link");
 
-  useEffect(() => {
+  // Seed the field with the current link whenever the dialog reopens.
+  const [wasOpen, setWasOpen] = useState(open);
+  if (open !== wasOpen) {
+    setWasOpen(open);
     if (open) setHref(editor.getAttributes("link").href ?? "");
-  }, [open, editor]);
+  }
 
   function save() {
     const trimmed = href.trim();

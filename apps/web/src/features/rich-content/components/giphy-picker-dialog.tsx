@@ -41,14 +41,20 @@ export function GiphyPickerDialog({
   onOpenChange: (dialog: null) => void;
 }) {
   const apiKey = GIPHY_KEYS[preset];
-  const [query, setQuery] = useState("");
+  // `loadedFor` tracks which query the results belong to; loading is derived.
+  const [{ query, loadedFor, gifs }, setPicker] = useState<{
+    query: string;
+    loadedFor: string | null;
+    gifs: IGif[];
+  }>({ query: "", loadedFor: null, gifs: [] });
   const search = useDebouncedValue(query.trim(), 300);
-  const [gifs, setGifs] = useState<IGif[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (!open) setQuery("");
-  }, [open]);
+  // Fresh search whenever the dialog reopens (React's adjust-state-on-prop-change).
+  const [wasOpen, setWasOpen] = useState(open);
+  if (open !== wasOpen) {
+    setWasOpen(open);
+    if (!open) setPicker({ query: "", loadedFor: null, gifs: [] });
+  }
 
   useEffect(() => {
     if (!open || !apiKey) return;
@@ -58,12 +64,12 @@ export function GiphyPickerDialog({
       ? client.search(search, { rating: "g", limit: 24 })
       : client.trending({ rating: "g", limit: 24 });
 
-    setIsLoading(true);
     request
-      .then((result) => setGifs(result.data))
-      .catch(() => setGifs([]))
-      .finally(() => setIsLoading(false));
+      .then((result) => setPicker((p) => ({ ...p, loadedFor: search, gifs: result.data })))
+      .catch(() => setPicker((p) => ({ ...p, loadedFor: search, gifs: [] })));
   }, [open, search, apiKey]);
+
+  const isLoading = open && loadedFor !== search;
 
   return (
     <Dialog open={open} onOpenChange={() => onOpenChange(null)}>
@@ -82,7 +88,7 @@ export function GiphyPickerDialog({
                 placeholder="Search GIFs…"
                 value={query}
                 autoFocus
-                onChange={(event) => setQuery(event.target.value)}
+                onChange={(event) => setPicker((p) => ({ ...p, query: event.target.value }))}
               />
             </Field>
 
