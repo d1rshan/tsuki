@@ -16,6 +16,7 @@
     "@tsuki/anilist": "workspace:*",
     "@tsuki/auth": "workspace:*",
     "@tsuki/db": "workspace:*",
+    "@tsuki/rich-content": "workspace:*",
     "elysia": "latest"
   },
   "devDependencies": {

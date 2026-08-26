@@ -39,7 +39,8 @@
     },
     "db:push": {
       "env": ["DATABASE_URL"],
-      "cache": false
+      "cache": false,
+      "interactive": true
     },
     "db:studio": {
       "cache": false

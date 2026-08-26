@@ -12,9 +12,4 @@ export const logMediaSchema = z.object({
   isFavorite: z.boolean().optional(),
 });
 
-export const reviewSchema = z.object({
-  content: z.string().trim().min(1),
-  containsSpoilers: z.boolean(),
-});
-
 export type LogMediaInput = z.input<typeof logMediaSchema>;

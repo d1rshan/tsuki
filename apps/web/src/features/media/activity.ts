@@ -1,12 +1,13 @@
 import type { LibraryEntry, ListStatus, MediaType, Review } from "@tsuki/api/types";
+import type { RichContent } from "@tsuki/rich-content";
 
 import type { LogMediaInput } from "./schemas";
 import { MEDIA } from "./media";
 
 export type ActivityForm = {
-  containsSpoilers: boolean;
   progress: string;
-  reviewContent: string;
+  /** Rich Content document (review preset); null when the author wrote nothing. */
+  review: RichContent | null;
   score: number;
   status: ListStatus;
 };
@@ -24,9 +25,8 @@ export function createActivityForm(
   review: Review | null,
 ): ActivityForm {
   return {
-    containsSpoilers: review?.containsSpoilers ?? false,
     progress: entry ? String(entry.progress) : "0",
-    reviewContent: review?.content ?? "",
+    review: review?.content ?? null,
     score: entry?.score ?? 0,
     status: entry?.status ?? MEDIA[mediaType].defaultStatus,
   };

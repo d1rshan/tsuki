@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { cacheLife, cacheTag } from "next/cache";
 
 import type { MediaType } from "@tsuki/api/types";
+import { richContentText } from "@tsuki/rich-content";
 
 import { parseUsername } from "@/shared/lib/username";
 import { publicApi } from "@/shared/lib/public-api";
@@ -105,6 +106,8 @@ export async function getProfileMetadata(username: string): Promise<Metadata> {
 
   return {
     title: profile.user.displayUsername,
-    description: profile.profile?.bio?.slice(0, 160) || `View @${profile.user.username} on Tsuki.`,
+    description:
+      richContentText(profile.profile?.bio).trim().slice(0, 160) ||
+      `View @${profile.user.username} on Tsuki.`,
   };
 }

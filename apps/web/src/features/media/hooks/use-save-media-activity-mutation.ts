@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import type { Review, MediaType } from "@tsuki/api/types";
+import { isEmptyRichContent } from "@tsuki/rich-content";
 
 import { deleteReviewAction, logMediaAction, submitReviewAction } from "../actions";
 import { createLogMediaInput, saveMediaActivity, type ActivityForm } from "../activity";
@@ -20,9 +21,8 @@ export function useSaveMediaActivityMutation(mediaType: MediaType, mediaId: numb
       saveMediaActivity(
         () => logMediaAction(mediaType, mediaId, createLogMediaInput(form, isFavorite, total)),
         async () => {
-          const reviewContent = form.reviewContent.trim();
-          if (reviewContent) {
-            await submitReviewAction(mediaType, mediaId, reviewContent, form.containsSpoilers);
+          if (!isEmptyRichContent(form.review)) {
+            await submitReviewAction(mediaType, mediaId, form.review!);
           } else if (review) {
             await deleteReviewAction(mediaType, mediaId);
           }
