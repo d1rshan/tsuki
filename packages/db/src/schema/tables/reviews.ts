@@ -2,12 +2,14 @@ import {
   pgTable,
   text,
   timestamp,
-  boolean,
   integer,
   foreignKey,
   index,
+  jsonb,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+
+import type { RichContent } from "@tsuki/rich-content";
 
 import { user } from "./auth";
 import { media } from "./media";
@@ -26,8 +28,8 @@ export const reviews = pgTable(
     mediaId: integer("media_id").notNull(),
     /** Denormalised from media.type — kept honest by the composite FK below. */
     mediaType: mediaTypeEnum("media_type").notNull(),
-    content: text("content").notNull(),
-    containsSpoilers: boolean("contains_spoilers").default(false).notNull(),
+    /** Rich Content document (review preset); spoilers live inside the document. */
+    content: jsonb("content").$type<RichContent>().notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()

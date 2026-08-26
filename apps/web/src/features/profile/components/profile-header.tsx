@@ -4,6 +4,8 @@ import { Link as LinkIcon } from "lucide-react";
 
 import type { UserOverview } from "@tsuki/api/types";
 
+import { RichContentView } from "@/features/rich-content/components/rich-content-view";
+
 import { ProfileTabs } from "./profile-tabs";
 
 type ProfileHeaderProps = {
@@ -62,9 +64,11 @@ export function ProfileHeader({ actions, profile, social, stats, user }: Profile
           </div>
 
           {profile?.bio ? (
-            <p className="mt-4 max-w-2xl whitespace-pre-wrap text-sm leading-relaxed text-foreground/80 md:text-base">
-              {profile.bio}
-            </p>
+            <RichContentView
+              content={profile.bio}
+              mode="compact"
+              className="mt-4 max-w-2xl text-sm leading-relaxed text-foreground/80 md:text-base"
+            />
           ) : null}
 
           <SocialLinks links={profile?.socialLinks} />

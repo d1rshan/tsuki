@@ -34,10 +34,11 @@ export const reviewRoutes = new Elysia({ tags: ["Reviews"] })
       auth: true,
       params: t.Object({ type: MediaTypeEnum, id: t.Numeric() }),
       body: ReviewInputModel,
-      response: { 200: ReviewModel, 404: ErrorModel, 500: ErrorModel },
+      response: { 200: ReviewModel, 404: ErrorModel, 422: ErrorModel, 500: ErrorModel },
       detail: {
         summary: "Submit a review",
-        description: "Creates or replaces the current user's review for this title.",
+        description:
+          "Creates or replaces the current user's review for this title. Content must be a valid Rich Content document for the review preset.",
       },
     },
   )
