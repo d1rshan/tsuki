@@ -1,7 +1,7 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 
-import { renderRichContent } from "./render";
-import type { RichContent } from "./types";
+import { renderRichContent } from "../src/render";
+import type { RichContent } from "../src/types";
 
 const text = (value: string, marks?: unknown[]) => ({ type: "text", text: value, marks });
 const para = (...inline: unknown[]) => ({ type: "paragraph", content: inline });
