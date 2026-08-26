@@ -81,8 +81,18 @@ export const MediaEmbed = Node.create({
   },
 
   // No parseHTML (insert-only): pasted images/iframes are dropped rather than imported.
+  // Alignment maps textAlign to auto margins: images are block-level (Tailwind
+  // preflight), so text-align can't move them; margins do. Justify is a no-op
+  // for a single block and renders as left.
   renderHTML({ node }) {
     const { kind, src, alt } = node.attrs as { kind: string; src: string; alt: string | null };
+    const align = node.attrs.textAlign as string | null;
+    const alignStyle =
+      align === "center"
+        ? { style: "margin-inline: auto" }
+        : align === "right"
+          ? { style: "margin-left: auto" }
+          : {};
 
     if (kind === "video") {
       return [
@@ -114,6 +124,7 @@ export const MediaEmbed = Node.create({
           draggable: "false",
         },
         kind === "gif" ? { "data-giphy": "" } : {},
+        alignStyle,
       ),
     ];
   },
@@ -136,7 +147,7 @@ export function richContentExtensions(options?: { undoRedo?: boolean }) {
       },
       undoRedo: options?.undoRedo === false ? false : undefined,
     }),
-    TextAlign.configure({ types: ["paragraph", "heading"] }),
+    TextAlign.configure({ types: ["paragraph", "heading", "mediaEmbed"] }),
     Spoiler,
     MediaEmbed,
   ];

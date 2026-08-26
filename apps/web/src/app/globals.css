@@ -130,58 +130,60 @@
         border: 0;
       }
     }
+  }
 
-    /* Concealed Spoiler blocks in read mode; revealed via .revealed (JS). */
-    .rich-content [data-spoiler] {
-      position: relative;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
+  /* Concealed Spoiler blocks in read mode; revealed via .revealed (JS).
+     Top-level (not nested in the group above): nesting would double-prefix
+     the selector and never match. */
+  .rich-content [data-spoiler] {
+    position: relative;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
 
-      &:not(.revealed) {
-        user-select: none;
+    &:not(.revealed) {
+      user-select: none;
 
-        > * {
-          visibility: hidden;
-        }
+      > * {
+        visibility: hidden;
+      }
 
-        &::after {
-          content: attr(data-label);
-          position: absolute;
-          inset: 0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          min-height: 2rem;
-          padding: 0.25rem 0.75rem;
-          border-radius: inherit;
-          background: var(--muted);
-          color: var(--muted-foreground);
-          font-size: 0.8125rem;
-          font-weight: 500;
-          text-align: center;
-        }
+      &::after {
+        content: attr(data-label);
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 2rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: inherit;
+        background: var(--muted);
+        color: var(--muted-foreground);
+        font-size: 0.8125rem;
+        font-weight: 500;
+        text-align: center;
+      }
 
-        &:hover::after {
-          color: var(--foreground);
-        }
+      &:hover::after {
+        color: var(--foreground);
+      }
 
-        &:focus-visible {
-          outline: 2px solid var(--ring);
-        }
+      &:focus-visible {
+        outline: 2px solid var(--ring);
       }
     }
+  }
 
-    /* Spoilers stay editable in the editor: visible, not concealed. */
-    .rich-content-editing [data-spoiler] {
-      outline: 1px dashed var(--ring);
-    }
+  /* Spoilers stay editable in the editor: visible, not concealed. */
+  .rich-content-editing [data-spoiler] {
+    outline: 1px dashed var(--ring);
+  }
 
-    /* Selected media embeds show a ring so users can see what they'll delete. */
-    .rich-content-editing .ProseMirror-selectednode {
-      outline: 2px solid var(--ring);
-      outline-offset: 2px;
-      border-radius: var(--radius-sm);
-    }
+  /* Selected media embeds show a ring so users can see what they'll delete. */
+  .rich-content-editing .ProseMirror-selectednode {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
   }
 
   .rich-content--compact {

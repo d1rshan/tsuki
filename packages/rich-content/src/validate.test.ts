@@ -141,6 +141,11 @@ describe("bio preset", () => {
       validateRichContent(doc(gif("http://media.giphy.com/media/x/giphy.gif")), "bio").ok,
     ).toBeFalse();
   });
+
+  test("rejects media alignment (review-only capability)", () => {
+    const aligned = { ...gif(), attrs: { ...gif().attrs, textAlign: "center" } };
+    expect(validateRichContent(doc(aligned), "bio").ok).toBeFalse();
+  });
 });
 
 describe("review preset", () => {
@@ -192,6 +197,17 @@ describe("review preset", () => {
         "review",
       ).ok,
     ).toBeFalse();
+  });
+
+  test("accepts whitelisted media alignment and rejects the rest", () => {
+    for (const align of ["center", "right", "justify", "left"]) {
+      const aligned = { ...gif(), attrs: { ...gif().attrs, textAlign: align } };
+      expect(validateRichContent(doc(aligned), "review").ok).toBeTrue();
+    }
+    for (const align of ["middle", "start", ""]) {
+      const aligned = { ...gif(), attrs: { ...gif().attrs, textAlign: align } };
+      expect(validateRichContent(doc(aligned), "review").ok).toBeFalse();
+    }
   });
 
   test("rejects unsupported video providers and accepts approved ones", () => {
@@ -316,10 +332,13 @@ describe("text alignment", () => {
     }
   });
 
-  test("rejects alignment attributes on non-text blocks", () => {
-    const embed = gif();
-    embed.attrs = { ...embed.attrs, textAlign: "center" };
-    expect(validateRichContent(doc(embed), "review").ok).toBeFalse();
+  test("rejects alignment attributes on blocks that cannot take them", () => {
+    const quoted = {
+      type: "blockquote",
+      attrs: { textAlign: "center" },
+      content: [para(text("x"))],
+    };
+    expect(validateRichContent(doc(quoted), "review").ok).toBeFalse();
   });
 });
 

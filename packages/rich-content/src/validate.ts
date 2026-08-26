@@ -276,7 +276,8 @@ function walkBlock(
     }
     case "mediaEmbed": {
       if (node.content !== undefined || node.marks !== undefined) return null;
-      if (!hasOnlyKnownAttrs(node, ["kind", "src", "alt"])) return null;
+      // validTextAlign also enforces the known-attr allowlist.
+      if (!validTextAlign(node, ["kind", "src", "alt", "textAlign"], presetName)) return null;
       const attrs = (node.attrs ?? {}) as Record<string, RichContentAttr>;
 
       const preset = RICH_CONTENT_PRESETS[presetName];
