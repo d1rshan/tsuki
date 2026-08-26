@@ -1,6 +1,5 @@
 "use client";
 
-import { useLayoutEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { revalidateLogic, useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
@@ -9,6 +8,12 @@ import { toast } from "sonner";
 
 import type { UserOverview } from "@tsuki/api/types";
 
+import {
+  DiscardChangesDialog,
+  useDiscardableDialog,
+  useUnloadWarning,
+} from "@/features/rich-content/components/discard-changes";
+import { RichContentEditor } from "@/features/rich-content/components/rich-content-editor";
 import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,
@@ -17,7 +22,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/shared/components/ui/dialog";
-import { FieldGroup, FieldLegend, FieldSet } from "@/shared/components/ui/field";
+import { Field, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "@/shared/components/ui/field";
 import { TextField } from "@/shared/components/text-field";
 
 import { updateProfile } from "../actions";
@@ -25,7 +30,6 @@ import { createProfileUpdate, profileFormSchema, type ProfileFormValues } from "
 
 export function EditProfileDialog({ profile }: { profile: UserOverview["profile"] }) {
   const router = useRouter();
-  const [isOpen, setIsOpen] = useState(false);
   const defaultValues = createProfileFormValues(profile);
   const update = useMutation({ mutationFn: updateProfile });
 
@@ -44,20 +48,17 @@ export function EditProfileDialog({ profile }: { profile: UserOverview["profile"
       }
 
       toast.success("Profile updated successfully");
-      handleOpenChange(false);
+      dialog.close();
       router.refresh();
     },
   });
+  // Remounts the uncontrolled editor whenever the form resets (open/discard/close).
+  const dialog = useDiscardableDialog(form.state.isDirty, () => form.reset(defaultValues));
 
-  useLayoutEffect(() => () => setIsOpen(false), []);
-
-  function handleOpenChange(nextIsOpen: boolean) {
-    setIsOpen(nextIsOpen);
-    form.reset(defaultValues);
-  }
+  useUnloadWarning(form.state.isDirty);
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+    <Dialog open={dialog.isOpen} onOpenChange={dialog.handleOpenChange}>
       <DialogTrigger
         render={
           <Button
@@ -87,15 +88,21 @@ export function EditProfileDialog({ profile }: { profile: UserOverview["profile"
             {(isSubmitting) => (
               <FieldSet disabled={isSubmitting}>
                 <FieldGroup>
-                  <TextField
-                    form={form}
-                    name="bio"
-                    label="Bio"
-                    textarea
-                    rows={3}
-                    className="resize-none"
-                    placeholder="Tell us about yourself..."
-                  />
+                  <form.Field name="bio">
+                    {(field) => (
+                      <Field>
+                        <FieldLabel htmlFor="edit-profile-bio">Bio</FieldLabel>
+                        <RichContentEditor
+                          key={dialog.editorResetKey}
+                          preset="bio"
+                          value={field.state.value}
+                          onChange={(value) => field.handleChange(value)}
+                          disabled={isSubmitting}
+                          ariaLabel="Bio"
+                        />
+                      </Field>
+                    )}
+                  </form.Field>
                   <TextField
                     form={form}
                     name="bannerImage"
@@ -158,7 +165,11 @@ export function EditProfileDialog({ profile }: { profile: UserOverview["profile"
                   </form.Field>
 
                   <div className="flex justify-end gap-2 pt-2">
-                    <Button type="button" variant="ghost" onClick={() => handleOpenChange(false)}>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => dialog.handleOpenChange(false)}
+                    >
                       Cancel
                     </Button>
                     <Button type="submit">
@@ -174,13 +185,18 @@ export function EditProfileDialog({ profile }: { profile: UserOverview["profile"
           </form.Subscribe>
         </form>
       </DialogContent>
+      <DiscardChangesDialog
+        open={dialog.isConfirmingClose}
+        onDiscard={dialog.discard}
+        onKeepEditing={dialog.keepEditing}
+      />
     </Dialog>
   );
 }
 
 function createProfileFormValues(profile: UserOverview["profile"]): ProfileFormValues {
   return {
-    bio: profile?.bio || "",
+    bio: profile?.bio ?? null,
     bannerImage: profile?.bannerImage || "",
     socialLinks: Object.entries(profile?.socialLinks ?? {}).map(([platform, url]) => ({
       platform,

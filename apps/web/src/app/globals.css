@@ -60,3 +60,140 @@
     @apply font-sans;
   }
 }
+
+@layer components {
+  /* Rich Content display (rendered statically by @tsuki/rich-content) and
+     the editor surface — shared so editing is WYSIWYG with what renders. */
+  .rich-content,
+  .rich-content-editing {
+    & > * + * {
+      margin-top: 0.75em;
+    }
+    p {
+      margin: 0;
+    }
+    h2 {
+      margin: 1.25em 0 0;
+      font-size: 1.25em;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    h3 {
+      margin: 1em 0 0;
+      font-size: 1.1em;
+      font-weight: 600;
+    }
+    ul,
+    ol {
+      margin: 0;
+      padding-left: 1.5em;
+    }
+    ul {
+      list-style: disc;
+    }
+    ol {
+      list-style: decimal;
+    }
+    li > p {
+      margin: 0;
+    }
+    li + li {
+      margin-top: 0.25em;
+    }
+    blockquote {
+      margin: 0;
+      border-left: 3px solid var(--primary);
+      padding-left: 1em;
+      color: var(--muted-foreground);
+    }
+    a {
+      color: var(--primary);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: var(--radius-md);
+    }
+
+    /* Responsive, safe video embeds. */
+    [data-video] {
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      border-radius: var(--radius-md);
+      background: black;
+
+      iframe {
+        width: 100%;
+        height: 100%;
+        border: 0;
+      }
+    }
+  }
+
+  /* Concealed Spoiler blocks in read mode; revealed via .revealed (JS).
+     Top-level (not nested in the group above): nesting would double-prefix
+     the selector and never match. */
+  .rich-content [data-spoiler] {
+    position: relative;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+
+    &:not(.revealed) {
+      user-select: none;
+
+      > * {
+        visibility: hidden;
+      }
+
+      &::after {
+        content: attr(data-label);
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 2rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: inherit;
+        background: var(--muted);
+        color: var(--muted-foreground);
+        font-size: 0.8125rem;
+        font-weight: 500;
+        text-align: center;
+      }
+
+      &:hover::after {
+        color: var(--foreground);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--ring);
+      }
+    }
+  }
+
+  /* Spoilers stay editable in the editor: visible, not concealed. */
+  .rich-content-editing [data-spoiler] {
+    outline: 1px dashed var(--ring);
+  }
+
+  /* Selected media embeds show a ring so users can see what they'll delete. */
+  .rich-content-editing .ProseMirror-selectednode {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  .rich-content--compact {
+    font-size: 0.875em;
+
+    & h2 {
+      font-size: 1.15em;
+    }
+    & h3 {
+      font-size: 1.05em;
+    }
+  }
+}

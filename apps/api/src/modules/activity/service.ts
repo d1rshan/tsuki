@@ -1,3 +1,4 @@
+import { renderRichContent } from "@tsuki/rich-content";
 import { activityDal } from "@tsuki/db";
 
 type Cursor = { occurredAt: Date; id: string };
@@ -35,5 +36,17 @@ export async function getActivityFeed(
           limit: query.limit ?? 20,
         });
 
-  return { ...feed, nextCursor: encodeFeedCursor(feed.nextCursor) };
+  // Review cards ship pre-rendered HTML; the stored document never crosses
+  // the wire, so clients need no renderer (or its validation) at all.
+  const activities = feed.activities.map((activity) => {
+    const { content, ...snapshot } = activity.snapshot;
+    return {
+      ...activity,
+      snapshot: content
+        ? { ...snapshot, contentHtml: renderRichContent(content, "compact") }
+        : snapshot,
+    };
+  });
+
+  return { activities, nextCursor: encodeFeedCursor(feed.nextCursor) };
 }

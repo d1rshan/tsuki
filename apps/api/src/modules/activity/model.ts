@@ -15,8 +15,8 @@ const FeedSnapshotModel = t.Object({
   progress: t.Optional(t.Number()),
   progressVolumes: t.Optional(t.Nullable(t.Number())),
   repeat: t.Optional(t.Number()),
-  content: t.Optional(t.String()),
-  containsSpoilers: t.Optional(t.Boolean()),
+  /** Review documents ship pre-rendered; clients never parse the raw doc. */
+  contentHtml: t.Optional(t.String()),
 });
 
 export const FeedActivityModel = t.Object({

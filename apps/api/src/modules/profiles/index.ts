@@ -1,6 +1,8 @@
 import { Elysia, t, status } from "elysia";
 
 import { profileDal } from "@tsuki/db";
+import type { RichContent } from "@tsuki/rich-content";
+import { isEmptyRichContent, validateRichContent } from "@tsuki/rich-content";
 
 import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
@@ -33,7 +35,20 @@ export const profilesRoutes = new Elysia({ tags: ["Profiles"] })
   .put(
     "/me/profile",
     async ({ body, user }) => {
-      const [profile] = await profileDal.updateUserProfile(user.id, body);
+      // The editor is not a security boundary: the API owns Rich Content policy.
+      const { bio: rawBio, ...settings } = body;
+      let bio: RichContent | null | undefined;
+      if (rawBio !== undefined) {
+        const parsed = validateRichContent(rawBio, "bio");
+        if (!parsed.ok) return status(422, { error: parsed.reason });
+        // An empty bio stores as null, keeping one representation of "none".
+        bio = isEmptyRichContent(parsed.value) ? null : parsed.value;
+      }
+
+      const [profile] = await profileDal.updateUserProfile(user.id, {
+        ...settings,
+        ...(rawBio !== undefined && { bio }),
+      });
       if (!profile) return status(500, { error: "Failed to update profile" });
 
       return profile;
@@ -41,10 +56,11 @@ export const profilesRoutes = new Elysia({ tags: ["Profiles"] })
     {
       auth: true,
       body: UpdateProfileModel,
-      response: { 200: ProfileModel, 500: ErrorModel },
+      response: { 200: ProfileModel, 422: ErrorModel, 500: ErrorModel },
       detail: {
         summary: "Update my profile",
-        description: "Updates the authenticated user's profile settings.",
+        description:
+          "Updates the authenticated user's profile settings. Bio must be a valid Rich Content document for the bio preset.",
       },
     },
   );

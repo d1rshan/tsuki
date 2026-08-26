@@ -3,10 +3,11 @@ import { t } from "elysia";
 import { URL_PATTERN } from "../../patterns";
 import { FollowRelationshipModel, UserSummaryModel } from "../social/model";
 import { LibraryEntryModel } from "../library/model";
+import { RichContentModel } from "../rich-content/model";
 import { ReviewModel } from "../reviews/model";
 
 export const ProfileModel = t.Object({
-  bio: t.Nullable(t.String({ maxLength: 500 })),
+  bio: t.Nullable(RichContentModel),
   bannerImage: t.Nullable(t.String({ pattern: URL_PATTERN })),
   socialLinks: t.Nullable(t.Record(t.String(), t.String({ pattern: URL_PATTERN }))),
 });
