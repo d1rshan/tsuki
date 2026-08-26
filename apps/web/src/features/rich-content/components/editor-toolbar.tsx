@@ -2,6 +2,7 @@
 
 import type { Editor } from "@tiptap/react";
 import { useEditorState } from "@tiptap/react";
+import type { ReactNode } from "react";
 import {
   AlignCenter,
   AlignJustify,
@@ -32,18 +33,25 @@ import {
 
 import type { InsertKind } from "./rich-content-editor";
 
+type Chain = ReturnType<Editor["chain"]>;
+
+type ToolDef = {
+  label: string;
+  icon: ReactNode;
+  active?: boolean;
+  onClick: () => void;
+};
+
 function ToolButton({
   label,
   active,
-  disabled,
   onClick,
-  children,
+  icon,
 }: {
   label: string;
   active?: boolean;
-  disabled?: boolean;
   onClick: () => void;
-  children: React.ReactNode;
+  icon: ReactNode;
 }) {
   return (
     <Tooltip>
@@ -53,13 +61,12 @@ function ToolButton({
             type="button"
             variant="ghost"
             size="icon-sm"
-            disabled={disabled}
             aria-label={label}
             aria-pressed={active}
             className={active ? "bg-primary/10 text-primary" : undefined}
             onClick={onClick}
           >
-            {children}
+            {icon}
           </Button>
         }
       />
@@ -98,6 +105,112 @@ export function EditorToolbar({
     }),
   });
 
+  // Turns a chain step into a click handler so fresh state is used per click.
+  const run = (step: (chain: Chain) => { run(): void }) => () => {
+    step(editor.chain().focus()).run();
+  };
+
+  const tools: ToolDef[] = [
+    { label: "Bold", icon: <Bold />, active: state.isBold, onClick: run((c) => c.toggleBold()) },
+    {
+      label: "Italic",
+      icon: <Italic />,
+      active: state.isItalic,
+      onClick: run((c) => c.toggleItalic()),
+    },
+    {
+      label: "Underline",
+      icon: <UnderlineIcon />,
+      active: state.isUnderline,
+      onClick: run((c) => c.toggleUnderline()),
+    },
+    {
+      label: "Strikethrough",
+      icon: <Strikethrough />,
+      active: state.isStrike,
+      onClick: run((c) => c.toggleStrike()),
+    },
+
+    ...(isReview
+      ? [
+          {
+            label: "Heading",
+            icon: <Heading2 />,
+            active: state.isHeading2,
+            onClick: run((c) => c.toggleHeading({ level: 2 })),
+          },
+          {
+            label: "Subheading",
+            icon: <Heading3 />,
+            active: state.isHeading3,
+            onClick: run((c) => c.toggleHeading({ level: 3 })),
+          },
+          {
+            label: "Bullet list",
+            icon: <List />,
+            active: state.isBulletList,
+            onClick: run((c) => c.toggleBulletList()),
+          },
+          {
+            label: "Numbered list",
+            icon: <ListOrdered />,
+            active: state.isOrderedList,
+            onClick: run((c) => c.toggleOrderedList()),
+          },
+          {
+            label: "Quote",
+            icon: <QuoteIcon />,
+            active: state.isBlockquote,
+            onClick: run((c) => c.toggleBlockquote()),
+          },
+          { label: "Spoiler", icon: <EyeOff />, onClick: () => onOpenDialog("spoiler") },
+          {
+            label: "Align left",
+            icon: <AlignLeft />,
+            active: !(state.isAlignCenter || state.isAlignRight || state.isAlignJustify),
+            onClick: run((c) => c.unsetTextAlign()),
+          },
+          {
+            label: "Align center",
+            icon: <AlignCenter />,
+            active: state.isAlignCenter,
+            onClick: run((c) => c.setTextAlign("center")),
+          },
+          {
+            label: "Align right",
+            icon: <AlignRight />,
+            active: state.isAlignRight,
+            onClick: run((c) => c.setTextAlign("right")),
+          },
+          {
+            label: "Align justify",
+            icon: <AlignJustify />,
+            active: state.isAlignJustify,
+            onClick: run((c) => c.setTextAlign("justify")),
+          },
+        ]
+      : []),
+
+    { label: "Link", icon: <Link2 />, active: state.isLink, onClick: () => onOpenDialog("link") },
+
+    ...(isReview
+      ? [
+          { label: "Insert image", icon: <ImagePlus />, onClick: () => onOpenDialog("image") },
+          { label: "Embed video", icon: <Clapperboard />, onClick: () => onOpenDialog("video") },
+        ]
+      : []),
+
+    {
+      label: "GIF",
+      icon: (
+        <span aria-hidden className="text-[10px] font-bold tracking-tight">
+          GIF
+        </span>
+      ),
+      onClick: () => onOpenDialog("gif"),
+    },
+  ];
+
   return (
     <TooltipProvider>
       <div
@@ -105,125 +218,9 @@ export function EditorToolbar({
         aria-label="Formatting"
         className="flex flex-wrap items-center gap-0.5 rounded-md border bg-muted/30 p-1"
       >
-        <ToolButton
-          label="Bold"
-          active={state.isBold}
-          onClick={() => editor.chain().focus().toggleBold().run()}
-        >
-          <Bold />
-        </ToolButton>
-        <ToolButton
-          label="Italic"
-          active={state.isItalic}
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-        >
-          <Italic />
-        </ToolButton>
-        <ToolButton
-          label="Underline"
-          active={state.isUnderline}
-          onClick={() => editor.chain().focus().toggleUnderline().run()}
-        >
-          <UnderlineIcon />
-        </ToolButton>
-        <ToolButton
-          label="Strikethrough"
-          active={state.isStrike}
-          onClick={() => editor.chain().focus().toggleStrike().run()}
-        >
-          <Strikethrough />
-        </ToolButton>
-
-        {isReview && (
-          <>
-            <ToolButton
-              label="Heading"
-              active={state.isHeading2}
-              onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-            >
-              <Heading2 />
-            </ToolButton>
-            <ToolButton
-              label="Subheading"
-              active={state.isHeading3}
-              onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-            >
-              <Heading3 />
-            </ToolButton>
-            <ToolButton
-              label="Bullet list"
-              active={state.isBulletList}
-              onClick={() => editor.chain().focus().toggleBulletList().run()}
-            >
-              <List />
-            </ToolButton>
-            <ToolButton
-              label="Numbered list"
-              active={state.isOrderedList}
-              onClick={() => editor.chain().focus().toggleOrderedList().run()}
-            >
-              <ListOrdered />
-            </ToolButton>
-            <ToolButton
-              label="Quote"
-              active={state.isBlockquote}
-              onClick={() => editor.chain().focus().toggleBlockquote().run()}
-            >
-              <QuoteIcon />
-            </ToolButton>
-            <ToolButton label="Spoiler" onClick={() => onOpenDialog("spoiler")}>
-              <EyeOff />
-            </ToolButton>
-            <ToolButton
-              label="Align left"
-              active={!(state.isAlignCenter || state.isAlignRight || state.isAlignJustify)}
-              onClick={() => editor.chain().focus().unsetTextAlign().run()}
-            >
-              <AlignLeft />
-            </ToolButton>
-            <ToolButton
-              label="Align center"
-              active={state.isAlignCenter}
-              onClick={() => editor.chain().focus().setTextAlign("center").run()}
-            >
-              <AlignCenter />
-            </ToolButton>
-            <ToolButton
-              label="Align right"
-              active={state.isAlignRight}
-              onClick={() => editor.chain().focus().setTextAlign("right").run()}
-            >
-              <AlignRight />
-            </ToolButton>
-            <ToolButton
-              label="Align justify"
-              active={state.isAlignJustify}
-              onClick={() => editor.chain().focus().setTextAlign("justify").run()}
-            >
-              <AlignJustify />
-            </ToolButton>
-          </>
-        )}
-
-        <ToolButton label="Link" active={state.isLink} onClick={() => onOpenDialog("link")}>
-          <Link2 />
-        </ToolButton>
-
-        {isReview && (
-          <ToolButton label="Insert image" onClick={() => onOpenDialog("image")}>
-            <ImagePlus />
-          </ToolButton>
-        )}
-        {isReview && (
-          <ToolButton label="Embed video" onClick={() => onOpenDialog("video")}>
-            <Clapperboard />
-          </ToolButton>
-        )}
-        <ToolButton label="GIF" onClick={() => onOpenDialog("gif")}>
-          <span aria-hidden className="text-[10px] font-bold tracking-tight">
-            GIF
-          </span>
-        </ToolButton>
+        {tools.map((tool) => (
+          <ToolButton key={tool.label} {...tool} />
+        ))}
       </div>
     </TooltipProvider>
   );
