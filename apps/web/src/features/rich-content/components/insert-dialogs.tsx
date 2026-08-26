@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import type { MediaEmbedKind } from "@tsuki/rich-content";
+
 import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,
@@ -14,7 +16,7 @@ import {
 import { Field, FieldDescription, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 
-export type InsertAttrs = { kind: string; src: string; alt?: string | null };
+export type InsertAttrs = { kind: MediaEmbedKind; src: string; alt?: string | null };
 
 /** Shared dialog for inserting an image (with required alt text) or a video URL. */
 export function MediaEmbedDialog({

@@ -6,6 +6,7 @@ import type { IGif } from "@giphy/js-types";
 import { Grid } from "@giphy/react-components";
 
 import { env } from "@tsuki/env/web";
+import type { RichContentPresetName } from "@tsuki/rich-content";
 
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -21,7 +22,7 @@ import { useDebouncedValue } from "@/shared/hooks/use-debounced-value";
 
 import type { InsertAttrs } from "./insert-dialogs";
 
-const CLIENTS: Record<"bio" | "review", GiphyFetch> = {
+const CLIENTS: Record<RichContentPresetName, GiphyFetch> = {
   bio: new GiphyFetch(env.NEXT_PUBLIC_GIPHY_BIO_KEY),
   review: new GiphyFetch(env.NEXT_PUBLIC_GIPHY_REVIEW_KEY),
 };
@@ -54,7 +55,7 @@ function PickerBody({
   preset,
   onSelect,
 }: {
-  preset: "bio" | "review";
+  preset: RichContentPresetName;
   onSelect: (gif: IGif) => void;
 }) {
   const client = CLIENTS[preset];
@@ -111,7 +112,7 @@ export function GiphyPickerDialog({
   onInsert,
   onOpenChange,
 }: {
-  preset: "bio" | "review";
+  preset: RichContentPresetName;
   open: boolean;
   onInsert: (attrs: InsertAttrs) => void;
   onOpenChange: (dialog: null) => void;

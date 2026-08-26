@@ -1,6 +1,5 @@
 "use client";
 
-import { useLayoutEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { revalidateLogic, useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
@@ -11,6 +10,7 @@ import type { UserOverview } from "@tsuki/api/types";
 
 import {
   DiscardChangesDialog,
+  useDiscardableDialog,
   useUnloadWarning,
 } from "@/features/rich-content/components/discard-changes";
 import { RichContentEditor } from "@/features/rich-content/components/rich-content-editor";
@@ -30,10 +30,6 @@ import { createProfileUpdate, profileFormSchema, type ProfileFormValues } from "
 
 export function EditProfileDialog({ profile }: { profile: UserOverview["profile"] }) {
   const router = useRouter();
-  const [isOpen, setIsOpen] = useState(false);
-  const [isConfirmingClose, setIsConfirmingClose] = useState(false);
-  // Remounts the uncontrolled editor whenever the form resets (discard/close).
-  const [editorResetKey, setEditorResetKey] = useState(0);
   const defaultValues = createProfileFormValues(profile);
   const update = useMutation({ mutationFn: updateProfile });
 
@@ -52,35 +48,17 @@ export function EditProfileDialog({ profile }: { profile: UserOverview["profile"
       }
 
       toast.success("Profile updated successfully");
-      handleOpenChange(false);
+      dialog.close();
       router.refresh();
     },
   });
+  // Remounts the uncontrolled editor whenever the form resets (open/discard/close).
+  const dialog = useDiscardableDialog(form.state.isDirty, () => form.reset(defaultValues));
 
   useUnloadWarning(form.state.isDirty);
-  useLayoutEffect(() => () => setIsOpen(false), []);
-
-  function handleOpenChange(nextIsOpen: boolean) {
-    // Changed editor content must not be lost to a stray click.
-    if (!nextIsOpen && form.state.isDirty) {
-      setIsConfirmingClose(true);
-      return;
-    }
-
-    setIsOpen(nextIsOpen);
-    form.reset(defaultValues);
-    setEditorResetKey((key) => key + 1);
-  }
-
-  function discardAndClose() {
-    setIsConfirmingClose(false);
-    setIsOpen(false);
-    form.reset(defaultValues);
-    setEditorResetKey((key) => key + 1);
-  }
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+    <Dialog open={dialog.isOpen} onOpenChange={dialog.handleOpenChange}>
       <DialogTrigger
         render={
           <Button
@@ -115,7 +93,7 @@ export function EditProfileDialog({ profile }: { profile: UserOverview["profile"
                       <Field>
                         <FieldLabel htmlFor="edit-profile-bio">Bio</FieldLabel>
                         <RichContentEditor
-                          key={editorResetKey}
+                          key={dialog.editorResetKey}
                           preset="bio"
                           value={field.state.value}
                           onChange={(value) => field.handleChange(value)}
@@ -187,7 +165,11 @@ export function EditProfileDialog({ profile }: { profile: UserOverview["profile"
                   </form.Field>
 
                   <div className="flex justify-end gap-2 pt-2">
-                    <Button type="button" variant="ghost" onClick={() => handleOpenChange(false)}>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => dialog.handleOpenChange(false)}
+                    >
                       Cancel
                     </Button>
                     <Button type="submit">
@@ -204,9 +186,9 @@ export function EditProfileDialog({ profile }: { profile: UserOverview["profile"
         </form>
       </DialogContent>
       <DiscardChangesDialog
-        open={isConfirmingClose}
-        onDiscard={discardAndClose}
-        onKeepEditing={() => setIsConfirmingClose(false)}
+        open={dialog.isConfirmingClose}
+        onDiscard={dialog.discard}
+        onKeepEditing={dialog.keepEditing}
       />
     </Dialog>
   );

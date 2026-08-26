@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "@tanstack/react-form";
 import { Check, LoaderCircle, Plus, Star } from "lucide-react";
@@ -9,6 +9,7 @@ import type { ListStatus, MediaType } from "@tsuki/api/types";
 
 import {
   DiscardChangesDialog,
+  useDiscardableDialog,
   useUnloadWarning,
 } from "@/features/rich-content/components/discard-changes";
 import { RichContentEditor } from "@/features/rich-content/components/rich-content-editor";
@@ -58,10 +59,6 @@ export function LogMediaDialog({
 }) {
   const router = useRouter();
   const formId = useId();
-  const [isOpen, setIsOpen] = useState(false);
-  const [isConfirmingClose, setIsConfirmingClose] = useState(false);
-  // Remounts the uncontrolled editor whenever the form resets (discard/close).
-  const [editorResetKey, setEditorResetKey] = useState(0);
   const config = MEDIA[mediaType];
   const isFavorite = activity.entry?.isFavorite ?? false;
   const hasActivity = hasLoggedActivity(mediaType, activity.entry, activity.review);
@@ -76,17 +73,14 @@ export function LogMediaDialog({
         total,
       });
 
-      if (result === "saved") close();
+      if (result === "saved") dialog.close();
     },
   });
+  const dialog = useDiscardableDialog(form.state.isDirty, () =>
+    form.reset(createActivityForm(mediaType, activity.entry, activity.review)),
+  );
 
   useUnloadWarning(form.state.isDirty);
-
-  function close() {
-    setIsOpen(false);
-    form.reset(createActivityForm(mediaType, activity.entry, activity.review));
-    setEditorResetKey((key) => key + 1);
-  }
 
   function handleOpenChange(nextIsOpen: boolean) {
     if (nextIsOpen && !activity.isAuthenticated) {
@@ -94,23 +88,11 @@ export function LogMediaDialog({
       return;
     }
 
-    // Changed editor content must not be lost to a stray click.
-    if (!nextIsOpen && form.state.isDirty) {
-      setIsConfirmingClose(true);
-      return;
-    }
-
-    if (nextIsOpen) {
-      setIsOpen(true);
-      form.reset(createActivityForm(mediaType, activity.entry, activity.review));
-      setEditorResetKey((key) => key + 1);
-    } else {
-      close();
-    }
+    dialog.handleOpenChange(nextIsOpen);
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+    <Dialog open={dialog.isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger
         render={<Button disabled={activity.isPending} className="flex-1" />}
         aria-label={hasActivity ? `Edit ${config.label.toLowerCase()} log` : undefined}
@@ -231,7 +213,7 @@ export function LogMediaDialog({
                   <Field>
                     <FieldLabel>Review</FieldLabel>
                     <RichContentEditor
-                      key={editorResetKey}
+                      key={dialog.editorResetKey}
                       preset="review"
                       value={field.state.value}
                       onChange={(value) => field.handleChange(value)}
@@ -262,9 +244,9 @@ export function LogMediaDialog({
         </form>
       </DialogContent>
       <DiscardChangesDialog
-        open={isConfirmingClose}
-        onDiscard={close}
-        onKeepEditing={() => setIsConfirmingClose(false)}
+        open={dialog.isConfirmingClose}
+        onDiscard={dialog.discard}
+        onKeepEditing={dialog.keepEditing}
       />
     </Dialog>
   );

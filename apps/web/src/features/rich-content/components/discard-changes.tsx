@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import {
   Dialog,
@@ -23,10 +23,76 @@ export function useUnloadWarning(isDirty: boolean) {
 
     function onBeforeUnload(event: BeforeUnloadEvent) {
       event.preventDefault();
+      // Legacy Chrome/Edge require returnValue before they'll prompt.
+      event.returnValue = "";
     }
     window.addEventListener("beforeunload", onBeforeUnload);
     return () => window.removeEventListener("beforeunload", onBeforeUnload);
   }, [isDirty]);
+}
+
+/**
+ * Owns the close-with-unsaved-changes flow shared by dialogs containing an
+ * editor: confirm-discard on dirty close, plus a reset key that remounts the
+ * uncontrolled editor whenever the form resets (open, discard, close).
+ */
+export function useDiscardableDialog(isDirty: boolean, onReset: () => void) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isConfirmingClose, setIsConfirmingClose] = useState(false);
+  const [editorResetKey, setEditorResetKey] = useState(0);
+
+  function reset() {
+    onReset();
+    setEditorResetKey((key) => key + 1);
+  }
+
+  /** Force-close, ignoring dirtiness (post-save, unmount cleanup). */
+  function close() {
+    setIsOpen(false);
+    reset();
+  }
+
+  function open() {
+    setIsOpen(true);
+    reset();
+  }
+
+  /** Close honouring unsaved changes; may open the confirm dialog instead. */
+  function requestClose() {
+    if (isDirty) {
+      setIsConfirmingClose(true);
+      return;
+    }
+    close();
+  }
+
+  function handleOpenChange(nextIsOpen: boolean) {
+    if (!nextIsOpen && isDirty) {
+      setIsConfirmingClose(true);
+      return;
+    }
+    if (nextIsOpen) {
+      open();
+    } else {
+      close();
+    }
+  }
+
+  return {
+    isOpen,
+    setIsOpen,
+    editorResetKey,
+    isConfirmingClose,
+    open,
+    close,
+    requestClose,
+    handleOpenChange,
+    discard: () => {
+      setIsConfirmingClose(false);
+      close();
+    },
+    keepEditing: () => setIsConfirmingClose(false),
+  };
 }
 
 /** Shown when closing a dialog that has changed, unsaved editor content. */

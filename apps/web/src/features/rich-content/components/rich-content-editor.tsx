@@ -5,13 +5,17 @@ import type { JSONContent } from "@tiptap/react";
 import { EditorContent, useEditor } from "@tiptap/react";
 
 import type { RichContent, RichContentPresetName } from "@tsuki/rich-content";
-import { isEmptyRichContent, richContentExtensions } from "@tsuki/rich-content";
+import {
+  isEmptyRichContent,
+  RICH_CONTENT_VERSION,
+  richContentExtensions,
+} from "@tsuki/rich-content";
 
 import { cn } from "@/shared/lib/utils";
 
 import { EditorToolbar } from "./editor-toolbar";
 import { GiphyPickerDialog } from "./giphy-picker-dialog";
-import { MediaEmbedDialog } from "./insert-dialogs";
+import { MediaEmbedDialog, type InsertAttrs } from "./insert-dialogs";
 import { LinkDialog } from "./link-dialog";
 import { SpoilerDialog } from "./spoiler-dialog";
 
@@ -22,7 +26,7 @@ import { SpoilerDialog } from "./spoiler-dialog";
  * Flight turns their properties into unresolvable temporary references.
  */
 function toRichContent(json: Record<string, unknown>): RichContent {
-  return JSON.parse(JSON.stringify({ version: 1, doc: json })) as RichContent;
+  return JSON.parse(JSON.stringify({ version: RICH_CONTENT_VERSION, doc: json })) as RichContent;
 }
 
 const EMPTY_DOC: JSONContent = { type: "doc", content: [{ type: "paragraph" }] };
@@ -70,7 +74,7 @@ export function RichContentEditor({
   const [dialog, setDialog] = useState<InsertKind>(null);
 
   const insertMedia = useCallback(
-    (attrs: { kind: string; src: string; alt?: string | null }) => {
+    (attrs: InsertAttrs) => {
       editor?.chain().focus().insertContent({ type: "mediaEmbed", attrs }).run();
     },
     [editor],

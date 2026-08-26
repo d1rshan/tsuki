@@ -8,6 +8,9 @@ import {
   type RichContentPresetName,
 } from "./types";
 
+/** Nesting bound for the recursive walk; far above what the editor can author. */
+const MAX_WALK_DEPTH = 10;
+
 export type ValidateRichContentResult =
   | { ok: true; value: RichContent }
   | { ok: false; reason: string };
@@ -45,12 +48,13 @@ function validListItems(node: Record<string, unknown>): boolean {
 function listChars(
   node: Record<string, unknown>,
   presetName: RichContentPresetName,
+  depth: number,
 ): { chars: number } | null {
   let chars = 0;
   for (const item of node.content as Record<string, unknown>[]) {
     for (const child of item.content as unknown[]) {
       // Lists nest via Tab-indent, so items may contain paragraphs and lists.
-      const result = walkBlock(child, presetName, LIST_ITEM_BLOCKS);
+      const result = walkBlock(child, presetName, LIST_ITEM_BLOCKS, depth + 1);
       if (!result) return null;
       chars += result.chars;
     }
@@ -135,6 +139,9 @@ function hasOnlyKnownAttrs(node: Record<string, unknown>, allowed: readonly stri
   });
 }
 
+/** The only `rel` persisted links may carry; mirrors the editor's Link defaults. */
+const LINK_REL = "noopener noreferrer nofollow";
+
 function validLinkAttrs(attrs: Record<string, unknown>): boolean {
   if (typeof attrs.href !== "string") return false;
   try {
@@ -143,10 +150,18 @@ function validLinkAttrs(attrs: Record<string, unknown>): boolean {
     return false;
   }
   // Tiptap v3 serializes every mark attr, including null defaults like `class`.
+  // target/rel are pinned so stored docs can't override the safe renderer
+  // defaults with e.g. target="_top" rel="opener"; class is null-only because
+  // the editor never sets one and it would be a style-injection vector.
   const known = ["href", "target", "rel", "title", "class"];
-  return Object.entries(attrs).every(
-    ([key, value]) => value === null || (known.includes(key) && typeof value === "string"),
-  );
+  return Object.entries(attrs).every(([key, value]) => {
+    if (!known.includes(key)) return false;
+    if (value === null) return true;
+    if (typeof value !== "string") return false;
+    if (key === "target") return value === "_blank";
+    if (key === "rel") return value === LINK_REL;
+    return key === "href" || key === "title";
+  });
 }
 
 function validMarks(marks: unknown): marks is RichContentMark[] {
@@ -199,7 +214,9 @@ function walkBlock(
   node: unknown,
   presetName: RichContentPresetName,
   allowedBlocks: ReadonlySet<string>,
+  depth: number,
 ): { chars: number; embeds: number } | null {
+  if (depth > MAX_WALK_DEPTH) return null;
   if (!isPlainObject(node) || typeof node.type !== "string" || !allowedBlocks.has(node.type)) {
     return null;
   }
@@ -230,7 +247,7 @@ function walkBlock(
       // BulletList defines no attributes, so its JSON never carries attrs.
       if (node.attrs !== undefined) return null;
       if (!validListItems(node)) return null;
-      const counted = listChars(node, presetName);
+      const counted = listChars(node, presetName, depth);
       if (!counted) return null;
       chars += counted.chars;
       break;
@@ -245,7 +262,7 @@ function walkBlock(
       if (typeof start !== "number" || !Number.isInteger(start) || start < 1) return null;
       if (listType !== null && !OL_TYPES.has(listType as string)) return null;
       if (!validListItems(node)) return null;
-      const counted = listChars(node, presetName);
+      const counted = listChars(node, presetName, depth);
       if (!counted) return null;
       chars += counted.chars;
       break;
@@ -267,7 +284,7 @@ function walkBlock(
       }
       if (!Array.isArray(node.content)) return null;
       for (const child of node.content) {
-        const result = walkBlock(child, presetName, INNER_BLOCKS);
+        const result = walkBlock(child, presetName, INNER_BLOCKS, depth + 1);
         if (!result) return null;
         chars += result.chars;
         embeds += result.embeds;
@@ -288,6 +305,8 @@ function walkBlock(
       if (!src) return null;
 
       // Giphy-only rule must hold even for hand-crafted JSON.
+      // ponytail: the picker forces rating:"g", but a URL carries no rating,
+      // so host-matching is the strongest check persistence can make.
       if (kind === "gif" && !isGiphyHost(src.hostname.toLowerCase())) return null;
 
       if (kind === "video") {
@@ -317,9 +336,18 @@ function walkBlock(
  * HTTP mapping.
  */
 export function validateRichContent(
-  value: unknown,
+  rawValue: unknown,
   presetName: RichContentPresetName,
 ): ValidateRichContentResult {
+  // Validation owns normalization (video URLs are canonicalized below), so it
+  // works on a copy: the caller's object is never mutated.
+  let value: unknown;
+  try {
+    value = structuredClone(rawValue);
+  } catch {
+    // Non-cloneable input (functions, etc.) can't be a document anyway.
+    return fail("rich content must be an object");
+  }
   if (!isPlainObject(value)) return fail("rich content must be an object");
   if (value.version !== RICH_CONTENT_VERSION) return fail("unsupported rich content version");
   if (!isPlainObject(value.doc) || value.doc.type !== "doc") return fail("missing document root");
@@ -338,7 +366,7 @@ export function validateRichContent(
   let embeds = 0;
 
   for (const [index, block] of (value.doc.content ?? []).entries()) {
-    const result = walkBlock(block, presetName, allowedBlocks);
+    const result = walkBlock(block, presetName, allowedBlocks, 0);
     if (!result) {
       const shape = JSON.stringify(block) ?? String(block);
       return fail(`block ${index} not allowed in "${presetName}" preset: ${shape.slice(0, 300)}`);
@@ -355,6 +383,13 @@ export function validateRichContent(
   }
 
   return { ok: true, value: value as unknown as RichContent };
+}
+
+/** Display-layer check: the document satisfies at least one preset's grammar. */
+export function isValidForAnyPreset(value: unknown): boolean {
+  return (Object.keys(RICH_CONTENT_PRESETS) as RichContentPresetName[]).some(
+    (preset) => validateRichContent(value, preset).ok,
+  );
 }
 
 /** True when a document carries no visible text and no media worth saving. */

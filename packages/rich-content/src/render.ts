@@ -3,7 +3,7 @@ import { renderToHTMLString } from "@tiptap/static-renderer";
 
 import { richContentExtensions } from "./extensions";
 import type { RichContent } from "./types";
-import { validateRichContent } from "./validate";
+import { isValidForAnyPreset } from "./validate";
 
 export type RichContentMode = "full" | "compact";
 
@@ -18,9 +18,7 @@ export function renderRichContent(
   mode: RichContentMode = "full",
 ): string {
   if (!content) return "";
-  if (!validateRichContent(content, "review").ok && !validateRichContent(content, "bio").ok) {
-    return "";
-  }
+  if (!isValidForAnyPreset(content)) return "";
 
   const html = renderToHTMLString({
     content: content.doc as JSONContent,

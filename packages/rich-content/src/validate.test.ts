@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { isEmptyRichContent, validateRichContent } from "./validate";
+import { isEmptyRichContent, isValidForAnyPreset, validateRichContent } from "./validate";
 import type { RichContent } from "./types";
 
 /** Shorthand builders keep the matrices readable. */
@@ -105,6 +105,27 @@ describe("marks and links", () => {
     ]) {
       const value = doc(para(text("x", [{ type: "link", attrs: { href } }])));
       expect(validateRichContent(value, "review").ok).toBeFalse();
+    }
+  });
+
+  test("pins link target and rel to the safe renderer defaults", () => {
+    const link = (attrs: Record<string, unknown>) =>
+      doc(para(text("x", [{ type: "link", attrs: { href: "https://tsuki.app", ...attrs } }])));
+
+    expect(
+      validateRichContent(link({ target: "_blank", rel: "noopener noreferrer nofollow" }), "bio")
+        .ok,
+    ).toBeTrue();
+    expect(validateRichContent(link({ target: null, rel: null }), "bio").ok).toBeTrue();
+
+    for (const hostile of [
+      { target: "_top" },
+      { target: "_self" },
+      { rel: "opener" },
+      { rel: "noopener" },
+      { class: "evil-component" },
+    ]) {
+      expect(validateRichContent(link(hostile), "review").ok).toBeFalse();
     }
   });
 });
@@ -349,5 +370,55 @@ describe("isEmptyRichContent", () => {
     expect(isEmptyRichContent(doc(para(text(""))))).toBeTrue();
     expect(isEmptyRichContent(doc(para(text("hi"))))).toBeFalse();
     expect(isEmptyRichContent(doc(gif()))).toBeFalse();
+  });
+});
+
+describe("structural bounds", () => {
+  const nestedLists = (depth: number): unknown => {
+    let node: unknown = para(text("deep"));
+    for (let i = 0; i < depth; i++) {
+      // Tab-indenting keeps the item's own paragraph beside the nested list.
+      node = {
+        type: "bulletList",
+        content: [{ type: "listItem", content: [para(text(`level ${i}`)), node] }],
+      };
+    }
+    return node;
+  };
+
+  test("accepts nesting far beyond what the editor can author", () => {
+    expect(validateRichContent(doc(nestedLists(6)), "review").ok).toBeTrue();
+  });
+
+  test("rejects pathological nesting before recursion gets deep", () => {
+    expect(validateRichContent(doc(nestedLists(12)), "review").ok).toBeFalse();
+  });
+});
+
+describe("purity", () => {
+  test("does not mutate the caller's document", () => {
+    const value = doc(video("https://youtu.be/dQw4w9WgXcQ"));
+    const result = validateRichContent(value, "review");
+    expect(result.ok).toBeTrue();
+
+    // The canonical URL lands in the returned copy, not the input.
+    if (!result.ok) throw new Error("expected ok");
+    const saved = result.value.doc.content![0] as { attrs: Record<string, string> };
+    expect(saved.attrs.src).toBe("https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ");
+    const original = value.doc.content![0] as { attrs: Record<string, string> };
+    expect(original.attrs.src).toBe("https://youtu.be/dQw4w9WgXcQ");
+  });
+});
+
+describe("isValidForAnyPreset", () => {
+  test("accepts documents matching any single preset and rejects the rest", () => {
+    expect(isValidForAnyPreset(doc(para(text("hello"))))).toBeTrue();
+    expect(isValidForAnyPreset(doc(gif()))).toBeTrue();
+    expect(
+      isValidForAnyPreset(doc({ type: "heading", attrs: { level: 2 }, content: [text("T")] })),
+    ).toBeTrue();
+
+    expect(isValidForAnyPreset(null)).toBeFalse();
+    expect(isValidForAnyPreset({ type: "codeBlock" })).toBeFalse();
   });
 });

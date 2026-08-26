@@ -23,6 +23,8 @@ import {
   Underline as UnderlineIcon,
 } from "lucide-react";
 
+import type { RichContentPresetName } from "@tsuki/rich-content";
+
 import { Button } from "@/shared/components/ui/button";
 import {
   Tooltip,
@@ -81,7 +83,7 @@ export function EditorToolbar({
   onOpenDialog,
 }: {
   editor: Editor;
-  preset: "bio" | "review";
+  preset: RichContentPresetName;
   onOpenDialog: (dialog: InsertKind) => void;
 }) {
   const isReview = preset === "review";
