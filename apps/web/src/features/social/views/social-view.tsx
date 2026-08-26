@@ -9,7 +9,7 @@ import type { FeedActivity } from "@tsuki/api/types";
 
 import { followButtonLabel } from "@/features/social/utils";
 import { mediaHref, normalizeMediaCompact, statusLabel } from "@/features/media/media";
-import { RichContentView } from "@/features/rich-content/components/rich-content-view";
+import { SpoilerLayer } from "@/features/rich-content/components/spoiler-layer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
@@ -82,13 +82,9 @@ function ActivityCard({ activity }: { activity: FeedActivity }) {
           )}
         </p>
         {details ? <p className="text-sm">{details}</p> : null}
-        {activity.type === "REVIEW" && activity.snapshot.content ? (
+        {activity.type === "REVIEW" && activity.snapshot.contentHtml ? (
           <div className="text-sm text-foreground">
-            <RichContentView
-              content={activity.snapshot.content}
-              mode="compact"
-              className="text-foreground/90"
-            />
+            <SpoilerLayer html={activity.snapshot.contentHtml} className="text-foreground/90" />
             <Link
               href={`/${activity.actor.username}/reviews`}
               className="ml-2 text-xs font-medium text-primary hover:underline"

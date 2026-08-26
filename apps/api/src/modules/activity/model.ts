@@ -2,7 +2,6 @@ import { t } from "elysia";
 
 import { ListStatusEnum } from "../library/model";
 import { MediaCompactModel } from "../media/model";
-import { RichContentModel } from "../rich-content/model";
 
 const FeedActorModel = t.Object({
   username: t.String(),
@@ -16,7 +15,8 @@ const FeedSnapshotModel = t.Object({
   progress: t.Optional(t.Number()),
   progressVolumes: t.Optional(t.Nullable(t.Number())),
   repeat: t.Optional(t.Number()),
-  content: t.Optional(RichContentModel),
+  /** Review documents ship pre-rendered; clients never parse the raw doc. */
+  contentHtml: t.Optional(t.String()),
 });
 
 export const FeedActivityModel = t.Object({
