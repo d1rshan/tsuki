@@ -1,8 +1,8 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 
-import type { AnilistMedia } from "../types";
+import type { AnilistMedia } from "../../src/types";
 
-import { toMediaRow } from "./mappers";
+import { toMediaRow } from "../../src/api/mappers";
 
 const media = {
   id: 21,
