@@ -16,6 +16,7 @@
     "@elysiajs/eden": "^1",
     "@giphy/js-fetch-api": "^5.8.0",
     "@giphy/js-types": "^5.1.0",
+    "@giphy/react-components": "^10.1.2",
     "@tanstack/react-form": "^1.33.5",
     "@tanstack/react-query": "^5.101.0",
     "@tanstack/react-table": "^8.21.3",
