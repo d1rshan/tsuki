@@ -9,6 +9,7 @@
     "./permissions": "./src/permissions.ts"
   },
   "scripts": {
+    "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

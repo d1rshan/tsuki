@@ -9,7 +9,7 @@
     "./web": "./src/web.ts"
   },
   "scripts": {
-    "test": "bun test"
+    "test": "vitest run"
   },
   "dependencies": {
     "@t3-oss/env-core": "^0.13.11",

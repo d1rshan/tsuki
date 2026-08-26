@@ -7,7 +7,6 @@
     "./types": "./src/types.ts"
   },
   "scripts": {
-    "test": "bun test",
     "typecheck": "tsc --noEmit",
     "start": "bun run src/index.ts",
     "dev": "bun run --watch src/index.ts"

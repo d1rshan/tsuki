@@ -5,6 +5,5 @@
     "moduleDetection": "force",
     "allowImportingTsExtensions": true,
     "types": ["node"]
-  },
-  "exclude": ["src/**/*.test.ts"]
+  }
 }

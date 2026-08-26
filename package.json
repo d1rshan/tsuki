@@ -14,6 +14,7 @@
     "format:check": "oxfmt --check .",
     "format:fix": "oxfmt --write .",
     "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
     "generate:themes": "turbo run generate:themes --filter=web",
     "deploy": "bun run deploy:check && bun run deploy:web && bun run deploy:api",
     "deploy:check": "bun run build && bun run typecheck",
@@ -29,7 +30,8 @@
     "oxfmt": "^0.54.0",
     "oxlint": "^1.69.0",
     "turbo": "^2.0.0",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.11"
   },
   "lint-staged": {
     "*.{js,ts,jsx,tsx,mjs,cjs}": [
