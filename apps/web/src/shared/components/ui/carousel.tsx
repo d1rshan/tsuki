@@ -178,7 +178,7 @@ function CarouselPrevious({
       variant={variant}
       size={size}
       className={cn(
-        "absolute touch-manipulation rounded-full bg-background/70 backdrop-blur-xl md:size-12",
+        "absolute touch-manipulation rounded-full glass! border-foreground/10 dark:border-foreground/10 md:size-12",
         orientation === "horizontal"
           ? "top-1/2 left-2 -translate-y-1/2 md:left-0"
           : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
@@ -208,7 +208,7 @@ function CarouselNext({
       variant={variant}
       size={size}
       className={cn(
-        "absolute touch-manipulation rounded-full bg-background/70 backdrop-blur-xl md:size-12",
+        "absolute touch-manipulation rounded-full glass! border-foreground/10 dark:border-foreground/10 md:size-12",
         orientation === "horizontal"
           ? "top-1/2 right-2 -translate-y-1/2 md:right-0"
           : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
