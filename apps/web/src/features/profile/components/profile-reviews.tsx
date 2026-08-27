@@ -17,31 +17,31 @@ export function ReviewItem({ review }: { review: Review }) {
   const href = mediaHref(mediaType, mediaId);
 
   return (
-    <article className="group py-8 first:pt-0 border-b border-border/40 last:border-0 flex gap-6 md:gap-8">
-      <Link
-        href={href}
-        className="relative hidden aspect-[3/4] w-20 shrink-0 overflow-hidden rounded-xl bg-muted shadow-sm transition-transform duration-500 group-hover:scale-105 group-hover:shadow-md group-hover:ring-1 group-hover:ring-primary/50 sm:block md:w-28"
-      >
-        {cover ? (
-          <Image
-            src={cover}
-            alt={title}
-            fill
-            className={cn("object-cover", mediaImageClass(mediaType))}
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted/50 p-2 text-center text-xs text-muted-foreground" />
-        )}
-      </Link>
+    <article className="group border-b border-border/40 py-8 first:pt-0 last:border-0">
+      <div className="flex items-start gap-3">
+        <Link
+          href={href}
+          className="relative aspect-[3/4] w-12 shrink-0 overflow-hidden rounded-lg bg-muted shadow-sm transition-transform duration-500 group-hover:scale-105 group-hover:shadow-md group-hover:ring-1 group-hover:ring-primary/50"
+        >
+          {cover ? (
+            <Image
+              src={cover}
+              alt={title}
+              fill
+              className={cn("object-cover", mediaImageClass(mediaType))}
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted/50 p-1 text-center text-[10px] text-muted-foreground" />
+          )}
+        </Link>
 
-      <div className="flex-1 min-w-0">
-        <div className="mb-5">
+        <div className="min-w-0 pt-0.5">
           <Link href={href} className="inline-block">
             <h3 className="text-lg font-bold tracking-tight transition-colors hover:text-primary md:text-xl">
               {title}
             </h3>
           </Link>
-          <div className="text-sm text-muted-foreground mt-1.5 flex items-center gap-2 font-medium">
+          <div className="mt-1.5 flex items-center gap-2 text-sm font-medium text-muted-foreground">
             <span>
               Reviewed{" "}
               {formatDistanceToNow(new Date(updatedAt || createdAt), {
@@ -50,12 +50,12 @@ export function ReviewItem({ review }: { review: Review }) {
             </span>
           </div>
         </div>
-
-        <RichContentView
-          content={content}
-          className="max-w-none text-muted-foreground leading-relaxed"
-        />
       </div>
+
+      <RichContentView
+        content={content}
+        className="mt-5 max-w-none text-muted-foreground leading-relaxed"
+      />
     </article>
   );
 }
