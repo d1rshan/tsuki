@@ -62,7 +62,7 @@ export function RichContentEditor({
         class: cn(
           "rich-content-editing",
           "min-h-24 w-full rounded-md border border-input bg-transparent px-3 py-2",
-          "text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30",
+          "text-base outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 md:text-sm",
           "[&_p:first-child]:mt-0 [&_p:last-child]:mb-0",
           className,
         ),
