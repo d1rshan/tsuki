@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
-import { Search, UserX } from "lucide-react";
+import { ArrowLeft, Search, UserX } from "lucide-react";
 
 import type { FeedActivity } from "@tsuki/api/types";
 
@@ -115,11 +115,13 @@ function Feed({ type }: { type: SocialFeedType }) {
       isEmpty={!activities.length}
       errorTitle="Could not load Activity"
       empty={
-        <ContentState
-          title={
-            type === "following" ? "No Activity from people you Follow yet" : "No Activity yet"
-          }
-        />
+        type === "following" ? (
+          <div className="flex min-h-64 flex-col items-center justify-center text-center">
+            <ContentState title="No Friends :(" />
+          </div>
+        ) : (
+          <ContentState title="No Activity yet" />
+        )
       }
     >
       <div>
@@ -149,21 +151,19 @@ function Discover() {
   const users = query.data ?? [];
 
   return (
-    <>
-      <div className="relative max-w-xl">
-        <Search className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted-foreground" />
+    <div>
+      <div className="relative">
+        <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search by Username"
-          aria-label="Search by Username"
-          className="h-12 rounded-xl pl-11"
+          placeholder="Search people by username"
+          aria-label="Search people by username"
+          autoFocus
+          className="h-10 rounded-md pl-9"
         />
       </div>
-      <section className="mt-8">
-        <h2 className="mb-5 text-2xl font-bold tracking-tight">
-          {username ? "Username Search" : "Popular on Tsuki"}
-        </h2>
+      <section className="mt-6">
         <QueryState
           isLoading={query.isLoading}
           isError={query.isError}
@@ -178,9 +178,12 @@ function Discover() {
         >
           <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {users.map((user) => (
-              <li key={user.id} className="flex items-center gap-3 rounded-xl border p-4">
+              <li
+                key={user.id}
+                className="flex min-w-0 items-center gap-3 rounded-xl border bg-card/50 p-4 shadow-sm"
+              >
                 <Link href={`/${user.username}`} className="flex min-w-0 flex-1 items-center gap-3">
-                  <Avatar size="lg">
+                  <Avatar>
                     {user.image ? <AvatarImage src={user.image} alt={user.name} /> : null}
                     <AvatarFallback>{user.displayUsername[0]?.toUpperCase()}</AvatarFallback>
                   </Avatar>
@@ -209,30 +212,61 @@ function Discover() {
           </ul>
         </QueryState>
       </section>
-    </>
+    </div>
   );
 }
 
 export function SocialView() {
+  const [isDiscovering, setIsDiscovering] = useState(false);
+  const [activeFeed, setActiveFeed] = useState<SocialFeedType>("public");
+
   return (
     <div className="pt-28 pb-16 md:pt-32">
-      <h1 className="text-4xl font-black tracking-tight sm:text-5xl">Social</h1>
-      <Tabs defaultValue="following" className="mt-8">
-        <TabsList>
-          <TabsTrigger value="following">Following</TabsTrigger>
-          <TabsTrigger value="public">Public</TabsTrigger>
-          <TabsTrigger value="discover">Discover</TabsTrigger>
-        </TabsList>
-        <TabsContent value="following">
-          <Feed type="following" />
-        </TabsContent>
-        <TabsContent value="public">
-          <Feed type="public" />
-        </TabsContent>
-        <TabsContent value="discover">
+      {isDiscovering ? (
+        <section>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="-ml-2 mb-6"
+            onClick={() => setIsDiscovering(false)}
+          >
+            <ArrowLeft />
+            Back
+          </Button>
           <Discover />
-        </TabsContent>
-      </Tabs>
+        </section>
+      ) : (
+        <section className="min-w-0">
+          <Tabs
+            value={activeFeed}
+            onValueChange={(value) => {
+              if (value === "public" || value === "following") setActiveFeed(value);
+            }}
+          >
+            <div className="flex items-center justify-between gap-4">
+              <TabsList>
+                <TabsTrigger value="public">Public</TabsTrigger>
+                <TabsTrigger value="following">Following</TabsTrigger>
+              </TabsList>
+              <Button
+                variant="outline"
+                size="icon-lg"
+                className="size-10 shrink-0 rounded-full"
+                onClick={() => setIsDiscovering(true)}
+                aria-label="Find people"
+              >
+                <Search />
+              </Button>
+            </div>
+            <TabsContent value="public">
+              <Feed type="public" />
+            </TabsContent>
+            <TabsContent value="following">
+              <Feed type="following" />
+            </TabsContent>
+          </Tabs>
+        </section>
+      )}
     </div>
   );
 }
