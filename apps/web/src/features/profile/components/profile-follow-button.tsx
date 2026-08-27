@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 import type { FollowRelationship } from "@tsuki/api/types";
 
 import { useFollowMutation } from "@/features/social/hooks/use-follow-mutation";
 import { followButtonLabel } from "@/features/social/utils";
+import { socialKeys } from "@/features/social/query-keys";
 import { Button } from "@/shared/components/ui/button";
 
 export function ProfileFollowButton({
@@ -19,9 +21,11 @@ export function ProfileFollowButton({
   username: string;
 }) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [relationship, setRelationship] = useState(initialRelationship);
-  const mutation = useFollowMutation((nextRelationship) => {
+  const mutation = useFollowMutation(async (nextRelationship) => {
     setRelationship(nextRelationship);
+    await queryClient.invalidateQueries({ queryKey: [...socialKeys.all, "discovery"] });
     router.refresh();
   });
 

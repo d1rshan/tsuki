@@ -12,8 +12,9 @@ export function useDiscoveryFollowMutation() {
   const queryClient = useQueryClient();
 
   return useFollowMutation(async (relationship, username) => {
-    await queryClient.cancelQueries({ queryKey: socialKeys.all }, { silent: true });
-    queryClient.setQueriesData<DiscoveryUserSummary[]>({ queryKey: socialKeys.all }, (users) =>
+    const discoveryQueryKey = [...socialKeys.all, "discovery"] as const;
+    await queryClient.cancelQueries({ queryKey: discoveryQueryKey }, { silent: true });
+    queryClient.setQueriesData<DiscoveryUserSummary[]>({ queryKey: discoveryQueryKey }, (users) =>
       users?.map((user) => (user.username === username ? { ...user, relationship } : user)),
     );
   });
