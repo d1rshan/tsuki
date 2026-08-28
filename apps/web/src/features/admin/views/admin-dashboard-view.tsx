@@ -1,25 +1,15 @@
-import { Suspense } from "react";
+import { Users } from "lucide-react";
 
-import { Loader } from "@/shared/components/loader";
-
-import { AdminDashboardStats } from "../components/admin-dashboard-stats";
+import { AdminDashboardStatsCard } from "../components/admin-dashboard-stats-card";
 import { AdminPage } from "../components/admin-page";
 import { getUserCount } from "../data";
 
 export function AdminDashboardView() {
   return (
-    <Suspense fallback={<Loader />}>
-      <AdminDashboardContent />
-    </Suspense>
-  );
-}
-
-async function AdminDashboardContent() {
-  const totalUsers = await getUserCount();
-
-  return (
     <AdminPage title="Overview">
-      <AdminDashboardStats totalUsers={totalUsers} />
+      <div className="grid gap-4 md:max-w-sm">
+        <AdminDashboardStatsCard label="Total Users" icon={Users} value={getUserCount} />
+      </div>
     </AdminPage>
   );
 }
