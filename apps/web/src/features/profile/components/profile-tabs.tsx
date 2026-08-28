@@ -19,7 +19,12 @@ export function ProfileTabs({ username }: { username: string }) {
     <Tabs value={pathname}>
       <TabsList aria-label="Profile">
         {tabs.map((tab) => (
-          <TabsTrigger key={tab.name} value={tab.href} render={<Link href={tab.href} />}>
+          <TabsTrigger
+            key={tab.name}
+            value={tab.href}
+            render={<Link href={tab.href} />}
+            nativeButton={false}
+          >
             {tab.name}
           </TabsTrigger>
         ))}
