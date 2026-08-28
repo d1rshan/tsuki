@@ -27,10 +27,17 @@ import { TextField } from "@/shared/components/text-field";
 
 import { updateProfile } from "../actions";
 import { createProfileUpdate, profileFormSchema, type ProfileFormValues } from "../schemas";
+import { ProfileImageUploader } from "./profile-image-uploader";
 
-export function EditProfileDialog({ profile }: { profile: UserOverview["profile"] }) {
+export function EditProfileDialog({
+  profile,
+  user,
+}: {
+  profile: UserOverview["profile"];
+  user?: UserOverview["user"];
+}) {
   const router = useRouter();
-  const defaultValues = createProfileFormValues(profile);
+  const defaultValues = createProfileFormValues(profile, user);
   const update = useMutation({ mutationFn: updateProfile });
 
   const form = useForm({
@@ -88,6 +95,45 @@ export function EditProfileDialog({ profile }: { profile: UserOverview["profile"
             {(isSubmitting) => (
               <FieldSet disabled={isSubmitting}>
                 <FieldGroup>
+                  <form.Field name="image">
+                    {(field) => (
+                      <Field>
+                        <FieldLabel>Avatar</FieldLabel>
+                        <ProfileImageUploader
+                          type="avatar"
+                          initials={user?.displayUsername || user?.name || "U"}
+                          currentImageUrl={field.state.value}
+                          disabled={isSubmitting}
+                          onImageChange={({ url, fileId }) => {
+                            field.handleChange(url);
+                            if (fileId) {
+                              form.setFieldValue("oldAvatarFileId", fileId);
+                            }
+                          }}
+                        />
+                      </Field>
+                    )}
+                  </form.Field>
+
+                  <form.Field name="bannerImage">
+                    {(field) => (
+                      <Field>
+                        <FieldLabel>Banner</FieldLabel>
+                        <ProfileImageUploader
+                          type="banner"
+                          currentImageUrl={field.state.value}
+                          disabled={isSubmitting}
+                          onImageChange={({ url, fileId }) => {
+                            field.handleChange(url);
+                            if (fileId) {
+                              form.setFieldValue("oldBannerFileId", fileId);
+                            }
+                          }}
+                        />
+                      </Field>
+                    )}
+                  </form.Field>
+
                   <form.Field name="bio">
                     {(field) => (
                       <Field>
@@ -103,13 +149,6 @@ export function EditProfileDialog({ profile }: { profile: UserOverview["profile"
                       </Field>
                     )}
                   </form.Field>
-                  <TextField
-                    form={form}
-                    name="bannerImage"
-                    label="Banner Image URL"
-                    type="url"
-                    placeholder="https://example.com/banner.jpg"
-                  />
 
                   <form.Field name="socialLinks" mode="array">
                     {(socialLinksField) => (
@@ -194,13 +233,19 @@ export function EditProfileDialog({ profile }: { profile: UserOverview["profile"
   );
 }
 
-function createProfileFormValues(profile: UserOverview["profile"]): ProfileFormValues {
+function createProfileFormValues(
+  profile: UserOverview["profile"],
+  user?: UserOverview["user"],
+): ProfileFormValues {
   return {
-    bio: profile?.bio ?? null,
+    image: user?.image || "",
     bannerImage: profile?.bannerImage || "",
+    bio: profile?.bio ?? null,
     socialLinks: Object.entries(profile?.socialLinks ?? {}).map(([platform, url]) => ({
       platform,
       url,
     })),
+    oldAvatarFileId: undefined,
+    oldBannerFileId: undefined,
   };
 }

@@ -22,6 +22,7 @@
         "@tsuki/anilist": "workspace:*",
         "@tsuki/auth": "workspace:*",
         "@tsuki/db": "workspace:*",
+        "@tsuki/env": "workspace:*",
         "@tsuki/rich-content": "workspace:*",
         "elysia": "latest",
       },

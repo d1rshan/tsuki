@@ -12,20 +12,26 @@ const optionalHttpUrl = z.union([httpUrl, z.literal("")]);
 const richContent = z.custom<RichContent | null>(() => true);
 
 export const profileFormSchema = z.object({
+  image: optionalHttpUrl.nullable().optional(),
+  bannerImage: optionalHttpUrl.nullable().optional(),
   bio: richContent,
-  bannerImage: optionalHttpUrl,
   socialLinks: z.array(
     z.object({
       platform: z.string().trim().min(1, "Platform is required"),
       url: httpUrl,
     }),
   ),
+  oldAvatarFileId: z.string().nullable().optional(),
+  oldBannerFileId: z.string().nullable().optional(),
 });
 
 export const profileUpdateSchema = z.object({
-  bio: richContent.nullable(),
-  bannerImage: httpUrl.nullable(),
-  socialLinks: z.record(z.string(), httpUrl).nullable(),
+  image: httpUrl.nullable().optional(),
+  bannerImage: httpUrl.nullable().optional(),
+  bio: richContent.nullable().optional(),
+  socialLinks: z.record(z.string(), httpUrl).nullable().optional(),
+  oldAvatarFileId: z.string().nullable().optional(),
+  oldBannerFileId: z.string().nullable().optional(),
 });
 
 export type ProfileFormValues = z.infer<typeof profileFormSchema>;
@@ -37,8 +43,21 @@ export function createProfileUpdate(values: ProfileFormValues): ProfileUpdate {
   );
 
   return {
+    image:
+      values.image !== undefined
+        ? values.image && values.image.trim() !== ""
+          ? values.image
+          : null
+        : undefined,
+    bannerImage:
+      values.bannerImage !== undefined
+        ? values.bannerImage && values.bannerImage.trim() !== ""
+          ? values.bannerImage
+          : null
+        : undefined,
     bio: values.bio && !isEmptyRichContent(values.bio) ? values.bio : null,
-    bannerImage: values.bannerImage || null,
     socialLinks: Object.keys(socialLinks).length ? socialLinks : null,
+    oldAvatarFileId: values.oldAvatarFileId || undefined,
+    oldBannerFileId: values.oldBannerFileId || undefined,
   };
 }

@@ -8,6 +8,7 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
     "start": "bun run src/index.ts",
     "dev": "bun run --watch src/index.ts"
   },
@@ -16,10 +17,12 @@
     "@tsuki/anilist": "workspace:*",
     "@tsuki/auth": "workspace:*",
     "@tsuki/db": "workspace:*",
+    "@tsuki/env": "workspace:*",
     "@tsuki/rich-content": "workspace:*",
     "elysia": "latest"
   },
   "devDependencies": {
-    "bun-types": "latest"
+    "bun-types": "latest",
+    "vitest": "^4.1.11"
   }
 }

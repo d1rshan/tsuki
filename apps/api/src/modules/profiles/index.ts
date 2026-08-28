@@ -1,13 +1,14 @@
 import { Elysia, t, status } from "elysia";
 
-import { profileDal } from "@tsuki/db";
+import { profileDal, userDal } from "@tsuki/db";
 import type { RichContent } from "@tsuki/rich-content";
 import { isEmptyRichContent, validateRichContent } from "@tsuki/rich-content";
 
 import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
+import { deleteImageKitFile, generateImageKitUploadAuth } from "./imagekit";
 import { buildUserOverview, requireUser } from "./service";
-import { ProfileModel, UpdateProfileModel, UserOverviewModel } from "./model";
+import { ProfileModel, UpdateProfileModel, UploadAuthModel, UserOverviewModel } from "./model";
 
 // TODO: Rename `/users/:username` routes to `/profiles/:username` (and
 // `/users/discover`, follower lists etc. in the social module) once the web
@@ -16,6 +17,14 @@ import { ProfileModel, UpdateProfileModel, UserOverviewModel } from "./model";
 
 export const profilesRoutes = new Elysia({ tags: ["Profiles"] })
   .use(authPlugin)
+  .get("/me/profile/upload-auth", () => generateImageKitUploadAuth(), {
+    auth: true,
+    response: { 200: UploadAuthModel },
+    detail: {
+      summary: "Get ImageKit upload authorization",
+      description: "Generates temporary credentials for direct browser-to-ImageKit upload.",
+    },
+  })
   .get(
     "/users/:username",
     async ({ params: { username }, viewer }) => {
@@ -35,8 +44,15 @@ export const profilesRoutes = new Elysia({ tags: ["Profiles"] })
   .put(
     "/me/profile",
     async ({ body, user }) => {
-      // The editor is not a security boundary: the API owns Rich Content policy.
-      const { bio: rawBio, ...settings } = body;
+      const {
+        bio: rawBio,
+        image: avatarImage,
+        oldAvatarFileId,
+        oldBannerFileId,
+        bannerImage,
+        socialLinks,
+      } = body;
+
       let bio: RichContent | null | undefined;
       if (rawBio !== undefined) {
         const parsed = validateRichContent(rawBio, "bio");
@@ -45,13 +61,30 @@ export const profilesRoutes = new Elysia({ tags: ["Profiles"] })
         bio = isEmptyRichContent(parsed.value) ? null : parsed.value;
       }
 
+      let updatedUserImage: string | null | undefined;
+      if (avatarImage !== undefined) {
+        const [updatedUser] = await userDal.updateUser(user.id, { image: avatarImage });
+        updatedUserImage = updatedUser?.image ?? avatarImage;
+      }
+
       const [profile] = await profileDal.updateUserProfile(user.id, {
-        ...settings,
+        ...(bannerImage !== undefined && { bannerImage }),
+        ...(socialLinks !== undefined && { socialLinks }),
         ...(rawBio !== undefined && { bio }),
       });
       if (!profile) return status(500, { error: "Failed to update profile" });
 
-      return profile;
+      if (oldAvatarFileId) {
+        void deleteImageKitFile(oldAvatarFileId);
+      }
+      if (oldBannerFileId) {
+        void deleteImageKitFile(oldBannerFileId);
+      }
+
+      return {
+        ...profile,
+        image: updatedUserImage ?? user.image ?? null,
+      };
     },
     {
       auth: true,
@@ -60,7 +93,7 @@ export const profilesRoutes = new Elysia({ tags: ["Profiles"] })
       detail: {
         summary: "Update my profile",
         description:
-          "Updates the authenticated user's profile settings. Bio must be a valid Rich Content document for the bio preset.",
+          "Updates the authenticated user's profile settings and avatar. Bio must be a valid Rich Content document for the bio preset.",
       },
     },
   );
