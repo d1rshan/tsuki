@@ -28,6 +28,7 @@
       },
       "devDependencies": {
         "bun-types": "latest",
+        "vitest": "^4.1.11",
       },
     },
     "apps/web": {

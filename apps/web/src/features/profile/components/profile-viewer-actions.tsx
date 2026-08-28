@@ -15,7 +15,7 @@ export async function ProfileViewerActions({
 }) {
   const { user } = await getSession();
   if (user?.id === profileUser.id) {
-    return <EditProfileDialog profile={profile} user={profileUser} />;
+    return <EditProfileDialog profile={profile} />;
   }
 
   const relationship = user ? await getProfileViewerRelationship(profileUser.username) : null;
