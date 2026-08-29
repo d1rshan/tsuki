@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import type { PaginationState, Updater } from "@tanstack/react-table";
-import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
+import { parseAsInteger, parseAsString, useQueryStates } from "nuqs";
 import { toast } from "sonner";
 
 import { authClient } from "@tsuki/auth/client";
@@ -16,18 +16,14 @@ import type { AdminUsersResult } from "../types";
 import { adminUserColumns } from "./admin-user-columns";
 
 export function AdminUsersTable() {
-  const [page, setPage] = useQueryState(
-    "page",
-    parseAsInteger.withDefault(1).withOptions({ history: "push" }),
-  );
-  const [limit, setLimit] = useQueryState(
-    "limit",
-    parseAsInteger.withDefault(10).withOptions({ history: "push" }),
-  );
-  const [query, setQuery] = useQueryState("q", parseAsString.withDefault(""));
-  const currentPage = Math.max(1, page);
-  const pageSize = Math.min(100, Math.max(1, limit));
-  const debouncedSearch = useDebouncedValue(query, 400);
+  const [filters, setFilters] = useQueryStates({
+    page: parseAsInteger.withDefault(1).withOptions({ history: "push" }),
+    limit: parseAsInteger.withDefault(10).withOptions({ history: "push" }),
+    query: parseAsString.withDefault(""),
+  });
+  const currentPage = Math.max(1, filters.page);
+  const pageSize = Math.min(100, Math.max(1, filters.limit));
+  const debouncedSearch = useDebouncedValue(filters.query, 400);
 
   const usersQuery = useQuery({
     queryKey: adminKeys.users.list(currentPage, pageSize, debouncedSearch),
@@ -42,12 +38,11 @@ export function AdminUsersTable() {
   const users = usersQuery.data?.users ?? [];
   const total = usersQuery.data?.total ?? 0;
   const pagination = { pageIndex: currentPage - 1, pageSize };
-  const hasStaleRows = query !== debouncedSearch || usersQuery.isPlaceholderData;
+  const hasStaleRows = filters.query !== debouncedSearch || usersQuery.isPlaceholderData;
 
   function changePage(updater: Updater<PaginationState>) {
     const next = typeof updater === "function" ? updater(pagination) : updater;
-    void setPage(next.pageIndex + 1);
-    void setLimit(next.pageSize);
+    void setFilters({ page: next.pageIndex + 1, limit: next.pageSize });
   }
 
   return (
@@ -56,10 +51,9 @@ export function AdminUsersTable() {
       data={users}
       searchKey="email"
       searchPlaceholder="Username or email..."
-      searchValue={query}
+      searchValue={filters.query}
       onSearchChange={(value) => {
-        void setQuery(value || null);
-        void setPage(1);
+        void setFilters({ query: value || "", page: 1 });
       }}
       isDataPending={usersQuery.isFetching || hasStaleRows}
       manualPagination
