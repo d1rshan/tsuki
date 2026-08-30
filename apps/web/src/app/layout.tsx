@@ -2,6 +2,13 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import { AppProviders } from "@/shared/components/app-providers";
+import {
+  googleSiteVerification,
+  siteDescription,
+  siteName,
+  siteTagline,
+  siteUrl,
+} from "@/shared/lib/site";
 
 import "./globals.css";
 
@@ -17,11 +24,50 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
-    default: "Tsuki",
-    template: "%s | Tsuki",
+    default: siteTagline,
+    template: `%s | ${siteName}`,
   },
-  description: "Track, rate, and review anime and manga.",
+  description: siteDescription,
+  applicationName: siteName,
+  category: "entertainment",
+  appleWebApp: {
+    capable: true,
+    title: siteName,
+    statusBarStyle: "black-translucent",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  openGraph: {
+    type: "website",
+    siteName,
+    url: "/",
+    title: siteTagline,
+    description: siteDescription,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteTagline,
+    description: siteDescription,
+  },
+  ...(googleSiteVerification ? { verification: { google: googleSiteVerification } } : {}),
+};
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: siteName,
+  url: siteUrl,
+  potentialAction: {
+    "@type": "SearchAction",
+    target: {
+      "@type": "EntryPoint",
+      urlTemplate: `${siteUrl}/?q={search_term_string}`,
+    },
+    "query-input": "required name=search_term_string",
+  },
 };
 
 export default function RootLayout({
@@ -34,6 +80,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-background font-sans antialiased`}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

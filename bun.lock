@@ -45,6 +45,7 @@
         "@tsuki/anilist": "workspace:*",
         "@tsuki/api": "workspace:*",
         "@tsuki/auth": "workspace:*",
+        "@tsuki/db": "workspace:*",
         "@tsuki/env": "workspace:*",
         "@tsuki/rich-content": "workspace:*",
         "class-variance-authority": "^0.7.1",

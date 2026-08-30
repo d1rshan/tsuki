@@ -67,6 +67,11 @@ export function normalizeMediaCompact(media: MediaCompact): NormalizedMediaCompa
 
 export const MAX_MEDIA_ID = 2_147_483_647;
 
+/** URL segment for a media type — the only place the mapping lives. */
+export function mediaSlug(type: "ANIME" | "MANGA") {
+  return type === "ANIME" ? "anime" : "manga";
+}
+
 export function parseMediaId(value: string) {
   if (!/^[1-9]\d*$/.test(value)) return null;
 
