@@ -28,7 +28,7 @@ export async function MediaJsonLd({ mediaType, id }: MediaJsonLdProps) {
           description: normalized.descriptionText,
           url: `${siteUrl}/${mediaSlug(mediaType)}/${mediaId}`,
           image: normalized.coverImage ?? undefined,
-        }),
+        }).replace(/</g, "\\u003c"),
       }}
     />
   );
