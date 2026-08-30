@@ -103,6 +103,7 @@ export function EditProfileDialog({ profile }: { profile: UserOverview["profile"
                       </Field>
                     )}
                   </form.Field>
+
                   <TextField
                     form={form}
                     name="bannerImage"

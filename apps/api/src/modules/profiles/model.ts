@@ -6,13 +6,33 @@ import { LibraryEntryModel } from "../library/model";
 import { RichContentModel } from "../rich-content/model";
 import { ReviewModel } from "../reviews/model";
 
+export const UploadAuthModel = t.Object({
+  token: t.String(),
+  expire: t.Number(),
+  signature: t.String(),
+  /** Server-mandated upload file name; binds the uploaded file to the caller. */
+  fileName: t.String(),
+  publicKey: t.String(),
+  /** Server-derived destination folder, bound to the declared upload type. */
+  folder: t.String(),
+});
+
 export const ProfileModel = t.Object({
   bio: t.Nullable(RichContentModel),
   bannerImage: t.Nullable(t.String({ pattern: URL_PATTERN })),
   socialLinks: t.Nullable(t.Record(t.String(), t.String({ pattern: URL_PATTERN }))),
+  image: t.Optional(t.Nullable(t.String({ pattern: URL_PATTERN }))),
 });
 
-export const UpdateProfileModel = t.Partial(ProfileModel);
+export const UpdateProfileModel = t.Object({
+  bio: t.Optional(t.Nullable(RichContentModel)),
+  bannerImage: t.Optional(t.Nullable(t.String({ pattern: URL_PATTERN }))),
+  image: t.Optional(t.Nullable(t.String({ pattern: URL_PATTERN }))),
+  socialLinks: t.Optional(t.Nullable(t.Record(t.String(), t.String({ pattern: URL_PATTERN })))),
+});
+
+export type UploadAuth = typeof UploadAuthModel.static;
+export type UpdateProfile = typeof UpdateProfileModel.static;
 
 const MediaStatsModel = t.Object({
   total: t.Number(),

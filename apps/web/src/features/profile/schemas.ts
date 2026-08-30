@@ -23,9 +23,10 @@ export const profileFormSchema = z.object({
 });
 
 export const profileUpdateSchema = z.object({
-  bio: richContent.nullable(),
-  bannerImage: httpUrl.nullable(),
-  socialLinks: z.record(z.string(), httpUrl).nullable(),
+  image: httpUrl.nullable().optional(),
+  bannerImage: httpUrl.nullable().optional(),
+  bio: richContent.nullable().optional(),
+  socialLinks: z.record(z.string(), httpUrl).nullable().optional(),
 });
 
 export type ProfileFormValues = z.infer<typeof profileFormSchema>;

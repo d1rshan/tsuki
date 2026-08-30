@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Link as LinkIcon } from "lucide-react";
 
@@ -6,48 +5,36 @@ import type { UserOverview } from "@tsuki/api/types";
 
 import { RichContentView } from "@/features/rich-content/components/rich-content-view";
 
+import { ProfileAvatar } from "./profile-avatar";
+import { ProfileBanner } from "./profile-banner";
 import { ProfileTabs } from "./profile-tabs";
 
 type ProfileHeaderProps = {
   actions: React.ReactNode;
+  isOwner?: boolean;
   profile: UserOverview["profile"];
   social: UserOverview["social"];
   stats: UserOverview["stats"];
   user: UserOverview["user"];
 };
 
-export function ProfileHeader({ actions, profile, social, stats, user }: ProfileHeaderProps) {
+export function ProfileHeader({
+  actions,
+  isOwner = false,
+  profile,
+  social,
+  stats,
+  user,
+}: ProfileHeaderProps) {
   const banner = profile?.bannerImage;
 
   return (
     <header className="mb-8 border-b pb-8">
-      {banner ? (
-        <div className="relative mb-6 h-48 w-full overflow-hidden rounded-2xl border shadow-sm md:h-64">
-          <Image src={banner} alt="Banner" fill priority unoptimized className="object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/30 to-transparent" />
-        </div>
-      ) : (
-        <div className="mb-6 h-32 w-full rounded-2xl bg-gradient-to-tr from-muted/50 via-muted/20 to-muted/50 md:h-48" />
-      )}
+      <ProfileBanner bannerImage={banner} isOwner={isOwner} />
 
       <div className="flex flex-col items-start gap-6 px-2 md:flex-row md:gap-8">
         <div className="relative -mt-16 ml-2 flex shrink-0 items-end justify-between md:-mt-20 md:ml-6 md:block">
-          <div className="relative h-24 w-24 overflow-hidden rounded-full border bg-muted ring-4 ring-background shadow-sm md:h-32 md:w-32">
-            {user.image ? (
-              <Image
-                src={user.image}
-                alt={user.name}
-                fill
-                priority
-                sizes="(max-width: 768px) 96px, 128px"
-                className="object-cover"
-              />
-            ) : (
-              <div className="grid h-full w-full place-items-center text-3xl font-medium text-muted-foreground">
-                {user.displayUsername.charAt(0).toUpperCase()}
-              </div>
-            )}
-          </div>
+          <ProfileAvatar user={user} isOwner={isOwner} />
 
           <div className="mb-2 shrink-0 md:hidden">{actions}</div>
         </div>

@@ -8,18 +8,22 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
     "start": "bun run src/index.ts",
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/index.ts",
+    "gc:imagekit": "bun run scripts/gc-imagekit.ts"
   },
   "dependencies": {
     "@elysiajs/openapi": "^1.4.15",
     "@tsuki/anilist": "workspace:*",
     "@tsuki/auth": "workspace:*",
     "@tsuki/db": "workspace:*",
+    "@tsuki/env": "workspace:*",
     "@tsuki/rich-content": "workspace:*",
     "elysia": "latest"
   },
   "devDependencies": {
-    "bun-types": "latest"
+    "bun-types": "latest",
+    "vitest": "^4.1.11"
   }
 }
