@@ -22,10 +22,8 @@ export function ProfileAvatar({ className, isOwner = false, user }: ProfileAvata
 
   const handleUploadSuccess = async (url: string, fileId: string) => {
     const result = await updateProfile({ image: url, avatarFileId: fileId });
-    if (!result.success) {
-      toast.error(result.error || "Failed to update avatar.");
-      return;
-    }
+    // Throw so the crop dialog stays open and the user can retry.
+    if (!result.success) throw new Error(result.error || "Failed to update avatar.");
     toast.success("Avatar updated");
     router.refresh();
   };

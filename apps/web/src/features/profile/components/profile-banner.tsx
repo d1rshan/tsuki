@@ -20,10 +20,8 @@ export function ProfileBanner({ bannerImage, className, isOwner = false }: Profi
 
   const handleUploadSuccess = async (url: string, fileId: string) => {
     const result = await updateProfile({ bannerImage: url, bannerFileId: fileId });
-    if (!result.success) {
-      toast.error(result.error || "Failed to update banner.");
-      return;
-    }
+    // Throw so the crop dialog stays open and the user can retry.
+    if (!result.success) throw new Error(result.error || "Failed to update banner.");
     toast.success("Banner updated");
     router.refresh();
   };
