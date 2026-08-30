@@ -48,6 +48,8 @@ export function ImageCropDialog({
   const imageRef = useRef<HTMLImageElement>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [naturalSize, setNaturalSize] = useState({ width: 0, height: 0 });
+  const [isSaving, setIsSaving] = useState(false);
+  const isBusy = isProcessing || isSaving;
 
   // Reset state whenever a new image is loaded
   useEffect(() => {
@@ -74,7 +76,7 @@ export function ImageCropDialog({
   };
 
   // Calculate box dimensions inside container
-  const boxWidth = cropShape === "round" ? 280 : 360;
+  const boxWidth = cropShape === "round" ? 280 : 512;
   const boxHeight = boxWidth / aspectRatio;
 
   // Calculate base scale to fill the crop box
@@ -98,7 +100,7 @@ export function ImageCropDialog({
   const clampedPanY = Math.min(maxPanY, Math.max(minPanY, pan.y));
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!imageLoaded || isProcessing) return;
+    if (!imageLoaded || isBusy) return;
     e.currentTarget.setPointerCapture(e.pointerId);
     setIsDragging(true);
     dragStartRef.current = {
@@ -147,17 +149,22 @@ export function ImageCropDialog({
       height: cropPixelHeight,
     };
 
+    // Show the loading state immediately: canvas cropping a large banner can
+    // take seconds, and the parent's isProcessing only starts once we hand off.
+    setIsSaving(true);
     try {
       const blob = await getCroppedImageBlob(imageRef.current, pixelCrop, "image/webp", 0.92);
       await onConfirm(blob);
     } catch (err) {
       console.error("Cropping failed:", err);
+    } finally {
+      setIsSaving(false);
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && !isProcessing && onCancel()}>
-      <DialogContent className="sm:max-w-[460px]">
+    <Dialog open={isOpen} onOpenChange={(open) => !open && !isBusy && onCancel()}>
+      <DialogContent className="sm:max-w-[560px]">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
@@ -199,13 +206,9 @@ export function ImageCropDialog({
               />
             )}
             {cropShape === "rect" && (
-              <div className="pointer-events-none absolute inset-0 border-2 border-primary/80" />
+              <div className="pointer-events-none absolute inset-0 rounded-xl border-2 border-primary/80" />
             )}
           </div>
-
-          <p className="text-xs text-muted-foreground">
-            Drag to reposition. Use the slider to zoom.
-          </p>
 
           {/* Zoom Controls */}
           <div className="flex w-full max-w-[320px] items-center gap-3 px-2">
@@ -217,7 +220,7 @@ export function ImageCropDialog({
               step="0.02"
               value={zoom}
               onChange={(e) => setZoom(parseFloat(e.target.value))}
-              disabled={!imageLoaded || isProcessing}
+              disabled={!imageLoaded || isBusy}
               className="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-primary focus:outline-none"
               aria-label="Zoom image"
             />
@@ -226,12 +229,12 @@ export function ImageCropDialog({
         </div>
 
         <DialogFooter className="gap-2 sm:gap-0">
-          <Button type="button" variant="ghost" onClick={onCancel} disabled={isProcessing}>
+          <Button type="button" variant="ghost" onClick={onCancel} disabled={isBusy}>
             Cancel
           </Button>
-          <Button type="button" onClick={handleApplyCrop} disabled={!imageLoaded || isProcessing}>
-            {isProcessing && <LoaderCircle data-icon="inline-start" className="animate-spin" />}
-            {isProcessing ? "Uploading..." : "Save Image"}
+          <Button type="button" onClick={handleApplyCrop} disabled={!imageLoaded || isBusy}>
+            {isBusy && <LoaderCircle data-icon="inline-start" className="animate-spin" />}
+            {isBusy ? "Uploading..." : "Save Image"}
           </Button>
         </DialogFooter>
       </DialogContent>
