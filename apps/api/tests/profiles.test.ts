@@ -2,7 +2,11 @@ import crypto from "node:crypto";
 import { describe, expect, test } from "vitest";
 
 import { app } from "../src/app";
-import { generateImageKitUploadAuth, deleteImageKitFile } from "../src/modules/profiles/imagekit";
+import {
+  generateImageKitUploadAuth,
+  parseImagePath,
+  uploadedAtFromFilePath,
+} from "../src/modules/profiles/imagekit";
 
 describe("ImageKit upload auth generation", () => {
   test("generates valid token, expire timestamp, and hmac sha1 signature", () => {
@@ -13,7 +17,7 @@ describe("ImageKit upload auth generation", () => {
     expect(auth.token.length).toBeGreaterThan(0);
 
     // The server-mandated file name binds the upload to the caller.
-    expect(auth.fileName).toMatch(/^image-user-1-[0-9a-f-]{36}\.webp$/);
+    expect(auth.fileName).toMatch(/^image-user-1-\d+-[0-9a-f-]{36}\.webp$/);
 
     expect(typeof auth.expire).toBe("number");
     const nowSeconds = Math.floor(Date.now() / 1000);
@@ -37,10 +41,26 @@ describe("ImageKit upload auth generation", () => {
   });
 });
 
-describe("ImageKit delete helper", () => {
-  test("returns false when fileId is empty", async () => {
-    const result = await deleteImageKitFile("");
-    expect(result).toBe(false);
+describe("ImageKit path convention", () => {
+  const endpoint = process.env.IMAGEKIT_URL_ENDPOINT || "https://ik.imagekit.io";
+
+  test("parses the file path from a convention-conforming URL", () => {
+    const auth = generateImageKitUploadAuth("user-1");
+    const url = `${endpoint}/avatars/${auth.fileName}`;
+
+    expect(parseImagePath(url, "user-1", "avatar")).toBe(`/avatars/${auth.fileName}`);
+    expect(parseImagePath(url, "other-user", "avatar")).toBeNull();
+    expect(parseImagePath(url, "user-1", "banner")).toBeNull();
+    expect(parseImagePath(`${endpoint}/avatars/fake.webp`, "user-1", "avatar")).toBeNull();
+    expect(parseImagePath("https://example.com/avatars/x.webp", "user-1", "avatar")).toBeNull();
+  });
+
+  test("extracts the upload epoch from a convention-conforming path", () => {
+    const auth = generateImageKitUploadAuth("user-1");
+    const path = `/avatars/${auth.fileName}`;
+
+    expect(uploadedAtFromFilePath(path)).toBe(Math.floor(Date.now() / 1000));
+    expect(uploadedAtFromFilePath("/avatars/some-random-file.webp")).toBeNull();
   });
 });
 
@@ -61,10 +81,8 @@ describe("Profiles API endpoints", () => {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          image: "https://ik.imagekit.io/tsuki/avatar.webp",
-          avatarFileId: "new-file-id",
-          bannerImage: "https://ik.imagekit.io/tsuki/banner.webp",
-          bannerFileId: "new-banner-file-id",
+          image: "https://ik.imagekit.io/tsuki/avatars/image-x.webp",
+          bannerImage: "https://ik.imagekit.io/tsuki/banners/image-x.webp",
         }),
       }),
     );

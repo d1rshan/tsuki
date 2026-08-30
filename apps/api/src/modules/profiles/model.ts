@@ -28,10 +28,6 @@ export const UpdateProfileModel = t.Object({
   bannerImage: t.Optional(t.Nullable(t.String({ pattern: URL_PATTERN }))),
   image: t.Optional(t.Nullable(t.String({ pattern: URL_PATTERN }))),
   socialLinks: t.Optional(t.Nullable(t.Record(t.String(), t.String({ pattern: URL_PATTERN })))),
-  /** ImageKit fileId of the newly uploaded avatar; only honored alongside `image`. */
-  avatarFileId: t.Optional(t.Nullable(t.String())),
-  /** ImageKit fileId of the newly uploaded banner; only honored alongside `bannerImage`. */
-  bannerFileId: t.Optional(t.Nullable(t.String())),
 });
 
 export type UploadAuth = typeof UploadAuthModel.static;

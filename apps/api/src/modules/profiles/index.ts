@@ -6,13 +6,7 @@ import { isEmptyRichContent, validateRichContent } from "@tsuki/rich-content";
 
 import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
-import {
-  deleteImageKitFile,
-  generateImageKitUploadAuth,
-  isFileOwnedByUser,
-  isImageKitConfigured,
-  type ImageUploadType,
-} from "./imagekit";
+import { generateImageKitUploadAuth, isImageKitConfigured, parseImagePath } from "./imagekit";
 import { buildUserOverview, requireUser } from "./service";
 import { ProfileModel, UpdateProfileModel, UploadAuthModel, UserOverviewModel } from "./model";
 
@@ -60,14 +54,7 @@ export const profilesRoutes = new Elysia({ tags: ["Profiles"] })
   .put(
     "/me/profile",
     async ({ body, user }) => {
-      const {
-        bio: rawBio,
-        image: avatarImage,
-        avatarFileId,
-        bannerImage,
-        bannerFileId,
-        socialLinks,
-      } = body;
+      const { bio: rawBio, image: avatarImage, bannerImage, socialLinks } = body;
 
       let bio: RichContent | null | undefined;
       if (rawBio !== undefined) {
@@ -77,25 +64,15 @@ export const profilesRoutes = new Elysia({ tags: ["Profiles"] })
         bio = isEmptyRichContent(parsed.value) ? null : parsed.value;
       }
 
-      // Old fileIds come from the DB, never from the client: callers must not
-      // be able to delete arbitrary ImageKit assets.
-      const currentProfile = await profileDal.getProfileByUserId(user.id);
-      const oldAvatarFileId = currentProfile?.avatarFileId ?? null;
-      const oldBannerFileId = currentProfile?.bannerFileId ?? null;
-
-      // New fileIds are only trusted after ImageKit confirms the file lives at
-      // the path convention bound to this user; anything else stores as null.
-      const verifiedFileId = async (
-        fileId: string | null | undefined,
-        hasImage: boolean,
-        type: ImageUploadType,
-      ) => {
-        if (!hasImage || !fileId) return null;
-        return (await isFileOwnedByUser(fileId, user.id, type)) ? fileId : null;
-      };
-
-      const storedAvatarFileId = await verifiedFileId(avatarFileId, Boolean(avatarImage), "avatar");
-      const storedBannerFileId = await verifiedFileId(bannerFileId, Boolean(bannerImage), "banner");
+      // Uploaded images must carry the server-mandated naming convention bound
+      // to this user; anything else is a foreign or hand-crafted URL. Replaced
+      // and removed files are not deleted here — the GC sweep handles cleanup.
+      if (avatarImage && !parseImagePath(avatarImage, user.id, "avatar")) {
+        return status(422, { error: "Invalid avatar image" });
+      }
+      if (bannerImage && !parseImagePath(bannerImage, user.id, "banner")) {
+        return status(422, { error: "Invalid banner image" });
+      }
 
       if (avatarImage !== undefined) {
         await userDal.updateUser(user.id, { image: avatarImage });
@@ -105,21 +82,8 @@ export const profilesRoutes = new Elysia({ tags: ["Profiles"] })
         ...(bannerImage !== undefined && { bannerImage }),
         ...(socialLinks !== undefined && { socialLinks }),
         ...(rawBio !== undefined && { bio }),
-        // A fileId is only meaningful while its image URL is set.
-        ...(avatarImage !== undefined && { avatarFileId: storedAvatarFileId }),
-        ...(bannerImage !== undefined && { bannerFileId: storedBannerFileId }),
       });
       if (!profile) return status(500, { error: "Failed to update profile" });
-
-      // Cleanup happens only after the DB update succeeded, so a failed update
-      // never deletes the user's active image. Stored fileIds are verified as
-      // the owner's own uploads, so no further ownership checks are needed.
-      if (oldAvatarFileId && oldAvatarFileId !== profile.avatarFileId) {
-        void deleteImageKitFile(oldAvatarFileId);
-      }
-      if (oldBannerFileId && oldBannerFileId !== profile.bannerFileId) {
-        void deleteImageKitFile(oldBannerFileId);
-      }
 
       return {
         ...profile,

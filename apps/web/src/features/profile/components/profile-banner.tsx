@@ -18,8 +18,8 @@ type ProfileBannerProps = {
 export function ProfileBanner({ bannerImage, className, isOwner = false }: ProfileBannerProps) {
   const router = useRouter();
 
-  const handleUploadSuccess = async (url: string, fileId: string) => {
-    const result = await updateProfile({ bannerImage: url, bannerFileId: fileId });
+  const handleUploadSuccess = async (url: string) => {
+    const result = await updateProfile({ bannerImage: url });
     // Throw so the crop dialog stays open and the user can retry.
     if (!result.success) throw new Error(result.error || "Failed to update banner.");
     toast.success("Banner updated");

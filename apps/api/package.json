@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "start": "bun run src/index.ts",
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/index.ts",
+    "gc:imagekit": "bun run scripts/gc-imagekit.ts"
   },
   "dependencies": {
     "@elysiajs/openapi": "^1.4.15",
