@@ -6,7 +6,12 @@ import { isEmptyRichContent, validateRichContent } from "@tsuki/rich-content";
 
 import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
-import { deleteImageKitFile, generateImageKitUploadAuth } from "./imagekit";
+import {
+  deleteImageKitFile,
+  generateImageKitUploadAuth,
+  isFileOwnedByUser,
+  type ImageUploadType,
+} from "./imagekit";
 import { buildUserOverview, requireUser } from "./service";
 import { ProfileModel, UpdateProfileModel, UploadAuthModel, UserOverviewModel } from "./model";
 
@@ -17,14 +22,19 @@ import { ProfileModel, UpdateProfileModel, UploadAuthModel, UserOverviewModel } 
 
 export const profilesRoutes = new Elysia({ tags: ["Profiles"] })
   .use(authPlugin)
-  .get("/me/profile/upload-auth", () => generateImageKitUploadAuth(), {
-    auth: true,
-    response: { 200: UploadAuthModel },
-    detail: {
-      summary: "Get ImageKit upload authorization",
-      description: "Generates temporary credentials for direct browser-to-ImageKit upload.",
+  .get(
+    "/me/profile/upload-auth",
+    ({ query, user }) => generateImageKitUploadAuth(user.id, query.type),
+    {
+      auth: true,
+      query: t.Object({ type: t.Union([t.Literal("avatar"), t.Literal("banner")]) }),
+      response: { 200: UploadAuthModel },
+      detail: {
+        summary: "Get ImageKit upload authorization",
+        description: "Generates temporary credentials for direct browser-to-ImageKit upload.",
+      },
     },
-  })
+  )
   .get(
     "/users/:username",
     async ({ params: { username }, viewer }) => {
@@ -67,6 +77,20 @@ export const profilesRoutes = new Elysia({ tags: ["Profiles"] })
       const oldAvatarFileId = currentProfile?.avatarFileId ?? null;
       const oldBannerFileId = currentProfile?.bannerFileId ?? null;
 
+      // New fileIds are only trusted after ImageKit confirms the file lives at
+      // the path convention bound to this user; anything else stores as null.
+      const verifiedFileId = async (
+        fileId: string | null | undefined,
+        hasImage: boolean,
+        type: ImageUploadType,
+      ) => {
+        if (!hasImage || !fileId) return null;
+        return (await isFileOwnedByUser(fileId, user.id, type)) ? fileId : null;
+      };
+
+      const storedAvatarFileId = await verifiedFileId(avatarFileId, Boolean(avatarImage), "avatar");
+      const storedBannerFileId = await verifiedFileId(bannerFileId, Boolean(bannerImage), "banner");
+
       if (avatarImage !== undefined) {
         await userDal.updateUser(user.id, { image: avatarImage });
       }
@@ -76,17 +100,14 @@ export const profilesRoutes = new Elysia({ tags: ["Profiles"] })
         ...(socialLinks !== undefined && { socialLinks }),
         ...(rawBio !== undefined && { bio }),
         // A fileId is only meaningful while its image URL is set.
-        ...(avatarImage !== undefined && {
-          avatarFileId: avatarImage ? (avatarFileId ?? null) : null,
-        }),
-        ...(bannerImage !== undefined && {
-          bannerFileId: bannerImage ? (bannerFileId ?? null) : null,
-        }),
+        ...(avatarImage !== undefined && { avatarFileId: storedAvatarFileId }),
+        ...(bannerImage !== undefined && { bannerFileId: storedBannerFileId }),
       });
       if (!profile) return status(500, { error: "Failed to update profile" });
 
       // Cleanup happens only after the DB update succeeded, so a failed update
-      // never deletes the user's active image.
+      // never deletes the user's active image. Stored fileIds are verified as
+      // the owner's own uploads, so no further ownership checks are needed.
       if (oldAvatarFileId && oldAvatarFileId !== profile.avatarFileId) {
         void deleteImageKitFile(oldAvatarFileId);
       }

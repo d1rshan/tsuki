@@ -80,6 +80,8 @@ export type ImageKitUploadAuth = {
   token: string;
   expire: number;
   signature: string;
+  /** Server-mandated file name; binds the upload to the caller's user id. */
+  fileName: string;
   publicKey: string;
 };
 
@@ -95,24 +97,23 @@ export type ImageKitUploadResult = {
  */
 export async function uploadBlobToImageKit({
   blob,
-  fileName,
   folder,
   auth,
 }: {
   blob: Blob;
-  fileName: string;
   folder: string;
   auth: ImageKitUploadAuth;
 }): Promise<ImageKitUploadResult> {
   const formData = new FormData();
-  formData.append("file", blob, fileName);
-  formData.append("fileName", fileName);
+  formData.append("file", blob, auth.fileName);
+  formData.append("fileName", auth.fileName);
   formData.append("publicKey", auth.publicKey);
   formData.append("signature", auth.signature);
   formData.append("expire", String(auth.expire));
   formData.append("token", auth.token);
   formData.append("folder", folder);
-  formData.append("useUniqueFileName", "true");
+  // Uniqueness comes from the token inside the mandated file name.
+  formData.append("useUniqueFileName", "false");
 
   const response = await fetch("https://upload.imagekit.io/api/v1/files/upload", {
     method: "POST",

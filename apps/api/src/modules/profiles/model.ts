@@ -10,6 +10,8 @@ export const UploadAuthModel = t.Object({
   token: t.String(),
   expire: t.Number(),
   signature: t.String(),
+  /** Server-mandated upload file name; binds the uploaded file to the caller. */
+  fileName: t.String(),
   publicKey: t.String(),
   urlEndpoint: t.String(),
 });

@@ -6,11 +6,14 @@ import { generateImageKitUploadAuth, deleteImageKitFile } from "../src/modules/p
 
 describe("ImageKit upload auth generation", () => {
   test("generates valid token, expire timestamp, and hmac sha1 signature", () => {
-    const auth = generateImageKitUploadAuth();
+    const auth = generateImageKitUploadAuth("user-1", "avatar");
 
     expect(auth.token).toBeDefined();
     expect(typeof auth.token).toBe("string");
     expect(auth.token.length).toBeGreaterThan(0);
+
+    // The server-mandated file name binds the upload to the caller.
+    expect(auth.fileName).toMatch(/^image-user-1-[0-9a-f-]{36}\.webp$/);
 
     expect(typeof auth.expire).toBe("number");
     const nowSeconds = Math.floor(Date.now() / 1000);
@@ -24,7 +27,7 @@ describe("ImageKit upload auth generation", () => {
   });
 
   test("signature matches HMAC-SHA1 calculation with private key", () => {
-    const auth = generateImageKitUploadAuth();
+    const auth = generateImageKitUploadAuth("user-1", "banner");
     const expected = crypto
       .createHmac("sha1", process.env.IMAGEKIT_PRIVATE_KEY || "")
       .update(auth.token + auth.expire)
@@ -44,7 +47,7 @@ describe("ImageKit delete helper", () => {
 describe("Profiles API endpoints", () => {
   test("unauthenticated request to /me/profile/upload-auth returns 401", async () => {
     const response = await app.handle(
-      new Request("http://localhost/me/profile/upload-auth", {
+      new Request("http://localhost/me/profile/upload-auth?type=avatar", {
         method: "GET",
       }),
     );

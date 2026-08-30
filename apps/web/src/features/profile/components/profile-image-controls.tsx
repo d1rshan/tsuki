@@ -96,22 +96,23 @@ export function ProfileImageControls({
   const handleConfirmCrop = async (blob: Blob) => {
     setIsUploading(true);
     try {
-      const { data: auth, error } = await apiClient.me.profile["upload-auth"].get();
+      const { data: auth, error } = await apiClient.me.profile["upload-auth"].get({
+        query: { type },
+      });
       if (error || !auth) {
         toast.error("Failed to get upload authorization. Please try again.");
         setIsUploading(false);
         return;
       }
 
-      const fileName = `${type}-${Date.now()}.webp`;
       const uploadResult = await uploadBlobToImageKit({
         blob,
-        fileName,
         folder: uploadFolder,
         auth: {
           token: auth.token,
           expire: auth.expire,
           signature: auth.signature,
+          fileName: auth.fileName,
           publicKey: auth.publicKey,
         },
       });
