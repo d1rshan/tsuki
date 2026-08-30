@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { connection } from "next/server";
 import { cacheLife, cacheTag } from "next/cache";
 
 import { db, media, user } from "@tsuki/db";
@@ -21,6 +22,9 @@ async function getSitemapData() {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // Never prerender at build time: CI has no database access, and a build-baked
+  // sitemap would go stale anyway. The cached query keeps request-time cost low.
+  await connection();
   const { mediaRows, usernames } = await getSitemapData();
   return buildSitemapEntries(siteUrl, mediaRows, usernames);
 }
