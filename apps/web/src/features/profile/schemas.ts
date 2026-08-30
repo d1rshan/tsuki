@@ -6,14 +6,11 @@ import { isEmptyRichContent } from "@tsuki/rich-content";
 const httpUrl = z.url("Enter a valid URL").refine((value) => /^https?:\/\//i.test(value), {
   message: "URL must start with http:// or https://",
 });
-const optionalHttpUrl = z.union([httpUrl, z.literal("")]);
 
 // Deep Rich Content policy is enforced by the API; the form passes it through.
 const richContent = z.custom<RichContent | null>(() => true);
 
 export const profileFormSchema = z.object({
-  image: optionalHttpUrl.nullable().optional(),
-  bannerImage: optionalHttpUrl.nullable().optional(),
   bio: richContent,
   socialLinks: z.array(
     z.object({
@@ -21,8 +18,6 @@ export const profileFormSchema = z.object({
       url: httpUrl,
     }),
   ),
-  avatarFileId: z.string().nullable().optional(),
-  bannerFileId: z.string().nullable().optional(),
 });
 
 export const profileUpdateSchema = z.object({
@@ -43,18 +38,6 @@ export function createProfileUpdate(values: ProfileFormValues): ProfileUpdate {
   );
 
   return {
-    image:
-      values.image !== undefined
-        ? values.image && values.image.trim() !== ""
-          ? values.image
-          : null
-        : undefined,
-    bannerImage:
-      values.bannerImage !== undefined
-        ? values.bannerImage && values.bannerImage.trim() !== ""
-          ? values.bannerImage
-          : null
-        : undefined,
     bio: values.bio && !isEmptyRichContent(values.bio) ? values.bio : null,
     socialLinks: Object.keys(socialLinks).length ? socialLinks : null,
   };

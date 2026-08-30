@@ -45,7 +45,6 @@ export function ImageCropDialog({
     panY: 0,
   });
 
-  const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [naturalSize, setNaturalSize] = useState({ width: 0, height: 0 });
@@ -166,7 +165,6 @@ export function ImageCropDialog({
         <div className="flex flex-col items-center gap-4 py-2">
           {/* Crop Area Container */}
           <div
-            ref={containerRef}
             className="relative flex items-center justify-center overflow-hidden rounded-xl border bg-black/90 select-none touch-none"
             style={{ width: boxWidth, height: boxHeight }}
             onPointerDown={handlePointerDown}
@@ -196,7 +194,7 @@ export function ImageCropDialog({
             {/* Visual Guide / Mask */}
             {cropShape === "round" && (
               <div
-                className="pointer-events-none absolute inset-0 rounded-full border-2 border-primary/80 ring-9999 ring-black/60"
+                className="pointer-events-none absolute inset-0 rounded-full border-2 border-primary/80 shadow-[0_0_0_9999px_rgba(0,0,0,0.6)]"
                 style={{ width: boxWidth, height: boxHeight }}
               />
             )}

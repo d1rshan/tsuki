@@ -17,8 +17,8 @@ export function generateImageKitUploadAuth() {
     token,
     expire,
     signature,
-    publicKey: env.IMAGEKIT_PUBLIC_KEY || env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY || "",
-    urlEndpoint: env.IMAGEKIT_URL_ENDPOINT || env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT || "",
+    publicKey: env.IMAGEKIT_PUBLIC_KEY,
+    urlEndpoint: env.IMAGEKIT_URL_ENDPOINT,
   };
 }
 
