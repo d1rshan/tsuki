@@ -22,7 +22,7 @@ export async function ProfileJsonLd({ username }: { username: string }) {
             description: richContentText(profile.profile?.bio).trim() || undefined,
             url: `${siteUrl}/${username}`,
           },
-        }),
+        }).replace(/</g, "\\u003c"),
       }}
     />
   );
