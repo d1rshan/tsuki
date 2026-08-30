@@ -10,7 +10,7 @@ import { buildSitemapEntries } from "@/shared/lib/sitemap";
 /** Cached so crawlers don't hit Postgres on every fetch; tags let re-syncs bust it. */
 async function getSitemapData() {
   "use cache: remote";
-  cacheLife("max");
+  cacheLife("days");
   cacheTag("media", "profiles");
 
   const mediaRows = await db
