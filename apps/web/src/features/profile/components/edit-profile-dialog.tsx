@@ -104,6 +104,14 @@ export function EditProfileDialog({ profile }: { profile: UserOverview["profile"
                     )}
                   </form.Field>
 
+                  <TextField
+                    form={form}
+                    name="bannerImage"
+                    label="Banner Image URL"
+                    type="url"
+                    placeholder="https://example.com/banner.jpg"
+                  />
+
                   <form.Field name="socialLinks" mode="array">
                     {(socialLinksField) => (
                       <FieldSet className="grid grid-cols-[1fr_auto] items-center">
@@ -190,6 +198,7 @@ export function EditProfileDialog({ profile }: { profile: UserOverview["profile"
 function createProfileFormValues(profile: UserOverview["profile"]): ProfileFormValues {
   return {
     bio: profile?.bio ?? null,
+    bannerImage: profile?.bannerImage || "",
     socialLinks: Object.entries(profile?.socialLinks ?? {}).map(([platform, url]) => ({
       platform,
       url,

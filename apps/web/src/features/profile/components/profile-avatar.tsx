@@ -66,7 +66,6 @@ export function ProfileAvatar({ className, isOwner = false, user }: ProfileAvata
             type="avatar"
             aspectRatio={1}
             cropShape="round"
-            uploadFolder="/avatars"
             hasImage={Boolean(user.image)}
             onUploadSuccess={handleUploadSuccess}
             onRemove={handleRemoveAvatar}

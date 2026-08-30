@@ -8,14 +8,3 @@ export const getUserByUsername = async (username: string) => {
     where: eq(user.username, username.toLowerCase()),
   });
 };
-
-export const updateUser = async (
-  userId: string,
-  data: Partial<Pick<typeof user.$inferInsert, "image" | "name" | "displayUsername">>,
-) => {
-  return db
-    .update(user)
-    .set({ ...data, updatedAt: new Date() })
-    .where(eq(user.id, userId))
-    .returning();
-};

@@ -83,6 +83,8 @@ export type ImageKitUploadAuth = {
   /** Server-mandated file name; binds the upload to the caller's user id. */
   fileName: string;
   publicKey: string;
+  /** Server-derived destination folder, bound to the declared upload type. */
+  folder: string;
 };
 
 export type ImageKitUploadResult = {
@@ -97,11 +99,9 @@ export type ImageKitUploadResult = {
  */
 export async function uploadBlobToImageKit({
   blob,
-  folder,
   auth,
 }: {
   blob: Blob;
-  folder: string;
   auth: ImageKitUploadAuth;
 }): Promise<ImageKitUploadResult> {
   const formData = new FormData();
@@ -111,7 +111,7 @@ export async function uploadBlobToImageKit({
   formData.append("signature", auth.signature);
   formData.append("expire", String(auth.expire));
   formData.append("token", auth.token);
-  formData.append("folder", folder);
+  formData.append("folder", auth.folder);
   // Uniqueness comes from the token inside the mandated file name.
   formData.append("useUniqueFileName", "false");
 

@@ -65,7 +65,6 @@ export function ProfileBanner({ bannerImage, className, isOwner = false }: Profi
             type="banner"
             aspectRatio={3}
             cropShape="rect"
-            uploadFolder="/banners"
             hasImage={Boolean(bannerImage)}
             onUploadSuccess={handleUploadSuccess}
             onRemove={handleRemoveBanner}

@@ -13,7 +13,8 @@ export const UploadAuthModel = t.Object({
   /** Server-mandated upload file name; binds the uploaded file to the caller. */
   fileName: t.String(),
   publicKey: t.String(),
-  urlEndpoint: t.String(),
+  /** Server-derived destination folder, bound to the declared upload type. */
+  folder: t.String(),
 });
 
 export const ProfileModel = t.Object({

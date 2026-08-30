@@ -23,7 +23,6 @@ type ProfileImageControlsProps = {
   onRemove: () => Promise<void> | void;
   onUploadSuccess: (url: string) => Promise<void> | void;
   type: ImageUploadType;
-  uploadFolder: string;
 };
 
 export function ProfileImageControls({
@@ -35,7 +34,6 @@ export function ProfileImageControls({
   onRemove,
   onUploadSuccess,
   type,
-  uploadFolder,
 }: ProfileImageControlsProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -105,17 +103,7 @@ export function ProfileImageControls({
         return;
       }
 
-      const uploadResult = await uploadBlobToImageKit({
-        blob,
-        folder: uploadFolder,
-        auth: {
-          token: auth.token,
-          expire: auth.expire,
-          signature: auth.signature,
-          fileName: auth.fileName,
-          publicKey: auth.publicKey,
-        },
-      });
+      const uploadResult = await uploadBlobToImageKit({ blob, auth });
 
       await onUploadSuccess(uploadResult.url);
       handleCancelCrop();

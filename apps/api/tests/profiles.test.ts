@@ -1,16 +1,24 @@
 import crypto from "node:crypto";
-import { describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { app } from "../src/app";
 import {
   generateImageKitUploadAuth,
   parseImagePath,
   uploadedAtFromFilePath,
+  verifyUploadedImage,
 } from "../src/modules/profiles/imagekit";
+
+const headResponse = (headers: Record<string, string>, ok = true) =>
+  ({ ok, headers: new Headers(headers) }) as unknown as Response;
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 describe("ImageKit upload auth generation", () => {
   test("generates valid token, expire timestamp, and hmac sha1 signature", () => {
-    const auth = generateImageKitUploadAuth("user-1");
+    const auth = generateImageKitUploadAuth("user-1", "avatar");
 
     expect(auth.token).toBeDefined();
     expect(typeof auth.token).toBe("string");
@@ -31,7 +39,7 @@ describe("ImageKit upload auth generation", () => {
   });
 
   test("signature matches HMAC-SHA1 calculation with private key", () => {
-    const auth = generateImageKitUploadAuth("user-1");
+    const auth = generateImageKitUploadAuth("user-1", "avatar");
     const expected = crypto
       .createHmac("sha1", process.env.IMAGEKIT_PRIVATE_KEY || "")
       .update(auth.token + auth.expire)
@@ -39,13 +47,18 @@ describe("ImageKit upload auth generation", () => {
 
     expect(auth.signature).toBe(expected);
   });
+
+  test("derives the upload folder from the declared type", () => {
+    expect(generateImageKitUploadAuth("user-1", "avatar").folder).toBe("/avatars");
+    expect(generateImageKitUploadAuth("user-1", "banner").folder).toBe("/banners");
+  });
 });
 
 describe("ImageKit path convention", () => {
   const endpoint = process.env.IMAGEKIT_URL_ENDPOINT || "https://ik.imagekit.io";
 
   test("parses the file path from a convention-conforming URL", () => {
-    const auth = generateImageKitUploadAuth("user-1");
+    const auth = generateImageKitUploadAuth("user-1", "avatar");
     const url = `${endpoint}/avatars/${auth.fileName}`;
 
     expect(parseImagePath(url, "user-1", "avatar")).toBe(`/avatars/${auth.fileName}`);
@@ -56,11 +69,78 @@ describe("ImageKit path convention", () => {
   });
 
   test("extracts the upload epoch from a convention-conforming path", () => {
-    const auth = generateImageKitUploadAuth("user-1");
+    const auth = generateImageKitUploadAuth("user-1", "avatar");
     const path = `/avatars/${auth.fileName}`;
 
     expect(uploadedAtFromFilePath(path)).toBe(Math.floor(Date.now() / 1000));
     expect(uploadedAtFromFilePath("/avatars/some-random-file.webp")).toBeNull();
+  });
+});
+
+describe("verifyUploadedImage (server-side MIME/size enforcement)", () => {
+  test("accepts a conforming image within the size limit", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        headResponse({ "content-type": "image/webp", "content-length": String(1024) }),
+      ),
+    );
+
+    expect(
+      await verifyUploadedImage("https://ik.imagekit.io/tsuki/avatars/a.webp", "avatar"),
+    ).toBeNull();
+    expect(
+      await verifyUploadedImage("https://ik.imagekit.io/tsuki/banners/a.webp", "banner"),
+    ).toBeNull();
+  });
+
+  test("rejects unsupported content types", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        headResponse({ "content-type": "image/gif", "content-length": String(1024) }),
+      ),
+    );
+
+    expect(await verifyUploadedImage("https://ik.imagekit.io/tsuki/avatars/a.webp", "avatar")).toBe(
+      "Unsupported image format. Please upload a JPEG, PNG, or WebP image.",
+    );
+  });
+
+  test("rejects files over the per-type size limit", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        headResponse({
+          "content-type": "image/webp",
+          "content-length": String(6 * 1024 * 1024),
+        }),
+      ),
+    );
+
+    expect(
+      await verifyUploadedImage("https://ik.imagekit.io/tsuki/avatars/a.webp", "avatar"),
+    ).toContain("too large");
+  });
+
+  test("rejects when the file is unreachable or size is unknown", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => headResponse({}, false)),
+    );
+
+    expect(
+      await verifyUploadedImage("https://ik.imagekit.io/tsuki/avatars/a.webp", "avatar"),
+    ).toContain("not accessible");
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => headResponse({ "content-type": "image/webp" })),
+    );
+
+    expect(
+      await verifyUploadedImage("https://ik.imagekit.io/tsuki/avatars/a.webp", "avatar"),
+    ).toContain("could not be verified");
   });
 });
 

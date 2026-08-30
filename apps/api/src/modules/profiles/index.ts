@@ -1,12 +1,17 @@
 import { Elysia, t, status } from "elysia";
 
-import { profileDal, userDal } from "@tsuki/db";
+import { profileDal } from "@tsuki/db";
 import type { RichContent } from "@tsuki/rich-content";
 import { isEmptyRichContent, validateRichContent } from "@tsuki/rich-content";
 
 import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
-import { generateImageKitUploadAuth, isImageKitConfigured, parseImagePath } from "./imagekit";
+import {
+  generateImageKitUploadAuth,
+  isImageKitConfigured,
+  parseImagePath,
+  verifyUploadedImage,
+} from "./imagekit";
 import { buildUserOverview, requireUser } from "./service";
 import { ProfileModel, UpdateProfileModel, UploadAuthModel, UserOverviewModel } from "./model";
 
@@ -19,11 +24,11 @@ export const profilesRoutes = new Elysia({ tags: ["Profiles"] })
   .use(authPlugin)
   .get(
     "/me/profile/upload-auth",
-    ({ user }) => {
+    ({ query, user }) => {
       if (!isImageKitConfigured()) {
         return status(503, { error: "Image uploads are not configured on this deployment" });
       }
-      return generateImageKitUploadAuth(user.id);
+      return generateImageKitUploadAuth(user.id, query.type);
     },
     {
       auth: true,
@@ -67,28 +72,42 @@ export const profilesRoutes = new Elysia({ tags: ["Profiles"] })
       // Uploaded images must carry the server-mandated naming convention bound
       // to this user; anything else is a foreign or hand-crafted URL. Replaced
       // and removed files are not deleted here — the GC sweep handles cleanup.
-      if (avatarImage && !parseImagePath(avatarImage, user.id, "avatar")) {
-        return status(422, { error: "Invalid avatar image" });
-      }
-      if (bannerImage && !parseImagePath(bannerImage, user.id, "banner")) {
-        return status(422, { error: "Invalid banner image" });
+      // The binary bypassed this server, so uploaded files are also HEAD-verified
+      // for type and size before their URL is persisted.
+      for (const [url, type] of [
+        [avatarImage, "avatar"],
+        [bannerImage, "banner"],
+      ] as const) {
+        if (!url) continue;
+        if (!parseImagePath(url, user.id, type)) {
+          return status(422, { error: `Invalid ${type} image` });
+        }
+        const verificationError = await verifyUploadedImage(url, type);
+        if (verificationError) return status(422, { error: verificationError });
       }
 
-      if (avatarImage !== undefined) {
-        await userDal.updateUser(user.id, { image: avatarImage });
-      }
-
-      const [profile] = await profileDal.updateUserProfile(user.id, {
+      const profileData = {
         ...(bannerImage !== undefined && { bannerImage }),
         ...(socialLinks !== undefined && { socialLinks }),
         ...(rawBio !== undefined && { bio }),
-      });
+      };
+
+      // Avatar (user row) and profile row are written atomically when both
+      // change, so a failed profile write cannot leave a half-updated profile.
+      if (avatarImage !== undefined) {
+        const { image, profile } = await profileDal.updateUserAndProfile(
+          user.id,
+          avatarImage,
+          profileData,
+        );
+        if (!profile) return status(500, { error: "Failed to update profile" });
+        return { ...profile, image };
+      }
+
+      const [profile] = await profileDal.updateUserProfile(user.id, profileData);
       if (!profile) return status(500, { error: "Failed to update profile" });
 
-      return {
-        ...profile,
-        image: avatarImage !== undefined ? avatarImage : (user.image ?? null),
-      };
+      return { ...profile, image: user.image ?? null };
     },
     {
       auth: true,
