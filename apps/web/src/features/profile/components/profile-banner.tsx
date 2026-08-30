@@ -18,8 +18,8 @@ type ProfileBannerProps = {
 export function ProfileBanner({ bannerImage, className, isOwner = false }: ProfileBannerProps) {
   const router = useRouter();
 
-  const handleUploadSuccess = async (url: string) => {
-    const result = await updateProfile({ bannerImage: url });
+  const handleUploadSuccess = async (url: string, fileId: string) => {
+    const result = await updateProfile({ bannerImage: url, bannerFileId: fileId });
     if (!result.success) {
       toast.error(result.error || "Failed to update banner.");
       return;
@@ -65,7 +65,7 @@ export function ProfileBanner({ bannerImage, className, isOwner = false }: Profi
         <div className="absolute top-3 right-3 z-10 opacity-0 transition-opacity duration-200 group-hover/banner:opacity-100 focus-within:opacity-100 md:top-4 md:right-4">
           <ProfileImageControls
             type="banner"
-            aspectRatio={3}
+            aspectRatio={4}
             cropShape="rect"
             uploadFolder="/banners"
             hasImage={Boolean(bannerImage)}

@@ -4,7 +4,9 @@ import { env } from "@tsuki/env/api";
 
 export function generateImageKitUploadAuth() {
   const token = crypto.randomUUID();
-  const expire = Math.floor(Date.now() / 1000) + 30 * 60;
+  // Short window: the upload signature only covers token+expire, so a leaked
+  // token allows uploading anywhere in the account until it expires.
+  const expire = Math.floor(Date.now() / 1000) + 5 * 60;
   const privateKey = env.IMAGEKIT_PRIVATE_KEY || "";
   const signature = crypto
     .createHmac("sha1", privateKey)

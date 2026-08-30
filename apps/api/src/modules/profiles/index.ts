@@ -47,9 +47,9 @@ export const profilesRoutes = new Elysia({ tags: ["Profiles"] })
       const {
         bio: rawBio,
         image: avatarImage,
-        oldAvatarFileId,
-        oldBannerFileId,
+        avatarFileId,
         bannerImage,
+        bannerFileId,
         socialLinks,
       } = body;
 
@@ -61,29 +61,42 @@ export const profilesRoutes = new Elysia({ tags: ["Profiles"] })
         bio = isEmptyRichContent(parsed.value) ? null : parsed.value;
       }
 
-      let updatedUserImage: string | null | undefined;
+      // Old fileIds come from the DB, never from the client: callers must not
+      // be able to delete arbitrary ImageKit assets.
+      const currentProfile = await profileDal.getProfileByUserId(user.id);
+      const oldAvatarFileId = currentProfile?.avatarFileId ?? null;
+      const oldBannerFileId = currentProfile?.bannerFileId ?? null;
+
       if (avatarImage !== undefined) {
-        const [updatedUser] = await userDal.updateUser(user.id, { image: avatarImage });
-        updatedUserImage = updatedUser?.image ?? avatarImage;
+        await userDal.updateUser(user.id, { image: avatarImage });
       }
 
       const [profile] = await profileDal.updateUserProfile(user.id, {
         ...(bannerImage !== undefined && { bannerImage }),
         ...(socialLinks !== undefined && { socialLinks }),
         ...(rawBio !== undefined && { bio }),
+        // A fileId is only meaningful while its image URL is set.
+        ...(avatarImage !== undefined && {
+          avatarFileId: avatarImage ? (avatarFileId ?? null) : null,
+        }),
+        ...(bannerImage !== undefined && {
+          bannerFileId: bannerImage ? (bannerFileId ?? null) : null,
+        }),
       });
       if (!profile) return status(500, { error: "Failed to update profile" });
 
-      if (oldAvatarFileId) {
+      // Cleanup happens only after the DB update succeeded, so a failed update
+      // never deletes the user's active image.
+      if (oldAvatarFileId && oldAvatarFileId !== profile.avatarFileId) {
         void deleteImageKitFile(oldAvatarFileId);
       }
-      if (oldBannerFileId) {
+      if (oldBannerFileId && oldBannerFileId !== profile.bannerFileId) {
         void deleteImageKitFile(oldBannerFileId);
       }
 
       return {
         ...profile,
-        image: updatedUserImage ?? user.image ?? null,
+        image: avatarImage !== undefined ? avatarImage : (user.image ?? null),
       };
     },
     {

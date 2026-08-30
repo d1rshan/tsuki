@@ -11,6 +11,10 @@ export const profile = pgTable("profile", {
   /** Rich Content document (bio preset); null when the author wrote nothing. */
   bio: jsonb("bio").$type<RichContent>(),
   bannerImage: text("banner_image"),
+  /** ImageKit fileId of the current avatar (user.image), for server-side cleanup on replace/remove. */
+  avatarFileId: text("avatar_file_id"),
+  /** ImageKit fileId of the current banner, for server-side cleanup on replace/remove. */
+  bannerFileId: text("banner_file_id"),
   socialLinks: jsonb("social_links").$type<Record<string, string>>().default({}),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")

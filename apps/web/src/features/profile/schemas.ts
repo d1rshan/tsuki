@@ -21,8 +21,8 @@ export const profileFormSchema = z.object({
       url: httpUrl,
     }),
   ),
-  oldAvatarFileId: z.string().nullable().optional(),
-  oldBannerFileId: z.string().nullable().optional(),
+  avatarFileId: z.string().nullable().optional(),
+  bannerFileId: z.string().nullable().optional(),
 });
 
 export const profileUpdateSchema = z.object({
@@ -30,8 +30,8 @@ export const profileUpdateSchema = z.object({
   bannerImage: httpUrl.nullable().optional(),
   bio: richContent.nullable().optional(),
   socialLinks: z.record(z.string(), httpUrl).nullable().optional(),
-  oldAvatarFileId: z.string().nullable().optional(),
-  oldBannerFileId: z.string().nullable().optional(),
+  avatarFileId: z.string().nullable().optional(),
+  bannerFileId: z.string().nullable().optional(),
 });
 
 export type ProfileFormValues = z.infer<typeof profileFormSchema>;
@@ -57,7 +57,5 @@ export function createProfileUpdate(values: ProfileFormValues): ProfileUpdate {
         : undefined,
     bio: values.bio && !isEmptyRichContent(values.bio) ? values.bio : null,
     socialLinks: Object.keys(socialLinks).length ? socialLinks : null,
-    oldAvatarFileId: values.oldAvatarFileId || undefined,
-    oldBannerFileId: values.oldBannerFileId || undefined,
   };
 }

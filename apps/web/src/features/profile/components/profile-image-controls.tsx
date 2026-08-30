@@ -21,7 +21,7 @@ type ProfileImageControlsProps = {
   cropTitle?: string;
   hasImage: boolean;
   onRemove: () => Promise<void> | void;
-  onUploadSuccess: (url: string) => Promise<void> | void;
+  onUploadSuccess: (url: string, fileId: string) => Promise<void> | void;
   type: ImageUploadType;
   uploadFolder: string;
 };
@@ -116,7 +116,7 @@ export function ProfileImageControls({
         },
       });
 
-      await onUploadSuccess(uploadResult.url);
+      await onUploadSuccess(uploadResult.url, uploadResult.fileId);
       handleCancelCrop();
       setIsOpen(false);
     } catch (err) {

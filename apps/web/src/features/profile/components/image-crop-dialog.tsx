@@ -61,10 +61,17 @@ export function ImageCropDialog({
 
   const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const img = e.currentTarget;
-    setNaturalSize({ width: img.naturalWidth, height: img.naturalHeight });
+    const natural = { width: img.naturalWidth, height: img.naturalHeight };
+    setNaturalSize(natural);
     setImageLoaded(true);
-    setPan({ x: 0, y: 0 });
     setZoom(1);
+
+    // Center the image in the crop box initially (pan is clamped to valid range).
+    const base = Math.max(boxWidth / natural.width, boxHeight / natural.height);
+    setPan({
+      x: (boxWidth - natural.width * base) / 2,
+      y: (boxHeight - natural.height * base) / 2,
+    });
   };
 
   // Calculate box dimensions inside container
@@ -175,7 +182,7 @@ export function ImageCropDialog({
                 crossOrigin="anonymous"
                 onLoad={handleImageLoad}
                 draggable={false}
-                className="absolute origin-top-left cursor-grab active:cursor-grabbing"
+                className="absolute top-0 left-0 origin-top-left cursor-grab active:cursor-grabbing"
                 style={{
                   width: displayedWidth || "auto",
                   height: displayedHeight || "auto",

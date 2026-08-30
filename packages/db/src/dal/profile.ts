@@ -5,7 +5,12 @@ import { profile } from "../schema";
 
 export const updateUserProfile = async (
   userId: string,
-  data: Partial<Pick<typeof profile.$inferInsert, "bio" | "bannerImage" | "socialLinks">>,
+  data: Partial<
+    Pick<
+      typeof profile.$inferInsert,
+      "bio" | "bannerImage" | "socialLinks" | "avatarFileId" | "bannerFileId"
+    >
+  >,
 ) => {
   // Callers clear with null; the column defaults to `{}`. Keep one representation of "none".
   const values = data.socialLinks === null ? { ...data, socialLinks: {} } : data;

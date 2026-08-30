@@ -14,7 +14,10 @@ describe("ImageKit upload auth generation", () => {
 
     expect(typeof auth.expire).toBe("number");
     const nowSeconds = Math.floor(Date.now() / 1000);
-    expect(auth.expire).toBeGreaterThan(nowSeconds);
+    // Short window: the signature doesn't bind folder/size, so tokens must
+    // expire quickly.
+    expect(auth.expire - nowSeconds).toBeGreaterThanOrEqual(295);
+    expect(auth.expire - nowSeconds).toBeLessThanOrEqual(305);
 
     expect(typeof auth.signature).toBe("string");
     expect(auth.signature).toMatch(/^[a-f0-9]{40}$/);
@@ -56,7 +59,9 @@ describe("Profiles API endpoints", () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           image: "https://ik.imagekit.io/tsuki/avatar.webp",
+          avatarFileId: "new-file-id",
           bannerImage: "https://ik.imagekit.io/tsuki/banner.webp",
+          bannerFileId: "new-banner-file-id",
         }),
       }),
     );

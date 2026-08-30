@@ -20,8 +20,8 @@ type ProfileAvatarProps = {
 export function ProfileAvatar({ className, isOwner = false, user }: ProfileAvatarProps) {
   const router = useRouter();
 
-  const handleUploadSuccess = async (url: string) => {
-    const result = await updateProfile({ image: url });
+  const handleUploadSuccess = async (url: string, fileId: string) => {
+    const result = await updateProfile({ image: url, avatarFileId: fileId });
     if (!result.success) {
       toast.error(result.error || "Failed to update avatar.");
       return;
