@@ -15,8 +15,6 @@ function runWithoutEmailCredentials(script: string) {
       DATABASE_URL: databaseUrl,
       BETTER_AUTH_SECRET: "test-secret",
       NEXT_PUBLIC_APP_URL: appUrl,
-      IMAGEKIT_PRIVATE_KEY: "test-private-key",
-      IMAGEKIT_PUBLIC_KEY: "test-public-key",
     },
   });
 }

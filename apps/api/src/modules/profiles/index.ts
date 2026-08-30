@@ -10,6 +10,7 @@ import {
   deleteImageKitFile,
   generateImageKitUploadAuth,
   isFileOwnedByUser,
+  isImageKitConfigured,
   type ImageUploadType,
 } from "./imagekit";
 import { buildUserOverview, requireUser } from "./service";
@@ -24,11 +25,16 @@ export const profilesRoutes = new Elysia({ tags: ["Profiles"] })
   .use(authPlugin)
   .get(
     "/me/profile/upload-auth",
-    ({ query, user }) => generateImageKitUploadAuth(user.id, query.type),
+    ({ user }) => {
+      if (!isImageKitConfigured()) {
+        return status(503, { error: "Image uploads are not configured on this deployment" });
+      }
+      return generateImageKitUploadAuth(user.id);
+    },
     {
       auth: true,
       query: t.Object({ type: t.Union([t.Literal("avatar"), t.Literal("banner")]) }),
-      response: { 200: UploadAuthModel },
+      response: { 200: UploadAuthModel, 503: ErrorModel },
       detail: {
         summary: "Get ImageKit upload authorization",
         description: "Generates temporary credentials for direct browser-to-ImageKit upload.",

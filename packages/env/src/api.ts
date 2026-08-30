@@ -6,10 +6,11 @@ export const env = createEnv({
   server: {
     DATABASE_URL: z.url(),
     BETTER_AUTH_SECRET: z.string().min(1),
-    // Required: without them the upload-auth endpoint would hand out signatures
-    // that can never work, so fail loudly at startup instead.
-    IMAGEKIT_PRIVATE_KEY: z.string().min(1),
-    IMAGEKIT_PUBLIC_KEY: z.string().min(1),
+    // Optional: profile image uploads are disabled (503) when unset. Cannot be
+    // required here — the web app imports this env too, and its build has no
+    // ImageKit credentials.
+    IMAGEKIT_PRIVATE_KEY: z.string().default(""),
+    IMAGEKIT_PUBLIC_KEY: z.string().default(""),
     IMAGEKIT_URL_ENDPOINT: z.string().default(""),
     NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   },

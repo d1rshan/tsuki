@@ -3,12 +3,15 @@ import crypto from "node:crypto";
 import { env } from "@tsuki/env/api";
 
 export type ImageUploadType = "avatar" | "banner";
-
 const folderFor = (type: ImageUploadType) => (type === "avatar" ? "/avatars" : "/banners");
 
 const authHeader = () => `Basic ${Buffer.from(`${env.IMAGEKIT_PRIVATE_KEY}:`).toString("base64")}`;
 
-export function generateImageKitUploadAuth(userId: string, type: ImageUploadType) {
+/** False when ImageKit credentials are absent — uploads must then be refused. */
+export const isImageKitConfigured = () =>
+  Boolean(env.IMAGEKIT_PRIVATE_KEY && env.IMAGEKIT_PUBLIC_KEY);
+
+export function generateImageKitUploadAuth(userId: string) {
   const token = crypto.randomUUID();
   // Short window: the upload signature only covers token+expire, so a leaked
   // token allows uploading anywhere in the account until it expires.

@@ -6,7 +6,7 @@ import { generateImageKitUploadAuth, deleteImageKitFile } from "../src/modules/p
 
 describe("ImageKit upload auth generation", () => {
   test("generates valid token, expire timestamp, and hmac sha1 signature", () => {
-    const auth = generateImageKitUploadAuth("user-1", "avatar");
+    const auth = generateImageKitUploadAuth("user-1");
 
     expect(auth.token).toBeDefined();
     expect(typeof auth.token).toBe("string");
@@ -27,7 +27,7 @@ describe("ImageKit upload auth generation", () => {
   });
 
   test("signature matches HMAC-SHA1 calculation with private key", () => {
-    const auth = generateImageKitUploadAuth("user-1", "banner");
+    const auth = generateImageKitUploadAuth("user-1");
     const expected = crypto
       .createHmac("sha1", process.env.IMAGEKIT_PRIVATE_KEY || "")
       .update(auth.token + auth.expire)
