@@ -10,6 +10,7 @@ import { richContentText } from "@tsuki/rich-content";
 import { parseUsername } from "@/shared/lib/username";
 import { publicApi } from "@/shared/lib/public-api";
 import { getServerApi } from "@/shared/lib/server-api";
+import { siteName } from "@/shared/lib/site";
 
 type ProfileSection = "followers" | "following" | "library" | "overview" | "reviews";
 
@@ -102,12 +103,30 @@ export async function getProfileViewerRelationship(username: string) {
 
 export async function getProfileMetadata(username: string): Promise<Metadata> {
   const profile = await getProfileOverview(username);
-  if (!profile) return { title: "Profile not found" };
+  if (!profile) {
+    return {
+      title: "Profile not found",
+      robots: { index: false, follow: false },
+    };
+  }
+
+  const name = profile.user.displayUsername;
+  const description =
+    richContentText(profile.profile?.bio).trim().slice(0, 160) ||
+    `View @${profile.user.username} on Tsuki.`;
+  const url = `/${username}`;
 
   return {
-    title: profile.user.displayUsername,
-    description:
-      richContentText(profile.profile?.bio).trim().slice(0, 160) ||
-      `View @${profile.user.username} on Tsuki.`,
+    title: name,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "profile",
+      url,
+      title: name,
+      description,
+      siteName: siteName,
+    },
+    twitter: { card: "summary_large_image", title: name, description },
   };
 }
