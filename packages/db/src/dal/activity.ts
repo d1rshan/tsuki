@@ -67,6 +67,10 @@ type ActivityQuery = { cursor?: { occurredAt: Date; id: string }; limit: number 
 
 const actor = alias(user, "activity_actor");
 
+// ponytail: keyset pagination on a mutable sort key — a Log re-logged while a
+// viewer is mid-scroll bumps its occurredAt past their cursor, so that card
+// quietly skips their session until a refresh. Known and accepted (the bump is
+// per ADR 0003); if it ever matters, sort by time-sortable ids (UUIDv7) instead.
 async function getActivity(
   where: ReturnType<typeof and> | ReturnType<typeof sql>,
   { cursor, limit }: ActivityQuery,
