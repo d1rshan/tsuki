@@ -9,7 +9,7 @@ import type { MediaType } from "../media/model";
 import type { ReviewInputModel } from "./model";
 
 /** The REVIEW card carries the review's Rich Content; spoilers live inside it. */
-function reviewSnapshot(review: { content: RichContent }) {
+export function reviewSnapshot(review: { content: RichContent }) {
   return { content: review.content };
 }
 
@@ -41,7 +41,7 @@ export async function submitReview(
   const review = await reviewsDal.getReview(userId, mediaId);
   if (!review) return status(500, { error: "Failed to save review" });
 
-  await activityDal.upsertFeedActivity({
+  await activityDal.upsertActivity({
     actorId: userId,
     type: "REVIEW",
     sourceId: String(mediaId),
@@ -57,6 +57,6 @@ export async function submitReview(
 export async function removeReview(userId: string, mediaId: number) {
   await Promise.all([
     reviewsDal.deleteReview(userId, mediaId),
-    activityDal.deleteFeedActivity(userId, "REVIEW", String(mediaId)),
+    activityDal.deleteActivity(userId, "REVIEW", String(mediaId)),
   ]);
 }

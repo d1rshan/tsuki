@@ -16,7 +16,10 @@ import type { RichContent } from "@tsuki/rich-content";
 
 import { listStatusEnum, mediaTypeEnum } from "../enums";
 import { user } from "./auth";
-import { feedActivityTypeEnum } from "../enums";
+import { activityTypeEnum } from "../enums";
+
+// progress table -> for heatmap, updated via db trigger
+// tracks only watching, reading deltas
 
 export const progress = pgTable(
   "progress",
@@ -40,7 +43,7 @@ export const progress = pgTable(
   ],
 );
 
-export type FeedActivitySnapshot = {
+export type ActivitySnapshot = {
   status?: (typeof listStatusEnum.enumValues)[number] | null;
   score?: number | null;
   progress?: number;
@@ -50,8 +53,17 @@ export type FeedActivitySnapshot = {
   content?: RichContent;
 };
 
-export const feed = pgTable(
-  "feed",
+/*
+Activity is a single event store with two kinds:
+- LOG: one card per media per UTC day; the sourceId is "<mediaId>:<yyyy-mm-dd>".
+  A same-day re-log upserts (snapshot replaced, occurredAt bumped); a new UTC
+  day yields a new row.
+- REVIEW: one card per media; re-submission replaces the snapshot while the
+  original occurredAt is preserved (upsert never touches the timestamp).
+*/
+
+export const activity = pgTable(
+  "activity",
   {
     id: text("id")
       .primaryKey()
@@ -59,19 +71,21 @@ export const feed = pgTable(
     actorId: text("actor_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    type: feedActivityTypeEnum("type").notNull(),
+    type: activityTypeEnum("type").notNull(),
     /** Stable source identity lets edits replace the original card. */
     sourceId: text("source_id").notNull(),
     mediaId: integer("media_id"),
     mediaType: mediaTypeEnum("media_type"),
-    targetUserId: text("target_user_id").references(() => user.id, { onDelete: "cascade" }),
-    snapshot: jsonb("snapshot").$type<FeedActivitySnapshot>().notNull(),
+    snapshot: jsonb("snapshot").$type<ActivitySnapshot>().notNull(),
     occurredAt: timestamp("occurred_at").defaultNow().notNull(),
   },
   (table) => [
-    uniqueIndex("feed_actor_source_unique_idx").on(table.actorId, table.type, table.sourceId),
-    index("feed_occurred_idx").on(table.occurredAt.desc(), table.id.desc()),
-    index("feed_actor_occurred_idx").on(table.actorId, table.occurredAt.desc(), table.id.desc()),
-    index("feed_target_user_idx").on(table.targetUserId),
+    uniqueIndex("activity_actor_source_unique_idx").on(table.actorId, table.type, table.sourceId),
+    index("activity_occurred_idx").on(table.occurredAt.desc(), table.id.desc()),
+    index("activity_actor_occurred_idx").on(
+      table.actorId,
+      table.occurredAt.desc(),
+      table.id.desc(),
+    ),
   ],
 );

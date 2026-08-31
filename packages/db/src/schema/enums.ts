@@ -26,4 +26,4 @@ export const mediaSourceEnum = pgEnum("media_source", MEDIA_SOURCES);
 /** AniList's MediaListStatus — see @tsuki/anilist for the display note. */
 export const listStatusEnum = pgEnum("list_status", LIST_STATUSES);
 
-export const feedActivityTypeEnum = pgEnum("feed_activity_type", ["LOG", "REVIEW", "FOLLOW"]);
+export const activityTypeEnum = pgEnum("activity_type", ["LOG", "REVIEW"]);

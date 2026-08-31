@@ -3,13 +3,13 @@ import { t } from "elysia";
 import { ListStatusEnum } from "../library/model";
 import { MediaCompactModel } from "../media/model";
 
-const FeedActorModel = t.Object({
+const ActivityActorModel = t.Object({
   username: t.String(),
   displayUsername: t.String(),
   image: t.Nullable(t.String()),
 });
 
-const FeedSnapshotModel = t.Object({
+const ActivitySnapshotModel = t.Object({
   status: t.Optional(t.Nullable(ListStatusEnum)),
   score: t.Optional(t.Nullable(t.Number())),
   progress: t.Optional(t.Number()),
@@ -19,25 +19,28 @@ const FeedSnapshotModel = t.Object({
   contentHtml: t.Optional(t.String()),
 });
 
-export const FeedActivityModel = t.Object({
+export const ActivityModel = t.Object({
   id: t.String(),
-  type: t.Union([t.Literal("LOG"), t.Literal("REVIEW"), t.Literal("FOLLOW")]),
-  snapshot: FeedSnapshotModel,
+  type: t.Union([t.Literal("LOG"), t.Literal("REVIEW")]),
+  snapshot: ActivitySnapshotModel,
   occurredAt: t.Date(),
-  actor: FeedActorModel,
+  actor: ActivityActorModel,
   media: t.Nullable(MediaCompactModel),
-  target: t.Nullable(t.Object({ username: t.String(), displayUsername: t.String() })),
 });
 
-export const FeedQueryModel = t.Object({
-  type: t.Union([t.Literal("following"), t.Literal("public")]),
+export const ActivityCursorQueryModel = t.Object({
   cursor: t.Optional(t.String()),
   limit: t.Optional(t.Numeric({ minimum: 1, maximum: 50, multipleOf: 1 })),
 });
 
-export const FeedModel = t.Object({
-  activities: t.Array(FeedActivityModel),
+export const ActivityFeedQueryModel = t.Object({
+  ...ActivityCursorQueryModel.properties,
+  type: t.Union([t.Literal("following"), t.Literal("public")]),
+});
+
+export const ActivityPageModel = t.Object({
+  activities: t.Array(ActivityModel),
   nextCursor: t.Nullable(t.String()),
 });
 
-export type FeedActivity = typeof FeedActivityModel.static;
+export type Activity = typeof ActivityModel.static;
