@@ -2,7 +2,7 @@ import { relations } from "drizzle-orm";
 
 import {
   account,
-  feed,
+  activity,
   library,
   media,
   progress,
@@ -18,7 +18,7 @@ export const userRelations = relations(user, ({ many, one }) => ({
   accounts: many(account),
   library: many(library),
   progress: many(progress),
-  feed: many(feed, { relationName: "activityActor" }),
+  activity: many(activity, { relationName: "activityActor" }),
   reviews: many(reviews),
   followers: many(social, { relationName: "following" }),
   following: many(social, { relationName: "follower" }),
@@ -32,13 +32,13 @@ export const progressRelations = relations(progress, ({ one }) => ({
   user: one(user, { fields: [progress.userId], references: [user.id] }),
 }));
 
-export const feedRelations = relations(feed, ({ one }) => ({
+export const activityRelations = relations(activity, ({ one }) => ({
   actor: one(user, {
-    fields: [feed.actorId],
+    fields: [activity.actorId],
     references: [user.id],
     relationName: "activityActor",
   }),
-  media: one(media, { fields: [feed.mediaId], references: [media.id] }),
+  media: one(media, { fields: [activity.mediaId], references: [media.id] }),
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({
@@ -69,7 +69,7 @@ export const socialRelations = relations(social, ({ one }) => ({
 export const mediaRelations = relations(media, ({ many }) => ({
   library: many(library),
   reviews: many(reviews),
-  feed: many(feed),
+  activity: many(activity),
 }));
 
 export const libraryRelations = relations(library, ({ one }) => ({

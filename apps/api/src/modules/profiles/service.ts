@@ -16,7 +16,6 @@ export async function requireUser(username: string) {
 }
 
 const FAVORITES_LIMIT = 10;
-const RECENT_LOGS_LIMIT = 10;
 const RECENT_REVIEWS_LIMIT = 5;
 
 type ProfileUser = {
@@ -106,11 +105,10 @@ function currentActivityStreak(dates: string[], today: Date) {
 /** Everything a Profile page renders in one payload. */
 export async function buildUserOverview(user: ProfileUser, viewer: { id: string } | null) {
   const today = new Date();
-  const [stats, favorites, recentLogs, recentReviews, profile, counts, relationship, activityRows] =
+  const [stats, favorites, recentReviews, profile, counts, relationship, activityRows] =
     await Promise.all([
       libraryDal.getLibraryStats(user.id),
       libraryDal.getUserLibrary(user.id, { isFavorite: true, limit: FAVORITES_LIMIT }),
-      libraryDal.getUserLibrary(user.id, { limit: RECENT_LOGS_LIMIT }),
       reviewsDal.getUserReviews(user.id, { limit: RECENT_REVIEWS_LIMIT }),
       profileDal.getProfileByUserId(user.id),
       socialDal.getFollowCounts(user.id),
@@ -133,7 +131,6 @@ export async function buildUserOverview(user: ProfileUser, viewer: { id: string 
       MANGA: statsFor(stats, "MANGA"),
     },
     favorites,
-    recentLogs,
     recentReviews,
     social: { ...counts, viewer: relationship },
     activity: summarizeActivity(activityRows, today),

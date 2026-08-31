@@ -67,7 +67,6 @@ export const UserOverviewModel = t.Object({
     MANGA: MediaStatsModel,
   }),
   favorites: t.Array(LibraryEntryModel),
-  recentLogs: t.Array(LibraryEntryModel),
   recentReviews: t.Array(ReviewModel),
   social: ProfileSocialModel,
   activity: ProfileActivityModel,

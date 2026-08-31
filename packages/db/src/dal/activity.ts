@@ -1,9 +1,8 @@
-import { and, asc, desc, eq, lt, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, like, lt, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 
 import { db } from "../db";
-import { feed, feedActivityTypeEnum, media, progress, social, user } from "../schema";
-import type { FeedActivitySnapshot } from "../schema";
+import { activity, activityTypeEnum, media, progress, social, user } from "../schema";
 
 /**
  * Rows are stored by the progress trigger defined in
@@ -21,77 +20,85 @@ export const getProgressActivity = async (userId: string) => {
     .orderBy(asc(progress.activityDate));
 };
 
-export type FeedActivityType = (typeof feedActivityTypeEnum.enumValues)[number];
+export type ActivityType = (typeof activityTypeEnum.enumValues)[number];
 
-type FeedActivityInput = typeof feed.$inferInsert;
+type ActivityInput = typeof activity.$inferInsert;
 
-export const upsertFeedActivity = async (activity: FeedActivityInput) => {
+export const upsertActivity = async (row: ActivityInput) => {
+  // Upserts replace the snapshot but never the occurredAt: Log bumps it to the
+  // latest save by passing it in the insert, Review edits keep the original
+  // date by leaving it out of the set entirely.
   return db
-    .insert(feed)
-    .values(activity)
+    .insert(activity)
+    .values(row)
     .onConflictDoUpdate({
-      target: [feed.actorId, feed.type, feed.sourceId],
+      target: [activity.actorId, activity.type, activity.sourceId],
       set: {
-        mediaId: activity.mediaId,
-        mediaType: activity.mediaType,
-        targetUserId: activity.targetUserId,
-        snapshot: activity.snapshot,
+        mediaId: row.mediaId,
+        mediaType: row.mediaType,
+        snapshot: row.snapshot,
+        ...(row.occurredAt ? { occurredAt: row.occurredAt } : {}),
       },
     });
 };
 
-export const deleteFeedActivity = async (
-  actorId: string,
-  type: FeedActivityType,
-  sourceId: string,
-) => {
+export const deleteActivity = async (actorId: string, type: ActivityType, sourceId: string) => {
   return db
-    .delete(feed)
-    .where(and(eq(feed.actorId, actorId), eq(feed.type, type), eq(feed.sourceId, sourceId)));
+    .delete(activity)
+    .where(
+      and(eq(activity.actorId, actorId), eq(activity.type, type), eq(activity.sourceId, sourceId)),
+    );
 };
 
-type FeedQuery = { cursor?: { occurredAt: Date; id: string }; limit: number };
+/** A Log is keyed per UTC day, so removing an entry removes all of its days. */
+export const deleteActivityLogs = async (actorId: string, mediaId: number) => {
+  return db
+    .delete(activity)
+    .where(
+      and(
+        eq(activity.actorId, actorId),
+        eq(activity.type, "LOG"),
+        like(activity.sourceId, `${mediaId}:%`),
+      ),
+    );
+};
+
+type ActivityQuery = { cursor?: { occurredAt: Date; id: string }; limit: number };
 
 const actor = alias(user, "activity_actor");
-const target = alias(user, "activity_target");
 
-async function getFeed(
+async function getActivity(
   where: ReturnType<typeof and> | ReturnType<typeof sql>,
-  { cursor, limit }: FeedQuery,
+  { cursor, limit }: ActivityQuery,
 ) {
   const rows = await db
     .select({
-      id: feed.id,
-      type: feed.type,
-      snapshot: feed.snapshot,
-      occurredAt: feed.occurredAt,
+      id: activity.id,
+      type: activity.type,
+      snapshot: activity.snapshot,
+      occurredAt: activity.occurredAt,
       actor: {
         username: actor.username,
         displayUsername: actor.displayUsername,
         image: actor.image,
       },
       media,
-      target: {
-        username: target.username,
-        displayUsername: target.displayUsername,
-      },
     })
-    .from(feed)
-    .innerJoin(actor, eq(actor.id, feed.actorId))
-    .leftJoin(media, and(eq(media.id, feed.mediaId), eq(media.type, feed.mediaType)))
-    .leftJoin(target, eq(target.id, feed.targetUserId))
+    .from(activity)
+    .innerJoin(actor, eq(actor.id, activity.actorId))
+    .leftJoin(media, and(eq(media.id, activity.mediaId), eq(media.type, activity.mediaType)))
     .where(
       and(
         where,
         cursor
           ? or(
-              lt(feed.occurredAt, cursor.occurredAt),
-              and(eq(feed.occurredAt, cursor.occurredAt), lt(feed.id, cursor.id)),
+              lt(activity.occurredAt, cursor.occurredAt),
+              and(eq(activity.occurredAt, cursor.occurredAt), lt(activity.id, cursor.id)),
             )
           : undefined,
       ),
     )
-    .orderBy(desc(feed.occurredAt), desc(feed.id))
+    .orderBy(desc(activity.occurredAt), desc(activity.id))
     .limit(limit + 1);
 
   const hasNextPage = rows.length > limit;
@@ -103,10 +110,14 @@ async function getFeed(
   };
 }
 
-export const getPublicFeed = (query: FeedQuery) => getFeed(sql`true`, query);
+/** One shared paginated query per actor: powers the profile activity stream. */
+export const getUserActivity = (actorId: string, query: ActivityQuery) =>
+  getActivity(eq(activity.actorId, actorId), query);
 
-export const getFollowingFeed = (viewerId: string, query: FeedQuery) =>
-  getFeed(
-    sql`exists (select 1 from ${social} where ${social.followerId} = ${viewerId} and ${social.followingId} = ${feed.actorId})`,
+export const getPublicActivity = (query: ActivityQuery) => getActivity(sql`true`, query);
+
+export const getFollowingActivity = (viewerId: string, query: ActivityQuery) =>
+  getActivity(
+    sql`exists (select 1 from ${social} where ${social.followerId} = ${viewerId} and ${social.followingId} = ${activity.actorId})`,
     query,
   );

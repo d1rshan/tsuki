@@ -25,6 +25,10 @@ BEGIN
 		DO UPDATE SET amount = progress.amount + EXCLUDED.amount;
 	END IF;
 
+	-- TODO: volume-only saves (manga progressVolumes) still produce a LOG
+	-- Activity card but no heatmap delta here, so the stream and the heatmap
+	-- can disagree. Deliberate for now — see ADR 0003.
+
 	RETURN NEW;
 END;
 $$;`,
