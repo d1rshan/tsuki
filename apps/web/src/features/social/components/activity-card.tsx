@@ -5,7 +5,7 @@ import { formatDistanceToNow } from "date-fns";
 
 import type { Activity } from "@tsuki/api/types";
 
-import { mediaHref, normalizeMediaCompact, statusLabel } from "@/features/media/media";
+import { mediaHref, normalizeMediaCompact, logPhrase } from "@/features/media/media";
 import { SpoilerLayer } from "@/features/rich-content/components/spoiler-layer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 
@@ -16,6 +16,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avat
  */
 export function ActivityCard({ activity }: { activity: Activity }) {
   const media = activity.media ? normalizeMediaCompact(activity.media) : null;
+  const phrase =
+    media && activity.type === "LOG"
+      ? logPhrase(media.type, activity.snapshot.status, activity.snapshot.progress)
+      : null;
   const profileLink = (username: string, displayUsername: string) => (
     <Link href={`/${username}`} className="font-semibold text-foreground hover:text-primary">
       {displayUsername}
@@ -24,10 +28,7 @@ export function ActivityCard({ activity }: { activity: Activity }) {
   const details =
     media && activity.type === "LOG"
       ? [
-          activity.snapshot.status ? statusLabel(media.type, activity.snapshot.status) : null,
-          activity.snapshot.progress === undefined
-            ? null
-            : `${activity.snapshot.progress} ${media.type === "ANIME" ? "episodes" : "chapters"}`,
+          phrase?.progressInLead ? null : activity.snapshot.progress,
           activity.snapshot.progressVolumes == null
             ? null
             : `${activity.snapshot.progressVolumes} volumes`,
@@ -49,7 +50,7 @@ export function ActivityCard({ activity }: { activity: Activity }) {
       <div className="min-w-0 flex-1 space-y-2">
         <p className="text-sm text-muted-foreground">
           {profileLink(activity.actor.username, activity.actor.displayUsername)}{" "}
-          {activity.type === "REVIEW" ? "reviewed" : "logged"}{" "}
+          {activity.type === "REVIEW" ? "reviewed" : (phrase?.lead ?? "updated")}{" "}
           {media ? (
             <Link
               href={mediaHref(media.type, media.id)}
@@ -60,6 +61,7 @@ export function ActivityCard({ activity }: { activity: Activity }) {
           ) : (
             "a title"
           )}
+          {phrase?.tail ? ` ${phrase.tail}` : null}
         </p>
         {details ? <p className="text-sm">{details}</p> : null}
         {activity.type === "REVIEW" && activity.snapshot.contentHtml ? (
