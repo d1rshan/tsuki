@@ -36,7 +36,7 @@ export function ProfileActivityStream({ title, username }: { title: string; user
       >
         <div>
           {activities.map((activity) => (
-            <ActivityCard key={activity.id} activity={activity} />
+            <ActivityCard key={activity.id} activity={activity} showActor={false} />
           ))}
           {query.hasNextPage && (
             <Button

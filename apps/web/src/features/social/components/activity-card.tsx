@@ -12,9 +12,16 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avat
 /**
  * The one Activity card, shared by the social feed and profile streams.
  * Cards are self-contained: media, actor, and the state at save time
- * (or the pre-rendered review content).
+ * (or the pre-rendered review content). Pass `showActor={false}` where the
+ * actor is obvious from context (e.g. the profile owner's own stream).
  */
-export function ActivityCard({ activity }: { activity: Activity }) {
+export function ActivityCard({
+  activity,
+  showActor = true,
+}: {
+  activity: Activity;
+  showActor?: boolean;
+}) {
   const media = activity.media ? normalizeMediaCompact(activity.media) : null;
   const phrase =
     media && activity.type === "LOG"
@@ -41,15 +48,19 @@ export function ActivityCard({ activity }: { activity: Activity }) {
 
   return (
     <article className="flex gap-3 border-b py-5 last:border-0">
-      <Link href={`/${activity.actor.username}`}>
-        <Avatar>
-          {activity.actor.image ? <AvatarImage src={activity.actor.image} alt="" /> : null}
-          <AvatarFallback>{activity.actor.displayUsername[0]?.toUpperCase()}</AvatarFallback>
-        </Avatar>
-      </Link>
+      {showActor && (
+        <Link href={`/${activity.actor.username}`}>
+          <Avatar>
+            {activity.actor.image ? <AvatarImage src={activity.actor.image} alt="" /> : null}
+            <AvatarFallback>{activity.actor.displayUsername[0]?.toUpperCase()}</AvatarFallback>
+          </Avatar>
+        </Link>
+      )}
       <div className="min-w-0 flex-1 space-y-2">
         <p className="text-sm text-muted-foreground">
-          {profileLink(activity.actor.username, activity.actor.displayUsername)}{" "}
+          {showActor && (
+            <>{profileLink(activity.actor.username, activity.actor.displayUsername)} </>
+          )}
           {activity.type === "REVIEW" ? "reviewed" : (phrase?.lead ?? "updated")}{" "}
           {media ? (
             <Link
