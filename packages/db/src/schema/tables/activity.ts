@@ -18,6 +18,9 @@ import { listStatusEnum, mediaTypeEnum } from "../enums";
 import { user } from "./auth";
 import { feedActivityTypeEnum } from "../enums";
 
+// progress table -> for heatmap, updated via db trigger
+// tracks only watching, reading deltas
+
 export const progress = pgTable(
   "progress",
   {
@@ -49,6 +52,18 @@ export type FeedActivitySnapshot = {
   /** Rich Content document (review preset) for REVIEW cards. */
   content?: RichContent;
 };
+
+/*
+feed table should track activity:
+our feed table:
+
+so we have one row for review -> which is fixed per media id, updating review currently keeps the original date which is fine.
+
+and one row for other log stuff -> which is fixed per media id per day.
+log update in same day updates timestamp to latest event.
+
+consumers: social feed, user recent activity.
+*/
 
 export const feed = pgTable(
   "feed",

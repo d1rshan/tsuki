@@ -32,10 +32,23 @@ Activity. It does not denote a separate relationship type.
 _Avoid_: friends relationship, friendship
 
 **Activity**:
-A chronological, user-visible record of a person's social action, such as a
-log, rating, review, library change, or Follow. It reflects the action's
-current visible state: edits update its Activity and deletion removes it.
-_Avoid_: heatmap activity, progress activity, notification
+A user-visible record of a person's tracking action: a Log or a Review. It
+reflects the action's current visible state: edits update its Activity and
+deletion removes it. Follows are a relationship, never Activity.
+_Avoid_: heatmap activity, progress activity, notification, follow activity
+
+**Log**:
+An Activity that records the state of a library entry at a point in time,
+including status, score, and progress. One Log exists per entry per day;
+further saves that day update it, and its timestamp reflects the latest save.
+Removing the entry removes all of its Logs.
+_Avoid_: feed post, progress update, library change
+
+**Review**:
+An Activity that carries the full content of a written review. One Review
+exists per entry; editing it updates the Activity in place while preserving
+its original date.
+_Avoid_: rating, comment
 
 **Activity Feed**:
 The newest-first Activity stream in Friends. Its Following mode contains
