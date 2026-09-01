@@ -68,11 +68,12 @@ function ActivityCover({
 }
 
 /**
- * The layout two purpose-built Activity cards share: cover, the phrase
- * sentence (actor slot + lead + title + tail), the details row, optional
- * extra content (a Review's rendered text), and a relative timestamp with
- * the full date on hover. `mode` is only the voice: social cards speak
- * "watched …", profile cards speak verb-first ("Watched …").
+ * The layout two purpose-built Activity cards share: cover on the left; the
+ * actor slot (social), the phrase sentence — lead + title link + tail — and
+ * optional extra content (a Review's rendered text) on the right, with the
+ * relative timestamp (full date on hover) pinned top-right. `mode` is only
+ * the voice: social cards speak "watched …", profile cards speak verb-first
+ * ("Watched …").
  */
 export function ActivityCardCore({
   activity,
@@ -107,41 +108,43 @@ export function ActivityCardCore({
   return (
     <div className="flex min-w-0 flex-1 gap-3">
       <ActivityCover media={media} className={coverClassName} sizes={coverSizes} />
-      <div className="min-w-0 flex-1 space-y-1.5">
-        <p className="text-sm leading-snug text-muted-foreground">
+      <div className="flex min-w-0 flex-1 items-start justify-between gap-3">
+        <div className="min-w-0">
           {actor}
-          {lead}{" "}
-          {media ? (
-            <Link
-              href={mediaHref(media.type, media.id)}
-              className="font-semibold text-foreground hover:text-primary"
-            >
-              {media.title}
-            </Link>
-          ) : (
-            <span className="font-semibold text-foreground">Unknown Title</span>
-          )}
-          {phrase?.tail ? ` ${phrase.tail}` : null}
-        </p>
-        {/* ponytail: metadata row (score star, volumes, progress) hidden for
-            now per design call — restore when the details row earns its place
-        {phrase && (phrase.details || phrase.score != null) ? (
-          <p className="flex flex-wrap items-center gap-x-2 text-sm">
-            {phrase.details}
-            {phrase.score != null ? (
-              <span className="inline-flex items-center gap-1 font-medium text-foreground">
-                <Star className="size-4 fill-primary text-primary" aria-hidden />
-                {phrase.score}/10
-              </span>
-            ) : null}
+          <p className="text-sm leading-snug text-foreground">
+            {lead}{" "}
+            {media ? (
+              <Link
+                href={mediaHref(media.type, media.id)}
+                className="font-medium text-primary hover:underline"
+              >
+                {media.title}
+              </Link>
+            ) : (
+              <span className="font-medium text-primary">Unknown Title</span>
+            )}
+            {phrase?.tail ? ` ${phrase.tail}` : null}
           </p>
-        ) : null}
-        */}
-        {review}
+          {/* ponytail: metadata row (score star, volumes, progress) hidden for
+              now per design call — restore when the details row earns its place
+          {phrase && (phrase.details || phrase.score != null) ? (
+            <p className="flex flex-wrap items-center gap-x-2 text-sm">
+              {phrase.details}
+              {phrase.score != null ? (
+                <span className="inline-flex items-center gap-1 font-medium text-foreground">
+                  <Star className="size-4 fill-primary text-primary" aria-hidden />
+                  {phrase.score}/10
+                </span>
+              ) : null}
+            </p>
+          ) : null}
+          */}
+          {review}
+        </div>
         <time
           dateTime={activity.occurredAt.toISOString()}
           title={format(new Date(activity.occurredAt), "PPp")}
-          className="block text-xs text-muted-foreground"
+          className="shrink-0 pt-0.5 text-xs text-muted-foreground"
         >
           {formatDistanceToNow(new Date(activity.occurredAt), { addSuffix: true })}
         </time>

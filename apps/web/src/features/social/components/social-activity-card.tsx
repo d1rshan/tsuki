@@ -9,31 +9,30 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avat
 import { ActivityCardCore, ActivityReviewContent } from "./activity-core";
 
 /**
- * A feed row: the actor's avatar and name (both linking to their Profile),
- * a small cover thumb, the day's phrase, and a Review's full rendered
- * content. No whole-card click and no review navigation — links are the
- * actor and the media only.
+ * A feed row: the media cover on the left; a small avatar and the actor's
+ * name (both linking to their Profile) in the header; the day's phrase with
+ * a Review's full rendered content beneath. No whole-card click and no
+ * review navigation — links are the actor and the media only.
  */
 export function SocialActivityCard({ activity }: { activity: Activity }) {
   return (
-    <article className="flex gap-3 border-b py-5 last:border-0">
-      <Link href={`/${activity.actor.username}`}>
-        <Avatar>
-          {activity.actor.image ? <AvatarImage src={activity.actor.image} alt="" /> : null}
-          <AvatarFallback>{activity.actor.displayUsername[0]?.toUpperCase()}</AvatarFallback>
-        </Avatar>
-      </Link>
+    <article className="border-b py-5 last:border-0">
       <ActivityCardCore
         activity={activity}
         mode="social"
         coverClassName="w-14"
         coverSizes="56px"
         actor={
-          <Link
-            href={`/${activity.actor.username}`}
-            className="font-semibold text-foreground hover:text-primary"
-          >
-            {activity.actor.displayUsername}{" "}
+          <Link href={`/${activity.actor.username}`} className="mb-1.5 flex items-center gap-2">
+            <Avatar className="size-6">
+              {activity.actor.image ? <AvatarImage src={activity.actor.image} alt="" /> : null}
+              <AvatarFallback className="text-xs">
+                {activity.actor.displayUsername[0]?.toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <span className="truncate text-sm font-semibold text-foreground hover:text-primary">
+              {activity.actor.displayUsername}
+            </span>
           </Link>
         }
         review={
