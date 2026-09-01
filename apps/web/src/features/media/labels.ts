@@ -82,7 +82,7 @@ export function logPhrase(
   mediaType: MediaType,
   snapshot: ActivityPhraseInput,
   mode: "social" | "profile" = "social",
-): { lead: string; tail?: string; details: string } {
+): { lead: string; tail?: string; details: string; score?: number } {
   const read = mediaType === "MANGA";
   const verb = read ? "read" : "watched";
   const reverb = read ? "reread" : "rewatched";
@@ -148,12 +148,12 @@ export function logPhrase(
   const details = [
     progressStated || !progress ? null : String(progress),
     volumesStated || progressVolumes == null ? null : `${progressVolumes} volumes`,
-    score ? `${score}/10` : null,
   ]
     .filter(Boolean)
     .join(" · ");
 
-  return { lead, tail, details };
+  // The score renders with a star icon, so it travels separately from the text row.
+  return { lead, tail, details, score: score ?? undefined };
 }
 
 export function mediaHref(mediaType: MediaType, id: number) {

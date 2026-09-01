@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { Star } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import type { ReactNode } from "react";
 
@@ -120,7 +121,17 @@ export function ActivityCardCore({
           )}
           {phrase?.tail ? ` ${phrase.tail}` : null}
         </p>
-        {phrase?.details ? <p className="text-sm">{phrase.details}</p> : null}
+        {phrase && (phrase.details || phrase.score != null) ? (
+          <p className="flex flex-wrap items-center gap-x-2 text-sm">
+            {phrase.details}
+            {phrase.score != null ? (
+              <span className="inline-flex items-center gap-1 font-medium text-foreground">
+                <Star className="size-4 fill-primary text-primary" aria-hidden />
+                {phrase.score}/10
+              </span>
+            ) : null}
+          </p>
+        ) : null}
         {review}
         <time
           dateTime={activity.occurredAt.toISOString()}

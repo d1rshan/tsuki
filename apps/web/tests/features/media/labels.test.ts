@@ -74,7 +74,8 @@ describe("logPhrase", () => {
     expect(logPhrase("ANIME", { status: "CURRENT", score: 8 })).toEqual({
       lead: "rated",
       tail: undefined,
-      details: "8/10",
+      details: "",
+      score: 8,
     });
   });
 
@@ -145,33 +146,34 @@ describe("logPhrase", () => {
     });
   });
 
-  test("details carry what the lead does not", () => {
+  test("details carry what the lead does not; the score travels separately", () => {
     expect(
       logPhrase("MANGA", { status: "CURRENT", progress: 9, progressVolumes: 4, score: 8 }),
     ).toEqual({
       lead: "read 9 chapters of",
       tail: undefined,
-      details: "4 volumes · 8/10",
+      details: "4 volumes",
+      score: 8,
     });
     // a range lead already states the progress, so details drop it
-    expect(
-      logPhrase("MANGA", {
-        status: "CURRENT",
-        progress: 9,
-        progressFrom: 3,
-        progressVolumes: 4,
-        score: 8,
-      }).details,
-    ).toBe("4 volumes · 8/10");
+    const ranged = logPhrase("MANGA", {
+      status: "CURRENT",
+      progress: 9,
+      progressFrom: 3,
+      progressVolumes: 4,
+      score: 8,
+    });
+    expect(ranged.details).toBe("4 volumes");
+    expect(ranged.score).toBe(8);
     // a volume-range lead states the volumes, so details drop them
-    expect(
-      logPhrase("MANGA", {
-        status: "CURRENT",
-        progressVolumes: 4,
-        progressVolumesFrom: 2,
-        score: 8,
-      }).details,
-    ).toBe("8/10");
+    const volumeRanged = logPhrase("MANGA", {
+      status: "CURRENT",
+      progressVolumes: 4,
+      progressVolumesFrom: 2,
+      score: 8,
+    });
+    expect(volumeRanged.details).toBe("");
+    expect(volumeRanged.score).toBe(8);
   });
 
   test("verb-first mode speaks without an actor, for Profile cards", () => {
@@ -185,7 +187,8 @@ describe("logPhrase", () => {
     expect(logPhrase("ANIME", { status: "CURRENT", score: 8 }, "profile")).toEqual({
       lead: "Rated",
       tail: undefined,
-      details: "8/10",
+      details: "",
+      score: 8,
     });
     expect(logPhrase("ANIME", { status: "PLANNING" }, "profile")).toEqual({
       lead: "Added",
