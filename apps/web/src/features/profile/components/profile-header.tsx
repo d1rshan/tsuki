@@ -6,20 +6,19 @@ import { ProfileTabs } from "./profile-tabs";
 
 type ProfileHeaderProps = {
   actions: React.ReactNode;
-  isOwner?: boolean;
   profile: UserOverview["profile"];
   user: UserOverview["user"];
 };
 
-export function ProfileHeader({ actions, isOwner = false, profile, user }: ProfileHeaderProps) {
+export function ProfileHeader({ actions, profile, user }: ProfileHeaderProps) {
   return (
     <header className="mb-8">
-      <ProfileBanner bannerImage={profile?.bannerImage} isOwner={isOwner} />
+      <ProfileBanner bannerImage={profile?.bannerImage} />
 
       <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3 px-2 md:px-6">
         <div className="flex min-w-0 flex-wrap items-start gap-x-6 gap-y-3">
           <div className="-mt-16 flex shrink-0 flex-col items-center gap-2 md:-mt-20">
-            <ProfileAvatar user={user} isOwner={isOwner} />
+            <ProfileAvatar user={user} />
             <h1 className="truncate text-lg font-bold tracking-tight text-foreground md:text-xl">
               @{user.displayUsername || user.username}
             </h1>
