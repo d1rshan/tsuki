@@ -22,6 +22,16 @@ describe("social link handle/URL round-trip", () => {
     expect(links).toEqual({ instagram: "https://instagram.com/foo.bar" });
   });
 
+  test("preset URLs with deeper paths are preserved", () => {
+    const links = roundTrip({ github: "https://github.com/owner/repository" });
+    expect(links).toEqual({ github: "https://github.com/owner/repository" });
+  });
+
+  test("preset URLs with trailing slashes are preserved", () => {
+    const links = roundTrip({ twitch: "https://twitch.tv/darsh/" });
+    expect(links).toEqual({ twitch: "https://twitch.tv/darsh/" });
+  });
+
   test("typed bare handle builds the full URL", () => {
     const form = createProfileFormValues(profileWith(null));
     form.socialLinks = [{ platform: "x", url: "darsh" }];

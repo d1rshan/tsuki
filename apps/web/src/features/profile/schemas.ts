@@ -70,11 +70,16 @@ export function createProfileUpdate(
   };
 }
 
-/** Strips a preset's prefix so the form field shows just the handle. */
+/** Strips a preset's prefix so the form field shows just the handle. URLs
+ * with extra path (e.g. https://github.com/owner/repo) are kept whole — only
+ * handle-shaped remainders (no slash) reduce, so saving round-trips exactly. */
 function toFormUrl(platform: string, url: string): string {
   const prefix = getSocialPreset(platform)?.prefix;
   if (prefix && url.toLowerCase().startsWith(prefix)) {
-    return url.slice(prefix.length);
+    const handle = url.slice(prefix.length);
+    if (handle && !handle.includes("/")) {
+      return handle;
+    }
   }
   return url;
 }
