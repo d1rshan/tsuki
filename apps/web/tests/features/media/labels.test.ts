@@ -5,22 +5,22 @@ import { logPhrase } from "@/features/media/labels";
 describe("logPhrase", () => {
   test("CURRENT reads as watched/read, with the count inline", () => {
     expect(logPhrase("ANIME", { status: "CURRENT", progress: 12 })).toEqual({
-      lead: "watched 12 episodes of",
+      lead: "Watched 12 episodes of",
       tail: undefined,
       details: "",
     });
     expect(logPhrase("MANGA", { status: "CURRENT", progress: 34 })).toEqual({
-      lead: "read 34 chapters of",
+      lead: "Read 34 chapters of",
       tail: undefined,
       details: "",
     });
     expect(logPhrase("ANIME", { status: "CURRENT" })).toEqual({
-      lead: "watched",
+      lead: "Watched",
       tail: undefined,
       details: "",
     });
     expect(logPhrase("MANGA", { status: "CURRENT", progress: 0 })).toEqual({
-      lead: "read",
+      lead: "Read",
       tail: undefined,
       details: "",
     });
@@ -28,12 +28,12 @@ describe("logPhrase", () => {
 
   test("a day's range reads as the episodes watched that day", () => {
     expect(logPhrase("ANIME", { status: "CURRENT", progress: 15, progressFrom: 12 })).toEqual({
-      lead: "watched episodes 13–15 of",
+      lead: "Watched episodes 13–15 of",
       tail: undefined,
       details: "",
     });
     expect(logPhrase("MANGA", { status: "CURRENT", progress: 9, progressFrom: 3 })).toEqual({
-      lead: "read chapters 4–9 of",
+      lead: "Read chapters 4–9 of",
       tail: undefined,
       details: "",
     });
@@ -48,7 +48,7 @@ describe("logPhrase", () => {
         progressVolumesFrom: 2,
       }),
     ).toEqual({
-      lead: "read volumes 3–4 of",
+      lead: "Read volumes 3–4 of",
       tail: undefined,
       details: "",
     });
@@ -56,7 +56,7 @@ describe("logPhrase", () => {
 
   test("a rewatch day ranges like a first watch", () => {
     expect(logPhrase("ANIME", { status: "REPEATING", progress: 12, progressFrom: 4 })).toEqual({
-      lead: "rewatched episodes 5–12 of",
+      lead: "Rewatched episodes 5–12 of",
       tail: undefined,
       details: "",
     });
@@ -64,7 +64,7 @@ describe("logPhrase", () => {
 
   test("a downward correction falls back to state phrasing", () => {
     expect(logPhrase("ANIME", { status: "CURRENT", progress: 10, progressFrom: 12 })).toEqual({
-      lead: "watched 10 episodes of",
+      lead: "Watched 10 episodes of",
       tail: undefined,
       details: "",
     });
@@ -72,7 +72,7 @@ describe("logPhrase", () => {
 
   test("a score-only save reads as rated", () => {
     expect(logPhrase("ANIME", { status: "CURRENT", score: 8 })).toEqual({
-      lead: "rated",
+      lead: "Rated",
       tail: undefined,
       details: "",
       score: 8,
@@ -81,12 +81,12 @@ describe("logPhrase", () => {
 
   test("PLANNING reads as adding to a list", () => {
     expect(logPhrase("ANIME", { status: "PLANNING" })).toEqual({
-      lead: "added",
+      lead: "Added",
       tail: "to their watch list",
       details: "",
     });
     expect(logPhrase("MANGA", { status: "PLANNING" })).toEqual({
-      lead: "added",
+      lead: "Added",
       tail: "to their read list",
       details: "",
     });
@@ -94,32 +94,32 @@ describe("logPhrase", () => {
 
   test("other statuses use their plain verb", () => {
     expect(logPhrase("ANIME", { status: "COMPLETED" })).toEqual({
-      lead: "completed",
+      lead: "Completed",
       tail: undefined,
       details: "",
     });
     expect(logPhrase("MANGA", { status: "COMPLETED" })).toEqual({
-      lead: "completed",
+      lead: "Completed",
       tail: undefined,
       details: "",
     });
     expect(logPhrase("ANIME", { status: "DROPPED" })).toEqual({
-      lead: "dropped",
+      lead: "Dropped",
       tail: undefined,
       details: "",
     });
     expect(logPhrase("MANGA", { status: "PAUSED" })).toEqual({
-      lead: "paused",
+      lead: "Paused",
       tail: undefined,
       details: "",
     });
     expect(logPhrase("ANIME", { status: "REPEATING" })).toEqual({
-      lead: "rewatched",
+      lead: "Rewatched",
       tail: undefined,
       details: "",
     });
     expect(logPhrase("MANGA", { status: "REPEATING", progress: 5 })).toEqual({
-      lead: "reread 5 chapters of",
+      lead: "Reread 5 chapters of",
       tail: undefined,
       details: "",
     });
@@ -127,7 +127,7 @@ describe("logPhrase", () => {
 
   test("a missing status falls back to a neutral verb", () => {
     expect(logPhrase("ANIME", { status: null })).toEqual({
-      lead: "updated",
+      lead: "Updated",
       tail: undefined,
       details: "",
     });
@@ -135,12 +135,12 @@ describe("logPhrase", () => {
 
   test("repeat counts read as 'for the Nth time', not ×N", () => {
     expect(logPhrase("ANIME", { status: "REPEATING", progress: 5, repeat: 3 })).toEqual({
-      lead: "rewatched 5 episodes of",
+      lead: "Rewatched 5 episodes of",
       tail: "for the 3rd time",
       details: "",
     });
     expect(logPhrase("ANIME", { status: "COMPLETED", repeat: 21 })).toEqual({
-      lead: "completed",
+      lead: "Completed",
       tail: "for the 21st time",
       details: "",
     });
@@ -150,7 +150,7 @@ describe("logPhrase", () => {
     expect(
       logPhrase("MANGA", { status: "CURRENT", progress: 9, progressVolumes: 4, score: 8 }),
     ).toEqual({
-      lead: "read 9 chapters of",
+      lead: "Read 9 chapters of",
       tail: undefined,
       details: "4 volumes",
       score: 8,

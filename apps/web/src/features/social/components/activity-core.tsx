@@ -98,12 +98,7 @@ export function ActivityCardCore({
   const mediaType = media?.type ?? activity.mediaType;
   const phrase =
     mediaType && activity.type === "LOG" ? logPhrase(mediaType, activity.snapshot, mode) : null;
-  const lead =
-    activity.type === "REVIEW"
-      ? mode === "profile"
-        ? "Reviewed"
-        : "reviewed"
-      : (phrase?.lead ?? (mode === "profile" ? "Updated" : "updated"));
+  const lead = activity.type === "REVIEW" ? "Reviewed" : (phrase?.lead ?? "Updated");
 
   return (
     <div className="flex min-w-0 flex-1 gap-3">

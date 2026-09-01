@@ -73,10 +73,10 @@ function ordinal(n: number) {
 
 /**
  * Everything an Activity Log card says, in natural English: the lead between
- * actor (or nothing, verb-first) and title, the tail after it, and the details
- * row beneath — which only carries what the lead does not already state.
- * `"social"` mode reads "watched …"; `"profile"` mode is verb-first
- * ("Watched …") and drops the possessive, since the page IS the actor.
+ * actor (or nothing) and title, the tail after it, and the details row
+ * beneath — which only carries what the lead does not already state. The
+ * lead is always capitalized; `"profile"` mode additionally drops the
+ * possessive ("to the watch list"), since the page IS the actor.
  */
 export function logPhrase(
   mediaType: MediaType,
@@ -141,9 +141,7 @@ export function logPhrase(
 
   if (!tail && repeat) tail = `for the ${ordinal(repeat)} time`;
 
-  if (mode === "profile") {
-    lead = lead.charAt(0).toUpperCase() + lead.slice(1);
-  }
+  lead = lead.charAt(0).toUpperCase() + lead.slice(1);
 
   const details = [
     progressStated || !progress ? null : String(progress),
