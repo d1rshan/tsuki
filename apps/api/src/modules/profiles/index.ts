@@ -63,10 +63,15 @@ export const profilesRoutes = new Elysia({ tags: ["Profiles"] })
 
       let bio: RichContent | null | undefined;
       if (rawBio !== undefined) {
-        const parsed = validateRichContent(rawBio, "bio");
-        if (!parsed.ok) return status(422, { error: parsed.reason });
-        // An empty bio stores as null, keeping one representation of "none".
-        bio = isEmptyRichContent(parsed.value) ? null : parsed.value;
+        // A cleared bio arrives as null from the form; an empty doc collapses
+        // to null too, keeping one representation of "none".
+        if (rawBio === null) {
+          bio = null;
+        } else {
+          const parsed = validateRichContent(rawBio, "bio");
+          if (!parsed.ok) return status(422, { error: parsed.reason });
+          bio = isEmptyRichContent(parsed.value) ? null : parsed.value;
+        }
       }
 
       // Uploaded images must carry the server-mandated naming convention bound

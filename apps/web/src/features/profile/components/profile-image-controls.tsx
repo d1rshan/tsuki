@@ -1,11 +1,18 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { LoaderCircle, Pencil, Trash2, Upload, X } from "lucide-react";
+import { useRef, useState } from "react";
+import { ImageUp, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { apiClient } from "@/shared/lib/api-client";
 import { cn } from "@/shared/lib/utils";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/shared/components/ui/dropdown-menu";
 
 import {
   type ImageUploadType,
@@ -15,56 +22,31 @@ import {
 import { ImageCropDialog } from "./image-crop-dialog";
 
 type ProfileImageControlsProps = {
+  align?: "start" | "end";
   aspectRatio: number;
   className?: string;
   cropShape?: "round" | "rect";
-  cropTitle?: string;
   hasImage: boolean;
-  onRemove: () => Promise<void> | void;
-  onUploadSuccess: (url: string) => Promise<void> | void;
+  onRemove: () => void;
+  onUploadSuccess: (url: string) => void;
   type: ImageUploadType;
 };
 
+/** Pencil trigger that opens a menu of image actions (Discord-style). */
 export function ProfileImageControls({
+  align = "end",
   aspectRatio,
   className,
   cropShape = "rect",
-  cropTitle,
   hasImage,
   onRemove,
   onUploadSuccess,
   type,
 }: ProfileImageControlsProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [isRemoving, setIsRemoving] = useState(false);
   const [selectedFileUrl, setSelectedFileUrl] = useState<string | null>(null);
   const [isCropOpen, setIsCropOpen] = useState(false);
-
-  const containerRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Click outside to collapse the action buttons
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent | TouchEvent) {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node) &&
-        !isCropOpen
-      ) {
-        setIsOpen(false);
-      }
-    }
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-      document.addEventListener("touchstart", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("touchstart", handleClickOutside);
-    };
-  }, [isOpen, isCropOpen]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -77,8 +59,7 @@ export function ProfileImageControls({
       return;
     }
 
-    const objectUrl = URL.createObjectURL(file);
-    setSelectedFileUrl(objectUrl);
+    setSelectedFileUrl(URL.createObjectURL(file));
     setIsCropOpen(true);
   };
 
@@ -105,9 +86,8 @@ export function ProfileImageControls({
 
       const uploadResult = await uploadBlobToImageKit({ blob, auth });
 
-      await onUploadSuccess(uploadResult.url);
+      onUploadSuccess(uploadResult.url);
       handleCancelCrop();
-      setIsOpen(false);
     } catch (err) {
       console.error("Upload error:", err);
       toast.error(err instanceof Error ? err.message : "Upload failed. Please try again.");
@@ -116,89 +96,43 @@ export function ProfileImageControls({
     }
   };
 
-  const handleDelete = async () => {
-    setIsRemoving(true);
-    try {
-      await onRemove();
-      setIsOpen(false);
-    } catch {
-      toast.error("Failed to remove image.");
-    } finally {
-      setIsRemoving(false);
-    }
-  };
-
-  const isBusy = isUploading || isRemoving;
-
   return (
-    <div ref={containerRef} className={cn("relative z-20 flex items-center gap-1.5", className)}>
+    <div className={cn("inline-flex", className)}>
       <input
         ref={fileInputRef}
         type="file"
         accept="image/jpeg,image/png,image/webp"
         className="hidden"
         onChange={handleFileChange}
-        disabled={isBusy}
+        disabled={isUploading}
         aria-label={`Upload ${type}`}
       />
 
-      {isBusy ? (
-        <div className="glass flex h-8 w-8 items-center justify-center rounded-full border border-border/50 shadow-md md:h-9 md:w-9">
-          <LoaderCircle className="h-4 w-4 animate-spin text-primary" />
-        </div>
-      ) : !isOpen ? (
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsOpen(true);
-          }}
-          className="glass flex h-8 w-8 items-center justify-center rounded-full border border-border/50 text-foreground shadow-md transition-all duration-200 hover:scale-105 hover:border-primary/50 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none md:h-9 md:w-9"
-          aria-label={`Edit ${type}`}
-        >
-          <Pencil className="h-4 w-4" />
-        </button>
-      ) : (
-        <div className="flex items-center gap-1.5 animate-in fade-in-0 zoom-in-95 duration-150">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              fileInputRef.current?.click();
-            }}
-            className="glass flex h-8 w-8 items-center justify-center rounded-full border border-border/50 text-foreground shadow-md transition-all duration-200 hover:scale-105 hover:border-primary hover:text-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none md:h-9 md:w-9"
-            aria-label={`Upload new ${type}`}
-          >
-            <Upload className="h-4 w-4" />
-          </button>
-
-          {hasImage && (
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={
             <button
               type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                void handleDelete();
-              }}
-              className="glass flex h-8 w-8 items-center justify-center rounded-full border border-border/50 text-destructive shadow-md transition-all duration-200 hover:scale-105 hover:border-destructive/80 hover:bg-destructive/10 focus-visible:ring-2 focus-visible:ring-destructive focus-visible:outline-none md:h-9 md:w-9"
-              aria-label={`Delete ${type}`}
+              className="glass flex h-8 w-8 items-center justify-center rounded-full border border-border/50 text-foreground shadow-md transition-colors hover:border-primary/50 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none md:h-9 md:w-9"
+              aria-label={`Edit ${type}`}
             >
-              <Trash2 className="h-4 w-4" />
+              <Pencil className="h-4 w-4" />
             </button>
+          }
+        />
+        <DropdownMenuContent align={align}>
+          <DropdownMenuItem onSelect={() => fileInputRef.current?.click()}>
+            <ImageUp />
+            Upload
+          </DropdownMenuItem>
+          {hasImage && (
+            <DropdownMenuItem variant="destructive" onSelect={onRemove}>
+              <Trash2 />
+              Remove
+            </DropdownMenuItem>
           )}
-
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsOpen(false);
-            }}
-            className="glass flex h-8 w-8 items-center justify-center rounded-full border border-border/50 text-muted-foreground shadow-md transition-all duration-200 hover:scale-105 hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none md:h-9 md:w-9"
-            aria-label="Cancel"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      )}
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       <ImageCropDialog
         isOpen={isCropOpen}
@@ -206,7 +140,7 @@ export function ProfileImageControls({
         imageSrc={selectedFileUrl}
         aspectRatio={aspectRatio}
         cropShape={cropShape}
-        title={cropTitle || `Crop ${type === "avatar" ? "Avatar" : "Banner"}`}
+        title={`Crop ${type === "avatar" ? "Avatar" : "Banner"}`}
         onCancel={handleCancelCrop}
         onConfirm={handleConfirmCrop}
       />
