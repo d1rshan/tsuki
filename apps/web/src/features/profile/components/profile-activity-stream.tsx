@@ -29,7 +29,7 @@ export function ProfileActivityStream({
         errorTitle="Could not load Activity"
         empty={<ContentState title="No recent activity" />}
       >
-        <div className="space-y-3">
+        <div>
           {activities.map((activity) => (
             <ProfileActivityCard key={activity.id} activity={activity} />
           ))}
