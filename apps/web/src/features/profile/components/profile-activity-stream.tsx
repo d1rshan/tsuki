@@ -29,13 +29,13 @@ export function ProfileActivityStream({
         errorTitle="Could not load Activity"
         empty={<ContentState title="No recent activity" />}
       >
-        <div>
+        <div className="grid gap-x-8 lg:grid-cols-2">
           {activities.map((activity) => (
             <ProfileActivityCard key={activity.id} activity={activity} />
           ))}
           {query.hasNextPage && (
             <Button
-              className="mt-6"
+              className="mt-6 lg:col-span-2"
               variant="outline"
               disabled={query.isFetchingNextPage}
               onClick={() => void query.fetchNextPage()}
