@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Star } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import type { ReactNode } from "react";
 
@@ -124,6 +123,8 @@ export function ActivityCardCore({
           )}
           {phrase?.tail ? ` ${phrase.tail}` : null}
         </p>
+        {/* ponytail: metadata row (score star, volumes, progress) hidden for
+            now per design call — restore when the details row earns its place
         {phrase && (phrase.details || phrase.score != null) ? (
           <p className="flex flex-wrap items-center gap-x-2 text-sm">
             {phrase.details}
@@ -135,6 +136,7 @@ export function ActivityCardCore({
             ) : null}
           </p>
         ) : null}
+        */}
         {review}
         <time
           dateTime={activity.occurredAt.toISOString()}
