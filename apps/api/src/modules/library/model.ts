@@ -3,8 +3,12 @@ import { t } from "elysia";
 
 import { FuzzyDateModel, MediaCompactModel, MediaTypeEnum } from "../media/model";
 
-/** AniList's MediaListStatus — type-agnostic, so anime and manga share it. */
-export const ListStatusEnum = t.UnionEnum(LIST_STATUSES);
+/**
+ * `default: undefined` overrides UnionEnum's implicit `default: values[0]`:
+ * Elysia fills omitted UnionEnum members with that default, which silently
+ * turned a favorite-only save (`{ isFavorite: true }`) into a "CURRENT" log entry.
+ */
+export const ListStatusEnum = t.UnionEnum(LIST_STATUSES, { default: undefined });
 
 export const LibraryEntryModel = t.Object({
   mediaType: MediaTypeEnum,
