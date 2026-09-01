@@ -10,8 +10,10 @@ export function ProfileTabs({ username }: { username: string }) {
 
   const tabs = [
     { name: "Overview", href: `/${username}` },
+    { name: "Anime List", href: `/${username}/anime-list` },
+    { name: "Manga List", href: `/${username}/manga-list` },
     { name: "Favorites", href: `/${username}/favorites` },
-    { name: "Library", href: `/${username}/library` },
+    { name: "Social", href: `/${username}/social` },
     { name: "Reviews", href: `/${username}/reviews` },
   ];
 
@@ -24,6 +26,7 @@ export function ProfileTabs({ username }: { username: string }) {
             value={tab.href}
             render={<Link href={tab.href} />}
             nativeButton={false}
+            className="px-4"
           >
             {tab.name}
           </TabsTrigger>

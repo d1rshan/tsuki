@@ -26,9 +26,7 @@ export async function ProfileLayout({
     <div className="min-h-screen pt-20 pb-10 md:pt-28 md:pb-16">
       <ProfileHeader
         user={profile.user}
-        stats={profile.stats}
         profile={profile.profile}
-        social={profile.social}
         isOwner={isOwner}
         actions={
           <Suspense fallback={null}>

@@ -1,9 +1,4 @@
-import Link from "next/link";
-import { Link as LinkIcon } from "lucide-react";
-
 import type { UserOverview } from "@tsuki/api/types";
-
-import { RichContentView } from "@/features/rich-content/components/rich-content-view";
 
 import { ProfileAvatar } from "./profile-avatar";
 import { ProfileBanner } from "./profile-banner";
@@ -13,117 +8,30 @@ type ProfileHeaderProps = {
   actions: React.ReactNode;
   isOwner?: boolean;
   profile: UserOverview["profile"];
-  social: UserOverview["social"];
-  stats: UserOverview["stats"];
   user: UserOverview["user"];
 };
 
-export function ProfileHeader({
-  actions,
-  isOwner = false,
-  profile,
-  social,
-  stats,
-  user,
-}: ProfileHeaderProps) {
-  const banner = profile?.bannerImage;
-
+export function ProfileHeader({ actions, isOwner = false, profile, user }: ProfileHeaderProps) {
   return (
-    <header className="mb-8 border-b pb-8">
-      <ProfileBanner bannerImage={banner} isOwner={isOwner} />
+    <header className="mb-8">
+      <ProfileBanner bannerImage={profile?.bannerImage} isOwner={isOwner} />
 
-      <div className="flex flex-col items-start gap-6 px-2 md:flex-row md:gap-8">
-        <div className="relative -mt-16 ml-2 flex shrink-0 items-end justify-between md:-mt-20 md:ml-6 md:block">
-          <ProfileAvatar user={user} isOwner={isOwner} />
-
-          <div className="mb-2 shrink-0 md:hidden">{actions}</div>
-        </div>
-
-        <div className="flex w-full flex-1 flex-col pt-1">
-          <div className="flex flex-row items-start justify-between gap-4">
-            <div className="min-w-0 flex-1">
-              <h1 className="truncate text-2xl font-bold tracking-tight text-foreground md:text-3xl">
-                {user.displayUsername || user.name}
-              </h1>
-              <p className="mt-0.5 truncate text-sm font-medium text-primary">@{user.username}</p>
-            </div>
-            <div className="hidden shrink-0 md:block">{actions}</div>
+      <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3 px-2 md:px-6">
+        <div className="flex min-w-0 flex-wrap items-start gap-x-6 gap-y-3">
+          <div className="-mt-16 flex shrink-0 flex-col items-center gap-2 md:-mt-20">
+            <ProfileAvatar user={user} isOwner={isOwner} />
+            <h1 className="truncate text-lg font-bold tracking-tight text-foreground md:text-xl">
+              @{user.displayUsername || user.username}
+            </h1>
           </div>
 
-          {profile?.bio ? (
-            <RichContentView
-              content={profile.bio}
-              mode="compact"
-              className="mt-4 max-w-2xl text-sm leading-relaxed text-foreground/80 md:text-base"
-            />
-          ) : null}
-
-          <SocialLinks links={profile?.socialLinks} />
-
-          <div className="mt-5 flex gap-5 text-sm">
-            <Link href={`/${user.username}/followers`} className="hover:text-primary">
-              <strong className="text-foreground">{social.followers}</strong>{" "}
-              <span className="text-muted-foreground">followers</span>
-            </Link>
-            <Link href={`/${user.username}/following`} className="hover:text-primary">
-              <strong className="text-foreground">{social.following}</strong>{" "}
-              <span className="text-muted-foreground">following</span>
-            </Link>
-          </div>
-
-          <div className="flex w-full flex-row flex-wrap gap-6 pt-6 md:hidden">
-            <ProfileStats stats={stats} />
-          </div>
-
-          <div className="mt-8 mb-2 w-full">
+          <div className="min-w-0 max-w-full pt-3">
             <ProfileTabs username={user.username} />
           </div>
         </div>
+
+        <div className="shrink-0 pt-3">{actions}</div>
       </div>
     </header>
-  );
-}
-
-function SocialLinks({ links }: { links?: Record<string, string> | null }) {
-  if (!links || Object.keys(links).length === 0) return null;
-
-  return (
-    <div className="mt-5 flex flex-wrap gap-4">
-      {Object.entries(links).map(([platform, url]) => (
-        <a
-          key={platform}
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-        >
-          <LinkIcon className="h-4 w-4" />
-          <span className="capitalize">{platform}</span>
-        </a>
-      ))}
-    </div>
-  );
-}
-
-function ProfileStats({ stats }: { stats: UserOverview["stats"] }) {
-  const items = [
-    ["Anime", stats.ANIME.total],
-    ["Episodes", stats.ANIME.progress],
-    ["Mean Score", stats.ANIME.meanScore.toFixed(1)],
-    ["Manga", stats.MANGA.total],
-    ["Chapters", stats.MANGA.progress],
-  ] as const;
-
-  return items.map(([label, value]) => <StatItem key={label} label={label} value={value} />);
-}
-
-function StatItem({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className="flex flex-col gap-0.5">
-      <span className="text-[11px] font-semibold tracking-wider text-primary/80 uppercase">
-        {label}
-      </span>
-      <span className="text-xl font-bold tracking-tight text-foreground">{value}</span>
-    </div>
   );
 }

@@ -53,11 +53,12 @@ export function ProfileBanner({ bannerImage, className, isOwner = false }: Profi
             unoptimized
             className="object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/30 to-transparent" />
         </div>
       ) : (
         <div className="h-48 w-full bg-gradient-to-tr from-muted/50 via-muted/20 to-muted/50 md:h-64" />
       )}
+
+      <div className="absolute inset-0 bg-gradient-to-t from-background/30 to-transparent" />
 
       {isOwner && (
         <div className="absolute top-3 right-3 z-10 opacity-0 transition-opacity duration-200 group-hover/banner:opacity-100 focus-within:opacity-100 md:top-4 md:right-4">

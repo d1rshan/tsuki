@@ -26,7 +26,9 @@ function resolve<T>(
 ): T | null {
   if (result.error?.status === 404) return null;
   if (result.error)
-    throw new Error(`Failed to load ${what} for ${username}`, { cause: result.error });
+    throw new Error(`Failed to load ${what} for ${username}`, {
+      cause: result.error,
+    });
 
   return result.data ?? null;
 }
@@ -96,7 +98,9 @@ export const getProfileFollowing = (username: string, limit: number, offset: num
 export async function getProfileViewerRelationship(username: string) {
   const { data, error } = await (await getServerApi()).users({ username }).relationship.get();
   if (error || !data)
-    throw new Error(`Failed to load follow state for ${username}`, { cause: error });
+    throw new Error(`Failed to load follow state for ${username}`, {
+      cause: error,
+    });
 
   return data;
 }

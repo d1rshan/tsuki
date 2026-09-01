@@ -11,7 +11,7 @@ export function LibrarySection({ title, entries }: { title: string; entries: Lib
         {title}
         <span className="text-muted-foreground text-lg font-normal ml-2">({entries.length})</span>
       </h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 lg:gap-6">
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4 lg:gap-6">
         {entries.map((entry) => {
           if (!entry.media) return null;
           return (

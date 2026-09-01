@@ -2,11 +2,6 @@ import type { UserOverview } from "@tsuki/api/types";
 
 export type ProfileActivityDay = UserOverview["activity"]["days"][number];
 
-export function parseConnectionPage(value?: string) {
-  const page = Number(value);
-  return Number.isSafeInteger(page) && page > 0 ? page : 1;
-}
-
 export function activityDateKey(day: ProfileActivityDay) {
   return day.date.toISOString().slice(0, 10);
 }

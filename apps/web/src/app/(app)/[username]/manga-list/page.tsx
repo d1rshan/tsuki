@@ -9,7 +9,7 @@ export default async function Page({ params }: { params: Promise<{ username: str
 
   return (
     <Suspense fallback={<Loader />}>
-      <ProfileLibraryView username={username} />
+      <ProfileLibraryView username={username} mediaType="MANGA" />
     </Suspense>
   );
 }
