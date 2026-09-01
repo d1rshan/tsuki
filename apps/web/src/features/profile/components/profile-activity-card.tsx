@@ -12,7 +12,7 @@ import { ActivityCardCore } from "@/features/social/components/activity-core";
  */
 export function ProfileActivityCard({ activity }: { activity: Activity }) {
   return (
-    <article className="border-b py-5 last:border-0">
+    <article>
       <ActivityCardCore
         activity={activity}
         mode="profile"
