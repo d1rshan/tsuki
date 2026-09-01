@@ -23,16 +23,21 @@ export function SocialActivityCard({ activity }: { activity: Activity }) {
         coverClassName="w-14"
         coverSizes="56px"
         actor={
-          <Link href={`/${activity.actor.username}`} className="mb-1.5 flex items-center gap-2">
+          <Link
+            href={`/${activity.actor.username}`}
+            className="mb-1.5 block w-fit text-sm font-semibold text-foreground hover:text-primary"
+          >
+            {activity.actor.displayUsername}
+          </Link>
+        }
+        footer={
+          <Link href={`/${activity.actor.username}`} className="mt-2 block w-fit">
             <Avatar className="size-6">
               {activity.actor.image ? <AvatarImage src={activity.actor.image} alt="" /> : null}
               <AvatarFallback className="text-xs">
                 {activity.actor.displayUsername[0]?.toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <span className="truncate text-sm font-semibold text-foreground hover:text-primary">
-              {activity.actor.displayUsername}
-            </span>
           </Link>
         }
         review={

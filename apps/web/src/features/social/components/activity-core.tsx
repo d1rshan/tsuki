@@ -82,15 +82,18 @@ export function ActivityCardCore({
   coverSizes,
   actor,
   review,
+  footer,
 }: {
   activity: Activity;
   mode: "social" | "profile";
   coverClassName: string;
   coverSizes: string;
-  /** Rendered before the lead; links to the actor's Profile. */
+  /** Rendered above the lead; links to the actor's Profile. */
   actor?: ReactNode;
-  /** Rendered beneath the details row; the profile passes nothing. */
+  /** Rendered beneath the statement; the profile passes nothing. */
   review?: ReactNode;
+  /** Rendered at the bottom of the content column. */
+  footer?: ReactNode;
 }) {
   const media = activity.media ? normalizeMediaCompact(activity.media) : null;
   // The media row can be missing (deleted or never fetched); the phrase still
@@ -135,6 +138,7 @@ export function ActivityCardCore({
           ) : null}
           */}
           {review}
+          {footer}
         </div>
         <time
           dateTime={activity.occurredAt.toISOString()}
