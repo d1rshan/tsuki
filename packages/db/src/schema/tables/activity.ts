@@ -47,7 +47,14 @@ export type ActivitySnapshot = {
   status?: (typeof listStatusEnum.enumValues)[number] | null;
   score?: number | null;
   progress?: number;
+  /**
+   * Baseline the day's progress range opened from (the card states
+   * progressFrom+1 → progress). Absent for first-ever logs, corrections,
+   * and days whose save moved no progress.
+   */
+  progressFrom?: number;
   progressVolumes?: number | null;
+  progressVolumesFrom?: number;
   repeat?: number;
   /** Rich Content document (review preset) for REVIEW cards. */
   content?: RichContent;

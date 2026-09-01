@@ -63,6 +63,24 @@ export const deleteActivityLogs = async (actorId: string, mediaId: number) => {
     );
 };
 
+/**
+ * The most recent Log cards for one actor+media, newest first — the day-range
+ * baseline source. Today's row, when it exists, leads the list so the writer
+ * can tell a same-day re-upsert from a new day.
+ */
+// ponytail: scans at most 10 rows back for a baseline with progress; deep
+// score-only streaks longer than that lose their range (falls back to state
+// phrasing). Paginate the scan if that ever matters.
+export const getRecentLogs = async (actorId: string, mediaId: number, limit = 10) =>
+  db
+    .select({ sourceId: activity.sourceId, snapshot: activity.snapshot })
+    .from(activity)
+    .where(
+      and(eq(activity.actorId, actorId), eq(activity.type, "LOG"), eq(activity.mediaId, mediaId)),
+    )
+    .orderBy(desc(activity.occurredAt), desc(activity.id))
+    .limit(limit);
+
 type ActivityQuery = { cursor?: { occurredAt: Date; id: string }; limit: number };
 
 const actor = alias(user, "activity_actor");
@@ -81,6 +99,8 @@ async function getActivity(
       type: activity.type,
       snapshot: activity.snapshot,
       occurredAt: activity.occurredAt,
+      // Rides even when the media join misses, so clients can still phrase the card.
+      mediaType: activity.mediaType,
       actor: {
         username: actor.username,
         displayUsername: actor.displayUsername,

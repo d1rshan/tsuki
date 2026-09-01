@@ -9,22 +9,72 @@ import type { LibraryEntryInputModel } from "./model";
 
 /**
  * The LOG card shows what the entry looked like when it was logged, so the
- * snapshot copies the viewer-facing fields of the saved entry.
+ * snapshot copies the viewer-facing fields of the saved entry — plus the
+ * baseline the day's progress range opened from, when there is one.
+ *
+ * `priors` is the actor's most recent Log cards for the media, newest first
+ * (today's row, when it exists, leads). Days whose save had no progress are
+ * skipped as baselines by that search naturally: their snapshots carry none.
  */
-export function logSnapshot(entry: {
-  status: "CURRENT" | "PLANNING" | "COMPLETED" | "DROPPED" | "PAUSED" | "REPEATING" | null;
-  score: number | null;
-  progress: number;
-  progressVolumes: number | null;
-  repeat: number;
-}): ActivitySnapshot {
-  return {
+export function logSnapshot(
+  entry: {
+    status: "CURRENT" | "PLANNING" | "COMPLETED" | "DROPPED" | "PAUSED" | "REPEATING" | null;
+    score: number | null;
+    progress: number;
+    progressVolumes: number | null;
+    repeat: number;
+  },
+  priors: { sourceId: string; snapshot: ActivitySnapshot }[],
+  todaySourceId: string,
+): ActivitySnapshot {
+  const opened = priors[0];
+  const sameDay = opened?.sourceId === todaySourceId;
+  const priorDays = sameDay ? priors.slice(1) : priors;
+
+  const snapshot: ActivitySnapshot = {
     status: entry.status,
     score: entry.score,
-    progress: entry.progress,
-    progressVolumes: entry.progressVolumes,
     repeat: entry.repeat,
   };
+  // Progress rides along only when the save moved it, so a score-only day's
+  // card reads "rated" and never becomes the next day's baseline.
+  const lastProgress = priorDays.find((p) => p.snapshot.progress != null)?.snapshot.progress;
+  if (sameDay || entry.progress !== lastProgress) snapshot.progress = entry.progress;
+  snapshot.progressVolumes = entry.progressVolumes;
+
+  if (opened && sameDay) {
+    // The day's range keeps the baseline it opened with, so re-logs extend it.
+    if (opened.snapshot.progressFrom != null) snapshot.progressFrom = opened.snapshot.progressFrom;
+    if (opened.snapshot.progressVolumesFrom != null) {
+      snapshot.progressVolumesFrom = opened.snapshot.progressVolumesFrom;
+    }
+    return snapshot;
+  }
+
+  // A new day opens where the last logged day closed — unless the save is a
+  // downward correction or there is no baseline, in which case the card falls
+  // back to state phrasing instead of stating a nonsense range.
+  const chapterBaseline = lastMoved(priorDays, (s) => s.progress);
+  if (chapterBaseline != null && entry.progress > chapterBaseline) {
+    snapshot.progressFrom = chapterBaseline;
+  }
+  const volumeBaseline = lastMoved(priorDays, (s) => s.progressVolumes);
+  if (volumeBaseline != null && (entry.progressVolumes ?? 0) > volumeBaseline) {
+    snapshot.progressVolumesFrom = volumeBaseline;
+  }
+  return snapshot;
+}
+
+/** The last value an axis moved to across the prior days, searching newest-first. */
+function lastMoved(
+  priorDays: { snapshot: ActivitySnapshot }[],
+  axis: (snapshot: ActivitySnapshot) => number | null | undefined,
+): number | undefined {
+  for (const { snapshot } of priorDays) {
+    const value = axis(snapshot);
+    if (value != null && value > 0) return value;
+  }
+  return undefined;
 }
 
 /**
@@ -54,16 +104,17 @@ export async function logMedia(
   // One timestamp for both the day key and the card, so a save that lands at
   // the UTC midnight boundary keys and stamps the same day.
   const now = new Date();
+  const sourceId = logSourceId(mediaId, now);
 
   await activityDal.upsertActivity({
     actorId: userId,
     type: "LOG",
-    sourceId: logSourceId(mediaId, now),
+    sourceId,
     mediaId,
     mediaType,
     // The latest save of the day owns the card's timestamp and state.
     occurredAt: now,
-    snapshot: logSnapshot(entry),
+    snapshot: logSnapshot(entry, await activityDal.getRecentLogs(userId, mediaId), sourceId),
   });
 
   return entry;
