@@ -149,10 +149,10 @@ export function ActivityCardCore({
   );
 }
 
-/** The rendered review content a feed card shows inline. */
+/** The rendered review content a feed card shows inline, in a card inset. */
 export function ActivityReviewContent({ html }: { html: string }) {
   return (
-    <div className="text-sm text-foreground">
+    <div className="rounded-lg border border-border/50 bg-muted/20 p-3 text-sm text-foreground">
       <SpoilerLayer html={html} className="text-foreground/90" />
     </div>
   );
