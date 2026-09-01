@@ -47,11 +47,13 @@ export function createProfileUpdate(
     const key = platform.trim().toLowerCase();
     const value = url.trim();
     const preset = getSocialPreset(key);
-    // Presets accept a bare handle; anything URL-ish is taken as-is with the
-    // scheme auto-prefixed, then strictly re-validated by the server action.
+    // Presets accept a bare handle; anything with a path is taken as-is with
+    // the scheme auto-prefixed, then re-validated by the server action.
+    // (Handles may contain dots — e.g. instagram — but never slashes, so the
+    // slash check keeps dotted handles from being treated as domains.)
     const fullUrl = /^https?:\/\//i.test(value)
       ? value
-      : preset?.prefix && !/[./]/.test(value)
+      : preset?.prefix && !value.includes("/")
         ? preset.prefix + value.replace(/^@/, "")
         : `https://${value}`;
     return [key, fullUrl];
