@@ -109,13 +109,10 @@ export function ActivityCardCore({
       <div className="flex min-w-0 flex-1 items-start justify-between gap-3">
         <div className="min-w-0">
           {actor}
-          <p className="text-sm leading-snug text-foreground">
+          <p className="text-sm leading-snug text-muted-foreground">
             {lead}{" "}
             {media ? (
-              <Link
-                href={mediaHref(media.type, media.id)}
-                className="font-medium text-primary hover:underline"
-              >
+              <Link href={mediaHref(media.type, media.id)} className="font-medium text-primary">
                 {media.title}
               </Link>
             ) : (
