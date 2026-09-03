@@ -57,14 +57,14 @@ export function logSnapshot(
   // correction guard as a new day: no range for corrections.
   const openedSnapshot = sameDay ? opened?.snapshot : undefined;
   const chapterBaseline =
-    snapshot.progressFrom ?? lastMoved(priorDays, (s) => s.progress) ?? openedSnapshot?.progress;
+    snapshot.progressFrom ?? openedSnapshot?.progress ?? lastMoved(priorDays, (s) => s.progress);
   if (chapterBaseline != null && entry.progress > chapterBaseline) {
     snapshot.progressFrom = chapterBaseline;
   }
   const volumeBaseline =
     snapshot.progressVolumesFrom ??
-    lastMoved(priorDays, (s) => s.progressVolumes) ??
-    openedSnapshot?.progressVolumes;
+    openedSnapshot?.progressVolumes ??
+    lastMoved(priorDays, (s) => s.progressVolumes);
   if (volumeBaseline != null && (entry.progressVolumes ?? 0) > volumeBaseline) {
     snapshot.progressVolumesFrom = volumeBaseline;
   }
