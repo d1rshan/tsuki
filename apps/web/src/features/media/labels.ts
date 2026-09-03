@@ -1,4 +1,4 @@
-import type { ListStatus, MediaType } from "@tsuki/api/types";
+import type { Activity, ListStatus, MediaType } from "@tsuki/api/types";
 
 /**
  * Anime and manga are modelled identically by the API — one `mediaType`, one
@@ -59,51 +59,99 @@ export function statusLabel(mediaType: MediaType, status: ListStatus): string {
   return MEDIA[mediaType].statuses.find((entry) => entry.value === status)?.label ?? status;
 }
 
+/** The Log fields a phrase can speak about — the wire snapshot itself. */
+export type ActivityPhraseInput = Activity["snapshot"];
+
+function ordinal(n: number) {
+  const rem10 = n % 10;
+  const rem100 = n % 100;
+  if (rem10 === 1 && rem100 !== 11) return `${n}st`;
+  if (rem10 === 2 && rem100 !== 12) return `${n}nd`;
+  if (rem10 === 3 && rem100 !== 13) return `${n}rd`;
+  return `${n}th`;
+}
+
 /**
- * The phrase an Activity Log card shows between the actor and the title,
- * tracking-site style: "watched 12 episodes of …", "added … to their watch
- * list". `tail` renders after the title; `progressInLead` says the progress
- * count is already part of the phrase.
+ * Everything an Activity Log card says, in natural English: the lead between
+ * actor (or nothing) and title, the tail after it, and the details row
+ * beneath — which only carries what the lead does not already state. The
+ * lead is always capitalized; `"profile"` mode additionally drops the
+ * possessive ("to the watch list"), since the page IS the actor.
  */
 export function logPhrase(
   mediaType: MediaType,
-  status: ListStatus | null | undefined,
-  progress?: number,
-): { lead: string; tail?: string; progressInLead: boolean } {
+  snapshot: ActivityPhraseInput,
+  mode: "social" | "profile" = "social",
+): { lead: string; tail?: string; details: string; score?: number } {
   const read = mediaType === "MANGA";
   const verb = read ? "read" : "watched";
-  const counted = progress ? `${progress} ${read ? "chapters" : "episodes"} of` : "";
+  const reverb = read ? "reread" : "rewatched";
+  const units = read ? "chapters" : "episodes";
+  const { status, score, progress, progressFrom, progressVolumes, progressVolumesFrom, repeat } =
+    snapshot;
 
-  switch (status) {
-    case "PLANNING":
-      return {
-        lead: "added",
-        tail: read ? "to their read list" : "to their watch list",
-        progressInLead: false,
-      };
-    case "COMPLETED":
-      return { lead: "completed", progressInLead: false };
-    case "DROPPED":
-      return { lead: "dropped", progressInLead: false };
-    case "PAUSED":
-      return { lead: "paused", progressInLead: false };
-    case "REPEATING":
-      return {
-        lead: progress
-          ? `${read ? "reread" : "rewatched"} ${counted}`
-          : read
-            ? "reread"
-            : "rewatched",
-        progressInLead: Boolean(progress),
-      };
-    case "CURRENT":
-      return {
-        lead: progress ? `${verb} ${counted}` : verb,
-        progressInLead: Boolean(progress),
-      };
-    default:
-      return { lead: "updated", progressInLead: false };
+  const dayVerb = status === "REPEATING" ? reverb : verb;
+  const possessive = mode === "profile" ? "the" : "their";
+
+  let lead: string;
+  let tail: string | undefined;
+  let volumesStated = false;
+  let progressStated = false;
+
+  if (progress != null && progressFrom != null && progress > progressFrom) {
+    lead = `${dayVerb} ${units} ${progressFrom + 1}–${progress} of`;
+    progressStated = true;
+  } else if (
+    progressVolumes != null &&
+    progressVolumesFrom != null &&
+    progressVolumes > progressVolumesFrom
+  ) {
+    // volumes are the axis the day moved; the chapter count is noise next to it
+    lead = `${dayVerb} volumes ${progressVolumesFrom + 1}–${progressVolumes} of`;
+    volumesStated = true;
+    progressStated = true;
+  } else if (progress && (status === "CURRENT" || status === "REPEATING")) {
+    lead = `${dayVerb} ${progress} ${units} of`;
+    progressStated = true;
+  } else if (score && (status === "CURRENT" || status == null)) {
+    lead = "rated";
+  } else {
+    switch (status) {
+      case "PLANNING":
+        lead = "added";
+        tail = read ? `to ${possessive} read list` : `to ${possessive} watch list`;
+        break;
+      case "COMPLETED":
+        lead = "completed";
+        break;
+      case "DROPPED":
+        lead = "dropped";
+        break;
+      case "PAUSED":
+        lead = "paused";
+        break;
+      case "CURRENT":
+      case "REPEATING":
+        lead = dayVerb;
+        break;
+      default:
+        lead = "updated";
+    }
   }
+
+  if (!tail && repeat) tail = `for the ${ordinal(repeat)} time`;
+
+  lead = lead.charAt(0).toUpperCase() + lead.slice(1);
+
+  const details = [
+    progressStated || !progress ? null : String(progress),
+    volumesStated || progressVolumes == null ? null : `${progressVolumes} volumes`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
+  // The score renders with a star icon, so it travels separately from the text row.
+  return { lead, tail, details, score: score ?? undefined };
 }
 
 export function mediaHref(mediaType: MediaType, id: number) {

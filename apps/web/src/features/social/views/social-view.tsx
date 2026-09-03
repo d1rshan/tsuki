@@ -12,7 +12,7 @@ import { QueryState } from "@/shared/components/query-state";
 import { useDebouncedValue } from "@/shared/hooks/use-debounced-value";
 import { cn } from "@/shared/lib/utils";
 
-import { ActivityCard } from "../components/activity-card";
+import { SocialActivityCard } from "../components/social-activity-card";
 import type { SocialFeedType } from "../data";
 import { useSocialDiscovery } from "../hooks/use-social-discovery";
 import { useSocialFeed } from "../hooks/use-social-feed";
@@ -39,7 +39,7 @@ function Feed({ type }: { type: SocialFeedType }) {
     >
       <div>
         {activities.map((activity) => (
-          <ActivityCard key={activity.id} activity={activity} />
+          <SocialActivityCard key={activity.id} activity={activity} />
         ))}
         {query.hasNextPage && (
           <Button
