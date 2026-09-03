@@ -70,6 +70,14 @@ describe("logPhrase", () => {
     });
   });
 
+  test("a zero baseline grounds the first watch's range", () => {
+    expect(logPhrase("ANIME", { status: "CURRENT", progress: 5, progressFrom: 0 })).toEqual({
+      lead: "Watched episodes 1–5 of",
+      tail: undefined,
+      details: "",
+    });
+  });
+
   test("a score-only save reads as rated", () => {
     expect(logPhrase("ANIME", { status: "CURRENT", score: 8 })).toEqual({
       lead: "Rated",

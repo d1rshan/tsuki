@@ -13,8 +13,9 @@ import type { LibraryEntryInputModel } from "./model";
  * baseline the day's progress range opened from, when there is one.
  *
  * `priors` is the actor's most recent Log cards for the media, newest first
- * (today's row, when it exists, leads). Days whose save had no progress are
- * skipped as baselines by that search naturally: their snapshots carry none.
+ * (today's row, when it exists, leads). Days whose save recorded no progress
+ * at all are skipped as baselines by that search naturally: their snapshots
+ * carry none.
  */
 export function logSnapshot(
   entry: {
@@ -65,14 +66,16 @@ export function logSnapshot(
   return snapshot;
 }
 
-/** The last value an axis moved to across the prior days, searching newest-first. */
+/** The last value an axis was at across the prior days, searching newest-first. */
 function lastMoved(
   priorDays: { snapshot: ActivitySnapshot }[],
   axis: (snapshot: ActivitySnapshot) => number | null | undefined,
 ): number | undefined {
   for (const { snapshot } of priorDays) {
     const value = axis(snapshot);
-    if (value != null && value > 0) return value;
+    // Days whose save recorded no value (score-only) are skipped; a tracked
+    // zero is a real position and grounds the first watch's range.
+    if (value != null) return value;
   }
   return undefined;
 }

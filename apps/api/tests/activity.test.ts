@@ -143,6 +143,25 @@ describe("snapshot builders", () => {
     });
   });
 
+  test("a tracked zero baseline grounds the first watch's range (1–5 after 0)", () => {
+    const priors = [{ sourceId: "42:2026-03-09", snapshot: { progress: 0 } }];
+    expect(logSnapshot(entry({ progress: 5 }), priors, today)).toMatchObject({
+      progress: 5,
+      progressFrom: 0,
+    });
+  });
+
+  test("a same-day advance over a zero-opened day states the range too", () => {
+    const priors = [
+      { sourceId: today, snapshot: { progress: 0 } },
+      { sourceId: "42:2026-03-09", snapshot: { progress: 0 } },
+    ];
+    expect(logSnapshot(entry({ progress: 3 }), priors, today)).toMatchObject({
+      progress: 3,
+      progressFrom: 0,
+    });
+  });
+
   test("a score-only day drops progress, so its card reads 'rated'", () => {
     const priors = [{ sourceId: "42:2026-03-09", snapshot: { progress: 12 } }];
     expect(logSnapshot(entry({ progress: 12, score: 8 }), priors, today)).not.toHaveProperty(
