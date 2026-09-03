@@ -39,11 +39,6 @@ export const ActivityCursorQueryModel = t.Object({
   limit: t.Optional(t.Numeric({ minimum: 1, maximum: 50, multipleOf: 1 })),
 });
 
-export const ActivityFeedQueryModel = t.Object({
-  ...ActivityCursorQueryModel.properties,
-  type: t.Union([t.Literal("following"), t.Literal("public")]),
-});
-
 export const ActivityPageModel = t.Object({
   activities: t.Array(ActivityModel),
   nextCursor: t.Nullable(t.String()),

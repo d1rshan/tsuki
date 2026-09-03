@@ -44,32 +44,29 @@ function toPage(rows: ActivityRows) {
   };
 }
 
-/** The Activity Feed: Following mode shows Followed accounts, Public shows everyone. */
-export async function getActivityFeed(
-  viewerId: string,
-  mode: "following" | "public",
-  query: { cursor?: string; limit?: number },
-) {
-  const feed =
-    mode === "following"
-      ? await activityDal.getFollowingActivity(viewerId, {
-          cursor: parseActivityCursor(query.cursor),
-          limit: query.limit ?? 20,
-        })
-      : await activityDal.getPublicActivity({
-          cursor: parseActivityCursor(query.cursor),
-          limit: query.limit ?? 20,
-        });
+/** The default page size for Activity feeds; profile streams page smaller. */
+const FEED_LIMIT = 20;
+const USER_ACTIVITY_LIMIT = 10;
 
-  return toPage(feed);
+type FeedQuery = { cursor?: string; limit?: number };
+
+function toDalOptions(query: FeedQuery, defaultLimit: number) {
+  return { cursor: parseActivityCursor(query.cursor), limit: query.limit ?? defaultLimit };
+}
+
+/** The Following Activity Feed: accounts the viewer follows, newest-first. */
+export async function getFollowingFeed(viewerId: string, query: FeedQuery) {
+  return toPage(await activityDal.getFollowingActivity(viewerId, toDalOptions(query, FEED_LIMIT)));
+}
+
+/** The global public Activity stream — no viewer needed. */
+export async function getPublicFeed(query: FeedQuery) {
+  return toPage(await activityDal.getPublicActivity(toDalOptions(query, FEED_LIMIT)));
 }
 
 /** A Profile's own Activity stream, newest-first — public to any visitor. */
-export async function getUserActivity(actorId: string, query: { cursor?: string; limit?: number }) {
+export async function getUserActivity(actorId: string, query: FeedQuery) {
   return toPage(
-    await activityDal.getUserActivity(actorId, {
-      cursor: parseActivityCursor(query.cursor),
-      limit: query.limit ?? 10,
-    }),
+    await activityDal.getUserActivity(actorId, toDalOptions(query, USER_ACTIVITY_LIMIT)),
   );
 }

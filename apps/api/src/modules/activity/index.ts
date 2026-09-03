@@ -2,18 +2,26 @@ import { Elysia, t } from "elysia";
 
 import { authPlugin } from "../../plugins/auth";
 import { requireUser } from "../profiles/service";
-import { getActivityFeed, getUserActivity } from "./service";
-import { ActivityCursorQueryModel, ActivityFeedQueryModel, ActivityPageModel } from "./model";
+import { getFollowingFeed, getPublicFeed, getUserActivity } from "./service";
+import { ActivityCursorQueryModel, ActivityPageModel } from "./model";
 
 export const activityRoutes = new Elysia({ tags: ["Activity"] })
   .use(authPlugin)
-  .get("/me/activity", ({ query, user }) => getActivityFeed(user.id, query.type, query), {
-    auth: true,
-    query: ActivityFeedQueryModel,
+  .get("/activity", ({ query }) => getPublicFeed(query), {
+    query: ActivityCursorQueryModel,
     response: { 200: ActivityPageModel },
     detail: {
-      summary: "Get the Activity Feed",
-      description: "Newest-first Activity for Following or Public.",
+      summary: "Get the Public Activity Feed",
+      description: "Newest-first public Activity for any visitor, no session required.",
+    },
+  })
+  .get("/me/activity", ({ query, user }) => getFollowingFeed(user.id, query), {
+    auth: true,
+    query: ActivityCursorQueryModel,
+    response: { 200: ActivityPageModel },
+    detail: {
+      summary: "Get the Following Activity Feed",
+      description: "Newest-first Activity from accounts the viewer follows.",
     },
   })
   .get(

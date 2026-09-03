@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@/shared/components/ui/button";
 import { ContentState } from "@/shared/components/content-state";
+import { LoadMoreButton } from "@/shared/components/load-more-button";
 import { QueryState } from "@/shared/components/query-state";
 import { cn } from "@/shared/lib/utils";
 
@@ -33,16 +33,12 @@ export function ProfileActivityStream({
           {activities.map((activity) => (
             <ProfileActivityCard key={activity.id} activity={activity} />
           ))}
-          {query.hasNextPage && (
-            <Button
-              className="mt-6 lg:col-span-2"
-              variant="outline"
-              disabled={query.isFetchingNextPage}
-              onClick={() => void query.fetchNextPage()}
-            >
-              {query.isFetchingNextPage ? "Loading…" : "Load older Activity"}
-            </Button>
-          )}
+          <LoadMoreButton
+            className="lg:col-span-2"
+            fetching={query.isFetchingNextPage}
+            hasNext={Boolean(query.hasNextPage)}
+            onLoadMore={() => void query.fetchNextPage()}
+          />
         </div>
       </QueryState>
     </section>

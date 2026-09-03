@@ -13,11 +13,9 @@ import { Button } from "@/shared/components/ui/button";
 
 export function ProfileFollowButton({
   initialRelationship,
-  isAuthenticated,
   username,
 }: {
   initialRelationship: FollowRelationship | null;
-  isAuthenticated: boolean;
   username: string;
 }) {
   const router = useRouter();
@@ -29,23 +27,14 @@ export function ProfileFollowButton({
     router.refresh();
   });
 
-  function toggleFollow() {
-    if (!isAuthenticated) {
-      router.push("/login");
-      return;
-    }
-
-    mutation.mutate({ username, following: !relationship?.following });
-  }
-
   return (
     <Button
       type="button"
       variant={relationship?.following ? "secondary" : "default"}
       disabled={mutation.isPending}
-      onClick={toggleFollow}
       aria-busy={mutation.isPending}
       aria-pressed={relationship?.following ?? false}
+      onClick={() => mutation.mutate({ username, following: !relationship?.following })}
     >
       {followButtonLabel(relationship)}
     </Button>

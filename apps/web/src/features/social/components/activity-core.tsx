@@ -106,44 +106,47 @@ export function ActivityCardCore({
   return (
     <div className="flex min-w-0 flex-1 gap-3">
       <ActivityCover media={media} className={coverClassName} sizes={coverSizes} />
-      <div className="flex min-w-0 flex-1 items-start justify-between gap-3">
-        <div className="min-w-0">
+      <div className="min-w-0 flex-1">
+        <div className="mb-1.5 flex items-baseline justify-between gap-3">
           {actor}
-          <p className="text-sm leading-snug text-muted-foreground">
-            {lead}{" "}
-            {media ? (
-              <Link href={mediaHref(media.type, media.id)} className="font-medium text-primary">
-                {media.title}
-              </Link>
-            ) : (
-              <span className="font-medium text-primary">Unknown Title</span>
-            )}
-            {phrase?.tail ? ` ${phrase.tail}` : null}
-          </p>
-          {/* ponytail: metadata row (score star, volumes, progress) hidden for
-              now per design call — restore when the details row earns its place
-          {phrase && (phrase.details || phrase.score != null) ? (
-            <p className="flex flex-wrap items-center gap-x-2 text-sm">
-              {phrase.details}
-              {phrase.score != null ? (
-                <span className="inline-flex items-center gap-1 font-medium text-foreground">
-                  <Star className="size-4 fill-primary text-primary" aria-hidden />
-                  {phrase.score}/10
-                </span>
-              ) : null}
-            </p>
-          ) : null}
-          */}
-          {review}
-          {footer}
+          <time
+            dateTime={activity.occurredAt.toISOString()}
+            title={format(new Date(activity.occurredAt), "PPp")}
+            className="shrink-0 text-xs text-muted-foreground"
+          >
+            {formatDistanceToNow(new Date(activity.occurredAt), { addSuffix: true })}
+          </time>
         </div>
-        <time
-          dateTime={activity.occurredAt.toISOString()}
-          title={format(new Date(activity.occurredAt), "PPp")}
-          className="shrink-0 pt-0.5 text-xs text-muted-foreground"
-        >
-          {formatDistanceToNow(new Date(activity.occurredAt), { addSuffix: true })}
-        </time>
+        <p className="text-sm leading-snug text-muted-foreground">
+          {lead}{" "}
+          {media ? (
+            <Link
+              href={mediaHref(media.type, media.id)}
+              className="font-medium text-inherit hover:text-primary"
+            >
+              {media.title}
+            </Link>
+          ) : (
+            <span className="font-medium">Unknown Title</span>
+          )}
+          {phrase?.tail ? ` ${phrase.tail}` : null}
+        </p>
+        {/* ponytail: metadata row (score star, volumes, progress) hidden for
+            now per design call — restore when the details row earns its place
+        {phrase && (phrase.details || phrase.score != null) ? (
+          <p className="flex flex-wrap items-center gap-x-2 text-sm">
+            {phrase.details}
+            {phrase.score != null ? (
+              <span className="inline-flex items-center gap-1 font-medium text-foreground">
+                <Star className="size-4 fill-primary text-primary" aria-hidden />
+                {phrase.score}/10
+              </span>
+            ) : null}
+          </p>
+        ) : null}
+        */}
+        {review}
+        {footer}
       </div>
     </div>
   );

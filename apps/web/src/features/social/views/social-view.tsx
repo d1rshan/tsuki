@@ -2,20 +2,25 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Search, UserX } from "lucide-react";
+import { Search, UserX } from "lucide-react";
 
-import { followButtonLabel } from "@/features/social/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { ContentState } from "@/shared/components/content-state";
 import { Input } from "@/shared/components/ui/input";
+import { LoadMoreButton } from "@/shared/components/load-more-button";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/shared/components/ui/sheet";
 import { QueryState } from "@/shared/components/query-state";
 import { useDebouncedValue } from "@/shared/hooks/use-debounced-value";
-
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { SocialActivityCard } from "../components/social-activity-card";
 import type { SocialFeedType } from "../data";
-import { useDiscoveryFollowMutation } from "../hooks/use-discovery-follow-mutation";
 import { useSocialDiscovery } from "../hooks/use-social-discovery";
 import { useSocialFeed } from "../hooks/use-social-feed";
 
@@ -31,9 +36,7 @@ function Feed({ type }: { type: SocialFeedType }) {
       errorTitle="Could not load Activity"
       empty={
         type === "following" ? (
-          <div className="flex min-h-64 flex-col items-center justify-center text-center">
-            <ContentState title="No Friends :(" />
-          </div>
+          <ContentState title="No friends :(" />
         ) : (
           <ContentState title="No Activity yet" />
         )
@@ -43,16 +46,11 @@ function Feed({ type }: { type: SocialFeedType }) {
         {activities.map((activity) => (
           <SocialActivityCard key={activity.id} activity={activity} />
         ))}
-        {query.hasNextPage && (
-          <Button
-            className="mt-6"
-            variant="outline"
-            disabled={query.isFetchingNextPage}
-            onClick={() => void query.fetchNextPage()}
-          >
-            {query.isFetchingNextPage ? "Loading…" : "Load older Activity"}
-          </Button>
-        )}
+        <LoadMoreButton
+          fetching={query.isFetchingNextPage}
+          hasNext={Boolean(query.hasNextPage)}
+          onLoadMore={() => void query.fetchNextPage()}
+        />
       </div>
     </QueryState>
   );
@@ -62,7 +60,6 @@ function Discover() {
   const [search, setSearch] = useState("");
   const username = useDebouncedValue(search.trim(), 250);
   const query = useSocialDiscovery(username);
-  const follow = useDiscoveryFollowMutation();
   const users = query.data ?? [];
 
   return (
@@ -72,106 +69,97 @@ function Discover() {
         <Input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search people by username"
-          aria-label="Search people by username"
-          autoFocus
+          placeholder="Search by username"
+          aria-label="Search by username"
           className="h-10 rounded-md pl-9"
         />
       </div>
-      <section className="mt-6">
-        <QueryState
-          isLoading={query.isLoading}
-          isError={query.isError}
-          isEmpty={!users.length}
-          errorTitle="Could not load people"
-          empty={
-            <ContentState
-              icon={UserX}
-              title={username ? `No Profiles match “${username}”` : "No people to show yet"}
-            />
-          }
-        >
-          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {users.map((user) => (
-              <li
-                key={user.id}
-                className="flex min-w-0 items-center gap-3 rounded-xl border bg-card/50 p-4 shadow-sm"
+      <QueryState
+        isLoading={query.isLoading}
+        isError={query.isError}
+        isEmpty={!users.length}
+        errorTitle="Could not load people"
+        empty={
+          <ContentState
+            icon={UserX}
+            title={username ? `No Profiles match “${username}”` : "No people to show yet"}
+          />
+        }
+      >
+        <ul className="mt-4 grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3">
+          {users.map((user) => (
+            <li key={user.id}>
+              <Link
+                href={`/${user.username}`}
+                className="flex flex-col items-center gap-2 text-center"
               >
-                <Link href={`/${user.username}`} className="flex min-w-0 flex-1 items-center gap-3">
-                  <Avatar>
-                    {user.image ? <AvatarImage src={user.image} alt={user.name} /> : null}
-                    <AvatarFallback>{user.displayUsername[0]?.toUpperCase()}</AvatarFallback>
-                  </Avatar>
-                  <span className="min-w-0">
-                    <span className="block truncate font-semibold">{user.displayUsername}</span>
-                    <span className="block truncate text-sm text-muted-foreground">
-                      @{user.username}
-                    </span>
-                  </span>
-                </Link>
-                <Button
-                  size="sm"
-                  variant={user.relationship.following ? "secondary" : "default"}
-                  disabled={follow.isPending}
-                  onClick={() =>
-                    follow.mutate({
-                      username: user.username,
-                      following: !user.relationship.following,
-                    })
-                  }
-                >
-                  {followButtonLabel(user.relationship)}
-                </Button>
-              </li>
-            ))}
-          </ul>
-        </QueryState>
-      </section>
+                <Avatar className="size-20">
+                  {user.image ? <AvatarImage src={user.image} alt={user.name} /> : null}
+                  <AvatarFallback className="text-lg">
+                    {user.displayUsername[0]?.toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="w-full truncate text-sm font-medium">{user.displayUsername}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </QueryState>
     </div>
   );
 }
 
-export function SocialView() {
-  const [isDiscovering, setIsDiscovering] = useState(false);
-  const [activeFeed, setActiveFeed] = useState<SocialFeedType>("public");
+export function SocialView({ isAuthenticated }: { isAuthenticated: boolean }) {
+  const signInTeaser = (
+    <p className="text-sm text-muted-foreground">
+      <Link href="/login" className="font-semibold text-primary hover:underline">
+        Sign in
+      </Link>{" "}
+      to see Activity from people you follow.
+    </p>
+  );
+
+  const findPeopleSheet = (
+    <Sheet>
+      <SheetTrigger
+        render={
+          <Button
+            variant="outline"
+            size="icon-lg"
+            className="fixed right-5 bottom-5 z-30 size-14 rounded-full border-black/5 glass shadow-2xl md:hidden dark:border-white/10"
+            aria-label="Find People"
+          />
+        }
+      >
+        <Search />
+      </SheetTrigger>
+      <SheetContent
+        side="bottom"
+        className="max-h-[80dvh] gap-0 overflow-y-auto rounded-t-2xl px-4 pb-8"
+      >
+        <SheetHeader className="px-0">
+          <SheetTitle>Find People</SheetTitle>
+        </SheetHeader>
+        <Discover />
+      </SheetContent>
+    </Sheet>
+  );
+
+  // CSS-toggled, not JS-toggled: useIsMobile's server snapshot is always false,
+  // so a JS branch would flash the desktop layout on every mobile reload.
+  const mobileTeaser = !isAuthenticated && <div className="mb-4 md:hidden">{signInTeaser}</div>;
 
   return (
-    <div className="pt-28 pb-16 md:pt-32">
-      {isDiscovering ? (
-        <section>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="-ml-2 mb-6"
-            onClick={() => setIsDiscovering(false)}
-          >
-            <ArrowLeft />
-            Back
-          </Button>
-          <Discover />
-        </section>
-      ) : (
-        <section className="min-w-0">
-          <Tabs
-            value={activeFeed}
-            onValueChange={(value) => {
-              if (value === "public" || value === "following") setActiveFeed(value);
-            }}
-          >
-            <div className="flex items-center justify-between gap-4">
+    <div className="grid gap-6 pt-28 pb-24 md:pt-32 md:pb-16 md:grid-cols-[minmax(0,1fr)_minmax(0,18rem)] lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:gap-8">
+      <section aria-label="Activity" className="min-w-0">
+        {isAuthenticated ? (
+          <Tabs defaultValue="public">
+            <div className="mb-2 flex items-center justify-between gap-4">
+              <h2 className="text-lg font-semibold">Recent Activity</h2>
               <TabsList>
                 <TabsTrigger value="public">Public</TabsTrigger>
                 <TabsTrigger value="following">Following</TabsTrigger>
               </TabsList>
-              <Button
-                variant="outline"
-                size="icon-lg"
-                className="size-10 shrink-0 rounded-full"
-                onClick={() => setIsDiscovering(true)}
-                aria-label="Find people"
-              >
-                <Search />
-              </Button>
             </div>
             <TabsContent value="public">
               <Feed type="public" />
@@ -180,8 +168,22 @@ export function SocialView() {
               <Feed type="following" />
             </TabsContent>
           </Tabs>
+        ) : (
+          <>
+            <h2 className="mb-4 text-lg font-semibold">Recent Activity</h2>
+            {mobileTeaser}
+            <Feed type="public" />
+          </>
+        )}
+      </section>
+      <aside className="hidden min-w-0 flex-col gap-6 border-t pt-6 md:flex md:border-t-0 md:border-l md:pt-0 md:pl-6 lg:gap-8 lg:pl-8">
+        {!isAuthenticated && signInTeaser}
+        <section aria-label="Discover people">
+          <h2 className="mb-4 text-lg font-semibold">Find People</h2>
+          <Discover />
         </section>
-      )}
+      </aside>
+      {findPeopleSheet}
     </div>
   );
 }

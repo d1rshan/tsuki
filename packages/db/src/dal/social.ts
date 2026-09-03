@@ -1,4 +1,4 @@
-import { and, count, desc, eq, ilike, ne, or, sql } from "drizzle-orm";
+import { and, count, desc, eq, ilike, ne, or } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 
 import { db } from "../db";
@@ -28,26 +28,11 @@ type FollowListOptions = {
 };
 
 const followers = alias(social, "followers");
-const viewerFollowing = alias(social, "viewer_following");
-const viewerFollowedBy = alias(social, "viewer_followed_by");
 
 type DiscoveryOptions = {
   limit: number;
   usernamePrefix?: string;
 };
-
-function relationshipFromRows(
-  rows: { followerId: string; followingId: string }[],
-  viewerId: string,
-  profileUserId: string,
-): FollowRelationship {
-  return {
-    following: rows.some((row) => row.followerId === viewerId && row.followingId === profileUserId),
-    followedBy: rows.some(
-      (row) => row.followerId === profileUserId && row.followingId === viewerId,
-    ),
-  };
-}
 
 export const getFollowCounts = async (userId: string) => {
   const [followers, following] = await Promise.all([
@@ -87,7 +72,12 @@ export const getFollowRelationship = async (viewerId: string, profileUserId: str
       ),
     );
 
-  return relationshipFromRows(rows, viewerId, profileUserId);
+  return {
+    following: rows.some((row) => row.followerId === viewerId && row.followingId === profileUserId),
+    followedBy: rows.some(
+      (row) => row.followerId === profileUserId && row.followingId === viewerId,
+    ),
+  };
 };
 
 export const followUser = async (followerId: string, followingId: string) => {
@@ -126,32 +116,22 @@ export const getFollowing = async (userId: string, { limit, offset }: FollowList
     .offset(offset);
 };
 
-/** Public discovery data, with the viewer's Follow state in the same bounded query. */
+/** Popular users or username-prefix matches, ordered by follower count. Public. */
 export const getUserDiscovery = async (
-  viewerId: string,
+  viewerId: string | null,
   { limit, usernamePrefix }: DiscoveryOptions,
 ) => {
-  const conditions = [ne(user.id, viewerId)];
+  const conditions = [];
+  if (viewerId) conditions.push(ne(user.id, viewerId));
   if (usernamePrefix) conditions.push(ilike(user.username, usernamePrefixPattern(usernamePrefix)));
 
   return db
     .select({
       ...PUBLIC_USER_COLUMNS,
-      relationship: {
-        following: sql<boolean>`count(${viewerFollowing.followerId}) > 0`,
-        followedBy: sql<boolean>`count(${viewerFollowedBy.followerId}) > 0`,
-      },
+      followersCount: count(followers.followerId),
     })
     .from(user)
     .leftJoin(followers, eq(followers.followingId, user.id))
-    .leftJoin(
-      viewerFollowing,
-      and(eq(viewerFollowing.followerId, viewerId), eq(viewerFollowing.followingId, user.id)),
-    )
-    .leftJoin(
-      viewerFollowedBy,
-      and(eq(viewerFollowedBy.followerId, user.id), eq(viewerFollowedBy.followingId, viewerId)),
-    )
     .where(and(...conditions))
     .groupBy(user.id, user.name, user.username, user.displayUsername, user.image, user.createdAt)
     .orderBy(desc(count(followers.followerId)), desc(user.createdAt))

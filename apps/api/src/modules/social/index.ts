@@ -14,26 +14,26 @@ import {
 } from "./model";
 import { followProfile, unfollowProfile } from "./service";
 
-/** Popular on Tsuki: the default Discover list size. */
-const DISCOVERY_LIMIT = 24;
+/** The bounded Discover section above the Following feed. */
+const DISCOVERY_LIMIT = 12;
 
 export const socialRoutes = new Elysia({ tags: ["Social"] })
   .use(authPlugin)
   .get(
     "/users/discover",
-    async ({ query, user }) => ({
-      users: await socialDal.getUserDiscovery(user.id, {
+    async ({ query, viewer }) => ({
+      users: await socialDal.getUserDiscovery(viewer?.id ?? null, {
         limit: DISCOVERY_LIMIT,
         usernamePrefix: query.username,
       }),
     }),
     {
-      auth: true,
+      optionalAuth: true,
       query: UserDiscoveryQueryModel,
       response: { 200: UserDiscoveryModel },
       detail: {
         summary: "Discover users",
-        description: "Popular users or Username-prefix matches, excluding the viewer.",
+        description: "Popular users or Username-prefix matches. Public; excludes the viewer.",
       },
     },
   )
