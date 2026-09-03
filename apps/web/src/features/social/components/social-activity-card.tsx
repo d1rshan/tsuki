@@ -25,7 +25,7 @@ export function SocialActivityCard({ activity }: { activity: Activity }) {
         actor={
           <Link
             href={`/${activity.actor.username}`}
-            className="mb-1.5 block w-fit text-sm font-semibold text-primary"
+            className="block w-fit text-sm font-semibold text-primary"
           >
             {activity.actor.displayUsername}
           </Link>

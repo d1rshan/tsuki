@@ -16,13 +16,13 @@ export function NavbarLinks({ isMobile = false, onNavigate, pathname, user }: Na
       isActive:
         pathname === "/" || pathname.startsWith("/anime/") || pathname.startsWith("/manga/"),
     },
+    {
+      href: "/social",
+      label: "Social",
+      isActive: pathname.startsWith("/social"),
+    },
     ...(user?.username
       ? [
-          {
-            href: "/social",
-            label: "Social",
-            isActive: pathname.startsWith("/social"),
-          },
           {
             href: `/${user.username}`,
             label: "Profile",
