@@ -122,6 +122,11 @@ export async function logMedia(
     mediaType,
     // The latest save of the day owns the card's timestamp and state.
     occurredAt: now,
+    // ponytail: read-modify-write race — two overlapping saves for the same
+    // (user, media, day) can both read stale history, so the later upsert may
+    // drop the day's opening baseline. Worst case is one card stating lifetime
+    // progress instead of the day's range; serialize via a per-(user, media)
+    // advisory lock in a transaction if that ever matters.
     snapshot: logSnapshot(entry, await activityDal.getRecentLogs(userId, mediaId), sourceId),
   });
 
