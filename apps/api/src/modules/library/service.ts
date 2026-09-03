@@ -52,14 +52,19 @@ export function logSnapshot(
   }
 
   // An axis the day's first save never opened (a score-only or volume-only
-  // save stored none) derives its baseline from the prior days, with the same
-  // correction guard as a new day: no range for corrections or first-ever logs.
-  const chapterBaseline = snapshot.progressFrom ?? lastMoved(priorDays, (s) => s.progress);
+  // save stored none) derives its baseline from the prior days — or, failing
+  // that (a first-ever day), from today's own opening state — with the same
+  // correction guard as a new day: no range for corrections.
+  const openedSnapshot = sameDay ? opened?.snapshot : undefined;
+  const chapterBaseline =
+    snapshot.progressFrom ?? lastMoved(priorDays, (s) => s.progress) ?? openedSnapshot?.progress;
   if (chapterBaseline != null && entry.progress > chapterBaseline) {
     snapshot.progressFrom = chapterBaseline;
   }
   const volumeBaseline =
-    snapshot.progressVolumesFrom ?? lastMoved(priorDays, (s) => s.progressVolumes);
+    snapshot.progressVolumesFrom ??
+    lastMoved(priorDays, (s) => s.progressVolumes) ??
+    openedSnapshot?.progressVolumes;
   if (volumeBaseline != null && (entry.progressVolumes ?? 0) > volumeBaseline) {
     snapshot.progressVolumesFrom = volumeBaseline;
   }

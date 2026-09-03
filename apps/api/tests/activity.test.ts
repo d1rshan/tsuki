@@ -162,6 +162,20 @@ describe("snapshot builders", () => {
     });
   });
 
+  test("a same-day advance over a first-ever log opens from its own state", () => {
+    const priors = [{ sourceId: today, snapshot: { progress: 0 } }];
+    expect(logSnapshot(entry({ progress: 3 }), priors, today)).toMatchObject({
+      progress: 3,
+      progressFrom: 0,
+    });
+    // a first-ever log at a nonzero position works the same way
+    const priors5 = [{ sourceId: today, snapshot: { progress: 5 } }];
+    expect(logSnapshot(entry({ progress: 8 }), priors5, today)).toMatchObject({
+      progress: 8,
+      progressFrom: 5,
+    });
+  });
+
   test("a score-only day drops progress, so its card reads 'rated'", () => {
     const priors = [{ sourceId: "42:2026-03-09", snapshot: { progress: 12 } }];
     expect(logSnapshot(entry({ progress: 12, score: 8 }), priors, today)).not.toHaveProperty(
