@@ -1,6 +1,5 @@
 "use client";
 
-import { ActivityCard } from "@/features/social/components/activity-card";
 import { Button } from "@/shared/components/ui/button";
 import { ContentState } from "@/shared/components/content-state";
 import { QueryState } from "@/shared/components/query-state";
@@ -8,6 +7,7 @@ import { cn } from "@/shared/lib/utils";
 
 import { useProfileActivity } from "../hooks/use-profile-activity";
 import { BENTO_CARD } from "./profile-section";
+import { ProfileActivityCard } from "./profile-activity-card";
 
 /** The profile's real Activity stream: Logs and Reviews, with a load-more. */
 export function ProfileActivityStream({
@@ -29,13 +29,13 @@ export function ProfileActivityStream({
         errorTitle="Could not load Activity"
         empty={<ContentState title="No recent activity" />}
       >
-        <div>
+        <div className="grid gap-y-5 gap-x-8 lg:grid-cols-2">
           {activities.map((activity) => (
-            <ActivityCard key={activity.id} activity={activity} showActor={false} />
+            <ProfileActivityCard key={activity.id} activity={activity} />
           ))}
           {query.hasNextPage && (
             <Button
-              className="mt-6"
+              className="mt-6 lg:col-span-2"
               variant="outline"
               disabled={query.isFetchingNextPage}
               onClick={() => void query.fetchNextPage()}
