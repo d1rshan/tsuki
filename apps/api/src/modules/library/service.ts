@@ -43,22 +43,22 @@ export function logSnapshot(
   snapshot.progressVolumes = entry.progressVolumes;
 
   if (opened && sameDay) {
-    // The day's range keeps the baseline it opened with, so re-logs extend it.
+    // The day's range keeps the baselines it opened with, so re-logs extend it.
     if (opened.snapshot.progressFrom != null) snapshot.progressFrom = opened.snapshot.progressFrom;
     if (opened.snapshot.progressVolumesFrom != null) {
       snapshot.progressVolumesFrom = opened.snapshot.progressVolumesFrom;
     }
-    return snapshot;
   }
 
-  // A new day opens where the last logged day closed — unless the save is a
-  // downward correction or there is no baseline, in which case the card falls
-  // back to state phrasing instead of stating a nonsense range.
-  const chapterBaseline = lastMoved(priorDays, (s) => s.progress);
+  // An axis the day's first save never opened (a score-only or volume-only
+  // save stored none) derives its baseline from the prior days, with the same
+  // correction guard as a new day: no range for corrections or first-ever logs.
+  const chapterBaseline = snapshot.progressFrom ?? lastMoved(priorDays, (s) => s.progress);
   if (chapterBaseline != null && entry.progress > chapterBaseline) {
     snapshot.progressFrom = chapterBaseline;
   }
-  const volumeBaseline = lastMoved(priorDays, (s) => s.progressVolumes);
+  const volumeBaseline =
+    snapshot.progressVolumesFrom ?? lastMoved(priorDays, (s) => s.progressVolumes);
   if (volumeBaseline != null && (entry.progressVolumes ?? 0) > volumeBaseline) {
     snapshot.progressVolumesFrom = volumeBaseline;
   }

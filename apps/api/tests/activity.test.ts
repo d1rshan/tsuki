@@ -91,6 +91,43 @@ describe("snapshot builders", () => {
     });
   });
 
+  test("a same-day progress save derives the range the day's first save never stored", () => {
+    // today opened with a score-only save; the later progress save can still
+    // state the day's true range against yesterday's close
+    const priors = [
+      { sourceId: today, snapshot: { score: 8 } },
+      { sourceId: "42:2026-03-09", snapshot: { progress: 12 } },
+    ];
+    expect(logSnapshot(entry({ progress: 15 }), priors, today)).toMatchObject({
+      progress: 15,
+      progressFrom: 12,
+    });
+  });
+
+  test("a same-day save with no prior baseline states no range", () => {
+    const priors = [{ sourceId: today, snapshot: { score: 8 } }];
+    expect(logSnapshot(entry({ progress: 12 }), priors, today)).not.toHaveProperty("progressFrom");
+  });
+
+  test("a same-day save after a downward correction states no range", () => {
+    const priors = [
+      { sourceId: today, snapshot: { progress: 10 } },
+      { sourceId: "42:2026-03-09", snapshot: { progress: 15 } },
+    ];
+    expect(logSnapshot(entry({ progress: 10 }), priors, today)).not.toHaveProperty("progressFrom");
+  });
+
+  test("a same-day volume save derives the volume baseline", () => {
+    const priors = [
+      { sourceId: today, snapshot: { progressVolumes: 2 } },
+      { sourceId: "42:2026-03-09", snapshot: { progress: 12, progressVolumes: 2 } },
+    ];
+    expect(logSnapshot(entry({ progress: 12, progressVolumes: 4 }), priors, today)).toMatchObject({
+      progressVolumes: 4,
+      progressVolumesFrom: 2,
+    });
+  });
+
   test("a downward correction states no range", () => {
     const priors = [{ sourceId: "42:2026-03-09", snapshot: { progress: 15 } }];
     expect(logSnapshot(entry({ progress: 10 }), priors, today)).not.toHaveProperty("progressFrom");
