@@ -11,7 +11,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: [
           "/admin",
           "/api",
-          "/social",
           "/login",
           "/verify-email",
           "/reset-password",

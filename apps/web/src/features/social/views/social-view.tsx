@@ -2,22 +2,22 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Search, UserX } from "lucide-react";
+import { Search, UserX } from "lucide-react";
 
-import { followButtonLabel } from "@/features/social/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { ContentState } from "@/shared/components/content-state";
 import { Input } from "@/shared/components/ui/input";
 import { QueryState } from "@/shared/components/query-state";
 import { useDebouncedValue } from "@/shared/hooks/use-debounced-value";
+import { cn } from "@/shared/lib/utils";
 
 import { ActivityCard } from "../components/activity-card";
 import type { SocialFeedType } from "../data";
-import { useDiscoveryFollowMutation } from "../hooks/use-discovery-follow-mutation";
 import { useSocialDiscovery } from "../hooks/use-social-discovery";
 import { useSocialFeed } from "../hooks/use-social-feed";
+
+const columnScroll = "min-w-0 lg:max-h-[calc(100dvh-10rem)] lg:overflow-y-auto lg:pr-1";
 
 function Feed({ type }: { type: SocialFeedType }) {
   const query = useSocialFeed(type);
@@ -31,9 +31,7 @@ function Feed({ type }: { type: SocialFeedType }) {
       errorTitle="Could not load Activity"
       empty={
         type === "following" ? (
-          <div className="flex min-h-64 flex-col items-center justify-center text-center">
-            <ContentState title="No Friends :(" />
-          </div>
+          <ContentState title="No friends :(" description="Follow people from Discover above." />
         ) : (
           <ContentState title="No Activity yet" />
         )
@@ -62,7 +60,6 @@ function Discover() {
   const [search, setSearch] = useState("");
   const username = useDebouncedValue(search.trim(), 250);
   const query = useSocialDiscovery(username);
-  const follow = useDiscoveryFollowMutation();
   const users = query.data ?? [];
 
   return (
@@ -74,114 +71,73 @@ function Discover() {
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Search people by username"
           aria-label="Search people by username"
-          autoFocus
           className="h-10 rounded-md pl-9"
         />
       </div>
-      <section className="mt-6">
-        <QueryState
-          isLoading={query.isLoading}
-          isError={query.isError}
-          isEmpty={!users.length}
-          errorTitle="Could not load people"
-          empty={
-            <ContentState
-              icon={UserX}
-              title={username ? `No Profiles match “${username}”` : "No people to show yet"}
-            />
-          }
-        >
-          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {users.map((user) => (
-              <li
-                key={user.id}
-                className="flex min-w-0 items-center gap-3 rounded-xl border bg-card/50 p-4 shadow-sm"
+      <QueryState
+        isLoading={query.isLoading}
+        isError={query.isError}
+        isEmpty={!users.length}
+        errorTitle="Could not load people"
+        empty={
+          <ContentState
+            icon={UserX}
+            title={username ? `No Profiles match “${username}”` : "No people to show yet"}
+          />
+        }
+      >
+        <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {users.map((user) => (
+            <li key={user.id}>
+              <Link
+                href={`/${user.username}`}
+                className="flex flex-col items-center gap-2 rounded-xl border bg-card/50 p-4 text-center shadow-sm"
               >
-                <Link href={`/${user.username}`} className="flex min-w-0 flex-1 items-center gap-3">
-                  <Avatar>
-                    {user.image ? <AvatarImage src={user.image} alt={user.name} /> : null}
-                    <AvatarFallback>{user.displayUsername[0]?.toUpperCase()}</AvatarFallback>
-                  </Avatar>
-                  <span className="min-w-0">
-                    <span className="block truncate font-semibold">{user.displayUsername}</span>
-                    <span className="block truncate text-sm text-muted-foreground">
-                      @{user.username}
-                    </span>
-                  </span>
-                </Link>
-                <Button
-                  size="sm"
-                  variant={user.relationship.following ? "secondary" : "default"}
-                  disabled={follow.isPending}
-                  onClick={() =>
-                    follow.mutate({
-                      username: user.username,
-                      following: !user.relationship.following,
-                    })
-                  }
-                >
-                  {followButtonLabel(user.relationship)}
-                </Button>
-              </li>
-            ))}
-          </ul>
-        </QueryState>
-      </section>
+                <Avatar className="size-20">
+                  {user.image ? <AvatarImage src={user.image} alt={user.name} /> : null}
+                  <AvatarFallback className="text-lg">
+                    {user.displayUsername[0]?.toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="w-full truncate font-semibold">{user.displayUsername}</span>
+                <span className="text-xs text-muted-foreground">
+                  {user.followersCount} follower{user.followersCount === 1 ? "" : "s"}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </QueryState>
     </div>
   );
 }
 
-export function SocialView() {
-  const [isDiscovering, setIsDiscovering] = useState(false);
-  const [activeFeed, setActiveFeed] = useState<SocialFeedType>("public");
-
+export function SocialView({ isAuthenticated }: { isAuthenticated: boolean }) {
   return (
-    <div className="pt-28 pb-16 md:pt-32">
-      {isDiscovering ? (
-        <section>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="-ml-2 mb-6"
-            onClick={() => setIsDiscovering(false)}
-          >
-            <ArrowLeft />
-            Back
-          </Button>
+    <div className="grid gap-8 pt-28 pb-16 md:pt-32 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
+      <section aria-label="Public Activity" className={columnScroll}>
+        <Feed type="public" />
+      </section>
+      <aside className={cn(columnScroll, "flex flex-col gap-8")}>
+        {!isAuthenticated && (
+          <p className="text-sm text-muted-foreground">
+            <Link href="/login" className="font-semibold text-primary hover:underline">
+              Sign in
+            </Link>{" "}
+            to see Activity from people you follow.
+          </p>
+        )}
+        <section aria-label="Discover people">
+          <h2 className="mb-4 text-lg font-semibold">Discover</h2>
           <Discover />
         </section>
-      ) : (
-        <section className="min-w-0">
-          <Tabs
-            value={activeFeed}
-            onValueChange={(value) => {
-              if (value === "public" || value === "following") setActiveFeed(value);
-            }}
-          >
-            <div className="flex items-center justify-between gap-4">
-              <TabsList>
-                <TabsTrigger value="public">Public</TabsTrigger>
-                <TabsTrigger value="following">Following</TabsTrigger>
-              </TabsList>
-              <Button
-                variant="outline"
-                size="icon-lg"
-                className="size-10 shrink-0 rounded-full"
-                onClick={() => setIsDiscovering(true)}
-                aria-label="Find people"
-              >
-                <Search />
-              </Button>
-            </div>
-            <TabsContent value="public">
-              <Feed type="public" />
-            </TabsContent>
-            <TabsContent value="following">
-              <Feed type="following" />
-            </TabsContent>
-          </Tabs>
-        </section>
-      )}
+        {isAuthenticated && (
+          <section aria-label="Following Activity">
+            <h2 className="mb-4 text-lg font-semibold">Following</h2>
+            <Feed type="following" />
+          </section>
+        )}
+      </aside>
     </div>
   );
 }

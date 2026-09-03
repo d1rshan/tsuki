@@ -1,19 +1,21 @@
-import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 
 import { SocialView } from "@/features/social/views/social-view";
 import { getSession } from "@/shared/lib/session";
+import { siteName } from "@/shared/lib/site";
 
 export const instant = false;
 
-// Gated social area — members' activity never surfaces to strangers via search.
+const description = "See what the Tsuki community is watching and find people to follow.";
+
 export const metadata: Metadata = {
-  robots: { index: false, follow: false },
+  title: "Social",
+  description,
+  openGraph: { title: `Social | ${siteName}`, description, url: "/social" },
 };
 
 export default async function Page() {
   const { user } = await getSession();
-  if (!user) redirect("/login");
 
-  return <SocialView />;
+  return <SocialView isAuthenticated={Boolean(user)} />;
 }

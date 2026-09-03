@@ -25,7 +25,7 @@ export const DiscoveryUserSummaryModel = t.Object({
   displayUsername: t.String(),
   image: t.Nullable(t.String()),
   createdAt: t.Date(),
-  relationship: FollowRelationshipModel,
+  followersCount: t.Number(),
 });
 
 export const UserDiscoveryQueryModel = t.Object({

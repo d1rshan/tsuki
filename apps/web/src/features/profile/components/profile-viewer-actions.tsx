@@ -17,13 +17,14 @@ export async function ProfileViewerActions({
   if (user?.id === profileUser.id) {
     return <EditProfileDialog profile={profile} avatarImage={profileUser.image} />;
   }
+  // Logged-out visitors get no follow affordance — members-only, per public social design.
+  if (!user) return null;
 
-  const relationship = user ? await getProfileViewerRelationship(profileUser.username) : null;
+  const relationship = await getProfileViewerRelationship(profileUser.username);
   return (
     <ProfileFollowButton
       key={profileUser.username}
       initialRelationship={relationship}
-      isAuthenticated={Boolean(user)}
       username={profileUser.username}
     />
   );

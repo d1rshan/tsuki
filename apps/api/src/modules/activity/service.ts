@@ -44,24 +44,27 @@ function toPage(rows: ActivityRows) {
   };
 }
 
-/** The Activity Feed: Following mode shows Followed accounts, Public shows everyone. */
-export async function getActivityFeed(
+/** The Following Activity Feed: accounts the viewer follows, newest-first. */
+export async function getFollowingFeed(
   viewerId: string,
-  mode: "following" | "public",
   query: { cursor?: string; limit?: number },
 ) {
-  const feed =
-    mode === "following"
-      ? await activityDal.getFollowingActivity(viewerId, {
-          cursor: parseActivityCursor(query.cursor),
-          limit: query.limit ?? 20,
-        })
-      : await activityDal.getPublicActivity({
-          cursor: parseActivityCursor(query.cursor),
-          limit: query.limit ?? 20,
-        });
+  return toPage(
+    await activityDal.getFollowingActivity(viewerId, {
+      cursor: parseActivityCursor(query.cursor),
+      limit: query.limit ?? 20,
+    }),
+  );
+}
 
-  return toPage(feed);
+/** The global public Activity stream — no viewer needed. */
+export async function getPublicFeed(query: { cursor?: string; limit?: number }) {
+  return toPage(
+    await activityDal.getPublicActivity({
+      cursor: parseActivityCursor(query.cursor),
+      limit: query.limit ?? 20,
+    }),
+  );
 }
 
 /** A Profile's own Activity stream, newest-first — public to any visitor. */

@@ -26,5 +26,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // sitemap would go stale anyway. The cached query keeps request-time cost low.
   await connection();
   const { mediaRows, usernames } = await getSitemapData();
-  return buildSitemapEntries(siteUrl, mediaRows, usernames);
+  return [
+    { url: `${siteUrl}/social`, changeFrequency: "hourly" as const, priority: 0.8 },
+    ...buildSitemapEntries(siteUrl, mediaRows, usernames),
+  ];
 }
