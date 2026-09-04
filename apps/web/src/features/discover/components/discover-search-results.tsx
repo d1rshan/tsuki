@@ -1,21 +1,19 @@
 "use client";
 
-import { Eye, EyeOff, SearchX } from "lucide-react";
+import { SearchX } from "lucide-react";
 import { parseAsBoolean, useQueryState } from "nuqs";
 
 import { MediaGrid } from "@/features/media/components/media-grid";
-import { MediaTypeToggleButton } from "@/features/media/components/media-type-toggle-button";
 import { useMediaSearch } from "@/features/media/hooks/use-media-search";
 import { useMediaType } from "@/features/media/hooks/use-media-type";
 import { ContentState } from "@/shared/components/content-state";
-import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
 
 import { DiscoverSection } from "./discover-section";
 
 export function DiscoverSearchResults({ query }: { query: string }) {
-  const [includeNsfw, setIncludeNsfw] = useQueryState("nsfw", parseAsBoolean.withDefault(false));
-  const [mediaType, setMediaType] = useMediaType();
+  const [includeNsfw] = useQueryState("nsfw", parseAsBoolean.withDefault(false));
+  const [mediaType] = useMediaType();
   const { data: items = [], isError, isPending } = useMediaSearch(mediaType, query, includeNsfw);
 
   function renderResults() {
@@ -50,24 +48,5 @@ export function DiscoverSearchResults({ query }: { query: string }) {
     return null;
   }
 
-  return (
-    <DiscoverSection
-      actions={
-        <div className="flex items-center gap-2">
-          <MediaTypeToggleButton mediaType={mediaType} onChange={setMediaType} />
-          <Button
-            type="button"
-            size="lg"
-            variant={includeNsfw ? "default" : "outline"}
-            onClick={() => void setIncludeNsfw(!includeNsfw)}
-          >
-            {includeNsfw ? <Eye data-icon="inline-start" /> : <EyeOff data-icon="inline-start" />}
-            NSFW
-          </Button>
-        </div>
-      }
-    >
-      {renderResults()}
-    </DiscoverSection>
-  );
+  return <DiscoverSection>{renderResults()}</DiscoverSection>;
 }

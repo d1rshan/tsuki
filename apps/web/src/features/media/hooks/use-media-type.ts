@@ -41,7 +41,7 @@ function storeMediaType(value: MediaType) {
   window.dispatchEvent(new Event(CHANGE_EVENT));
 }
 
-export function useMediaType({ persistQuery = true }: { persistQuery?: boolean } = {}) {
+export function useMediaType() {
   const storedMediaType = useSyncExternalStore(subscribe, getStoredMediaType, getDefaultMediaType);
   const [mediaTypeParam, setMediaTypeParam] = useQueryState(
     "type",
@@ -50,8 +50,8 @@ export function useMediaType({ persistQuery = true }: { persistQuery?: boolean }
   const mediaType = mediaTypeParam ?? storedMediaType;
 
   useEffect(() => {
-    if (persistQuery && mediaTypeParam) storeMediaType(mediaTypeParam);
-  }, [mediaTypeParam, persistQuery]);
+    if (mediaTypeParam) storeMediaType(mediaTypeParam);
+  }, [mediaTypeParam]);
 
   function setMediaType(value: MediaType) {
     storeMediaType(value);

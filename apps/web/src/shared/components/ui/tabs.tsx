@@ -20,7 +20,7 @@ function TabsList({ className, ...props }: TabsPrimitive.List.Props) {
     <TabsPrimitive.List
       data-slot="tabs-list"
       className={cn(
-        "group/tabs-list inline-flex w-fit max-w-full items-center gap-1 overflow-x-auto rounded-xl border border-border/50 bg-muted/30 p-1 text-muted-foreground shadow-sm backdrop-blur-md group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col",
+        "group/tabs-list inline-flex w-fit max-w-full items-center gap-1 overflow-x-auto rounded-2xl border border-border/50 bg-muted/30 p-1.5 text-muted-foreground shadow-sm group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col",
         className,
       )}
       {...props}
@@ -33,7 +33,7 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
     <TabsPrimitive.Tab
       data-slot="tabs-trigger"
       className={cn(
-        "relative inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-1 text-sm font-semibold whitespace-nowrap transition-all duration-300 focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-active:bg-primary data-active:text-primary-foreground data-active:shadow-md [&:not([data-active]):hover]:bg-primary/10 [&:not([data-active]):hover]:text-primary group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "relative inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl px-5 py-2 text-sm font-semibold whitespace-nowrap transition-all duration-300 focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-active:bg-primary data-active:text-primary-foreground data-active:shadow-md [&:not([data-active]):hover]:bg-primary/10 [&:not([data-active]):hover]:text-primary group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className,
       )}
       {...props}
