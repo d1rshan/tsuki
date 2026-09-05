@@ -4,15 +4,20 @@ import * as React from "react";
 import type {
   ColumnDef,
   ColumnFiltersState,
+  ColumnVisibilityState,
   PaginationState,
-  VisibilityState,
+  RowData,
 } from "@tanstack/react-table";
 import {
+  columnFilteringFeature,
+  columnVisibilityFeature,
+  createFilteredRowModel,
+  createPaginatedRowModel,
+  filterFn_includesString,
   flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  useReactTable,
+  rowPaginationFeature,
+  tableFeatures,
+  useTable,
 } from "@tanstack/react-table";
 import { ChevronDown } from "lucide-react";
 
@@ -34,8 +39,20 @@ import {
 } from "@/shared/components/ui/dropdown-menu";
 import { cn } from "@/shared/lib/utils";
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
+const dataTableFeatures = tableFeatures({
+  columnFilteringFeature,
+  columnVisibilityFeature,
+  rowPaginationFeature,
+  filteredRowModel: createFilteredRowModel(),
+  paginatedRowModel: createPaginatedRowModel(),
+  // ponytail: only the default string filter is used (search input), register just that one
+  filterFns: { includesString: filterFn_includesString },
+});
+
+export type DataTableFeatures = typeof dataTableFeatures;
+
+interface DataTableProps<TData extends RowData> {
+  columns: ColumnDef<DataTableFeatures, TData, unknown>[];
   data: TData[];
   searchKey?: string;
   searchPlaceholder?: string;
@@ -48,7 +65,7 @@ interface DataTableProps<TData, TValue> {
   isDataPending?: boolean;
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends RowData>({
   columns,
   data,
   searchKey = "email",
@@ -60,24 +77,21 @@ export function DataTable<TData, TValue>({
   onPaginationChange,
   manualPagination,
   isDataPending = false,
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps<TData>) {
   "use no memo";
 
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] = React.useState<ColumnVisibilityState>({});
 
-  // TanStack Table returns mutable functions that React Compiler must not memoize.
-  // eslint-disable-next-line react-hooks/incompatible-library
-  const table = useReactTable({
+  // Keep React Compiler memoization off for this table, same as before the v9 migration.
+  const table = useTable({
+    features: dataTableFeatures,
     data,
     columns,
     pageCount,
     manualPagination,
     onPaginationChange,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     onColumnFiltersChange: setColumnFilters,
-    getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     state: {
       columnFilters,
@@ -157,7 +171,7 @@ export function DataTable<TData, TValue>({
             <TableBody>
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                  <TableRow key={row.id}>
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -178,7 +192,7 @@ export function DataTable<TData, TValue>({
         <div className="flex items-center justify-end space-x-2 py-4">
           <div className="flex-1 text-sm text-muted-foreground">
             {manualPagination
-              ? `Page ${table.getState().pagination.pageIndex + 1}`
+              ? `Page ${table.state.pagination.pageIndex + 1}`
               : `Showing ${table.getRowModel().rows.length} of ${table.getFilteredRowModel().rows.length} row(s).`}
           </div>
           <div className="space-x-2">
