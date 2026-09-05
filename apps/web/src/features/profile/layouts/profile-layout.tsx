@@ -4,15 +4,16 @@ import { notFound } from "next/navigation";
 import { ProfileHeader } from "@/features/profile/components/profile-header";
 
 import { ProfileViewerActions } from "../components/profile-viewer-actions";
-import { getProfileOverview } from "../data";
+import { getProfileOverview, resolveUsername } from "../data";
 
 export async function ProfileLayout({
   children,
-  username,
+  params,
 }: {
   children: React.ReactNode;
-  username: string;
+  params: Promise<{ username: string }>;
 }) {
+  const username = resolveUsername((await params).username);
   const profile = await getProfileOverview(username);
   if (!profile) notFound();
 

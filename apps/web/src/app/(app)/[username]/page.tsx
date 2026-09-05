@@ -1,17 +1,16 @@
-import { Suspense } from "react";
-
 import { ProfileJsonLd } from "@/features/profile/components/profile-json-ld";
-import { resolveUsername } from "@/features/profile/data";
+import { ProfilePage } from "@/features/profile/components/profile-page";
 import { ProfileOverviewView } from "@/features/profile/views/profile-overview-view";
-import { Loader } from "@/shared/components/loader";
 
-export default async function Page({ params }: { params: Promise<{ username: string }> }) {
-  const username = resolveUsername((await params).username);
-
+export default function Page({ params }: { params: Promise<{ username: string }> }) {
   return (
-    <Suspense fallback={<Loader />}>
-      <ProfileJsonLd username={username} />
-      <ProfileOverviewView username={username} />
-    </Suspense>
+    <ProfilePage params={params}>
+      {(username) => (
+        <>
+          <ProfileJsonLd username={username} />
+          <ProfileOverviewView username={username} />
+        </>
+      )}
+    </ProfilePage>
   );
 }

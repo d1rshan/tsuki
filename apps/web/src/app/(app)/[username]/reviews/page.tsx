@@ -1,15 +1,10 @@
-import { Suspense } from "react";
-
-import { resolveUsername } from "@/features/profile/data";
+import { ProfilePage } from "@/features/profile/components/profile-page";
 import { ProfileReviewsView } from "@/features/profile/views/profile-reviews-view";
-import { Loader } from "@/shared/components/loader";
 
-export default async function Page({ params }: { params: Promise<{ username: string }> }) {
-  const username = resolveUsername((await params).username);
-
+export default function Page({ params }: { params: Promise<{ username: string }> }) {
   return (
-    <Suspense fallback={<Loader />}>
-      <ProfileReviewsView username={username} />
-    </Suspense>
+    <ProfilePage params={params}>
+      {(username) => <ProfileReviewsView username={username} />}
+    </ProfilePage>
   );
 }
