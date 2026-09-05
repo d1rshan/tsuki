@@ -10,7 +10,7 @@ import { MEDIA, MEDIA_TYPES } from "@/features/media/labels";
 import { useMediaType } from "@/features/media/hooks/use-media-type";
 import { Button } from "@/shared/components/ui/button";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/shared/components/ui/input-group";
-import { Kbd } from "@/shared/components/ui/kbd";
+import { Kbd, KbdGroup } from "@/shared/components/ui/kbd";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { useHotkey } from "@/shared/hooks/use-hotkey";
 
@@ -46,11 +46,7 @@ export function DiscoverHero() {
           className="h-full"
         />
         <InputGroupAddon align="inline-end" className="hidden md:flex">
-          <Kbd>⌘</Kbd>
-          <span aria-hidden className="text-[0.65rem]">
-            +
-          </span>
-          <Kbd>K</Kbd>
+          <Kbd>⌘ + K</Kbd>
         </InputGroupAddon>
       </InputGroup>
 

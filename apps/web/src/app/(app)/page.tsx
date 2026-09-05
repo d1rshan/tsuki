@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
 
 import { getDiscoverMediaTrending } from "@/features/discover/data";
@@ -9,15 +8,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
-export default function Page() {
-  return (
-    <Suspense fallback={null}>
-      <DiscoverContent />
-    </Suspense>
-  );
-}
-
-async function DiscoverContent() {
+export default async function Page() {
   const trending = await getDiscoverMediaTrending();
 
   if (!trending) {

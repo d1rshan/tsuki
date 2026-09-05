@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ThemeProvider } from "next-themes";
@@ -21,7 +22,10 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       themes={THEME_CLASSES}
     >
       <QueryClientProvider client={queryClient}>
-        <NuqsAdapter>{children}</NuqsAdapter>
+        {/* btw: NuqsAdapter reads searchParams on render — Suspense keeps it from blocking prerender. */}
+        <Suspense fallback={null}>
+          <NuqsAdapter>{children}</NuqsAdapter>
+        </Suspense>
         {process.env.NODE_ENV === "development" ? <ReactQueryDevtools /> : null}
       </QueryClientProvider>
       <Toaster />
