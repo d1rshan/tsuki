@@ -34,6 +34,7 @@ function Feed({ type }: { type: SocialFeedType }) {
       isError={query.isError}
       isEmpty={!activities.length}
       errorTitle="Could not load Activity"
+      onRetry={() => void query.refetch()}
       empty={
         type === "following" ? (
           <ContentState title="No friends :(" />
@@ -79,6 +80,7 @@ function Discover() {
         isError={query.isError}
         isEmpty={!users.length}
         errorTitle="Could not load people"
+        onRetry={() => void query.refetch()}
         empty={
           <ContentState
             icon={UserX}

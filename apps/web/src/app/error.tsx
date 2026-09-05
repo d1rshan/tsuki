@@ -22,17 +22,18 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="flex min-h-[80vh] flex-col items-center justify-center gap-6 p-4">
+    <div className="flex min-h-[80vh] flex-col items-center justify-center p-4">
       <ContentState
         error
         title="Something went wrong"
         description="Please try again in a moment."
+        action={
+          <Button onClick={() => retry()} variant="outline">
+            <RotateCw />
+            Try again
+          </Button>
+        }
       />
-
-      <Button onClick={() => retry()} variant="outline">
-        <RotateCw />
-        Try again
-      </Button>
     </div>
   );
 }

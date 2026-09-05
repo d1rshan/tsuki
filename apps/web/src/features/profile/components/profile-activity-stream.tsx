@@ -27,6 +27,7 @@ export function ProfileActivityStream({
         isError={query.isError}
         isEmpty={!activities.length}
         errorTitle="Could not load Activity"
+        onRetry={() => void query.refetch()}
         empty={<ContentState title="No recent activity" />}
       >
         <div className="grid gap-y-5 gap-x-8 lg:grid-cols-2">
