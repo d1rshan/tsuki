@@ -17,27 +17,22 @@ export function ProfileFavoritesPreview({
   mediaType: MediaType;
 }) {
   const matching = favorites.filter((entry) => entry.mediaType === mediaType);
+  if (matching.length === 0) return null;
 
   return (
     <div className={cn(BENTO_CARD, "flex flex-col p-5 sm:p-6", className)} aria-label={label}>
-      {matching.length === 0 ? (
-        <p className="flex-1 content-center text-sm text-muted-foreground">
-          No favorites picked yet.
-        </p>
-      ) : (
-        <div className="grid flex-1 content-center grid-cols-4 gap-3">
-          {matching.map((entry) => {
-            if (!entry.media) return null;
-            return (
-              <ProfileMediaCard
-                key={`${entry.mediaType}-${entry.mediaId}`}
-                media={entry.media}
-                mediaType={entry.mediaType}
-              />
-            );
-          })}
-        </div>
-      )}
+      <div className="grid flex-1 content-center grid-cols-4 gap-3">
+        {matching.map((entry) => {
+          if (!entry.media) return null;
+          return (
+            <ProfileMediaCard
+              key={`${entry.mediaType}-${entry.mediaId}`}
+              media={entry.media}
+              mediaType={entry.mediaType}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 }

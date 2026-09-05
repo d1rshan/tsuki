@@ -7,6 +7,7 @@ import { ProfileActivityStream } from "@/features/profile/components/profile-act
 import { ProfileBioCard } from "@/features/profile/components/profile-bio-card";
 import { ProfileFavoritesPreview } from "@/features/profile/components/profile-favorites-preview";
 import { ProfileStatsLedger } from "@/features/profile/components/profile-stats-ledger";
+import { cn } from "@/shared/lib/utils";
 
 import { getProfileOverview } from "../data";
 
@@ -17,23 +18,33 @@ export async function ProfileOverviewView({ username }: { username: string }) {
   const bioText = profile.profile?.bio ? richContentText(profile.profile.bio).trim() : "";
   const socialLinks = profile.profile?.socialLinks;
   const hasBio = Boolean(bioText || (socialLinks && Object.keys(socialLinks).length > 0));
+  const hasAnimeFavorites = profile.favorites.some((entry) => entry.mediaType === "ANIME");
+  const hasMangaFavorites = profile.favorites.some((entry) => entry.mediaType === "MANGA");
+  const showLeft = hasBio || hasAnimeFavorites || hasMangaFavorites;
 
   return (
     <div className="grid grid-cols-1 gap-4 pb-16 md:grid-cols-2 lg:grid-cols-7">
-      <div className="flex flex-col gap-4 lg:col-span-3">
-        {hasBio && <ProfileBioCard profile={profile.profile} />}
+      {showLeft && (
+        <div className="flex flex-col gap-4 lg:col-span-3">
+          {hasBio && <ProfileBioCard profile={profile.profile} />}
 
-        <ProfileFavoritesPreview favorites={profile.favorites} label="Anime" mediaType="ANIME" />
+          <ProfileFavoritesPreview favorites={profile.favorites} label="Anime" mediaType="ANIME" />
 
-        <ProfileFavoritesPreview
-          className="flex-1"
-          favorites={profile.favorites}
-          label="Manga"
-          mediaType="MANGA"
-        />
-      </div>
+          <ProfileFavoritesPreview
+            className="flex-1"
+            favorites={profile.favorites}
+            label="Manga"
+            mediaType="MANGA"
+          />
+        </div>
+      )}
 
-      <div className="flex flex-col gap-4 lg:col-span-4">
+      <div
+        className={cn(
+          "flex flex-col gap-4",
+          showLeft ? "lg:col-span-4" : "md:col-span-2 lg:col-span-7",
+        )}
+      >
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <ProfileActivityHeatmap activity={profile.activity} />
           <ProfileStatsLedger stats={profile.stats} />
