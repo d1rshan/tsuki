@@ -12,10 +12,10 @@ import { ContentState } from "@/shared/components/content-state";
  */
 export default function Error({
   error,
-  unstable_retry,
+  retry,
 }: {
   error: Error & { digest?: string };
-  unstable_retry: () => void;
+  retry: () => void;
 }) {
   useEffect(() => {
     console.error(error);
@@ -29,7 +29,7 @@ export default function Error({
         description="Please try again in a moment."
       />
 
-      <Button onClick={() => unstable_retry()} variant="outline">
+      <Button onClick={() => retry()} variant="outline">
         <RotateCw />
         Try again
       </Button>
