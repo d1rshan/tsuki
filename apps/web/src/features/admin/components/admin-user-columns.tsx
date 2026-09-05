@@ -21,6 +21,7 @@ import { authClient } from "@tsuki/auth/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
+import type { DataTableFeatures } from "@/shared/components/ui/data-table";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,7 +37,7 @@ import type { AdminUser } from "../types";
 
 type AdminAction = () => Promise<{ error: { message?: string | null } | null }>;
 
-export const adminUserColumns: ColumnDef<AdminUser>[] = [
+export const adminUserColumns: ColumnDef<DataTableFeatures, AdminUser>[] = [
   {
     accessorKey: "displayUsername",
     header: "User",

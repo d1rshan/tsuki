@@ -19,7 +19,7 @@
     "@giphy/react-components": "^10.1.2",
     "@tanstack/react-form": "^1.33.5",
     "@tanstack/react-query": "^5.101.0",
-    "@tanstack/react-table": "^8.21.3",
+    "@tanstack/react-table": "^9.2.4",
     "@tiptap/react": "^3.30.3",
     "@tsuki/anilist": "workspace:*",
     "@tsuki/api": "workspace:*",
