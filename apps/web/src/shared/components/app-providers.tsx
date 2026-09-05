@@ -16,8 +16,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider
       attribute="class"
-      defaultTheme="system"
-      enableSystem
+      defaultTheme="ink"
       disableTransitionOnChange
       themes={THEME_CLASSES}
     >
