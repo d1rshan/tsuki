@@ -30,12 +30,7 @@ export async function ProfileOverviewView({ username }: { username: string }) {
 
           <ProfileFavoritesPreview favorites={profile.favorites} label="Anime" mediaType="ANIME" />
 
-          <ProfileFavoritesPreview
-            className="flex-1"
-            favorites={profile.favorites}
-            label="Manga"
-            mediaType="MANGA"
-          />
+          <ProfileFavoritesPreview favorites={profile.favorites} label="Manga" mediaType="MANGA" />
         </div>
       )}
 

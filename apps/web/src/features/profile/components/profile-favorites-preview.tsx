@@ -29,6 +29,7 @@ export function ProfileFavoritesPreview({
               key={`${entry.mediaType}-${entry.mediaId}`}
               media={entry.media}
               mediaType={entry.mediaType}
+              hideTitle
             />
           );
         })}
