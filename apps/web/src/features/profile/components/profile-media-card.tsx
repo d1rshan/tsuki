@@ -29,7 +29,7 @@ export function ProfileMediaCard({
   return (
     <Link
       href={mediaHref(mediaType, media.id)}
-      className="group relative flex aspect-[3/4] flex-col overflow-hidden rounded-xl bg-muted/30 outline-none transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5 hover:ring-1 hover:ring-primary/50 focus-visible:ring-1 focus-visible:ring-primary"
+      className="group relative flex aspect-[3/4] flex-col overflow-hidden rounded-xl bg-muted/30 outline-none transition-shadow duration-300 hover:shadow-md focus-visible:ring-1 focus-visible:ring-primary"
     >
       {cover ? (
         <Image
@@ -38,7 +38,7 @@ export function ProfileMediaCard({
           fill
           sizes="(max-width: 768px) 120px, 160px"
           className={cn(
-            "object-cover transition-transform duration-500 group-hover:scale-105",
+            "object-cover transition-transform duration-150 group-hover:scale-[1.03]",
             mediaImageClass(mediaType),
           )}
         />
@@ -59,10 +59,10 @@ export function ProfileMediaCard({
 
       {hideTitle ? null : (
         <>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 pointer-events-none" />
 
           <div className="absolute inset-x-0 bottom-0 p-3 flex flex-col justify-end z-10 pointer-events-none">
-            <span className="line-clamp-2 text-sm font-semibold text-white drop-shadow-sm transition-colors duration-300">
+            <span className="line-clamp-2 text-sm font-semibold text-white drop-shadow-sm">
               {title}
             </span>
             {progress != null ? (

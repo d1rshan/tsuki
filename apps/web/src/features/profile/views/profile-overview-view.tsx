@@ -25,27 +25,37 @@ export async function ProfileOverviewView({ username }: { username: string }) {
   return (
     <div className="grid grid-cols-1 gap-4 pb-16 md:grid-cols-2 lg:grid-cols-7">
       {showLeft && (
-        <div className="flex flex-col gap-4 lg:col-span-3">
-          {hasBio && <ProfileBioCard profile={profile.profile} />}
+        <div className="contents md:flex md:flex-col md:gap-4 lg:col-span-3">
+          {hasBio && <ProfileBioCard className="order-1" profile={profile.profile} />}
 
-          <ProfileFavoritesPreview favorites={profile.favorites} label="Anime" mediaType="ANIME" />
+          <ProfileFavoritesPreview
+            className="order-3"
+            favorites={profile.favorites}
+            label="Anime"
+            mediaType="ANIME"
+          />
 
-          <ProfileFavoritesPreview favorites={profile.favorites} label="Manga" mediaType="MANGA" />
+          <ProfileFavoritesPreview
+            className="order-4"
+            favorites={profile.favorites}
+            label="Manga"
+            mediaType="MANGA"
+          />
         </div>
       )}
 
       <div
         className={cn(
-          "flex flex-col gap-4",
+          "contents md:flex md:flex-col md:gap-4",
           showLeft ? "lg:col-span-4" : "md:col-span-2 lg:col-span-7",
         )}
       >
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <div className="grid order-2 grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-4">
           <ProfileActivityHeatmap activity={profile.activity} />
           <ProfileStatsLedger stats={profile.stats} />
         </div>
 
-        <ProfileActivityStream username={username} />
+        <ProfileActivityStream className="order-5" username={username} />
       </div>
     </div>
   );
