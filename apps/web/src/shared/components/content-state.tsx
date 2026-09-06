@@ -38,7 +38,7 @@ export function ContentState({
             <Icon />
           </EmptyMedia>
         ) : null}
-        <EmptyTitle>{title}</EmptyTitle>
+        <EmptyTitle className="text-muted-foreground">{title}</EmptyTitle>
         {description ? <EmptyDescription>{description}</EmptyDescription> : null}
       </EmptyHeader>
       {action ? <EmptyContent>{action}</EmptyContent> : null}
