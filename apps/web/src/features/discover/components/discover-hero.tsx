@@ -30,7 +30,7 @@ export function DiscoverHero() {
 
   return (
     <section className="flex flex-wrap items-center gap-3" aria-label="Search">
-      <InputGroup className="h-11 w-full min-w-56 max-w-md rounded-xl bg-muted/30">
+      <InputGroup className="h-11 w-full min-w-56 rounded-xl bg-muted/30 md:w-auto md:max-w-md md:flex-1">
         <InputGroupAddon>
           <Search />
         </InputGroupAddon>
@@ -53,7 +53,7 @@ export function DiscoverHero() {
       <Tabs
         value={mediaType}
         onValueChange={(value) => setMediaType(value as MediaType)}
-        className="ml-auto shrink-0"
+        className="mr-auto shrink-0 md:mr-0 md:ml-auto"
       >
         <TabsList>
           {MEDIA_TYPES.map((type) => (
