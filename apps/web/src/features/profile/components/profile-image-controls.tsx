@@ -121,12 +121,12 @@ export function ProfileImageControls({
           }
         />
         <DropdownMenuContent align={align}>
-          <DropdownMenuItem onSelect={() => fileInputRef.current?.click()}>
+          <DropdownMenuItem onClick={() => fileInputRef.current?.click()}>
             <ImageUp />
             Upload
           </DropdownMenuItem>
           {hasImage && (
-            <DropdownMenuItem variant="destructive" onSelect={onRemove}>
+            <DropdownMenuItem variant="destructive" onClick={onRemove}>
               <Trash2 />
               Remove
             </DropdownMenuItem>
