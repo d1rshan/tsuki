@@ -13,7 +13,12 @@ import { t } from "elysia";
  * client. Built from the canonical arrays in @tsuki/anilist rather than
  * restated here.
  */
-export const MediaTypeEnum = t.UnionEnum(MEDIA_TYPES);
+/**
+ * `default: undefined` overrides UnionEnum's implicit `default: values[0]`:
+ * Elysia fills an omitted optional query `type` with "ANIME", silently
+ * filtering library/review listings to anime only. See ListStatusEnum.
+ */
+export const MediaTypeEnum = t.UnionEnum(MEDIA_TYPES, { default: undefined });
 export type MediaType = typeof MediaTypeEnum.static;
 
 export const FuzzyDateModel = t.Object({
