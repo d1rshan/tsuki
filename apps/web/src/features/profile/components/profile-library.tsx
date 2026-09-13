@@ -13,7 +13,7 @@ export function ProfileMediaGrid({
   score?: boolean;
 }) {
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+    <div className="grid grid-cols-2 gap-4 @min-[48rem]:grid-cols-3 @min-[64rem]:grid-cols-4 @min-[69rem]:grid-cols-5">
       {entries.map((entry) => {
         if (!entry.media) return null;
         return (

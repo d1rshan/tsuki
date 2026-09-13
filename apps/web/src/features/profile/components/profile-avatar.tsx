@@ -13,7 +13,7 @@ export function ProfileAvatar({ className, user }: ProfileAvatarProps) {
   return (
     <div
       className={cn(
-        "relative h-24 w-24 overflow-hidden rounded-full border bg-muted ring-4 ring-background shadow-sm md:h-32 md:w-32",
+        "relative h-24 w-24 overflow-hidden rounded-full border bg-muted ring-4 ring-background shadow-sm @min-[48rem]:h-32 @min-[48rem]:w-32",
         className,
       )}
     >

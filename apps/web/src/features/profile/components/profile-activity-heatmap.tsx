@@ -45,7 +45,7 @@ export function ProfileActivityHeatmap({
   const weeks = width ? Math.max(MIN_WEEKS, Math.floor((width - 6) / (CELL + GAP))) : DEFAULT_WEEKS;
 
   return (
-    <section className={cn(BENTO_CARD, "flex flex-col p-4 sm:p-6", className)}>
+    <section className={cn(BENTO_CARD, "flex flex-col p-4 @min-[40rem]:p-6", className)}>
       <div ref={containerRef} className="flex min-h-28 flex-1 items-center">
         <HeatmapCalendar
           data={activity.days.map((day) => ({

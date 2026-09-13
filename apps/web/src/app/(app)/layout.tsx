@@ -11,7 +11,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <Suspense fallback={null}>
         <Navbar />
       </Suspense>
-      <main className="container mx-auto max-w-6xl flex-1 px-4">{children}</main>
+      <main className="container mx-auto max-w-6xl flex-1 px-4 @container">{children}</main>
       <Footer />
       <BetaFeedback />
     </div>

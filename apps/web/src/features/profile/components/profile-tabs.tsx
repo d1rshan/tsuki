@@ -5,8 +5,9 @@ import { usePathname } from "next/navigation";
 
 import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 
-export function ProfileTabs({ username }: { username: string }) {
+export function ProfileTabs() {
   const pathname = usePathname();
+  const username = pathname.split("/").filter(Boolean)[0] ?? "";
 
   const tabs = [
     { name: "Overview", href: `/${username}` },
@@ -19,7 +20,7 @@ export function ProfileTabs({ username }: { username: string }) {
 
   return (
     <Tabs value={pathname}>
-      <TabsList aria-label="Profile">
+      <TabsList responsiveGrid aria-label="Profile">
         {tabs.map((tab) => (
           <TabsTrigger
             key={tab.name}

@@ -20,7 +20,10 @@ export function ProfileFavoritesPreview({
   if (matching.length === 0) return null;
 
   return (
-    <div className={cn(BENTO_CARD, "flex flex-col p-5 sm:p-6", className)} aria-label={label}>
+    <div
+      className={cn(BENTO_CARD, "flex flex-col p-5 @min-[40rem]:p-6", className)}
+      aria-label={label}
+    >
       <div className="grid flex-1 content-center grid-cols-4 gap-3">
         {matching.map((entry) => {
           if (!entry.media) return null;

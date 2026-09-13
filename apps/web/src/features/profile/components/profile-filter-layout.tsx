@@ -16,15 +16,15 @@ export function ProfileFilterLayout({
   selected: string;
 }) {
   return (
-    <div className="flex flex-col gap-6 pb-16 lg:grid lg:grid-cols-[13rem_minmax(0,1fr)] lg:items-start lg:gap-10">
+    <div className="flex flex-col gap-6 pb-16 @min-[48rem]:grid @min-[48rem]:grid-cols-[13rem_minmax(0,1fr)] @min-[48rem]:items-start @min-[48rem]:gap-10">
       <ProfileFilterTabs
-        className="lg:hidden"
+        className="@min-[48rem]:hidden"
         label={label}
         options={options}
         selected={selected}
       />
       <ProfileFilterTabs
-        className="hidden lg:sticky lg:top-24 lg:block"
+        className="hidden @min-[48rem]:sticky @min-[48rem]:top-24 @min-[48rem]:block"
         label={label}
         options={options}
         orientation="vertical"

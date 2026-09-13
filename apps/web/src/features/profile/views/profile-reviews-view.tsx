@@ -48,7 +48,7 @@ export async function ProfileReviewsView({
       {byType[selected].length === 0 ? (
         <ContentState title={`No ${MEDIA[selected].label.toLowerCase()} reviews yet`} />
       ) : (
-        <div className="columns-1 gap-6 lg:columns-2">
+        <div className="columns-1 gap-6 @min-[64rem]:columns-2">
           {byType[selected].map((review) => (
             <ReviewItem key={review.id} review={review} className="mb-6 break-inside-avoid" />
           ))}

@@ -22,7 +22,7 @@ export function ProfileBioCard({ className, profile }: { className?: string; pro
   const hasBio = Boolean(profile?.bio);
 
   return (
-    <div className={cn(BENTO_CARD, "flex flex-col p-5 sm:p-6", className)}>
+    <div className={cn(BENTO_CARD, "flex flex-col p-5 @min-[40rem]:p-6", className)}>
       {hasBio && (
         <RichContentView
           content={profile?.bio}

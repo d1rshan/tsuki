@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { Search, UserX } from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import { ContentState } from "@/shared/components/content-state";
 import { Input } from "@/shared/components/ui/input";
@@ -20,6 +19,7 @@ import { QueryState } from "@/shared/components/query-state";
 import { useDebouncedValue } from "@/shared/hooks/use-debounced-value";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { SocialActivityCard } from "../components/social-activity-card";
+import { ProfileCard } from "../components/profile-card";
 import type { SocialFeedType } from "../data";
 import { useSocialDiscovery } from "../hooks/use-social-discovery";
 import { useSocialFeed } from "../hooks/use-social-feed";
@@ -43,11 +43,14 @@ function Feed({ type }: { type: SocialFeedType }) {
         )
       }
     >
-      <div>
-        {activities.map((activity) => (
-          <SocialActivityCard key={activity.id} activity={activity} />
-        ))}
+      <div className="relative">
+        <div className="pb-10">
+          {activities.map((activity) => (
+            <SocialActivityCard key={activity.id} activity={activity} />
+          ))}
+        </div>
         <LoadMoreButton
+          className="absolute bottom-2 left-1/2 -translate-x-1/2"
           fetching={query.isFetchingNextPage}
           hasNext={Boolean(query.hasNextPage)}
           onLoadMore={() => void query.fetchNextPage()}
@@ -88,21 +91,10 @@ function Discover() {
           />
         }
       >
-        <ul className="mt-4 grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-4 grid grid-cols-2 gap-x-3 gap-y-6 @min-[40rem]:grid-cols-3 @min-[48rem]:grid-cols-2 @min-[64rem]:grid-cols-3">
           {users.map((user) => (
             <li key={user.id}>
-              <Link
-                href={`/${user.username}`}
-                className="flex flex-col items-center gap-2 text-center"
-              >
-                <Avatar className="size-20">
-                  {user.image ? <AvatarImage src={user.image} alt={user.name} /> : null}
-                  <AvatarFallback className="text-lg">
-                    {user.displayUsername[0]?.toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="w-full truncate text-sm font-medium">{user.displayUsername}</span>
-              </Link>
+              <ProfileCard user={user} />
             </li>
           ))}
         </ul>
@@ -149,10 +141,12 @@ export function SocialView({ isAuthenticated }: { isAuthenticated: boolean }) {
 
   // CSS-toggled, not JS-toggled: useIsMobile's server snapshot is always false,
   // so a JS branch would flash the desktop layout on every mobile reload.
-  const mobileTeaser = !isAuthenticated && <div className="mb-4 md:hidden">{signInTeaser}</div>;
+  const mobileTeaser = !isAuthenticated && (
+    <div className="mb-4 @min-[48rem]:hidden">{signInTeaser}</div>
+  );
 
   return (
-    <div className="grid gap-6 pt-28 pb-24 md:pt-32 md:pb-16 md:grid-cols-[minmax(0,1fr)_minmax(0,18rem)] lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:gap-8">
+    <div className="grid gap-6 pt-28 pb-24 @min-[48rem]:grid-cols-[minmax(0,1fr)_minmax(0,18rem)] @min-[64rem]:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] @min-[64rem]:gap-8 md:pt-32 md:pb-16">
       <section aria-label="Activity" className="min-w-0">
         {isAuthenticated ? (
           <Tabs defaultValue="public">
@@ -178,7 +172,7 @@ export function SocialView({ isAuthenticated }: { isAuthenticated: boolean }) {
           </>
         )}
       </section>
-      <aside className="hidden min-w-0 flex-col gap-6 border-t pt-6 md:flex md:border-t-0 md:border-l md:pt-0 md:pl-6 lg:gap-8 lg:pl-8">
+      <aside className="hidden min-w-0 flex-col gap-6 border-t pt-6 @min-[48rem]:flex @min-[48rem]:border-t-0 @min-[48rem]:border-l @min-[48rem]:pt-0 @min-[48rem]:pl-6 @min-[64rem]:gap-8 @min-[64rem]:pl-8">
         {!isAuthenticated && signInTeaser}
         <section aria-label="Discover people">
           <h2 className="mb-4 text-lg font-semibold">Find People</h2>

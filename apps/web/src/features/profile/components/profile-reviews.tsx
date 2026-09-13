@@ -19,7 +19,7 @@ export function ReviewItem({ className, review }: { className?: string; review: 
   const href = mediaHref(mediaType, mediaId);
 
   return (
-    <article className={cn(BENTO_CARD, "group flex flex-col p-5 sm:p-6", className)}>
+    <article className={cn(BENTO_CARD, "group flex flex-col p-5 @min-[40rem]:p-6", className)}>
       <div className="flex items-center gap-3">
         <Link
           href={href}

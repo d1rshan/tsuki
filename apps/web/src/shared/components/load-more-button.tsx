@@ -1,5 +1,7 @@
 "use client";
 
+import { ChevronDown } from "lucide-react";
+
 import { Loader } from "@/shared/components/loader";
 import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
@@ -19,14 +21,18 @@ export function LoadMoreButton({
 
   return (
     <Button
-      className={cn("relative mx-auto mt-6 flex w-fit", className)}
+      aria-label="Load more"
+      className={cn("size-9 rounded-full shadow-lg", className)}
       disabled={fetching}
       onClick={onLoadMore}
+      size="icon-lg"
       variant="outline"
     >
-      {/* Label stays mounted (invisible) while loading so the button keeps its width. */}
-      <span className={cn(fetching && "invisible")}>Load more</span>
-      {fetching ? <Loader className="absolute inset-0 min-h-0 [&>svg]:size-4" /> : null}
+      {fetching ? (
+        <Loader className="min-h-0 [&>svg]:size-4" />
+      ) : (
+        <ChevronDown className="size-4" />
+      )}
     </Button>
   );
 }

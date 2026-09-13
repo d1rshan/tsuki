@@ -1,10 +1,15 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Star } from "lucide-react";
 
 import type { MediaCompact, MediaType } from "@tsuki/api/types";
 
 import { MEDIA, mediaHref, mediaImageClass, normalizeMediaCompact } from "@/features/media/media";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/shared/components/ui/tooltip";
 import { cn } from "@/shared/lib/utils";
 
 interface ProfileMediaCardProps {
@@ -17,6 +22,9 @@ interface ProfileMediaCardProps {
   hideTitle?: boolean;
 }
 
+const RING_RADIUS = 13;
+const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
+
 export function ProfileMediaCard({
   media,
   mediaType,
@@ -24,7 +32,8 @@ export function ProfileMediaCard({
   progress,
   hideTitle,
 }: ProfileMediaCardProps) {
-  const { coverImage: cover, title } = normalizeMediaCompact(media);
+  const { coverImage: cover, title, count: total } = normalizeMediaCompact(media);
+  const ratio = progress != null && total ? Math.min(progress / total, 1) : null;
 
   return (
     <Link
@@ -48,12 +57,52 @@ export function ProfileMediaCard({
         </div>
       )}
 
-      {score ? (
+      {progress != null || score != null ? (
         <div className="absolute top-2 right-2 z-10">
-          <div className="bg-black/80 px-1.5 py-0.5 rounded-md flex items-center gap-1 text-[10px] font-semibold text-white shadow-sm">
-            <Star className="w-3 h-3 fill-primary text-primary" />
-            {score}
-          </div>
+          <TooltipProvider delay={80}>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <span className="relative flex size-7 items-center justify-center rounded-full bg-background/60 text-[10px] font-semibold backdrop-blur-md" />
+                }
+              >
+                <svg viewBox="0 0 32 32" className="absolute inset-0 size-full -rotate-90">
+                  <circle
+                    cx="16"
+                    cy="16"
+                    r={RING_RADIUS}
+                    fill="none"
+                    strokeWidth="3"
+                    className="stroke-foreground/15"
+                  />
+                  <circle
+                    cx="16"
+                    cy="16"
+                    r={RING_RADIUS}
+                    fill="none"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeDasharray={RING_CIRCUMFERENCE}
+                    strokeDashoffset={RING_CIRCUMFERENCE * (1 - (ratio ?? 0))}
+                    className="stroke-primary"
+                  />
+                </svg>
+                {progress != null ? <span className="relative">{progress}</span> : null}
+              </TooltipTrigger>
+              <TooltipContent>
+                {[
+                  progress != null
+                    ? total
+                      ? `${progress}/${total} ${MEDIA[mediaType].unitLong.toLowerCase()}`
+                      : `${MEDIA[mediaType].unitAbbrev}. ${progress}`
+                    : null,
+                  score != null ? `Rated ${score}/10` : null,
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       ) : null}
 
@@ -65,11 +114,6 @@ export function ProfileMediaCard({
             <span className="line-clamp-2 text-sm font-semibold text-white drop-shadow-sm">
               {title}
             </span>
-            {progress != null ? (
-              <div className="mt-1 text-xs text-white/80 font-medium">
-                {MEDIA[mediaType].unitAbbrev}. {progress}
-              </div>
-            ) : null}
           </div>
         </>
       )}

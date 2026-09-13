@@ -21,7 +21,7 @@ export function ProfileActivityStream({
   const activities = query.data?.pages.flatMap((page) => page.activities) ?? [];
 
   return (
-    <section className={cn(BENTO_CARD, "p-5 sm:p-6", className)}>
+    <section className={cn(BENTO_CARD, "relative p-5 @min-[40rem]:p-6", className)}>
       <QueryState
         isLoading={query.isLoading}
         isError={query.isError}
@@ -30,17 +30,17 @@ export function ProfileActivityStream({
         onRetry={() => void query.refetch()}
         empty={<ContentState title="No recent activity" />}
       >
-        <div className="grid gap-y-5 gap-x-8 lg:grid-cols-2">
+        <div className="grid gap-y-5 gap-x-8 pb-10 @min-[64rem]:grid-cols-2">
           {activities.map((activity) => (
             <ProfileActivityCard key={activity.id} activity={activity} />
           ))}
-          <LoadMoreButton
-            className="lg:col-span-2"
-            fetching={query.isFetchingNextPage}
-            hasNext={Boolean(query.hasNextPage)}
-            onLoadMore={() => void query.fetchNextPage()}
-          />
         </div>
+        <LoadMoreButton
+          className="absolute bottom-4 left-1/2 -translate-x-1/2"
+          fetching={query.isFetchingNextPage}
+          hasNext={Boolean(query.hasNextPage)}
+          onLoadMore={() => void query.fetchNextPage()}
+        />
       </QueryState>
     </section>
   );
