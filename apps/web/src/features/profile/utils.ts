@@ -2,6 +2,14 @@ import type { UserOverview } from "@tsuki/api/types";
 
 export type ProfileActivityDay = UserOverview["activity"]["days"][number];
 
+export type ProfileSearchParams = Record<string, string | string[] | undefined>;
+
+/** Collapses a repeated search param to its first value. */
+export function searchParam(params: ProfileSearchParams, key: string): string | undefined {
+  const value = params[key];
+  return Array.isArray(value) ? value[0] : value;
+}
+
 export function activityDateKey(day: ProfileActivityDay) {
   return day.date.toISOString().slice(0, 10);
 }

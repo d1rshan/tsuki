@@ -15,7 +15,7 @@ export function ProfileUserList({
   if (users.length === 0) return <ContentState title={emptyMessage} />;
 
   return (
-    <ul className="grid gap-3 pb-8 sm:grid-cols-2" aria-label="Users">
+    <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-label="Users">
       {users.map((user) => (
         <li key={user.id}>
           <Link

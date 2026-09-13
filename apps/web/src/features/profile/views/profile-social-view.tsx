@@ -1,32 +1,49 @@
 import { notFound } from "next/navigation";
 
-import { ProfileUserList } from "@/features/profile/components/profile-user-list";
-import { ProfileSection } from "@/features/profile/components/profile-section";
-
+import { ProfileFilterLayout } from "../components/profile-filter-layout";
+import type { ProfileFilterOption } from "../components/profile-filter-tabs";
+import { ProfileUserList } from "../components/profile-user-list";
 import { getProfileFollowers, getProfileFollowing } from "../data";
+import { searchParam, type ProfileSearchParams } from "../utils";
 
 // ponytail: one page of 100 per list, no pagination — add ?page per section if a list outgrows it
 const LIMIT = 100;
 
-export async function ProfileSocialView({ username }: { username: string }) {
-  const [followers, following] = await Promise.all([
+export async function ProfileSocialView({
+  searchParams,
+  username,
+}: {
+  searchParams: Promise<ProfileSearchParams>;
+  username: string;
+}) {
+  const [followers, following, params] = await Promise.all([
     getProfileFollowers(username, LIMIT, 0),
     getProfileFollowing(username, LIMIT, 0),
+    searchParams,
   ]);
   if (!followers || !following) notFound();
 
-  return (
-    <div className="space-y-16 pb-16">
-      <ProfileSection title="Followers" count={followers.total}>
-        <ProfileUserList users={followers.users} emptyMessage="No followers yet" />
-      </ProfileSection>
+  const selected = searchParam(params, "list") === "following" ? "following" : "followers";
+  const list = selected === "following" ? following : followers;
 
-      <ProfileSection title="Following" count={following.total}>
-        <ProfileUserList
-          users={following.users}
-          emptyMessage="This user is not following anyone yet"
-        />
-      </ProfileSection>
-    </div>
+  const options: ProfileFilterOption[] = [
+    { value: "followers", label: "Followers", href: `/${username}/social`, count: followers.total },
+    {
+      value: "following",
+      label: "Following",
+      href: `/${username}/social?list=following`,
+      count: following.total,
+    },
+  ];
+
+  return (
+    <ProfileFilterLayout label="Social list" options={options} selected={selected}>
+      <ProfileUserList
+        users={list.users}
+        emptyMessage={
+          selected === "following" ? "This user is not following anyone yet" : "No followers yet"
+        }
+      />
+    </ProfileFilterLayout>
   );
 }

@@ -1,14 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
-import { formatDistanceToNow } from "date-fns";
 
 import type { Review } from "@tsuki/api/types";
 
 import { mediaHref, mediaImageClass, normalizeMediaCompact } from "@/features/media/media";
 import { RichContentView } from "@/features/rich-content/components/rich-content-view";
+import { RelativeTime } from "@/shared/components/relative-time";
 import { cn } from "@/shared/lib/utils";
 
-export function ReviewItem({ review }: { review: Review }) {
+import { BENTO_CARD } from "./profile-section";
+
+export function ReviewItem({ className, review }: { className?: string; review: Review }) {
   const { mediaType, mediaId, media, content, createdAt, updatedAt } = review;
 
   if (!media) return null;
@@ -17,17 +19,18 @@ export function ReviewItem({ review }: { review: Review }) {
   const href = mediaHref(mediaType, mediaId);
 
   return (
-    <article className="group border-b border-border/40 py-8 first:pt-0 last:border-0">
-      <div className="flex items-start gap-3">
+    <article className={cn(BENTO_CARD, "group flex flex-col p-5 sm:p-6", className)}>
+      <div className="flex items-center gap-3">
         <Link
           href={href}
-          className="relative aspect-[3/4] w-12 shrink-0 overflow-hidden rounded-lg bg-muted shadow-sm transition-transform duration-500 group-hover:scale-105 group-hover:shadow-md group-hover:ring-1 group-hover:ring-primary/50"
+          className="relative aspect-[3/4] w-11 shrink-0 overflow-hidden rounded-lg bg-muted shadow-sm transition-transform duration-500 group-hover:scale-105 group-hover:ring-1 group-hover:ring-primary/50"
         >
           {cover ? (
             <Image
               src={cover}
               alt={title}
               fill
+              sizes="44px"
               className={cn("object-cover", mediaImageClass(mediaType))}
             />
           ) : (
@@ -35,27 +38,19 @@ export function ReviewItem({ review }: { review: Review }) {
           )}
         </Link>
 
-        <div className="min-w-0 pt-0.5">
+        <div className="min-w-0">
           <Link href={href} className="inline-block">
-            <h3 className="text-lg font-bold tracking-tight transition-colors hover:text-primary md:text-xl">
+            <h3 className="line-clamp-1 font-bold tracking-tight transition-colors hover:text-primary">
               {title}
             </h3>
           </Link>
-          <div className="mt-1.5 flex items-center gap-2 text-sm font-medium text-muted-foreground">
-            <span>
-              Reviewed{" "}
-              {formatDistanceToNow(new Date(updatedAt || createdAt), {
-                addSuffix: true,
-              })}
-            </span>
-          </div>
+          <p className="mt-0.5 text-xs font-medium text-muted-foreground">
+            Reviewed <RelativeTime date={updatedAt || createdAt} />
+          </p>
         </div>
       </div>
 
-      <RichContentView
-        content={content}
-        className="mt-5 max-w-none text-muted-foreground leading-relaxed"
-      />
+      <RichContentView content={content} className="mt-4 leading-relaxed text-muted-foreground" />
     </article>
   );
 }
