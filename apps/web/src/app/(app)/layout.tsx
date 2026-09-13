@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 
 import { Navbar } from "@/features/navbar/components";
+import { BetaFeedback } from "@/shared/components/beta-feedback";
 import { Footer } from "@/shared/components/footer";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -12,6 +13,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </Suspense>
       <main className="container mx-auto max-w-6xl flex-1 px-4">{children}</main>
       <Footer />
+      <BetaFeedback />
     </div>
   );
 }
