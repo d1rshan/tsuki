@@ -10,12 +10,12 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@tiptap/core": "^3.30.3",
-    "@tiptap/extension-text-align": "^3.30.3",
-    "@tiptap/starter-kit": "^3.30.3",
-    "@tiptap/static-renderer": "^3.30.3"
+    "@tiptap/core": "^3.31.3",
+    "@tiptap/extension-text-align": "^3.31.3",
+    "@tiptap/starter-kit": "^3.31.3",
+    "@tiptap/static-renderer": "^3.31.3"
   },
   "devDependencies": {
-    "@types/node": "^26.4.1"
+    "@types/node": "^26.5.1"
   }
 }
