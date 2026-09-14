@@ -288,7 +288,9 @@ export const THEMES = [
 ] as const satisfies readonly Theme[];
 
 export const THEME_IDS = THEMES.map(({ name }) => slugify(name));
-export const THEME_CLASSES = [...THEME_IDS, "light", "dark"];
+// ponytail: light/dark dropped from the picker; stale stored values now fall
+// back to the default (Ink) via next-themes
+export const THEME_CLASSES = [...THEME_IDS];
 
 export function getThemeId(theme: Pick<Theme, "name">): string {
   return slugify(theme.name);
