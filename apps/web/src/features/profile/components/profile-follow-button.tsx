@@ -30,6 +30,8 @@ export function ProfileFollowButton({
   return (
     <Button
       type="button"
+      size="lg"
+      className="rounded-full px-5"
       variant={relationship?.following ? "secondary" : "default"}
       disabled={mutation.isPending}
       aria-busy={mutation.isPending}

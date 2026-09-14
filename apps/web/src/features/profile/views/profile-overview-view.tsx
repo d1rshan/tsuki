@@ -23,7 +23,7 @@ export async function ProfileOverviewView({ username }: { username: string }) {
   const showLeft = hasBio || hasAnimeFavorites || hasMangaFavorites;
 
   return (
-    <div className="grid grid-cols-1 gap-4 pb-16 @min-[48rem]:grid-cols-2 @min-[64rem]:grid-cols-7">
+    <div className="grid grid-cols-1 gap-4 @min-[48rem]:grid-cols-2 @min-[64rem]:grid-cols-7">
       {showLeft && (
         <div className="contents @min-[48rem]:flex @min-[48rem]:flex-col @min-[48rem]:gap-4 @min-[64rem]:col-span-3">
           {hasBio && <ProfileBioCard className="order-1" profile={profile.profile} />}
@@ -50,7 +50,7 @@ export async function ProfileOverviewView({ username }: { username: string }) {
           showLeft ? "@min-[64rem]:col-span-4" : "@min-[48rem]:col-span-2 @min-[64rem]:col-span-7",
         )}
       >
-        <div className="grid order-2 grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-4">
+        <div className="order-2 grid grid-cols-1 gap-4 @min-[40rem]:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <ProfileActivityHeatmap activity={profile.activity} />
           <ProfileStatsLedger stats={profile.stats} />
         </div>

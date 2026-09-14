@@ -76,8 +76,8 @@ export function EditProfileDialog({
         render={
           <Button
             variant="outline"
-            size="sm"
-            className="rounded-full border-border/50 transition-colors hover:border-primary/50 hover:bg-primary/10 hover:text-primary"
+            size="lg"
+            className="rounded-full border-border/50 px-5 transition-colors hover:border-primary/50 hover:bg-primary/10 hover:text-primary"
           >
             <Edit2 data-icon="inline-start" />
             Edit Profile

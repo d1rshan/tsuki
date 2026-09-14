@@ -6,7 +6,7 @@ import { QueryState } from "@/shared/components/query-state";
 import { cn } from "@/shared/lib/utils";
 
 import { useProfileActivity } from "../hooks/use-profile-activity";
-import { BENTO_CARD } from "./profile-section";
+import { BENTO_TILE } from "./profile-section";
 import { ProfileActivityCard } from "./profile-activity-card";
 
 /** The profile's real Activity stream: Logs and Reviews, with a load-more. */
@@ -21,7 +21,7 @@ export function ProfileActivityStream({
   const activities = query.data?.pages.flatMap((page) => page.activities) ?? [];
 
   return (
-    <section className={cn(BENTO_CARD, "relative p-5 @min-[40rem]:p-6", className)}>
+    <section className={cn(BENTO_TILE, "relative", className)}>
       <QueryState
         isLoading={query.isLoading}
         isError={query.isError}
