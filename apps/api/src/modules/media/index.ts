@@ -1,30 +1,55 @@
 import { Elysia, t, status } from "elysia";
 
-import { anilistTrendingMedia } from "@tsuki/anilist";
 import { mediaDal } from "@tsuki/db";
 
 import { ErrorModel } from "../../plugins/errors";
 import { ensureMedia } from "./service";
 import { MediaCompactModel, MediaModel, MediaTypeEnum } from "./model";
 
+const TRENDING_LIMIT = 70;
+const SEARCH_LIMIT_DEFAULT = 24;
+const SEARCH_LIMIT_MAX = 50;
+
 export const mediaRoutes = new Elysia({ prefix: "/media", tags: ["Media"] })
+  .get(
+    // Static segment before /:type/:id so Elysia never routes "search" as an id.
+    "/:type/search",
+    async ({ params: { type }, query: { q, limit, nsfw } }) => {
+      const term = (q ?? "").trim();
+      // One character matches half the catalogue; treat it as no query.
+      if (term.length < 2) return [];
+
+      return mediaDal.searchMedia(type, term, {
+        limit: Math.min(limit ?? SEARCH_LIMIT_DEFAULT, SEARCH_LIMIT_MAX),
+        includeNsfw: nsfw === true,
+      });
+    },
+    {
+      params: t.Object({ type: MediaTypeEnum }),
+      query: t.Object({
+        q: t.Optional(t.String()),
+        limit: t.Optional(t.Numeric()),
+        nsfw: t.Optional(t.Boolean()),
+      }),
+      response: { 200: t.Array(MediaCompactModel) },
+      detail: {
+        summary: "Search media",
+        description:
+          "Server-side trigram search over our catalogue (ADR 0004). Queries under two characters return an empty list.",
+      },
+    },
+  )
   .get(
     "/:type/trending",
     async ({ params: { type } }) => {
-      // Read live, not through the cache: AniList's trending is a rolling count
-      // of the past hour, so stored copies aren't comparable across syncs. Rows
-      // are still persisted so opening a title from the carousel is a local hit.
-      const rows = await anilistTrendingMedia(type);
-      await mediaDal.upsertMedia(rows);
-
-      return rows;
+      return mediaDal.listTrending(type, TRENDING_LIMIT);
     },
     {
       params: t.Object({ type: MediaTypeEnum }),
       response: { 200: t.Array(MediaCompactModel) },
       detail: {
         summary: "Get trending media",
-        description: "Current trending anime or manga, read live from AniList.",
+        description: "Top non-NSFW titles ranked by popularity in our own catalogue (ADR 0004).",
       },
     },
   )
@@ -41,7 +66,7 @@ export const mediaRoutes = new Elysia({ prefix: "/media", tags: ["Media"] })
       response: { 200: MediaModel, 404: ErrorModel },
       detail: {
         summary: "Get media by id",
-        description: "Serves from cache, falling back to AniList and persisting the result.",
+        description: "Serves from our catalogue; 404 until the crawl has the title.",
       },
     },
   );

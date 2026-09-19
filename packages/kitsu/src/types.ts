@@ -4,7 +4,7 @@
  */
 
 /**
- * Canonical vocabularies, identical to @tsuki/anilist's — the database pgEnums
+ * Canonical vocabularies — the database pgEnums
  * and downstream validators derive from this vocabulary, so Kitsu values are
  * translated into it in ./vocab rather than stored raw.
  */

@@ -61,6 +61,17 @@ export const getMediaById = async (type: MediaType, id: number) => {
 /** Escape ILIKE metacharacters so a user-typed "%" doesn't match everything. */
 const escapeIlike = (query: string) => query.replace(/[\\%_]/g, "\\$&");
 
+/** Our ranking: "what's popular here" (ADR 0004), replacing AniList's
+ * TRENDING_DESC. Non-NSFW only, newest crawl is the freshness ceiling. */
+export const listTrending = async (type: MediaType, limit = 70) => {
+  return db.query.media.findMany({
+    columns: MEDIA_COMPACT_COLUMNS,
+    where: and(eq(media.type, type), eq(media.nsfw, false)),
+    orderBy: sql`${media.popularity} desc nulls last`,
+    limit,
+  });
+};
+
 /** Popularity-ordered trigram search over the titleSearch haystack. */
 export const searchMedia = async (
   type: MediaType,

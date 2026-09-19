@@ -14,6 +14,12 @@ export { toMediaRow };
 
 const PATHS: Record<MediaType, "anime" | "manga"> = { ANIME: "anime", MANGA: "manga" };
 
+// Only anime carries streaming links; asking manga for them is a 400.
+const INCLUDE: Record<MediaType, string> = {
+  ANIME: "categories,streamingLinks",
+  MANGA: "categories",
+};
+
 /**
  * Fetches one media by Kitsu id with its categories and streaming links
  * included. Null when no media of that type carries the id — Kitsu answers
@@ -24,7 +30,7 @@ export async function kitsuMediaById(type: MediaType, id: number) {
   try {
     const response = await kitsuRequest<KitsuDocument<KitsuMedia, KitsuIncluded>>(
       `/${PATHS[type]}/${id}`,
-      { include: "categories,streamingLinks" },
+      { include: INCLUDE[type] },
     );
 
     return response.data ? toMediaRow(response.data, response.included) : null;

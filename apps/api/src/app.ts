@@ -23,7 +23,7 @@ export const app = new Elysia()
           version: "1.0.50",
         },
         tags: [
-          { name: "Media", description: "Anime & manga from AniList" },
+          { name: "Media", description: "Anime & manga from our own catalogue" },
           { name: "Library", description: "Personal watch/read lists" },
           { name: "Reviews", description: "Scored reviews" },
           { name: "Social", description: "Follows and discovery" },

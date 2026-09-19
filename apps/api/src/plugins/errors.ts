@@ -1,6 +1,5 @@
 import { Elysia, ElysiaCustomStatusResponse, t, status } from "elysia";
 
-import { AnilistError } from "@tsuki/anilist";
 import { KitsuError } from "@tsuki/kitsu";
 
 export const ErrorModel = t.Object({
@@ -15,7 +14,7 @@ export const ErrorModel = t.Object({
  * this plugin's own descendants.
  */
 export const errorsPlugin = new Elysia({ name: "errors" })
-  .error({ ANILIST: AnilistError, KITSU: KitsuError })
+  .error({ KITSU: KitsuError })
   .onError({ as: "global" }, ({ code, error, request }) => {
     // A thrown `status()` is a deliberate short-circuit from deep in a module;
     // pass its status and body through untouched.
@@ -26,10 +25,8 @@ export const errorsPlugin = new Elysia({ name: "errors" })
     // Elysia's untouched 422 already matches the shape it puts on the route type.
     if (code === "VALIDATION") return;
 
-    // AniList is down or throttling us. Their outage, not our bug.
-    if (code === "ANILIST") return status(502, { error: "Upstream service unavailable" });
-
-    // Same for Kitsu — the sync tick surfaces it as a resumable failure.
+    // Kitsu is down or throttling us — the sync tick surfaces it as a
+    // resumable failure. Their outage, not our bug.
     if (code === "KITSU") return status(502, { error: "Upstream service unavailable" });
 
     // NOT_FOUND, PARSE and the rest each carry the status they mean.

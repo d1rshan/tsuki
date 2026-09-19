@@ -19,7 +19,6 @@
       "version": "1.0.50",
       "dependencies": {
         "@elysiajs/openapi": "^1.4.15",
-        "@tsuki/anilist": "workspace:*",
         "@tsuki/auth": "workspace:*",
         "@tsuki/db": "workspace:*",
         "@tsuki/env": "workspace:*",
