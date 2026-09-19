@@ -80,16 +80,6 @@
         "tailwindcss": "^4",
       },
     },
-    "packages/anilist": {
-      "name": "@tsuki/anilist",
-      "version": "1.0.0",
-      "dependencies": {
-        "graphql-request": "^7.4.0",
-      },
-      "devDependencies": {
-        "@types/node": "^26",
-      },
-    },
     "packages/auth": {
       "name": "@tsuki/auth",
       "version": "1.0.0",
@@ -357,8 +347,6 @@
     "@giphy/js-util": ["@giphy/js-util@5.2.0", "", { "dependencies": { "@giphy/js-types": "*", "uuid": "^9.0.0" } }, "sha512-Qt7pGh2cqiNmXLeWAgb459wK8+BuMLtIxTfg4ZksnPHPsLthiHT9hhzs2QhqUh7Pp/HOq+Cbv2etGDfnq+xiKA=="],
 
     "@giphy/react-components": ["@giphy/react-components@10.1.2", "", { "dependencies": { "@giphy/colors": "*", "@giphy/js-analytics": "*", "@giphy/js-fetch-api": "*", "@giphy/js-types": "*", "@giphy/js-util": "*", "intersection-observer": "^0.12.2", "react-use": "17.6.0", "throttle-debounce": "^3.0.1" }, "peerDependencies": { "react": "18 - 19", "styled-components": ">= 5" } }, "sha512-DVyIgf5az0uzHwnkS8tUaqO4qNx8DoxJupnRLhOl8M5CcvV9ykeZBLDxLj+jyDTySPYaIIJtrlR+8SeV2dHZwQ=="],
-
-    "@graphql-typed-document-node/core": ["@graphql-typed-document-node/core@3.2.0", "", { "peerDependencies": { "graphql": "^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0" } }, "sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ=="],
 
     "@hono/node-server": ["@hono/node-server@2.1.1", "", { "peerDependencies": { "hono": "^4" } }, "sha512-ELuehkj5VCBdgEw9zs+ivkKwyzzUCSQuE96YmiPvn1ECBoZCczbFXJLeEGMTYjphP6gydh4pHMqEYPVMYUVgQg=="],
 
@@ -723,8 +711,6 @@
     "@tokenizer/token": ["@tokenizer/token@0.3.0", "", {}, "sha512-OvjF+z51L3ov0OyAU0duzsYuvO01PH7x4t6DJx+guahgTnBHkhJdG7soQeTSFLWN3efnHyibZ4Z8l2EuWwJN3A=="],
 
     "@ts-morph/common": ["@ts-morph/common@0.27.0", "", { "dependencies": { "fast-glob": "^3.3.3", "minimatch": "^10.0.1", "path-browserify": "^1.0.1" } }, "sha512-Wf29UqxWDpc+i61k3oIOzcUfQt79PIT9y/MWfAGlrkjg6lBC1hwDECLXPVJAhWjiGbfBCxZd65F/LIZF3+jeJQ=="],
-
-    "@tsuki/anilist": ["@tsuki/anilist@workspace:packages/anilist"],
 
     "@tsuki/api": ["@tsuki/api@workspace:apps/api"],
 
@@ -1317,10 +1303,6 @@
     "gopd": ["gopd@1.2.0", "", {}, "sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg=="],
 
     "graceful-fs": ["graceful-fs@4.2.11", "", {}, "sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ=="],
-
-    "graphql": ["graphql@16.14.2", "", {}, "sha512-Chq1s4CY7jmh8gO2qvLIJyfCDIN+EHLFW/9iShnp1z8FjBQMoodWP1kDC36VAMXXIvAjj4ARa7ntfAV2BrjsbA=="],
-
-    "graphql-request": ["graphql-request@7.4.0", "", { "dependencies": { "@graphql-typed-document-node/core": "^3.2.0" }, "peerDependencies": { "graphql": "14 - 16" } }, "sha512-xfr+zFb/QYbs4l4ty0dltqiXIp07U6sl+tOKAb0t50/EnQek6CVVBLjETXi+FghElytvgaAWtIOt3EV7zLzIAQ=="],
 
     "has-bigints": ["has-bigints@1.1.0", "", {}, "sha512-R3pbpkcIqv2Pm3dUwgjclDRVmWpTJW2DcMzcIhEXEx1oh/CEMObMm3KLmRJOdvhM7o4uQBnwr8pzRK2sJWIqfg=="],
 

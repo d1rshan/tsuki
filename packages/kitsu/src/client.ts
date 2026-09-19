@@ -1,7 +1,7 @@
 import type { KitsuMedia, KitsuPage } from "./types";
 
 // Kitsu is a public read API and nothing here mutates, so every request is
-// safe to retry. Mirrors packages/anilist's client semantics.
+// safe to retry.
 const BASE = "https://kitsu.app/api/edge";
 const TIMEOUT_MS = 10_000;
 const MAX_ATTEMPTS = 3;

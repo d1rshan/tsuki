@@ -25,7 +25,7 @@ async function requireSyncAuth({
   headers: Record<string, string | undefined>;
   request: Request;
 }) {
-  if (headers["x-sync-secret"] === env.SYNC_SECRET) return;
+  if (env.SYNC_SECRET && headers["x-sync-secret"] === env.SYNC_SECRET) return;
 
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session) return status(401, { error: "Unauthorized" });

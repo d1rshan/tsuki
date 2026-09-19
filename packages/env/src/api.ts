@@ -8,8 +8,10 @@ export const env = createEnv({
     BETTER_AUTH_SECRET: z.string().min(1),
     // Shared secret for the catalogue-sync admin endpoints: Vercel cron sends
     // it as `Authorization: Bearer $CRON_SECRET` (set CRON_SECRET to the same
-    // value in Vercel), manual ticks send it as `x-sync-secret`.
-    SYNC_SECRET: z.string().min(1),
+    // value in Vercel), manual ticks send it as `x-sync-secret`. Cannot be
+    // required here — the web app imports this env too, and its build has no
+    // API-only secrets. Unset means secret-auth is disabled on the API.
+    SYNC_SECRET: z.string().default(""),
     // Optional: profile image uploads are disabled (503) when unset. Cannot be
     // required here — the web app imports this env too, and its build has no
     // ImageKit credentials.

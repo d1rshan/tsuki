@@ -50,13 +50,22 @@ export async function getSyncStates() {
   return db.select().from(syncState);
 }
 
-export async function runSyncTick(mediaType: MediaType): Promise<TickResult> {
+export type TickOptions = {
+  /** Skip the already-running guard. Only safe for a single local writer. */
+  force?: boolean;
+};
+
+export async function runSyncTick(
+  mediaType: MediaType,
+  { force = false }: TickOptions = {},
+): Promise<TickResult> {
   // The table holds at most two rows — reading it whole and filtering in JS
   // skips a drizzle-orm dependency in the api app.
   const state = (await db.select().from(syncState)).find((row) => row.id === mediaType);
 
   // Idempotency guard: another invocation holds the crawl and is alive.
   if (
+    !force &&
     state?.status === "running" &&
     state.cursorUpdatedAt &&
     Date.now() - state.cursorUpdatedAt.getTime() < RUNNING_GRACE_MS

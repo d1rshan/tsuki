@@ -16,7 +16,9 @@ for (const mediaType of ["ANIME", "MANGA"] as const) {
   await resetSync(mediaType);
 
   for (let tick = 1; ; tick++) {
-    const result = await runSyncTick(mediaType);
+    // Single local writer: force bypasses the already-running guard, so each
+    // tick works its full time-box back to back.
+    const result = await runSyncTick(mediaType, { force: true });
     console.log(
       `[sync] ${mediaType} tick ${tick}: status=${result.status} ` +
         `upserted=${result.upserted} nextOffset=${result.nextOffset ?? "—"}`,
@@ -25,9 +27,5 @@ for (const mediaType of ["ANIME", "MANGA"] as const) {
       console.log(`[sync] ${mediaType} complete (${result.upserted} rows)`);
       break;
     }
-
-    // Each tick crawls for its own 40s time-box; the 5-min already-running
-    // guard turns any sooner call into a no-op, so pace the loop instead.
-    await new Promise((resolve) => setTimeout(resolve, 10_000));
   }
 }
