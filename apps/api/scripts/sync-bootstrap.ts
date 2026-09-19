@@ -25,5 +25,9 @@ for (const mediaType of ["ANIME", "MANGA"] as const) {
       console.log(`[sync] ${mediaType} complete (${result.upserted} rows)`);
       break;
     }
+
+    // Each tick crawls for its own 40s time-box; the 5-min already-running
+    // guard turns any sooner call into a no-op, so pace the loop instead.
+    await new Promise((resolve) => setTimeout(resolve, 10_000));
   }
 }
