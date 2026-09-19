@@ -63,7 +63,9 @@ export const MediaModel = t.Composite([
     popularity: t.Nullable(t.Number()),
     favourites: t.Nullable(t.Number()),
     genres: t.Nullable(t.Array(t.String())),
-    trailer: t.Nullable(t.Object({ id: t.String(), site: t.String(), thumbnail: t.String() })),
+    trailer: t.Nullable(
+      t.Object({ id: t.String(), site: t.String(), thumbnail: t.Nullable(t.String()) }),
+    ),
     externalLinks: t.Nullable(t.Array(t.Object({ url: t.String(), site: t.String() }))),
   }),
 ]);

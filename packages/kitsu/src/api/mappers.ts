@@ -17,7 +17,7 @@ import {
 type KitsuMergedAttributes = KitsuAnimeAttributes & KitsuMangaAttributes;
 
 /** Looks a value up case-insensitively — Kitsu capitalizes some subtypes ("TV"). */
-function lookup(table: Record<string, string>, value: string | null | undefined) {
+function lookup<T extends string>(table: Record<string, T>, value: string | null | undefined) {
   if (!value) return null;
   return table[value.toLowerCase()] ?? null;
 }
@@ -75,7 +75,8 @@ function toGenres(categories: KitsuCategory[]) {
 }
 
 function toTrailer(youtubeVideoId: string | null) {
-  return youtubeVideoId ? { id: youtubeVideoId, site: "youtube" } : null;
+  // Kitsu provides no thumbnail URL; the field stays nullable for AniList-era rows.
+  return youtubeVideoId ? { id: youtubeVideoId, site: "youtube", thumbnail: null } : null;
 }
 
 /**

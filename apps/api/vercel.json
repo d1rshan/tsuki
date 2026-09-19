@@ -3,5 +3,11 @@
   "bunVersion": "1.x",
   "github": {
     "enabled": false
-  }
+  },
+  "crons": [
+    {
+      "path": "/admin/sync/tick-cron",
+      "schedule": "0 4 * * *"
+    }
+  ]
 }

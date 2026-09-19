@@ -10,6 +10,7 @@ import type {
 import { toMediaCompactRow, toMediaRow, type MediaCompactRow, type MediaRow } from "./mappers";
 
 export type { MediaRow, MediaCompactRow };
+export { toMediaRow };
 
 const PATHS: Record<MediaType, "anime" | "manga"> = { ANIME: "anime", MANGA: "manga" };
 

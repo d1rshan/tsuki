@@ -11,7 +11,8 @@ export type FuzzyDate = {
 export type MediaTrailer = {
   id: string;
   site: string;
-  thumbnail: string;
+  /** Kitsu exposes only the YouTube id — no thumbnail URL to source. */
+  thumbnail: string | null;
 };
 
 export type MediaExternalLink = {

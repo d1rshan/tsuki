@@ -24,12 +24,21 @@ export const MEDIA_COMPACT_COLUMNS = {
   averageScore: true,
 } as const;
 
+/** Nullable enrichment fields a bulk sync page can't fill (Kitsu list pages
+ * carry no categories/links). Keep the stored value instead of wiping it. */
+const ENRICHMENT_COLUMNS = new Set(["genres", "externalLinks", "trailer", "description"]);
+
 /** Refresh every column from the incoming row, keeping only identity, createdAt
  * and the titleSearch generated column (Postgres forbids writing to those). */
 const MEDIA_UPSERT_SET = Object.fromEntries(
   Object.entries(getTableColumns(media))
     .filter(([key]) => !["id", "type", "createdAt", "titleSearch"].includes(key))
-    .map(([key, column]) => [key, sql`excluded.${sql.identifier(column.name)}`]),
+    .map(([key, column]) => [
+      key,
+      ENRICHMENT_COLUMNS.has(key)
+        ? sql`coalesce(excluded.${sql.identifier(column.name)}, ${column})`
+        : sql`excluded.${sql.identifier(column.name)}`,
+    ]),
 ) as PgUpdateSetSource<typeof media>;
 
 export const upsertMedia = async (rows: InsertMedia[]) => {
