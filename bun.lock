@@ -138,6 +138,13 @@
         "typescript": "^7",
       },
     },
+    "packages/kitsu": {
+      "name": "@tsuki/kitsu",
+      "version": "1.0.0",
+      "devDependencies": {
+        "@types/node": "^26",
+      },
+    },
     "packages/rich-content": {
       "name": "@tsuki/rich-content",
       "version": "0.1.0",
@@ -729,6 +736,8 @@
     "@tsuki/db": ["@tsuki/db@workspace:packages/db"],
 
     "@tsuki/env": ["@tsuki/env@workspace:packages/env"],
+
+    "@tsuki/kitsu": ["@tsuki/kitsu@workspace:packages/kitsu"],
 
     "@tsuki/rich-content": ["@tsuki/rich-content@workspace:packages/rich-content"],
 
