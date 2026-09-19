@@ -42,9 +42,6 @@ describe("toMediaRow", () => {
       trailer: { id: "qig4KOK2R2g", site: "youtube" },
       slug: "cowboy-bebop",
       nsfw: false,
-      source: null,
-      countryOfOrigin: null,
-      season: null,
       coverImageColor: null,
     });
   });

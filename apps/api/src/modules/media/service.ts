@@ -12,8 +12,7 @@ import type { MediaType } from "./model";
  */
 export async function ensureMedia(type: MediaType, id: number) {
   const cached = await mediaDal.getMediaById(type, id);
-  // TODO: Remove after all cached external links have been backfilled with language metadata.
-  if (cached && !cached.externalLinks?.some((link) => !("language" in link))) return cached;
+  if (cached) return cached;
 
   const fetched = await anilistMediaById(type, id);
   if (!fetched) return null;

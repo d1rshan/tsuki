@@ -1,17 +1,11 @@
-import {
-  MEDIA_FORMATS,
-  MEDIA_SEASONS,
-  MEDIA_SOURCES,
-  MEDIA_STATUSES,
-  MEDIA_TYPES,
-  type MediaRow,
-} from "@tsuki/anilist";
+import { MEDIA_FORMATS, MEDIA_STATUSES, MEDIA_TYPES } from "@tsuki/db";
+import type { MediaRow } from "@tsuki/kitsu";
 import { t } from "elysia";
 
 /**
- * AniList's vocabulary, carried unchanged from the database through to the
- * client. Built from the canonical arrays in @tsuki/anilist rather than
- * restated here.
+ * The media vocabulary, carried unchanged from the database through to the
+ * client. Built from the canonical arrays in @tsuki/db rather than restated
+ * here.
  */
 /**
  * `default: undefined` overrides UnionEnum's implicit `default: values[0]`:
@@ -31,10 +25,6 @@ export const MediaFormatEnum = t.UnionEnum(MEDIA_FORMATS);
 
 export const MediaStatusEnum = t.UnionEnum(MEDIA_STATUSES);
 
-export const MediaSeasonEnum = t.UnionEnum(MEDIA_SEASONS);
-
-export const MediaSourceEnum = t.UnionEnum(MEDIA_SOURCES);
-
 /** The shape embedded in cards, grids, library entries and reviews. */
 export const MediaCompactModel = t.Object({
   id: t.Number(),
@@ -46,6 +36,10 @@ export const MediaCompactModel = t.Object({
   coverImageLarge: t.Nullable(t.String()),
   coverImageColor: t.Nullable(t.String()),
   bannerImage: t.Nullable(t.String()),
+  /** URL path segment on kitsu.app. Optional: legacy cache rows predate it. */
+  slug: t.Optional(t.Nullable(t.String())),
+  /** Optional for the same reason; always present on Kitsu-sourced rows. */
+  nsfw: t.Optional(t.Boolean()),
   format: t.Nullable(MediaFormatEnum),
   /** Anime only. */
   episodes: t.Nullable(t.Number()),
@@ -60,38 +54,24 @@ export const MediaModel = t.Composite([
   t.Object({
     description: t.Nullable(t.String()),
     status: t.Nullable(MediaStatusEnum),
-    source: t.Nullable(MediaSourceEnum),
-    countryOfOrigin: t.Nullable(t.String()),
     /** Anime only — minutes per episode. */
     duration: t.Nullable(t.Number()),
     /** Manga only. */
     volumes: t.Nullable(t.Number()),
     startDate: t.Nullable(FuzzyDateModel),
     endDate: t.Nullable(FuzzyDateModel),
-    season: t.Nullable(MediaSeasonEnum),
     popularity: t.Nullable(t.Number()),
     favourites: t.Nullable(t.Number()),
     genres: t.Nullable(t.Array(t.String())),
     trailer: t.Nullable(t.Object({ id: t.String(), site: t.String(), thumbnail: t.String() })),
-    externalLinks: t.Nullable(
-      t.Array(
-        t.Object({
-          url: t.String(),
-          site: t.String(),
-          type: t.String(),
-          language: t.Optional(t.Nullable(t.String())),
-          color: t.Nullable(t.String()),
-          icon: t.Nullable(t.String()),
-        }),
-      ),
-    ),
+    externalLinks: t.Nullable(t.Array(t.Object({ url: t.String(), site: t.String() }))),
   }),
 ]);
 
 export type Media = typeof MediaModel.static;
 export type MediaCompact = typeof MediaCompactModel.static;
 
-// Fails to compile if the AniList mapper gains a field this client-facing
+// Fails to compile if the Kitsu mapper gains a field this client-facing
 // model lacks — add it to MediaCompactModel/MediaModel when that happens.
 type MissingModelFields = Exclude<keyof MediaRow, keyof Media>;
 const _mediaRowFieldsCovered: [MissingModelFields] extends [never] ? true : false = true;

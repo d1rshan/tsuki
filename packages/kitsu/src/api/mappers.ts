@@ -116,9 +116,9 @@ function pickImage(image: KitsuImage | null, ...keys: (keyof KitsuImage)[]) {
 }
 
 /**
- * Maps a full Kitsu anime/manga document onto a `media` row. Fields Kitsu
- * cannot source (`source`, `season`, `countryOfOrigin`) are carried as null —
- * the columns are dropped in a later phase rather than faked here.
+ * Maps a full Kitsu anime/manga document onto a `media` row. Kitsu provides
+ * every field the row needs — the ones it can't (`source`, `season`,
+ * `countryOfOrigin`) were dropped from the schema rather than faked.
  */
 export function toMediaRow(media: KitsuMedia, included?: KitsuIncluded[]) {
   const attrs = media.attributes as KitsuMergedAttributes;
@@ -143,15 +143,12 @@ export function toMediaRow(media: KitsuMedia, included?: KitsuIncluded[]) {
     bannerImage: pickImage(attrs.coverImage, "large", "original"),
     format,
     status: lookup(KITSU_STATUS_MAP, attrs.status),
-    source: null,
-    countryOfOrigin: null,
     episodes: isAnime ? attrs.episodeCount : null,
     duration: isAnime ? attrs.episodeLength : null,
     chapters: isAnime ? null : attrs.chapterCount,
     volumes: isAnime ? null : attrs.volumeCount,
     startDate: toDate(attrs.startDate),
     endDate: toDate(attrs.endDate),
-    season: null,
     seasonYear: toDate(attrs.startDate)?.year ?? null,
     averageScore: attrs.averageRating ? Math.round(Number(attrs.averageRating)) : null,
     popularity: attrs.userCount,

@@ -1,5 +1,5 @@
 // Payload shapes for the jsonb columns
-// (These mirror what AniList returns)
+// (These mirror what the provider mapper produces)
 
 // date where any component may be unknown
 export type FuzzyDate = {
@@ -15,11 +15,6 @@ export type MediaTrailer = {
 };
 
 export type MediaExternalLink = {
-  url: string;
   site: string;
-  type: string;
-  /** Optional for links cached before AniList's language metadata was stored. */
-  language?: string | null;
-  color: string | null;
-  icon: string | null;
+  url: string;
 };
