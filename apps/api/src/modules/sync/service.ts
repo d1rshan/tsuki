@@ -98,7 +98,7 @@ export async function runSyncTick(
       }
 
       const page = await kitsuPage(mediaType, offset, PAGE_SIZE);
-      await mediaDal.upsertMedia(page.data.map((item) => toMediaRow(item)));
+      await mediaDal.upsertMedia(page.data.map((item) => toMediaRow(item, page.included)));
 
       offset += PAGE_SIZE;
       upserted += page.data.length;

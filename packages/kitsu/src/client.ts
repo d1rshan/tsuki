@@ -1,4 +1,4 @@
-import type { KitsuMedia, KitsuPage } from "./types";
+import type { KitsuIncluded, KitsuMedia, KitsuPage } from "./types";
 
 // Kitsu is a public read API and nothing here mutates, so every request is
 // safe to retry.
@@ -82,10 +82,16 @@ export async function kitsuRequest<T>(
 type CollectionType = "anime" | "manga";
 
 /** One raw page of a collection — the sync engine's unit of work. */
-export async function kitsuFetchPage(type: CollectionType, offset: number, limit: number = 20) {
-  return kitsuRequest<KitsuPage<KitsuMedia>>(`/${type}`, {
+export async function kitsuFetchPage(
+  type: CollectionType,
+  offset: number,
+  limit: number = 20,
+  include?: string,
+) {
+  return kitsuRequest<KitsuPage<KitsuMedia, KitsuIncluded>>(`/${type}`, {
     "page[offset]": offset,
     "page[limit]": limit,
+    include,
   });
 }
 

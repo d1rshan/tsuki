@@ -61,7 +61,9 @@ export async function kitsuSearchMedia(
 
 /** One raw page of the anime or manga collection, for the sync engine. */
 export function kitsuPage(type: MediaType, offset: number, limit = 20) {
-  return kitsuFetchPage(PATHS[type], offset, limit);
+  // Genres (+ anime streaming links) ride along so crawled rows are
+  // detail-complete; manga rejects a streamingLinks include with a 400.
+  return kitsuFetchPage(PATHS[type], offset, limit, INCLUDE[type]);
 }
 
 /** One raw page of the mappings collection, for the AniList→Kitsu crosswalk. */

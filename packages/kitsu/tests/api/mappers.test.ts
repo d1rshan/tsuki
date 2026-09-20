@@ -173,7 +173,26 @@ describe("status and subtype mapping for every kitsu value", () => {
 
 describe("genre dedupe and NSFW exclusion", () => {
   test("dedupes case-insensitively and drops isNsfw categories", () => {
-    const row = toMediaRow(animeFixture.data, [
+    // Synthetic categories must be wired into the media's own relationship
+    // ids — resolution is scoped to them, not to the whole `included`.
+    const withSyntheticCategories = {
+      ...animeFixture.data,
+      relationships: {
+        ...animeFixture.data.relationships,
+        categories: {
+          data: [
+            ...(animeFixture.data.relationships!.categories!.data! as {
+              id: string;
+              type: string;
+            }[]),
+            { id: "900", type: "categories" },
+            { id: "901", type: "categories" },
+          ],
+        },
+      },
+    } as KitsuMedia;
+
+    const row = toMediaRow(withSyntheticCategories, [
       ...animeFixture.included,
       { id: "900", type: "categories", attributes: { title: "ACTION" } },
       { id: "901", type: "categories", attributes: { title: "Hentai", isNsfw: true } },

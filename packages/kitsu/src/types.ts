@@ -215,8 +215,10 @@ export type KitsuMapping = KitsuResource<{
 }> & { type: "mappings" };
 
 /** One raw page of a collection GET. */
-export type KitsuPage<T> = {
+export type KitsuPage<T, I = never> = {
   data: T[];
+  /** Populated when the request carried an `include`. */
+  included?: I[];
   links?: KitsuLinks;
   meta?: { count?: number };
 };

@@ -48,10 +48,25 @@ function indexIncluded(included: KitsuIncluded[] | undefined): IncludedIndex {
   return index;
 }
 
-function ofKind<K extends KitsuIncluded["type"]>(index: IncludedIndex, type: K) {
-  return [...index.values()].filter(
-    (resource): resource is Extract<KitsuIncluded, { type: K }> => resource.type === type,
-  );
+/**
+ * Resolves a media's own relationship ids against the response's `included`
+ * index — list pages carry every item's includes, so unscoped lookup would
+ * mix categories/links across all 20 rows.
+ */
+function resolveOwn<K extends KitsuIncluded["type"]>(
+  media: KitsuMedia,
+  kind: K,
+  index: IncludedIndex,
+): Extract<KitsuIncluded, { type: K }>[] {
+  const identifiers = media.relationships?.[kind]?.data;
+  if (!identifiers || !Array.isArray(identifiers)) return [];
+
+  const own: Extract<KitsuIncluded, { type: K }>[] = [];
+  for (const { id, type } of identifiers) {
+    const resource = index.get(`${type}:${id}`);
+    if (resource?.type === kind) own.push(resource as Extract<KitsuIncluded, { type: K }>);
+  }
+  return own;
 }
 
 /** Categories → genres: deduped case-insensitively, NSFW dropped, capped at 20. */
@@ -154,9 +169,9 @@ export function toMediaRow(media: KitsuMedia, included?: KitsuIncluded[]) {
     averageScore: attrs.averageRating ? Math.round(Number(attrs.averageRating)) : null,
     popularity: attrs.userCount,
     favourites: attrs.favoritesCount,
-    genres: toGenres(ofKind(index, "categories")),
+    genres: toGenres(resolveOwn(media, "categories", index)),
     trailer: toTrailer(isAnime ? attrs.youtubeVideoId : null),
-    externalLinks: toExternalLinks(ofKind(index, "streamingLinks"), index),
+    externalLinks: toExternalLinks(resolveOwn(media, "streamingLinks", index), index),
     slug: attrs.slug,
     nsfw: attrs.nsfw ?? false,
   };
