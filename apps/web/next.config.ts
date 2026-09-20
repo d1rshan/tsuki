@@ -27,13 +27,11 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "media.kitsu.io",
-        port: "443",
         pathname: "/*",
       },
       {
         protocol: "https",
         hostname: "media.kitsu.app",
-        port: "443",
         pathname: "/*",
       },
       {
