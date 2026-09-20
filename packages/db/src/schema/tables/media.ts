@@ -6,7 +6,7 @@ import {
   boolean,
   jsonb,
   index,
-  uniqueIndex,
+  primaryKey,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
@@ -16,7 +16,9 @@ import { mediaFormatEnum, mediaStatusEnum, mediaTypeEnum } from "../enums";
 export const media = pgTable(
   "media",
   {
-    id: integer("id").primaryKey(), // Kitsu id (was AniList's; remapped in a later phase)
+    // Kitsu ids are per-type — anime 1 and manga 1 are different titles — so
+    // the key is (id, type), which is also what user-table FKs reference.
+    id: integer("id").notNull(),
     type: mediaTypeEnum("type").notNull(),
     titleRomaji: text("title_romaji"),
     titleEnglish: text("title_english"),
@@ -66,12 +68,7 @@ export const media = pgTable(
       .notNull(),
   },
   (table) => [
-    // Redundant for uniqueness (id is the PK) but required as the target of the
-    // composite foreign keys on library and reviews. Declared as a unique
-    // index, not a constraint: drizzle-kit push can't diff named unique
-    // constraints and re-suggests them forever.
-    // ponytail: if drizzle-kit ever fixes constraint diffing, switch back to unique().
-    uniqueIndex("media_id_type_unique").on(table.id, table.type),
+    primaryKey({ columns: [table.id, table.type] }),
     index("media_type_popularity_idx").on(table.type, table.popularity),
     // Requires the pg_trgm extension; created alongside push by src/search-index.ts.
     index("media_title_search_trgm_idx").using("gin", sql`${table.titleSearch} gin_trgm_ops`),

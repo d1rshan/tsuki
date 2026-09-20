@@ -42,14 +42,18 @@ const MEDIA_UPSERT_SET = Object.fromEntries(
 ) as PgUpdateSetSource<typeof media>;
 
 export const upsertMedia = async (rows: InsertMedia[]) => {
-  // ON CONFLICT cannot touch the same row twice, so one repeated id fails the whole batch.
-  const unique = [...new Map(rows.map((row) => [row.id, row])).values()];
+  // ON CONFLICT cannot touch the same row twice, so one repeated (id, type)
+  // fails the whole batch — dedupe on the composite key.
+  const unique = [...new Map(rows.map((row) => [`${row.id}:${row.type}`, row])).values()];
   if (unique.length === 0) return;
 
-  return db.insert(media).values(unique).onConflictDoUpdate({
-    target: media.id,
-    set: MEDIA_UPSERT_SET,
-  });
+  return db
+    .insert(media)
+    .values(unique)
+    .onConflictDoUpdate({
+      target: [media.id, media.type],
+      set: MEDIA_UPSERT_SET,
+    });
 };
 
 export const getMediaById = async (type: MediaType, id: number) => {
