@@ -1,12 +1,5 @@
 import { KitsuError, kitsuFetchPage, kitsuRequest } from "../client";
-import type {
-  KitsuDocument,
-  KitsuIncluded,
-  KitsuMapping,
-  KitsuMedia,
-  KitsuPage,
-  MediaType,
-} from "../types";
+import type { KitsuDocument, KitsuIncluded, KitsuMedia, KitsuPage, MediaType } from "../types";
 import { toMediaCompactRow, toMediaRow, type MediaCompactRow, type MediaRow } from "./mappers";
 
 export type { MediaRow, MediaCompactRow };
@@ -72,13 +65,4 @@ export function kitsuPage(type: MediaType, offset: number, limit = 20) {
  */
 export function kitsuRecentPage(type: MediaType, offset: number, limit = 20) {
   return kitsuFetchPage(PATHS[type], offset, limit, INCLUDE[type], "-updatedAt");
-}
-
-/** One raw page of the mappings collection, for the AniList→Kitsu crosswalk. */
-export async function kitsuMappingPage(site: string, offset: number, limit = 20) {
-  return kitsuRequest<KitsuPage<KitsuMapping>>("/mappings", {
-    "filter[externalSite]": site,
-    "page[offset]": offset,
-    "page[limit]": limit,
-  });
 }

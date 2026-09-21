@@ -48,11 +48,12 @@ async function requireAdmin(user: { role?: string | null } | null | undefined) {
 
 /**
  * One nightly pass over a type: claim it, then run incremental 40s ticks back
- * to back until the pass completes or the cron budget runs out (headroom
- * under Vercel's function limit). An incomplete pass resumes tomorrow via the
- * cursor and watermark.
+ * to back until the pass completes or the cron budget runs out. An incomplete
+ * pass resumes tomorrow via the cursor and watermark. The budget must fit the
+ * hosting platform's function-duration limit — on serverless hosts, set
+ * SYNC_CRON_BUDGET_MS (and the platform's maxDuration) accordingly.
  */
-const CRON_BUDGET_MS = 4 * 60_000;
+const CRON_BUDGET_MS = Number(env.SYNC_CRON_BUDGET_MS) || 4 * 60_000;
 
 async function cronPass(mediaType: MediaType, deadline: number) {
   if (Date.now() >= deadline) {
@@ -125,7 +126,22 @@ export const syncRoutes = new Elysia({ prefix: "/admin/sync", tags: ["Sync"] })
     "/tick-cron",
     async () => {
       const deadline = Date.now() + CRON_BUDGET_MS;
-      return { anime: await cronPass("ANIME", deadline), manga: await cronPass("MANGA", deadline) };
+      // Each type gets its own budget slice — one type's Kitsu failure must
+      // not consume the other's nightly pass. Failures surface per-type.
+      const runType = async (type: MediaType): Promise<TickResult> => {
+        try {
+          return await cronPass(type, deadline);
+        } catch (error) {
+          return {
+            done: false,
+            status: "failed",
+            upserted: 0,
+            nextOffset: null,
+            error: error instanceof Error ? error.message : String(error),
+          };
+        }
+      };
+      return { anime: await runType("ANIME"), manga: await runType("MANGA") };
     },
     {
       beforeHandle: ({ headers, request }) => requireSyncAuth({ headers, request }),

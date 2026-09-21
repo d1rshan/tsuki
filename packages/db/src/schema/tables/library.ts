@@ -34,7 +34,7 @@ export const library = pgTable(
     status: listStatusEnum("status"),
     /**
      * 1–10, enforced by `library_score_range` below. Null means unscored.
-     * Not the same scale as `media.averageScore`, which comes from AniList as 0–100.
+     * Not the same scale as `media.averageScore`, which is provider data (0–100).
      */
     score: integer("score"),
     /**

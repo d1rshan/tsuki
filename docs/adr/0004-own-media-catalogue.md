@@ -38,15 +38,16 @@ entirely.
    Consumers keep seeing `MediaRow` shapes — nothing downstream knows which
    provider fed the row.
 2. **`media.id` becomes the Kitsu id.** Our catalog is ours; ids are stable
-   integers from Kitsu. Existing rows keyed by AniList id are migrated via
-   Kitsu's `mappings` resource (`externalSite: "anilist/anime"`,
-   `"anilist/manga"` → item), remapping `library`, `reviews` and `activity`
-   foreign keys before deleting old rows.
-3. **Nightly full re-crawl keeps the DB fresh.** ~2,500 pages of 20 items each
-   is cheap; a watermark-diff would be more machinery than it saves. The crawl
-   runs as time-boxed chunks through an admin `sync` endpoint with cursor state
-   in a `sync_state` table, so a Vercel cron tick (function timeout) can
-   resume where it left off.
+   integers from Kitsu. Kitsu's anime and manga share one integer id space
+   (anime 1 ≠ manga 1), so the primary key is composite `(id, type)` — which
+   is also what `library`, `reviews` and `activity` foreign keys reference.
+3. **Nightly incremental crawl keeps the DB fresh.** The cron pass walks
+   Kitsu newest-updated-first (`sort=-updatedAt`) and stops at a watermark —
+   our table's `max(updated_at)`, the previous pass's coverage ceiling. A
+   daily delta is small, so it fits in one cron invocation's budget. Full
+   bootstrap (offset 0 over the whole collection, ~2.5h across time-boxed
+   ticks) remains the manual script path, resumable via cursor state in a
+   `sync_state` table.
 4. **Trending becomes ours.** Instead of AniList's `TRENDING_DESC` we rank by
    local popularity (Kitsu `userCount` today, our own activity signals later).
    This is a product win, not a compromise: "what's trending _here_" was never
@@ -62,6 +63,11 @@ entirely.
 ## Consequences
 
 - Tsuki no longer depends on AniList availability, rate limits, or terms.
+- **Amendment (migration reality):** the AniList→Kitsu crosswalk was planned
+  but abandoned — the existing media row and every user row referencing it
+  (library, reviews, activity) were deliberately wiped with the owner's
+  approval, and the catalogue was rebuilt from Kitsu. User lists start fresh;
+  nothing was silently cascaded away.
 - Search moves server-side (Postgres `pg_trgm` over title columns) because the
   "cache is a strict subset, so search in browser" excuse disappears.
 - We are polite citizens: conservative per-request pacing, backoff on 429/5xx,

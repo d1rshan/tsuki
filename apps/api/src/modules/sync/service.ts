@@ -26,9 +26,9 @@ import type { MediaType } from "../media/model";
  * pass resumes against the stored boundary, so it stops where the original
  * pass would have.
  *
- * Bulk pages carry no `included`, so genres/links/trailer arrive null and
- * upsertMedia COALESCEs them against the stored value — detail-level fields are
- * filled by the read-through path, which fetches them via kitsuMediaById.
+ * Bulk pages carry no `included` in bootstrap mode, so genres/links/trailer
+ * arrive null and upsertMedia COALESCEs them against the stored value;
+ * incremental pages include them, keeping crawled rows detail-complete.
  */
 
 const PAGE_SIZE = 20;
@@ -44,6 +44,8 @@ export type TickResult = {
   upserted: number;
   /** Next crawl position; null once the walk is exhausted. */
   nextOffset: number | null;
+  /** Set when the tick threw (per-type failure surfaced by the cron route). */
+  error?: string;
 };
 
 type StatePatch = Partial<typeof syncState.$inferInsert>;
@@ -55,9 +57,9 @@ async function writeState(mediaType: MediaType, patch: StatePatch) {
     .onConflictDoUpdate({ target: syncState.id, set: patch });
 }
 
-/** Clears the cursor so the next tick starts a fresh full crawl. */
+/** Clears the cursor (and boundary) so the next tick starts a fresh crawl. */
 export async function resetSync(mediaType: MediaType) {
-  await writeState(mediaType, { status: "idle", cursor: null, error: null });
+  await writeState(mediaType, { status: "idle", cursor: null, error: null, watermark: null });
 }
 
 export async function getSyncStates() {
@@ -78,12 +80,15 @@ export type TickOptions = {
  * Returns the claimed state, or null when another writer holds the crawl.
  */
 export async function claimSync(mediaType: MediaType) {
+  const now = new Date();
   const [claimed] = await db
     .insert(syncState)
-    .values({ id: mediaType })
+    // The insert values carry the claim too: a row created concurrently is
+    // already "running", so the conflict re-eval rejects the second claimant.
+    .values({ id: mediaType, status: "running", cursorUpdatedAt: now })
     .onConflictDoUpdate({
       target: syncState.id,
-      set: { status: "running", cursorUpdatedAt: new Date(), error: null },
+      set: { status: "running", cursorUpdatedAt: now, error: null },
       setWhere: or(
         ne(syncState.status, "running"),
         isNull(syncState.cursorUpdatedAt),
@@ -103,7 +108,8 @@ async function readWatermark(mediaType: MediaType): Promise<string | null> {
   const { rows } = await db.execute(
     // epoch×1000 as a number: neon-http's JSON round-trip mangles timestamptz.
     // ponytail: one unindexed max(updated_at) scan per nightly tick — add a
-    // (type, updated_at) index if the tick ever feels it.
+    // (type, updated_at) index if the tick ever feels it. mediaType is
+    // enum-bound (MediaType), not user input — interpolation is safe here.
     `select coalesce(extract(epoch from max(updated_at)) * 1000, 0) as watermark from media where type = '${mediaType}'`,
   );
   const ms = Number(rows[0]?.watermark ?? 0);
@@ -142,10 +148,15 @@ export async function runSyncTick(
   const cursor = state?.cursor ?? { offset: 0, upserted: 0 };
   const now = new Date();
 
-  // Stop boundary: stored watermark on a resumed pass, derived from our table
-  // on a fresh one. The cursor stays cursor-only — the boundary lives in the
-  // watermark column, so a resumed pass stops where the original one would.
-  const watermark = incremental ? (state?.watermark ?? (await readWatermark(mediaType))) : null;
+  // Stop boundary: a fresh pass derives it from our table (our last write =
+  // the previous pass's coverage ceiling); a resumed pass keeps the stored
+  // boundary — the ORIGINAL one, not one shifted forward by this pass's own
+  // upserts. Persisted by the start write below so any resume sees it.
+  const watermark = incremental
+    ? fresh || !state?.watermark
+      ? await readWatermark(mediaType)
+      : state.watermark
+    : null;
 
   await writeState(mediaType, {
     status: "running",
@@ -153,6 +164,7 @@ export async function runSyncTick(
     cursor,
     cursorUpdatedAt: now,
     error: null,
+    ...(incremental ? { watermark } : {}),
   });
 
   const deadline = Date.now() + TIME_BOX_MS;
@@ -197,7 +209,9 @@ export async function runSyncTick(
           cursorUpdatedAt: new Date(),
           lastCompletedAt: new Date(),
           error: null,
-          ...(incremental ? { watermark: laterWatermark(passWatermark, watermark) } : {}),
+          // Incremental passes promote the boundary; bootstrap passes clear it
+          // so the next incremental pass re-derives from the fresh table.
+          watermark: incremental ? laterWatermark(passWatermark, watermark) : null,
         });
         return { done: true, status: "idle", upserted, nextOffset: null };
       }

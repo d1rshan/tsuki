@@ -12,6 +12,9 @@ export const env = createEnv({
     // required here — the web app imports this env too, and its build has no
     // API-only secrets. Unset means secret-auth is disabled on the API.
     SYNC_SECRET: z.string().default(""),
+    // Optional: how long one nightly cron pass may crawl per invocation (ms).
+    // Must fit the hosting platform's function-duration limit.
+    SYNC_CRON_BUDGET_MS: z.string().default("240000"),
     // Optional: profile image uploads are disabled (503) when unset. Cannot be
     // required here — the web app imports this env too, and its build has no
     // ImageKit credentials.
@@ -27,6 +30,7 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
     SYNC_SECRET: process.env.SYNC_SECRET,
+    SYNC_CRON_BUDGET_MS: process.env.SYNC_CRON_BUDGET_MS,
     IMAGEKIT_PRIVATE_KEY: process.env.IMAGEKIT_PRIVATE_KEY,
     IMAGEKIT_PUBLIC_KEY: process.env.IMAGEKIT_PUBLIC_KEY,
     IMAGEKIT_URL_ENDPOINT: process.env.IMAGEKIT_URL_ENDPOINT,

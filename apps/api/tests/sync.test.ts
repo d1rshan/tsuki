@@ -45,7 +45,6 @@ vi.mock("@tsuki/db", () => {
               const existing = states.get(values.id);
               if (!existing) {
                 const row = {
-                  id: values.id,
                   status: "idle",
                   cursor: null,
                   cursorUpdatedAt: null,
@@ -53,6 +52,7 @@ vi.mock("@tsuki/db", () => {
                   lastCompletedAt: null,
                   watermark: null,
                   error: null,
+                  ...values,
                 };
                 states.set(values.id, row);
                 return [row];
@@ -261,7 +261,7 @@ describe("claimSync — race semantics", () => {
   test("a fresh type is claimed by creating its row", async () => {
     const claimed = await claimSync("MANGA");
 
-    expect(claimed).toMatchObject({ id: "MANGA", status: "idle" });
+    expect(claimed).toMatchObject({ id: "MANGA", status: "running" });
   });
 });
 
@@ -345,5 +345,50 @@ describe("runSyncTick — incremental walk", () => {
     const result = await runSyncTick("ANIME", { incremental: true });
 
     expect(result).toEqual({ done: true, status: "idle", upserted: 20, nextOffset: null });
+  });
+
+  test("an interrupted multi-tick pass keeps the original boundary", async () => {
+    // Controllable clock: tick 1 starts at t=0, and its (mock) fetch takes
+    // longer than the 40s time-box, so the pass ends after page 0.
+    let fakeNow = 0;
+    const nowSpy = vi.spyOn(Date, "now").mockImplementation(() => fakeNow);
+    dbWatermarks.ANIME = Date.parse("2026-01-01T00:00:00Z");
+    fetchRecentPage.mockImplementationOnce(() => {
+      fakeNow = 50_000;
+      return {
+        data: Array.from({ length: 20 }, (_, i) => ({
+          id: String(i),
+          attributes: { updatedAt: "2026-01-03T00:00:00.000Z" },
+        })),
+      };
+    });
+
+    const first = await runSyncTick("ANIME", { incremental: true });
+    expect(first).toMatchObject({ done: false, status: "running", nextOffset: 20 });
+    // The start write persisted the ORIGINAL Jan-1 boundary.
+    expect(states.get("ANIME")?.watermark).toBe("2026-01-01T00:00:00.000Z");
+
+    // Tick 1's own upserts raise the table's max(updated_at) to Jan 3. The
+    // resumed pass must still stop at the ORIGINAL Jan-1 boundary — else
+    // every row updated between Jan 1 and Jan 3 is silently skipped.
+    dbWatermarks.ANIME = Date.parse("2026-01-03T00:00:00Z");
+    fetchRecentPage
+      .mockImplementationOnce(() => ({
+        data: [{ id: "20", attributes: { updatedAt: "2026-01-02T00:00:00.000Z" } }],
+      }))
+      .mockImplementationOnce(() => ({ data: [] }));
+
+    fakeNow = Date.now();
+    // The cron route chains ticks with force (it holds the claim).
+    const second = await runSyncTick("ANIME", { force: true, incremental: true });
+    nowSpy.mockRestore();
+
+    expect(fetchRecentPage.mock.calls.map((call) => call[1])).toEqual([0, 20, 40]);
+    expect(second.done).toBe(true);
+    // A resumed pass has no page 0, so it cannot capture the walk's newest
+    // updatedAt — promotion keeps the ORIGINAL boundary. The next pass
+    // re-walks rows updated mid-pass: over-fetch, never loss.
+    expect(states.get("ANIME")?.watermark).toBe("2026-01-01T00:00:00.000Z");
+    expect(states.get("ANIME")?.cursor).toBeNull();
   });
 });

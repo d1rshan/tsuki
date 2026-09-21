@@ -75,6 +75,16 @@ export async function kitsuRequest<T>(
       }
     }
 
+    // A retryable *response* (429/5xx) must also hit the attempt ceiling —
+    // otherwise a stubborn 429 loops forever. Kept outside the catch so the
+    // throw can't re-enter the retry path.
+    if (response && attempt === MAX_ATTEMPTS) {
+      throw new KitsuError(
+        `Kitsu responded ${response.status} after ${MAX_ATTEMPTS} attempts`,
+        response.status,
+      );
+    }
+
     await sleep(backoffMs(response, attempt));
   }
 }
@@ -98,21 +108,4 @@ export async function kitsuFetchPage(
     include,
     sort,
   });
-}
-
-/**
- * Walks a collection page by page until links.next is exhausted, handing each
- * page's rows to `onPage`. Time-boxing is the sync engine's job — this only
- * stops when Kitsu runs out.
- */
-export async function kitsuWalk(
-  type: CollectionType,
-  { onPage, limit = 20 }: { onPage: (rows: KitsuMedia[]) => void; limit?: number },
-) {
-  for (let offset = 0; ; offset += limit) {
-    const page = await kitsuFetchPage(type, offset, limit);
-    if (page.data.length === 0) return;
-    onPage(page.data);
-    if (!page.links?.next) return;
-  }
 }

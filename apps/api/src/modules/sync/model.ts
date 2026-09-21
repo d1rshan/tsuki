@@ -29,6 +29,7 @@ export const SyncTickModel = t.Object({
   status: SyncStatusModel,
   upserted: t.Number(),
   nextOffset: t.Nullable(t.Number()),
+  error: t.Optional(t.String()),
 });
 
 export const SyncMediaTypeBody = t.Object({ mediaType: MediaTypeEnum });

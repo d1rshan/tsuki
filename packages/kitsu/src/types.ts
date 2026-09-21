@@ -205,16 +205,6 @@ export type KitsuLinks = {
   last?: string | null;
 };
 
-/**
- * Crosswalk between Kitsu ids and external sites — enumerable with
- * `filter[externalSite]` ("anilist/anime", "anilist/manga", "myanimelist/anime"…).
- * The relationship to the item ("anime"|"manga") is fetched separately.
- */
-export type KitsuMapping = KitsuResource<{
-  externalSite: string;
-  externalId: string;
-}> & { type: "mappings" };
-
 /** One raw page of a collection GET. */
 export type KitsuPage<T, I = never> = {
   data: T[];
