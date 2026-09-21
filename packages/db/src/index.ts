@@ -1,4 +1,4 @@
 export { db } from "./db";
-export { sql } from "drizzle-orm";
+export { isNull, lt, ne, or, sql } from "drizzle-orm";
 export * from "./schema";
 export * from "./dal";

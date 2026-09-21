@@ -72,12 +72,26 @@ describe("GET /media/:type/search", () => {
   test("clamps limit to the cap", async () => {
     searchMedia.mockResolvedValue([]);
 
-    await app.handle(new Request("http://localhost/media/ANIME/search?q=bebop&limit=100"));
+    const res = await app.handle(
+      new Request("http://localhost/media/ANIME/search?q=bebop&limit=50"),
+    );
 
+    expect(res.status).toBe(200);
     expect(searchMedia).toHaveBeenCalledWith("ANIME", "bebop", {
       limit: 50,
       includeNsfw: false,
     });
+  });
+
+  test("invalid limits are rejected at the boundary, never reaching the dal", async () => {
+    for (const limit of ["0", "-1", "2.5", "51", "not-a-number"]) {
+      searchMedia.mockClear();
+      const res = await app.handle(
+        new Request(`http://localhost/media/ANIME/search?q=bebop&limit=${limit}`),
+      );
+      expect(res.status).toBe(422);
+      expect(searchMedia).not.toHaveBeenCalled();
+    }
   });
 
   test("passes the nsfw flag through", async () => {

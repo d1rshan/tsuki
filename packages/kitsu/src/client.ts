@@ -81,17 +81,22 @@ export async function kitsuRequest<T>(
 
 type CollectionType = "anime" | "manga";
 
-/** One raw page of a collection — the sync engine's unit of work. */
+/**
+ * One raw page of a collection — the sync engine's unit of work. `sort` is
+ * a JSON:API sort expression ("-updatedAt" feeds the incremental walk).
+ */
 export async function kitsuFetchPage(
   type: CollectionType,
   offset: number,
   limit: number = 20,
   include?: string,
+  sort?: string,
 ) {
   return kitsuRequest<KitsuPage<KitsuMedia, KitsuIncluded>>(`/${type}`, {
     "page[offset]": offset,
     "page[limit]": limit,
     include,
+    sort,
   });
 }
 

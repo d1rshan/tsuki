@@ -172,9 +172,11 @@ describe("status and subtype mapping for every kitsu value", () => {
 });
 
 describe("genre dedupe and NSFW exclusion", () => {
-  test("dedupes case-insensitively and drops isNsfw categories", () => {
+  test("dedupes case-insensitively and drops nsfw categories", () => {
     // Synthetic categories must be wired into the media's own relationship
     // ids — resolution is scoped to them, not to the whole `included`.
+    // The NSFW flag must be `nsfw`, the attribute Kitsu actually sends
+    // (verified live); the old `isNsfw` spelling filtered nothing.
     const withSyntheticCategories = {
       ...animeFixture.data,
       relationships: {
@@ -195,7 +197,7 @@ describe("genre dedupe and NSFW exclusion", () => {
     const row = toMediaRow(withSyntheticCategories, [
       ...animeFixture.included,
       { id: "900", type: "categories", attributes: { title: "ACTION" } },
-      { id: "901", type: "categories", attributes: { title: "Hentai", isNsfw: true } },
+      { id: "901", type: "categories", attributes: { title: "Hentai", nsfw: true } },
     ] satisfies KitsuIncluded[]);
 
     expect(row.genres).toContain("Action");

@@ -20,6 +20,7 @@ export const SyncStateModel = t.Object({
   cursorUpdatedAt: t.Nullable(t.Date()),
   runStartedAt: t.Nullable(t.Date()),
   lastCompletedAt: t.Nullable(t.Date()),
+  watermark: t.Nullable(t.String()),
   error: t.Nullable(t.String()),
 });
 

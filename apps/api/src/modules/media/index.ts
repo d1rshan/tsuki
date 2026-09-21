@@ -20,7 +20,7 @@ export const mediaRoutes = new Elysia({ prefix: "/media", tags: ["Media"] })
       if (term.length < 2) return [];
 
       return mediaDal.searchMedia(type, term, {
-        limit: Math.min(limit ?? SEARCH_LIMIT_DEFAULT, SEARCH_LIMIT_MAX),
+        limit: limit ?? SEARCH_LIMIT_DEFAULT,
         includeNsfw: nsfw === true,
       });
     },
@@ -28,7 +28,9 @@ export const mediaRoutes = new Elysia({ prefix: "/media", tags: ["Media"] })
       params: t.Object({ type: MediaTypeEnum }),
       query: t.Object({
         q: t.Optional(t.String()),
-        limit: t.Optional(t.Numeric()),
+        // Integer range so invalid limits (0, -1, 2.5, >max) 422 at the
+        // boundary instead of reaching PostgreSQL's LIMIT.
+        limit: t.Optional(t.Integer({ minimum: 1, maximum: SEARCH_LIMIT_MAX })),
         nsfw: t.Optional(t.Boolean()),
       }),
       response: { 200: t.Array(MediaCompactModel) },

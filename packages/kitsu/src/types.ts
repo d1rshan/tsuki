@@ -173,11 +173,12 @@ export type KitsuMedia =
   | (KitsuResource<KitsuAnimeAttributes> & { type: "anime" })
   | (KitsuResource<KitsuMangaAttributes> & { type: "manga" });
 
-/** Categories (our genres) come in via `include=categories`. */
+/** Categories (our genres) come in via `include=categories`. The NSFW flag
+ * is `nsfw` in the live payload (verified against kitsu.app/api/edge). */
 export type KitsuCategory = KitsuResource<{
   title: string;
   slug?: string;
-  isNsfw?: boolean | null;
+  nsfw?: boolean | null;
   description?: string | null;
   totalMediaCount?: number | null;
 }> & { type: "categories" };

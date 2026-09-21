@@ -66,6 +66,14 @@ export function kitsuPage(type: MediaType, offset: number, limit = 20) {
   return kitsuFetchPage(PATHS[type], offset, limit, INCLUDE[type]);
 }
 
+/**
+ * One raw page of the collection, newest-updated first (verified against
+ * kitsu.app/api/edge) — the unit of work for the incremental nightly pass.
+ */
+export function kitsuRecentPage(type: MediaType, offset: number, limit = 20) {
+  return kitsuFetchPage(PATHS[type], offset, limit, INCLUDE[type], "-updatedAt");
+}
+
 /** One raw page of the mappings collection, for the AniList→Kitsu crosswalk. */
 export async function kitsuMappingPage(site: string, offset: number, limit = 20) {
   return kitsuRequest<KitsuPage<KitsuMapping>>("/mappings", {

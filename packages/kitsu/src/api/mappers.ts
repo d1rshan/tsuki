@@ -76,7 +76,7 @@ function toGenres(categories: KitsuCategory[]) {
 
   for (const { attributes } of categories) {
     const title = attributes.title;
-    if (!title || attributes.isNsfw) continue;
+    if (!title || attributes.nsfw) continue;
 
     const key = title.toLowerCase();
     if (seen.has(key)) continue;
