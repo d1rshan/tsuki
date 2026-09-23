@@ -130,9 +130,6 @@ export function BetaFeedback() {
 
         <div className="rounded-lg border border-border/50 bg-muted/30 p-3">
           <p className="text-sm font-medium text-foreground">Support Tsuki</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Any kind of support, even small, means a lot to me and helps me keep this going.
-          </p>
           <Button
             render={<a href={SPONSORS_URL} target="_blank" rel="noopener noreferrer" />}
             className="mt-3 w-full"

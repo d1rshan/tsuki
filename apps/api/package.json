@@ -20,6 +20,7 @@
     "@tsuki/env": "workspace:*",
     "@tsuki/kitsu": "workspace:*",
     "@tsuki/rich-content": "workspace:*",
+    "drizzle-orm": "^0.45.2",
     "elysia": "latest"
   },
   "devDependencies": {
