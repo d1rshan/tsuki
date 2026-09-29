@@ -20,11 +20,11 @@
     "@tsuki/env": "workspace:*",
     "@tsuki/kitsu": "workspace:*",
     "@tsuki/rich-content": "workspace:*",
-    "drizzle-orm": "^0.45.2",
+    "drizzle-orm": "^0.45.3",
     "elysia": "latest"
   },
   "devDependencies": {
     "bun-types": "latest",
-    "vitest": "^5.0.0"
+    "vitest": "^5.0.2"
   }
 }
