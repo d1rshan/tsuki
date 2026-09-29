@@ -5,7 +5,7 @@ import { ExternalLink } from "@/shared/components/external-link";
 const GITHUB_URL = "https://github.com/d1rshan/tsuki";
 const GITHUB_ISSUES_URL = "https://github.com/d1rshan/tsuki/issues";
 const AUTHOR_URL = "https://github.com/d1rshan";
-const ANILIST_URL = "https://anilist.co";
+const KITSU_URL = "https://kitsu.app";
 
 export function Footer() {
   return (
@@ -48,7 +48,7 @@ export function Footer() {
               </p>
               <ExternalLink href={GITHUB_URL}>GitHub</ExternalLink>
               <ExternalLink href={GITHUB_ISSUES_URL}>Report an issue</ExternalLink>
-              <ExternalLink href={ANILIST_URL}>Data provided by AniList</ExternalLink>
+              <ExternalLink href={KITSU_URL}>Media data from kitsu.app</ExternalLink>
             </div>
           </nav>
         </div>

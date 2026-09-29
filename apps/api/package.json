@@ -15,11 +15,12 @@
   },
   "dependencies": {
     "@elysiajs/openapi": "^1.4.15",
-    "@tsuki/anilist": "workspace:*",
     "@tsuki/auth": "workspace:*",
     "@tsuki/db": "workspace:*",
     "@tsuki/env": "workspace:*",
+    "@tsuki/kitsu": "workspace:*",
     "@tsuki/rich-content": "workspace:*",
+    "drizzle-orm": "^0.45.2",
     "elysia": "latest"
   },
   "devDependencies": {

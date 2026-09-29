@@ -1,4 +1,4 @@
-import { LIST_STATUSES } from "@tsuki/anilist";
+import { LIST_STATUSES } from "@tsuki/db";
 import { t } from "elysia";
 
 import { FuzzyDateModel, MediaCompactModel, MediaTypeEnum } from "../media/model";

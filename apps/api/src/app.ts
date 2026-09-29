@@ -10,6 +10,7 @@ import { mediaRoutes } from "./modules/media";
 import { profilesRoutes } from "./modules/profiles";
 import { reviewRoutes } from "./modules/reviews";
 import { socialRoutes } from "./modules/social";
+import { syncRoutes } from "./modules/sync";
 
 export const app = new Elysia()
   .use(
@@ -22,12 +23,13 @@ export const app = new Elysia()
           version: "1.0.50",
         },
         tags: [
-          { name: "Media", description: "Anime & manga from AniList" },
+          { name: "Media", description: "Anime & manga from our own catalogue" },
           { name: "Library", description: "Personal watch/read lists" },
           { name: "Reviews", description: "Scored reviews" },
           { name: "Social", description: "Follows and discovery" },
           { name: "Activity", description: "Activity feed" },
           { name: "Profiles", description: "User profiles" },
+          { name: "Sync", description: "Catalogue sync from Kitsu (admin)" },
           { name: "Auth", description: "Better Auth endpoints (mounted)" },
         ],
         components: {
@@ -49,6 +51,7 @@ export const app = new Elysia()
   .use(libraryRoutes)
   .use(reviewRoutes)
   .use(socialRoutes)
+  .use(syncRoutes)
   .use(activityRoutes)
   .use(profilesRoutes) // last: its `/users/:username` param route must not shadow static paths
   .get("/", () => "Tsuki API Running!");
