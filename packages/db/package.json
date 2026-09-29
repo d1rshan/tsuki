@@ -11,10 +11,10 @@
     "@neondatabase/serverless": "^1.1.0",
     "@tsuki/env": "workspace:*",
     "@tsuki/rich-content": "workspace:*",
-    "drizzle-orm": "^0.45.2"
+    "drizzle-orm": "^0.45.3"
   },
   "devDependencies": {
-    "@types/node": "^26.4.1",
-    "drizzle-kit": "^0.31.10"
+    "@types/node": "^26.6.3",
+    "drizzle-kit": "^0.31.11"
   }
 }
