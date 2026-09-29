@@ -49,6 +49,23 @@ describe("toMediaRow", () => {
     });
   });
 
+  test("updatedAt falls back to createdAt then epoch, never local now", () => {
+    // Local time would poison the sync watermark (max(updated_at) past every
+    // Kitsu timestamp freezes the incremental walk on page 1).
+    expect(
+      toMediaRow({
+        ...animeFixture.data,
+        attributes: { ...animeFixture.data.attributes, updatedAt: null },
+      } as KitsuMedia).updatedAt,
+    ).toEqual(new Date(animeFixture.data.attributes.createdAt!));
+    expect(
+      toMediaRow({
+        ...animeFixture.data,
+        attributes: { ...animeFixture.data.attributes, updatedAt: "not-a-date" },
+      } as KitsuMedia).updatedAt,
+    ).toEqual(new Date(animeFixture.data.attributes.createdAt!));
+  });
+
   test("maps the Guardian Dog manga fixture with the romaji fallback chain", () => {
     const row = toMediaRow(mangaFixture.data, mangaFixture.included);
 

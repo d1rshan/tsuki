@@ -37,6 +37,17 @@ function dropEmpty<T>(list: T[]) {
   return list.length > 0 ? list : null;
 }
 
+/** First parseable ISO string → Date; ISO 8601 per contract. */
+function parseSecs(isos: (string | null | undefined)[]): Date {
+  for (const iso of isos) {
+    if (iso) {
+      const date = new Date(iso);
+      if (!Number.isNaN(date.getTime())) return date;
+    }
+  }
+  return new Date(0);
+}
+
 type IncludedIndex = Map<string, KitsuIncluded>;
 
 /** Indexes a response's `included` by "<type>:<id>" for relationship resolution. */
@@ -176,10 +187,15 @@ export function toMediaRow(media: KitsuMedia, included?: KitsuIncluded[]) {
     nsfw: attrs.nsfw ?? false,
     // Kitsu's own updatedAt — media.updated_at carries it so the sync
     // watermark (max(updated_at)) compares Kitsu time against Kitsu time.
-    // Absent/unparseable → the column's defaultNow() fallback applies on insert.
-    ...(attrs.updatedAt && !Number.isNaN(Date.parse(attrs.updatedAt))
-      ? { updatedAt: new Date(attrs.updatedAt) }
-      : {}),
+    // updatedAt → createdAt → epoch: the fallback must never be local time,
+    // or one such row inflates max(updated_at) past every Kitsu timestamp
+    // and freezes the incremental walk on page 1.
+    updatedAt: parseSecs([
+      attrs.updatedAt,
+      attrs.createdAt,
+      // A "no upstream time" marker older than any Kitsu timestamp.
+      "1970-01-01T00:00:00.000Z",
+    ]),
   };
 }
 

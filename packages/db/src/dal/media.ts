@@ -24,16 +24,24 @@ export const MEDIA_COMPACT_COLUMNS = {
   averageScore: true,
 } as const;
 
-/** Nullable enrichment fields a bulk sync page can't fill (Kitsu list pages
- * carry no categories/links). Keep the stored value instead of wiping it. */
-const ENRICHMENT_COLUMNS = new Set(["genres", "externalLinks", "trailer", "description"]);
+/** Nullable columns an incoming row may leave unfilled (updatedAt has no
+ * upstream time on malformed Kitsu payloads; enrichment fields are absent
+ * from bulk list pages). Keep the stored value instead of wiping it. */
+const ENRICHMENT_COLUMNS = new Set([
+  "genres",
+  "externalLinks",
+  "trailer",
+  "description",
+  "updatedAt",
+]);
 
-/** Refresh every column from the incoming row — including updatedAt, which
- * rides in from the row as Kitsu time — keeping only identity, createdAt
- * and the titleSearch generated column (Postgres forbids writing to those). */
+/** Refresh every column from the incoming row, keeping only identity, createdAt
+ * and the titleSearch generated column (Postgres forbids writing to those).
+ * updatedAt and the enrichment set COALESCE against the stored value, so a
+ * row without upstream time can't stamp local now() over Kitsu time. */
 const MEDIA_UPSERT_SET = Object.fromEntries(
   Object.entries(getTableColumns(media))
-    .filter(([key]) => !["id", "type", "createdAt", "titleSearch"].includes(key))
+    .filter(([key]) => !["id", "type", "createdAt", "titleSearch" /* generated */].includes(key))
     .map(([key, column]) => [
       key,
       ENRICHMENT_COLUMNS.has(key)
