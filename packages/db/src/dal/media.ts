@@ -28,7 +28,8 @@ export const MEDIA_COMPACT_COLUMNS = {
  * carry no categories/links). Keep the stored value instead of wiping it. */
 const ENRICHMENT_COLUMNS = new Set(["genres", "externalLinks", "trailer", "description"]);
 
-/** Refresh every column from the incoming row, keeping only identity, createdAt
+/** Refresh every column from the incoming row — including updatedAt, which
+ * rides in from the row as Kitsu time — keeping only identity, createdAt
  * and the titleSearch generated column (Postgres forbids writing to those). */
 const MEDIA_UPSERT_SET = Object.fromEntries(
   Object.entries(getTableColumns(media))
@@ -66,7 +67,8 @@ export const getMediaById = async (type: MediaType, id: number) => {
 const escapeIlike = (query: string) => query.replace(/[\\%_]/g, "\\$&");
 
 /** Our ranking: "what's popular here" (ADR 0004), replacing AniList's
- * TRENDING_DESC. Non-NSFW only, newest crawl is the freshness ceiling. */
+ * TRENDING_DESC. Non-NSFW only; updated_at carries Kitsu's updatedAt, so the
+ * watermark's freshness ceiling stays in Kitsu time. */
 export const listTrending = async (type: MediaType, limit = 70) => {
   return db.query.media.findMany({
     columns: MEDIA_COMPACT_COLUMNS,

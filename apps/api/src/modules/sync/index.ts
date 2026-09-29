@@ -47,8 +47,8 @@ async function requireAdmin(user: { role?: string | null } | null | undefined) {
 }
 
 /**
- * One nightly pass over a type: claim it, then run incremental 40s ticks back
- * to back until the pass completes or the cron budget runs out. An incomplete
+ * One nightly pass per type: claim it, then run incremental 40s ticks back to
+ * back until the pass completes or the cron budget runs out. An incomplete
  * pass resumes tomorrow via the cursor and watermark. The budget must fit the
  * hosting platform's function-duration limit — on serverless hosts, set
  * SYNC_CRON_BUDGET_MS (and the platform's maxDuration) accordingly.
@@ -75,6 +75,20 @@ async function cronPass(mediaType: MediaType, deadline: number) {
     result = await runSyncTick(mediaType, { force: true, incremental: true });
   }
   return result;
+}
+
+async function runCronType(type: MediaType, deadline: number): Promise<TickResult> {
+  try {
+    return await cronPass(type, deadline);
+  } catch (error) {
+    return {
+      done: false,
+      status: "failed",
+      upserted: 0,
+      nextOffset: null,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
 }
 
 export const syncRoutes = new Elysia({ prefix: "/admin/sync", tags: ["Sync"] })
@@ -126,22 +140,14 @@ export const syncRoutes = new Elysia({ prefix: "/admin/sync", tags: ["Sync"] })
     "/tick-cron",
     async () => {
       const deadline = Date.now() + CRON_BUDGET_MS;
-      // Each type gets its own budget slice — one type's Kitsu failure must
-      // not consume the other's nightly pass. Failures surface per-type.
-      const runType = async (type: MediaType): Promise<TickResult> => {
-        try {
-          return await cronPass(type, deadline);
-        } catch (error) {
-          return {
-            done: false,
-            status: "failed",
-            upserted: 0,
-            nextOffset: null,
-            error: error instanceof Error ? error.message : String(error),
-          };
-        }
-      };
-      return { anime: await runType("ANIME"), manga: await runType("MANGA") };
+      // One shared budget, but both types pass concurrently — each claim is
+      // per-type, so the two writers don't contend, and one type eating the
+      // whole budget can no longer starve the other. Failures surface per-type.
+      const [anime, manga] = await Promise.all([
+        runCronType("ANIME", deadline),
+        runCronType("MANGA", deadline),
+      ]);
+      return { anime, manga };
     },
     {
       beforeHandle: ({ headers, request }) => requireSyncAuth({ headers, request }),
@@ -154,7 +160,7 @@ export const syncRoutes = new Elysia({ prefix: "/admin/sync", tags: ["Sync"] })
       detail: {
         summary: "Cron entrypoint",
         description:
-          "Vercel cron (Authorization: Bearer $CRON_SECRET, set CRON_SECRET = SYNC_SECRET) runs the incremental nightly pass: it claims each type and ticks it until done or the ~4min budget is spent.",
+          "Vercel cron (Authorization: Bearer $CRON_SECRET, set CRON_SECRET = SYNC_SECRET) runs the incremental nightly pass: it claims each type and ticks both concurrently until done or the ~4min budget is spent.",
       },
     },
   );

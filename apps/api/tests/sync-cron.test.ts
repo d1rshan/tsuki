@@ -80,11 +80,11 @@ describe("GET /admin/sync/tick-cron", () => {
     // ANIME needed 3 ticks (2 continuations), MANGA finished on its first.
     expect(runSyncTick.mock.calls.filter((call) => call[0] === "ANIME")).toHaveLength(3);
     expect(runSyncTick.mock.calls.filter((call) => call[0] === "MANGA")).toHaveLength(1);
-    // One claim per type, taken up front; continuations ride the held claim.
+    // One claim per type; continuations ride the held claim.
     expect(claimSync).toHaveBeenCalledTimes(2);
   });
 
-  test("the ~4min budget stops an unfinishable pass; the cursor resumes tomorrow", async () => {
+  test("the ~4min budget stops unfinishable passes; the cursor resumes tomorrow", async () => {
     vi.useFakeTimers();
     // Each tick burns 40s of (fake) time, like the real one does.
     runSyncTick.mockImplementation((_mediaType: string) =>
@@ -104,10 +104,12 @@ describe("GET /admin/sync/tick-cron", () => {
     expect(res.status).toBe(200);
     expect(body.anime.done).toBe(false);
     expect(body.manga.done).toBe(false);
-    // ANIME ticked back to back inside the budget; MANGA never started.
+    // Both types pass concurrently — one type eating the whole budget can't
+    // starve the other, so each ticks back to back inside the same budget.
     expect(runSyncTick.mock.calls.filter((call) => call[0] === "ANIME").length).toBeGreaterThan(1);
-    expect(runSyncTick.mock.calls.filter((call) => call[0] === "MANGA")).toHaveLength(0);
-    expect(claimSync).toHaveBeenCalledTimes(1);
+    expect(runSyncTick.mock.calls.filter((call) => call[0] === "MANGA").length).toBeGreaterThan(1);
+    // One claim per type.
+    expect(claimSync).toHaveBeenCalledTimes(2);
   });
 
   test("a lost claim returns the holder's cursor instead of crawling", async () => {

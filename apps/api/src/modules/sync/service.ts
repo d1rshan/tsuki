@@ -20,11 +20,11 @@ import type { MediaType } from "../media/model";
  *
  * Watermark (sync_state.watermark, an ISO instant): rows with a Kitsu
  * updatedAt newer than it are the only ones worth upserting. A fresh pass
- * derives it from the media table's max(updated_at) — our last write, the
- * previous pass's coverage ceiling — captures the walk's newest updatedAt
- * before its first upsert, and promotes that on completion. An interrupted
- * pass resumes against the stored boundary, so it stops where the original
- * pass would have.
+ * derives it from the media table's max(updated_at) — Kitsu time, since
+ * toMediaRow maps Kitsu's updatedAt into that column — captures the walk's
+ * newest updatedAt before its first upsert, and promotes that on completion.
+ * An interrupted pass resumes against the stored boundary, so it stops where
+ * the original pass would have.
  *
  * Bulk pages carry no `included` in bootstrap mode, so genres/links/trailer
  * arrive null and upsertMedia COALESCEs them against the stored value;
@@ -100,8 +100,9 @@ export async function claimSync(mediaType: MediaType) {
 }
 
 /**
- * The media table's own newest updatedAt — the previous pass's coverage
- * ceiling. Later ISO instants sort after earlier ones, so the walk compares
+ * The media table's own newest updatedAt — Kitsu time, since toMediaRow maps
+ * Kitsu's updatedAt into that column. Coverage ceiling of the previous pass.
+ * Later ISO instants sort after earlier ones, so the walk compares
  * Kitsu's updatedAt strings against this directly.
  */
 async function readWatermark(mediaType: MediaType): Promise<string | null> {

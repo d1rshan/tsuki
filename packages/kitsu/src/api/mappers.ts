@@ -174,6 +174,12 @@ export function toMediaRow(media: KitsuMedia, included?: KitsuIncluded[]) {
     externalLinks: toExternalLinks(resolveOwn(media, "streamingLinks", index), index),
     slug: attrs.slug,
     nsfw: attrs.nsfw ?? false,
+    // Kitsu's own updatedAt — media.updated_at carries it so the sync
+    // watermark (max(updated_at)) compares Kitsu time against Kitsu time.
+    // Absent/unparseable → the column's defaultNow() fallback applies on insert.
+    ...(attrs.updatedAt && !Number.isNaN(Date.parse(attrs.updatedAt))
+      ? { updatedAt: new Date(attrs.updatedAt) }
+      : {}),
   };
 }
 

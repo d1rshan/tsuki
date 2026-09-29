@@ -67,6 +67,8 @@ export const MediaModel = t.Composite([
       t.Object({ id: t.String(), site: t.String(), thumbnail: t.Nullable(t.String()) }),
     ),
     externalLinks: t.Nullable(t.Array(t.Object({ url: t.String(), site: t.String() }))),
+    /** Kitsu's updatedAt — rides along on detail rows, used by the sync watermark. */
+    updatedAt: t.Optional(t.Date()),
   }),
 ]);
 

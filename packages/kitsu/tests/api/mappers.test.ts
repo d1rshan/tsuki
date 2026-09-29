@@ -43,6 +43,9 @@ describe("toMediaRow", () => {
       slug: "cowboy-bebop",
       nsfw: false,
       coverImageColor: null,
+      // Kitsu's updatedAt rides along: media.updated_at must hold Kitsu time
+      // for the sync watermark (max(updated_at)) to compare Kitsu-to-Kitsu.
+      updatedAt: new Date("2026-09-19T12:44:10.188Z"),
     });
   });
 
