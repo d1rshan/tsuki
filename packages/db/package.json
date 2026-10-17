@@ -8,13 +8,13 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^1.1.0",
+    "@neondatabase/serverless": "^1.2.0",
     "@tsuki/env": "workspace:*",
     "@tsuki/rich-content": "workspace:*",
-    "drizzle-orm": "^0.45.2"
+    "drizzle-orm": "^0.45.4"
   },
   "devDependencies": {
-    "@types/node": "^26.4.1",
-    "drizzle-kit": "^0.31.10"
+    "@types/node": "^26.6.5",
+    "drizzle-kit": "^0.31.11"
   }
 }
