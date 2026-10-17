@@ -8,3 +8,10 @@ export const getUserByUsername = async (username: string) => {
     where: eq(user.username, username.toLowerCase()),
   });
 };
+
+export const setPrivacy = async (userId: string, isPrivate: boolean) =>
+  db
+    .update(user)
+    .set({ isPrivate })
+    .where(eq(user.id, userId))
+    .returning({ isPrivate: user.isPrivate });

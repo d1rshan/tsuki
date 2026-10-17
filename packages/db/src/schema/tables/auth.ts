@@ -22,6 +22,7 @@ export const user = pgTable("user", {
     .notNull(),
   username: text("username").notNull().unique(),
   displayUsername: text("display_username").notNull(),
+  isPrivate: boolean("is_private").default(false).notNull(),
   role: text("role"),
   banned: boolean("banned").default(false),
   banReason: text("ban_reason"),

@@ -1,8 +1,8 @@
-import { and, count, desc, eq, ilike, ne, or } from "drizzle-orm";
+import { and, count, desc, eq, ilike, ne, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 
 import { db } from "../db";
-import { social, user } from "../schema";
+import { followRequest, social, user } from "../schema";
 
 function usernamePrefixPattern(prefix: string) {
   return `${prefix.toLowerCase().replace(/[\\%_]/g, "\\$&")}%`;
@@ -20,6 +20,7 @@ const PUBLIC_USER_COLUMNS = {
 export type FollowRelationship = {
   following: boolean;
   followedBy: boolean;
+  requested: boolean;
 };
 
 type FollowListOptions = {
@@ -72,20 +73,75 @@ export const getFollowRelationship = async (viewerId: string, profileUserId: str
       ),
     );
 
+  const [request] = await db
+    .select({ requesterId: followRequest.requesterId })
+    .from(followRequest)
+    .where(and(eq(followRequest.requesterId, viewerId), eq(followRequest.targetId, profileUserId)))
+    .limit(1);
+
   return {
     following: rows.some((row) => row.followerId === viewerId && row.followingId === profileUserId),
     followedBy: rows.some(
       (row) => row.followerId === profileUserId && row.followingId === viewerId,
     ),
+    requested: Boolean(request),
   };
 };
 
+export const canViewProfile = async (
+  viewerId: string | null,
+  targetId: string,
+  isPrivate: boolean,
+) => {
+  if (!isPrivate || viewerId === targetId) return true;
+  if (!viewerId) return false;
+  const [row] = await db
+    .select({ id: social.followerId })
+    .from(social)
+    .where(and(eq(social.followerId, viewerId), eq(social.followingId, targetId)))
+    .limit(1);
+  return Boolean(row);
+};
+
+export const requestFollow = (requesterId: string, targetId: string) =>
+  db.insert(followRequest).values({ requesterId, targetId }).onConflictDoNothing();
+
+export const cancelFollowRequest = (requesterId: string, targetId: string) =>
+  db
+    .delete(followRequest)
+    .where(and(eq(followRequest.requesterId, requesterId), eq(followRequest.targetId, targetId)));
+
+export const getFollowRequests = (targetId: string) =>
+  db
+    .select(PUBLIC_USER_COLUMNS)
+    .from(followRequest)
+    .innerJoin(user, eq(user.id, followRequest.requesterId))
+    .where(eq(followRequest.targetId, targetId))
+    .orderBy(desc(followRequest.createdAt));
+
+export const acceptFollowRequest = async (requesterId: string, targetId: string) => {
+  const result = await db.execute(sql`
+    with accepted as (
+      delete from ${followRequest}
+      where ${followRequest.requesterId} = ${requesterId}
+        and ${followRequest.targetId} = ${targetId}
+      returning requester_id, target_id
+    )
+    insert into ${social} (follower_id, following_id)
+    select requester_id, target_id from accepted
+    on conflict do nothing
+    returning follower_id
+  `);
+  return result.rows.length > 0;
+};
+
 export const followUser = async (followerId: string, followingId: string) => {
-  return db
-    .insert(social)
-    .values({ followerId, followingId })
-    .onConflictDoNothing({ target: [social.followerId, social.followingId] })
-    .returning({ followingId: social.followingId });
+  return db.execute(sql`
+    insert into ${social} (follower_id, following_id)
+    select ${followerId}, ${followingId} from ${user}
+    where ${user.id} = ${followingId} and ${user.isPrivate} = false
+    on conflict do nothing
+  `);
 };
 
 export const unfollowUser = async (followerId: string, followingId: string) => {
@@ -123,6 +179,7 @@ export const getUserDiscovery = async (
 ) => {
   const conditions = [];
   if (viewerId) conditions.push(ne(user.id, viewerId));
+  conditions.push(eq(user.isPrivate, false));
   if (usernamePrefix) conditions.push(ilike(user.username, usernamePrefixPattern(usernamePrefix)));
 
   return db

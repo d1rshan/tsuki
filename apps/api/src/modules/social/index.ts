@@ -1,16 +1,17 @@
-import { Elysia, t } from "elysia";
+import { Elysia, t, status } from "elysia";
 
 import { socialDal } from "@tsuki/db";
 
 import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
-import { requireUser } from "../profiles/service";
+import { requireProfileAccess, requireUser } from "../profiles/service";
 import {
   FollowListModel,
   FollowListQueryModel,
   FollowRelationshipModel,
   UserDiscoveryModel,
   UserDiscoveryQueryModel,
+  UserSummaryModel,
 } from "./model";
 import { followProfile, unfollowProfile } from "./service";
 
@@ -39,8 +40,8 @@ export const socialRoutes = new Elysia({ tags: ["Social"] })
   )
   .get(
     "/users/:username/followers",
-    async ({ params: { username }, query }) => {
-      const user = await requireUser(username);
+    async ({ params: { username }, query, viewer }) => {
+      const user = await requireProfileAccess(username, viewer?.id ?? null);
 
       const options = { limit: query.limit ?? 40, offset: query.offset ?? 0 };
       const [users, total] = await Promise.all([
@@ -53,14 +54,15 @@ export const socialRoutes = new Elysia({ tags: ["Social"] })
     {
       params: t.Object({ username: t.String() }),
       query: FollowListQueryModel,
-      response: { 200: FollowListModel, 404: ErrorModel },
+      optionalAuth: true,
+      response: { 200: FollowListModel, 403: ErrorModel, 404: ErrorModel },
       detail: { summary: "List a user's followers" },
     },
   )
   .get(
     "/users/:username/following",
-    async ({ params: { username }, query }) => {
-      const user = await requireUser(username);
+    async ({ params: { username }, query, viewer }) => {
+      const user = await requireProfileAccess(username, viewer?.id ?? null);
 
       const options = { limit: query.limit ?? 40, offset: query.offset ?? 0 };
       const [users, total] = await Promise.all([
@@ -73,7 +75,8 @@ export const socialRoutes = new Elysia({ tags: ["Social"] })
     {
       params: t.Object({ username: t.String() }),
       query: FollowListQueryModel,
-      response: { 200: FollowListModel, 404: ErrorModel },
+      optionalAuth: true,
+      response: { 200: FollowListModel, 403: ErrorModel, 404: ErrorModel },
       detail: { summary: "List users followed by a user" },
     },
   )
@@ -82,7 +85,7 @@ export const socialRoutes = new Elysia({ tags: ["Social"] })
     async ({ params: { username }, user }) => {
       const profileUser = await requireUser(username);
       if (profileUser.id === user.id) {
-        return { following: false, followedBy: false };
+        return { following: false, followedBy: false, requested: false };
       }
 
       return socialDal.getFollowRelationship(user.id, profileUser.id);
@@ -98,7 +101,7 @@ export const socialRoutes = new Elysia({ tags: ["Social"] })
     "/users/:username/follow",
     async ({ params: { username }, user }) => {
       const profileUser = await requireUser(username);
-      return followProfile(user.id, profileUser.id);
+      return followProfile(user.id, profileUser.id, profileUser.isPrivate);
     },
     {
       auth: true,
@@ -118,5 +121,39 @@ export const socialRoutes = new Elysia({ tags: ["Social"] })
       params: t.Object({ username: t.String() }),
       response: { 200: FollowRelationshipModel, 400: ErrorModel, 404: ErrorModel },
       detail: { summary: "Unfollow a user" },
+    },
+  )
+  .get("/me/follow-requests", ({ user }) => socialDal.getFollowRequests(user.id), {
+    auth: true,
+    response: { 200: t.Array(UserSummaryModel) },
+    detail: { summary: "List pending follow requests" },
+  })
+  .post(
+    "/me/follow-requests/:username",
+    async ({ params: { username }, user }) => {
+      const requester = await requireUser(username);
+      const accepted = await socialDal.acceptFollowRequest(requester.id, user.id);
+      if (!accepted) return status(404, { error: "Follow request not found" });
+      return { accepted: true };
+    },
+    {
+      auth: true,
+      params: t.Object({ username: t.String() }),
+      response: { 200: t.Object({ accepted: t.Boolean() }), 404: ErrorModel },
+      detail: { summary: "Accept follow request" },
+    },
+  )
+  .delete(
+    "/me/follow-requests/:username",
+    async ({ params: { username }, user }) => {
+      const requester = await requireUser(username);
+      await socialDal.cancelFollowRequest(requester.id, user.id);
+      return { rejected: true };
+    },
+    {
+      auth: true,
+      params: t.Object({ username: t.String() }),
+      response: { 200: t.Object({ rejected: t.Boolean() }), 404: ErrorModel },
+      detail: { summary: "Decline follow request" },
     },
   );
