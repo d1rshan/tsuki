@@ -106,7 +106,7 @@ export const socialRoutes = new Elysia({ tags: ["Social"] })
     {
       auth: true,
       params: t.Object({ username: t.String() }),
-      response: { 200: FollowRelationshipModel, 400: ErrorModel, 404: ErrorModel },
+      response: { 200: FollowRelationshipModel, 400: ErrorModel, 404: ErrorModel, 409: ErrorModel },
       detail: { summary: "Follow a user" },
     },
   )
