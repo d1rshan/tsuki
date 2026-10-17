@@ -104,7 +104,16 @@ export const canViewProfile = async (
 };
 
 export const requestFollow = (requesterId: string, targetId: string) =>
-  db.insert(followRequest).values({ requesterId, targetId }).onConflictDoNothing();
+  db.execute(sql`
+    insert into ${followRequest} (requester_id, target_id)
+    select ${requesterId}, ${targetId} from ${user}
+    where ${user.id} = ${targetId} and ${user.isPrivate} = true
+      and not exists (
+        select 1 from ${social}
+        where ${social.followerId} = ${requesterId} and ${social.followingId} = ${targetId}
+      )
+    on conflict do nothing
+  `);
 
 export const cancelFollowRequest = (requesterId: string, targetId: string) =>
   db
@@ -126,13 +135,15 @@ export const acceptFollowRequest = async (requesterId: string, targetId: string)
       where ${followRequest.requesterId} = ${requesterId}
         and ${followRequest.targetId} = ${targetId}
       returning requester_id, target_id
+    ), followed as (
+      insert into ${social} (follower_id, following_id)
+      select requester_id, target_id from accepted
+      on conflict do nothing
+      returning follower_id
     )
-    insert into ${social} (follower_id, following_id)
-    select requester_id, target_id from accepted
-    on conflict do nothing
-    returning follower_id
+    select exists(select 1 from accepted) as accepted
   `);
-  return result.rows.length > 0;
+  return result.rows[0]?.accepted === true;
 };
 
 export const followUser = async (followerId: string, followingId: string) => {

@@ -32,6 +32,21 @@ export function FollowRequests() {
     onError: () => toast.error("Could not update follow request"),
   });
 
+  if (requests.isError)
+    return (
+      <section className="mb-8 rounded-xl border p-5" aria-label="Follow requests">
+        <p role="alert">Could not load follow requests.</p>
+        <Button
+          type="button"
+          variant="outline"
+          className="mt-3"
+          disabled={requests.isFetching}
+          onClick={() => void requests.refetch()}
+        >
+          Retry
+        </Button>
+      </section>
+    );
   if (!requests.data?.length) return null;
   return (
     <section className="mb-8 rounded-xl border p-5" aria-label="Follow requests">

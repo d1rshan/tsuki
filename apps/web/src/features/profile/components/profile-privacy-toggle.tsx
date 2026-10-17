@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { LockKeyhole, LockKeyholeOpen } from "lucide-react";
 import { toast } from "sonner";
 
@@ -11,6 +12,7 @@ import { setProfilePrivacy } from "../actions";
 
 export function ProfilePrivacyToggle({ initialValue }: { initialValue: boolean }) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [isPrivate, setIsPrivate] = useState(initialValue);
   const [pending, setPending] = useState(false);
 
@@ -21,6 +23,7 @@ export function ProfilePrivacyToggle({ initialValue }: { initialValue: boolean }
       const result = await setProfilePrivacy(next);
       if (!result.success) return toast.error(result.error);
       setIsPrivate(next);
+      if (!next) await queryClient.invalidateQueries({ queryKey: ["follow-requests"] });
       router.refresh();
     } catch {
       toast.error("Failed to update privacy.");

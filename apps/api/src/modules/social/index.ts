@@ -101,7 +101,7 @@ export const socialRoutes = new Elysia({ tags: ["Social"] })
     "/users/:username/follow",
     async ({ params: { username }, user }) => {
       const profileUser = await requireUser(username);
-      return followProfile(user.id, profileUser.id, profileUser.isPrivate);
+      return followProfile(user.id, profileUser.id);
     },
     {
       auth: true,
