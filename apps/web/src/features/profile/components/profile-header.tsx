@@ -41,9 +41,17 @@ export function ProfileHeaderShell({ params }: { params: Promise<{ username: str
         </div>
       </div>
 
-      <ProfileTabs />
+      <Suspense fallback={null}>
+        <HeaderTabs params={params} />
+      </Suspense>
     </header>
   );
+}
+
+async function HeaderTabs({ params }: { params: Promise<{ username: string }> }) {
+  const username = resolveUsername((await params).username);
+  const overview = await getProfileOverview(username);
+  return overview && !overview.locked ? <ProfileTabs /> : null;
 }
 
 async function HeaderCover({ params }: { params: Promise<{ username: string }> }) {
@@ -109,5 +117,11 @@ async function HeaderActions({ params }: { params: Promise<{ username: string }>
   const overview = await getProfileOverview(username);
   if (!overview) notFound();
 
-  return <ProfileViewerActions profile={overview.profile} user={overview.user} />;
+  return (
+    <ProfileViewerActions
+      profile={overview.profile}
+      user={overview.user}
+      isPrivate={overview.isPrivate}
+    />
+  );
 }

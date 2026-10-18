@@ -38,7 +38,12 @@ export const activityRelations = relations(activity, ({ one }) => ({
     references: [user.id],
     relationName: "activityActor",
   }),
-  media: one(media, { fields: [activity.mediaId], references: [media.id] }),
+  // media's key is composite (id, type) — a mediaId-only join would hand anime
+  // id 1's row to manga id 1's card.
+  media: one(media, {
+    fields: [activity.mediaId, activity.mediaType],
+    references: [media.id, media.type],
+  }),
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({
@@ -74,10 +79,17 @@ export const mediaRelations = relations(media, ({ many }) => ({
 
 export const libraryRelations = relations(library, ({ one }) => ({
   user: one(user, { fields: [library.userId], references: [user.id] }),
-  media: one(media, { fields: [library.mediaId], references: [media.id] }),
+  // Composite (mediaId, mediaType) — matches the table's composite FK.
+  media: one(media, {
+    fields: [library.mediaId, library.mediaType],
+    references: [media.id, media.type],
+  }),
 }));
 
 export const reviewsRelations = relations(reviews, ({ one }) => ({
   user: one(user, { fields: [reviews.userId], references: [user.id] }),
-  media: one(media, { fields: [reviews.mediaId], references: [media.id] }),
+  media: one(media, {
+    fields: [reviews.mediaId, reviews.mediaType],
+    references: [media.id, media.type],
+  }),
 }));

@@ -8,7 +8,7 @@ import { ContentState } from "@/shared/components/content-state";
 import { ProfileFilterLayout } from "../components/profile-filter-layout";
 import type { ProfileFilterOption } from "../components/profile-filter-tabs";
 import { ReviewItem } from "../components/profile-reviews";
-import { getProfileReviews } from "../data";
+import { getProfileOverview, getProfileReviews } from "../data";
 import { searchParam, type ProfileSearchParams } from "../utils";
 
 export async function ProfileReviewsView({
@@ -18,6 +18,8 @@ export async function ProfileReviewsView({
   searchParams: Promise<ProfileSearchParams>;
   username: string;
 }) {
+  const profile = await getProfileOverview(username);
+  if (profile?.locked) return null;
   const [reviews, params] = await Promise.all([getProfileReviews(username), searchParams]);
   if (!reviews) notFound();
 

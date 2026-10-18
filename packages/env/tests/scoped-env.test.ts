@@ -14,6 +14,7 @@ function runWithoutEmailCredentials(script: string) {
       ...baseEnv,
       DATABASE_URL: databaseUrl,
       BETTER_AUTH_SECRET: "test-secret",
+      SYNC_SECRET: "test-sync-secret",
       NEXT_PUBLIC_APP_URL: appUrl,
     },
   });

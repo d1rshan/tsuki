@@ -1,7 +1,6 @@
 "use client";
 
 import { RotateCw, SearchX, TriangleAlert } from "lucide-react";
-import { parseAsBoolean, useQueryState } from "nuqs";
 
 import { MediaGrid } from "@/features/media/components/media-grid";
 import { useMediaSearch } from "@/features/media/hooks/use-media-search";
@@ -14,14 +13,8 @@ import { cn } from "@/shared/lib/utils";
 import { DiscoverSection } from "./discover-section";
 
 export function DiscoverSearchResults({ query }: { query: string }) {
-  const [includeNsfw] = useQueryState("nsfw", parseAsBoolean.withDefault(false));
   const [mediaType] = useMediaType();
-  const {
-    data: items = [],
-    isError,
-    isPending,
-    refetch,
-  } = useMediaSearch(mediaType, query, includeNsfw);
+  const { data: items = [], isError, isPending, refetch } = useMediaSearch(mediaType, query);
 
   function renderResults() {
     if (isError)

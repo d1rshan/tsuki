@@ -7,7 +7,7 @@ import { Button } from "@/shared/components/ui/button";
 import { ContentState } from "@/shared/components/content-state";
 
 /**
- * Catches server query failures when the API or AniList is unreachable.
+ * Catches server query failures when the API is unreachable.
  * Retrying re-fetches rather than replaying the same bad response.
  */
 export default function Error({

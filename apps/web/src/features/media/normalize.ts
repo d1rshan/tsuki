@@ -1,7 +1,6 @@
 import type { Media, MediaCompact } from "@tsuki/api/types";
 
 const MONTH_FORMATTER = new Intl.DateTimeFormat("en", { month: "long", timeZone: "UTC" });
-const REGION_NAMES = new Intl.DisplayNames(["en"], { type: "region" });
 
 export type NormalizedMediaCompact = MediaCompact & {
   title: string;
@@ -25,7 +24,6 @@ export type NormalizedMedia = Media &
 type ExternalLink = {
   url: string;
   site: string;
-  language?: string | null;
 };
 
 type MediaLinks = {
@@ -33,22 +31,12 @@ type MediaLinks = {
   items: (ExternalLink & { label: string })[];
 };
 
-function formatExternalLinks<T extends ExternalLink>(links: T[]): (T & { label: string })[] {
+function formatExternalLinks(links: ExternalLink[]): (ExternalLink & { label: string })[] {
   const uniqueLinks = links.filter(
     (link, index) => links.findIndex(({ url }) => url === link.url) === index,
   );
-  const siteCounts = new Map<string, number>();
-  for (const { site } of uniqueLinks) {
-    siteCounts.set(site, (siteCounts.get(site) ?? 0) + 1);
-  }
 
-  return uniqueLinks.map((link) => ({
-    ...link,
-    label:
-      siteCounts.get(link.site)! > 1 && link.language
-        ? `${link.site} (${link.language})`
-        : link.site,
-  }));
+  return uniqueLinks.map((link) => ({ ...link, label: link.site }));
 }
 
 export function normalizeMediaCompact(media: MediaCompact): NormalizedMediaCompact {
@@ -81,23 +69,6 @@ export function parseMediaId(value: string) {
 
 function formatMediaStatus(value: string) {
   return value.toLowerCase().replaceAll("_", " ");
-}
-
-function formatMediaSource(value: string) {
-  const label = formatMediaStatus(value);
-  return label.charAt(0).toUpperCase() + label.slice(1);
-}
-
-function formatCountry(code: string | null) {
-  if (!code) return null;
-
-  const normalizedCode = code.toUpperCase();
-  try {
-    const name = REGION_NAMES.of(normalizedCode);
-    return name === normalizedCode ? null : name;
-  } catch {
-    return null;
-  }
 }
 
 function formatFuzzyDate(
@@ -186,21 +157,15 @@ function getMediaDetailItems(media: Media): MediaDetailItem[] {
     ...typeSpecificItems,
     { label: "Start date", value: formatFuzzyDate(media.startDate) },
     { label: "End date", value: formatFuzzyDate(media.endDate) },
-    { label: "Source", value: media.source ? formatMediaSource(media.source) : null },
-    { label: "Country", value: formatCountry(media.countryOfOrigin) },
-    { label: "AniList popularity", value: media.popularity?.toLocaleString("en-US") },
-    { label: "AniList favourites", value: media.favourites?.toLocaleString("en-US") },
+    { label: "Popularity", value: media.popularity?.toLocaleString("en-US") },
+    { label: "Favourites", value: media.favourites?.toLocaleString("en-US") },
   ];
 }
 
 function getMediaLinks(media: Media): MediaLinks {
   return {
     heading: media.type === "ANIME" ? "Where to Watch" : "Where to Read",
-    items: formatExternalLinks(
-      media.type === "ANIME"
-        ? (media.externalLinks?.filter((link) => link.type === "STREAMING") ?? [])
-        : (media.externalLinks ?? []),
-    ),
+    items: formatExternalLinks(media.externalLinks ?? []),
   };
 }
 
@@ -215,7 +180,7 @@ export function normalizeMedia(media: Media): NormalizedMedia {
     ...compact,
     descriptionText: mediaDescriptionText(media.description),
     statusLabel: media.status ? formatMediaStatus(media.status) : null,
-    seasonLabel: media.season && media.seasonYear ? `${media.season} ${media.seasonYear}` : null,
+    seasonLabel: media.seasonYear ? String(media.seasonYear) : null,
     genres: media.genres ?? [],
     details,
     links: getMediaLinks(media),

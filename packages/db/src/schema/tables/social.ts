@@ -32,3 +32,21 @@ export const social = pgTable(
     check("social_no_self_follow", sql`${table.followerId} <> ${table.followingId}`),
   ],
 );
+
+export const followRequest = pgTable(
+  "follow_request",
+  {
+    requesterId: text("requester_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    targetId: text("target_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.requesterId, table.targetId] }),
+    index("follow_request_target_idx").on(table.targetId, table.createdAt.desc()),
+    check("follow_request_no_self", sql`${table.requesterId} <> ${table.targetId}`),
+  ],
+);

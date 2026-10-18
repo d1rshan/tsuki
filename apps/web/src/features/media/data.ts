@@ -11,9 +11,9 @@ import { siteName } from "@/shared/lib/site";
 import { mediaSlug, normalizeMedia, parseMediaId } from "./media";
 
 /**
- * Tagged so a re-sync from AniList can bust a single title. The API serves this
- * from its own cache and only reaches AniList on a miss, so `max` here is safe.
- * Null for a title AniList has never heard of — an answer, not a failure.
+ * Tagged so a re-crawl can bust a single title. The API serves this from our
+ * own catalogue, so `max` here is safe. Null for a title not yet in the
+ * catalogue — an answer, not a failure.
  *
  * Throws on anything else, which errors the cache stream so the failure is not
  * stored, and the nearest error.tsx renders.

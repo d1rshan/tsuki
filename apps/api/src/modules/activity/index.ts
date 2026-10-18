@@ -1,7 +1,8 @@
 import { Elysia, t } from "elysia";
 
 import { authPlugin } from "../../plugins/auth";
-import { requireUser } from "../profiles/service";
+import { ErrorModel } from "../../plugins/errors";
+import { requireProfileAccess } from "../profiles/service";
 import { getFollowingFeed, getPublicFeed, getUserActivity } from "./service";
 import { ActivityCursorQueryModel, ActivityPageModel } from "./model";
 
@@ -26,15 +27,15 @@ export const activityRoutes = new Elysia({ tags: ["Activity"] })
   })
   .get(
     "/users/:username/activity",
-    async ({ params: { username }, query }) => {
-      const user = await requireUser(username);
+    async ({ params: { username }, query, viewer }) => {
+      const user = await requireProfileAccess(username, viewer?.id ?? null);
       return getUserActivity(user.id, query);
     },
     {
       optionalAuth: true,
       params: t.Object({ username: t.String() }),
       query: ActivityCursorQueryModel,
-      response: { 200: ActivityPageModel },
+      response: { 200: ActivityPageModel, 403: ErrorModel, 404: ErrorModel },
       detail: {
         summary: "Get a user's Activity",
         description: "A Profile's own Logs and Reviews, newest-first. Public to any visitor.",

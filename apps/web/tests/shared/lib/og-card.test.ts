@@ -7,16 +7,16 @@ describe("og card layout", () => {
     const layout = buildMediaOgCard({
       title: "Frieren",
       type: "ANIME",
-      bannerImage: "https://s4.anilist.co/banner.jpg",
-      coverImage: "https://s4.anilist.co/cover.jpg",
+      bannerImage: "https://media.kitsu.io/banner.jpg",
+      coverImage: "https://media.kitsu.io/cover.jpg",
     });
 
     expect(layout).toEqual({
       variant: "banner",
       kicker: "Anime",
       title: "Frieren",
-      bannerUrl: "https://s4.anilist.co/banner.jpg",
-      coverUrl: "https://s4.anilist.co/cover.jpg",
+      bannerUrl: "https://media.kitsu.io/banner.jpg",
+      coverUrl: "https://media.kitsu.io/cover.jpg",
     });
   });
 
@@ -25,14 +25,14 @@ describe("og card layout", () => {
       title: "Frieren",
       type: "MANGA",
       bannerImage: null,
-      coverImage: "https://s4.anilist.co/cover.jpg",
+      coverImage: "https://media.kitsu.io/cover.jpg",
     });
 
     expect(layout).toEqual({
       variant: "fallback",
       kicker: "Manga",
       title: "Frieren",
-      coverUrl: "https://s4.anilist.co/cover.jpg",
+      coverUrl: "https://media.kitsu.io/cover.jpg",
     });
   });
 

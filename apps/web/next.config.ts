@@ -26,7 +26,13 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "s4.anilist.co",
+        hostname: "media.kitsu.io",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "media.kitsu.app",
+        pathname: "/**",
       },
       {
         protocol: "https",

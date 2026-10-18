@@ -1,13 +1,10 @@
 {
-  "name": "@tsuki/anilist",
+  "name": "@tsuki/kitsu",
   "version": "1.0.0",
   "main": "src/index.ts",
   "scripts": {
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
-  },
-  "dependencies": {
-    "graphql-request": "^7.4.0"
   },
   "devDependencies": {
     "@types/node": "^26"

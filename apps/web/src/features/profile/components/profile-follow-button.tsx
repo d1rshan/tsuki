@@ -14,9 +14,11 @@ import { Button } from "@/shared/components/ui/button";
 export function ProfileFollowButton({
   initialRelationship,
   username,
+  isPrivate,
 }: {
   initialRelationship: FollowRelationship | null;
   username: string;
+  isPrivate: boolean;
 }) {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -32,13 +34,18 @@ export function ProfileFollowButton({
       type="button"
       size="lg"
       className="rounded-full px-5"
-      variant={relationship?.following ? "secondary" : "default"}
+      variant={relationship?.following || relationship?.requested ? "secondary" : "default"}
       disabled={mutation.isPending}
       aria-busy={mutation.isPending}
-      aria-pressed={relationship?.following ?? false}
-      onClick={() => mutation.mutate({ username, following: !relationship?.following })}
+      aria-pressed={relationship?.following || relationship?.requested || false}
+      onClick={() =>
+        mutation.mutate({
+          username,
+          following: !(relationship?.following || relationship?.requested),
+        })
+      }
     >
-      {followButtonLabel(relationship)}
+      {followButtonLabel(relationship, isPrivate)}
     </Button>
   );
 }

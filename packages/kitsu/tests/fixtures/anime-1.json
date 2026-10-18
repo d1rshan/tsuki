@@ -1,0 +1,886 @@
+{
+  "data": {
+    "id": "1",
+    "type": "anime",
+    "links": { "self": "https://kitsu.app/api/edge/anime/1" },
+    "attributes": {
+      "createdAt": "2013-02-20T16:00:13.609Z",
+      "updatedAt": "2026-09-19T12:44:10.188Z",
+      "slug": "cowboy-bebop",
+      "synopsis": "In the year 2071, humanity has colonized several of the planets and moons of the solar system leaving the now uninhabitable surface of planet Earth behind. The Inter Solar System Police attempts to keep peace in the galaxy, aided in part by outlaw bounty hunters, referred to as \"Cowboys\". The ragtag team aboard the spaceship Bebop are two such individuals.\nMellow and carefree Spike Spiegel is balanced by his boisterous, pragmatic partner Jet Black as the pair makes a living chasing bounties and collecting rewards. Thrown off course by the addition of new members that they meet in their travels—Ein, a genetically engineered, highly intelligent Welsh Corgi; femme fatale Faye Valentine, an enigmatic trickster with memory loss; and the strange computer whiz kid Edward Wong—the crew embarks on thrilling adventures that unravel each member's dark and mysterious past little by little. \nWell-balanced with high density action and light-hearted comedy, Cowboy Bebop is a space Western classic and an homage to the smooth and improvised music it is named after.\n\n(Source: MAL Rewrite)",
+      "description": "In the year 2071, humanity has colonized several of the planets and moons of the solar system leaving the now uninhabitable surface of planet Earth behind. The Inter Solar System Police attempts to keep peace in the galaxy, aided in part by outlaw bounty hunters, referred to as \"Cowboys\". The ragtag team aboard the spaceship Bebop are two such individuals.\nMellow and carefree Spike Spiegel is balanced by his boisterous, pragmatic partner Jet Black as the pair makes a living chasing bounties and collecting rewards. Thrown off course by the addition of new members that they meet in their travels—Ein, a genetically engineered, highly intelligent Welsh Corgi; femme fatale Faye Valentine, an enigmatic trickster with memory loss; and the strange computer whiz kid Edward Wong—the crew embarks on thrilling adventures that unravel each member's dark and mysterious past little by little. \nWell-balanced with high density action and light-hearted comedy, Cowboy Bebop is a space Western classic and an homage to the smooth and improvised music it is named after.\n\n(Source: MAL Rewrite)",
+      "coverImageTopOffset": 400,
+      "titles": { "en": "Cowboy Bebop", "en_jp": "Cowboy Bebop", "ja_jp": "カウボーイビバップ" },
+      "canonicalTitle": "Cowboy Bebop",
+      "abbreviatedTitles": ["COWBOY BEBOP"],
+      "averageRating": "82.27",
+      "ratingFrequencies": {
+        "2": "4370",
+        "3": "61",
+        "4": "423",
+        "5": "39",
+        "6": "211",
+        "7": "40",
+        "8": "4178",
+        "9": "59",
+        "10": "895",
+        "11": "88",
+        "12": "2607",
+        "13": "175",
+        "14": "9157",
+        "15": "477",
+        "16": "9457",
+        "17": "979",
+        "18": "11508",
+        "19": "889",
+        "20": "38205"
+      },
+      "userCount": 162331,
+      "favoritesCount": 5167,
+      "startDate": "1998-04-03",
+      "endDate": "1999-04-24",
+      "nextRelease": null,
+      "popularityRank": 44,
+      "ratingRank": 202,
+      "ageRating": "R",
+      "ageRatingGuide": "17+ (violence & profanity)",
+      "subtype": "TV",
+      "status": "finished",
+      "tba": null,
+      "posterImage": {
+        "tiny": "https://media.kitsu.app/anime/poster_images/1/tiny.jpg",
+        "large": "https://media.kitsu.app/anime/poster_images/1/large.jpg",
+        "small": "https://media.kitsu.app/anime/poster_images/1/small.jpg",
+        "medium": "https://media.kitsu.app/anime/poster_images/1/medium.jpg",
+        "original": "https://media.kitsu.app/anime/poster_images/1/original.jpg",
+        "meta": {
+          "dimensions": {
+            "tiny": { "width": 110, "height": 156 },
+            "large": { "width": 550, "height": 780 },
+            "small": { "width": 284, "height": 402 },
+            "medium": { "width": 390, "height": 554 }
+          }
+        }
+      },
+      "coverImage": {
+        "tiny": "https://media.kitsu.app/anime/1/cover_image/tiny-1f92cfe65c1b31d8b47e36f025d32b35.jpeg",
+        "large": "https://media.kitsu.app/anime/1/cover_image/large-88da0208ac7fdd1a978de8b539008bd8.jpeg",
+        "small": "https://media.kitsu.app/anime/1/cover_image/small-33ff2ab0f599bc15ed73856ecd13fe71.jpeg",
+        "original": "https://media.kitsu.app/anime/1/cover_image/fb57e5f25616633a41f0f5f1ded938ee.jpeg",
+        "meta": {
+          "dimensions": {
+            "tiny": { "width": 840, "height": 200 },
+            "large": { "width": 3360, "height": 800 },
+            "small": { "width": 1680, "height": 400 }
+          }
+        }
+      },
+      "episodeCount": 26,
+      "episodeLength": 25,
+      "totalLength": 626,
+      "youtubeVideoId": "qig4KOK2R2g",
+      "showType": "TV",
+      "nsfw": false
+    },
+    "relationships": {
+      "genres": {
+        "links": {
+          "self": "https://kitsu.app/api/edge/anime/1/relationships/genres",
+          "related": "https://kitsu.app/api/edge/anime/1/genres"
+        }
+      },
+      "categories": {
+        "links": {
+          "self": "https://kitsu.app/api/edge/anime/1/relationships/categories",
+          "related": "https://kitsu.app/api/edge/anime/1/categories"
+        },
+        "data": [
+          { "type": "categories", "id": "155" },
+          { "type": "categories", "id": "51" },
+          { "type": "categories", "id": "184" },
+          { "type": "categories", "id": "150" },
+          { "type": "categories", "id": "60" },
+          { "type": "categories", "id": "197" },
+          { "type": "categories", "id": "77" },
+          { "type": "categories", "id": "50" },
+          { "type": "categories", "id": "78" },
+          { "type": "categories", "id": "201" },
+          { "type": "categories", "id": "21" },
+          { "type": "categories", "id": "44" },
+          { "type": "categories", "id": "157" },
+          { "type": "categories", "id": "160" }
+        ]
+      },
+      "castings": {
+        "links": {
+          "self": "https://kitsu.app/api/edge/anime/1/relationships/castings",
+          "related": "https://kitsu.app/api/edge/anime/1/castings"
+        }
+      },
+      "installments": {
+        "links": {
+          "self": "https://kitsu.app/api/edge/anime/1/relationships/installments",
+          "related": "https://kitsu.app/api/edge/anime/1/installments"
+        }
+      },
+      "mappings": {
+        "links": {
+          "self": "https://kitsu.app/api/edge/anime/1/relationships/mappings",
+          "related": "https://kitsu.app/api/edge/anime/1/mappings"
+        }
+      },
+      "reviews": {
+        "links": {
+          "self": "https://kitsu.app/api/edge/anime/1/relationships/reviews",
+          "related": "https://kitsu.app/api/edge/anime/1/reviews"
+        }
+      },
+      "mediaRelationships": {
+        "links": {
+          "self": "https://kitsu.app/api/edge/anime/1/relationships/media-relationships",
+          "related": "https://kitsu.app/api/edge/anime/1/media-relationships"
+        }
+      },
+      "characters": {
+        "links": {
+          "self": "https://kitsu.app/api/edge/anime/1/relationships/characters",
+          "related": "https://kitsu.app/api/edge/anime/1/characters"
+        }
+      },
+      "staff": {
+        "links": {
+          "self": "https://kitsu.app/api/edge/anime/1/relationships/staff",
+          "related": "https://kitsu.app/api/edge/anime/1/staff"
+        }
+      },
+      "productions": {
+        "links": {
+          "self": "https://kitsu.app/api/edge/anime/1/relationships/productions",
+          "related": "https://kitsu.app/api/edge/anime/1/productions"
+        }
+      },
+      "quotes": {
+        "links": {
+          "self": "https://kitsu.app/api/edge/anime/1/relationships/quotes",
+          "related": "https://kitsu.app/api/edge/anime/1/quotes"
+        }
+      },
+      "episodes": {
+        "links": {
+          "self": "https://kitsu.app/api/edge/anime/1/relationships/episodes",
+          "related": "https://kitsu.app/api/edge/anime/1/episodes"
+        }
+      },
+      "streamingLinks": {
+        "links": {
+          "self": "https://kitsu.app/api/edge/anime/1/relationships/streaming-links",
+          "related": "https://kitsu.app/api/edge/anime/1/streaming-links"
+        },
+        "data": [
+          { "type": "streamingLinks", "id": "2259" },
+          { "type": "streamingLinks", "id": "2260" },
+          { "type": "streamingLinks", "id": "2261" },
+          { "type": "streamingLinks", "id": "2296" }
+        ]
+      },
+      "animeProductions": {
+        "links": {
+          "self": "https://kitsu.app/api/edge/anime/1/relationships/anime-productions",
+          "related": "https://kitsu.app/api/edge/anime/1/anime-productions"
+        }
+      },
+      "animeCharacters": {
+        "links": {
+          "self": "https://kitsu.app/api/edge/anime/1/relationships/anime-characters",
+          "related": "https://kitsu.app/api/edge/anime/1/anime-characters"
+        }
+      },
+      "animeStaff": {
+        "links": {
+          "self": "https://kitsu.app/api/edge/anime/1/relationships/anime-staff",
+          "related": "https://kitsu.app/api/edge/anime/1/anime-staff"
+        }
+      }
+    }
+  },
+  "included": [
+    {
+      "id": "155",
+      "type": "categories",
+      "links": { "self": "https://kitsu.app/api/edge/categories/155" },
+      "attributes": {
+        "createdAt": "2017-05-31T06:39:22.090Z",
+        "updatedAt": "2021-10-02T01:30:58.633Z",
+        "title": "Science Fiction",
+        "description": "Science fiction stories usually focus on how situations could be different in the future when we are more technologically advanced; due to either our own achievements or having met with other civilizations whom we have learned from.",
+        "totalMediaCount": 6954,
+        "slug": "science-fiction",
+        "nsfw": false,
+        "childCount": 8
+      },
+      "relationships": {
+        "parent": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/155/relationships/parent",
+            "related": "https://kitsu.app/api/edge/categories/155/parent"
+          }
+        },
+        "anime": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/155/relationships/anime",
+            "related": "https://kitsu.app/api/edge/categories/155/anime"
+          }
+        },
+        "drama": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/155/relationships/drama",
+            "related": "https://kitsu.app/api/edge/categories/155/drama"
+          }
+        },
+        "manga": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/155/relationships/manga",
+            "related": "https://kitsu.app/api/edge/categories/155/manga"
+          }
+        }
+      }
+    },
+    {
+      "id": "51",
+      "type": "categories",
+      "links": { "self": "https://kitsu.app/api/edge/categories/51" },
+      "attributes": {
+        "createdAt": "2017-05-31T06:38:47.070Z",
+        "updatedAt": "2021-10-02T01:31:00.433Z",
+        "title": "Space",
+        "description": "The final frontier.",
+        "totalMediaCount": 910,
+        "slug": "space",
+        "nsfw": false,
+        "childCount": 2
+      },
+      "relationships": {
+        "parent": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/51/relationships/parent",
+            "related": "https://kitsu.app/api/edge/categories/51/parent"
+          }
+        },
+        "anime": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/51/relationships/anime",
+            "related": "https://kitsu.app/api/edge/categories/51/anime"
+          }
+        },
+        "drama": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/51/relationships/drama",
+            "related": "https://kitsu.app/api/edge/categories/51/drama"
+          }
+        },
+        "manga": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/51/relationships/manga",
+            "related": "https://kitsu.app/api/edge/categories/51/manga"
+          }
+        }
+      }
+    },
+    {
+      "id": "184",
+      "type": "categories",
+      "links": { "self": "https://kitsu.app/api/edge/categories/184" },
+      "attributes": {
+        "createdAt": "2017-05-31T06:39:28.357Z",
+        "updatedAt": "2021-10-02T01:30:59.565Z",
+        "title": "Drama",
+        "description": "Drama is a form of narrative fiction (or semi-fiction) intended to be more serious than humorous in tone.",
+        "totalMediaCount": 18063,
+        "slug": "drama",
+        "nsfw": false,
+        "childCount": 0
+      },
+      "relationships": {
+        "parent": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/184/relationships/parent",
+            "related": "https://kitsu.app/api/edge/categories/184/parent"
+          }
+        },
+        "anime": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/184/relationships/anime",
+            "related": "https://kitsu.app/api/edge/categories/184/anime"
+          }
+        },
+        "drama": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/184/relationships/drama",
+            "related": "https://kitsu.app/api/edge/categories/184/drama"
+          }
+        },
+        "manga": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/184/relationships/manga",
+            "related": "https://kitsu.app/api/edge/categories/184/manga"
+          }
+        }
+      }
+    },
+    {
+      "id": "150",
+      "type": "categories",
+      "links": { "self": "https://kitsu.app/api/edge/categories/150" },
+      "attributes": {
+        "createdAt": "2017-05-31T06:39:20.357Z",
+        "updatedAt": "2021-10-02T01:30:58.454Z",
+        "title": "Action",
+        "description": "Action anime usually involve a fairly straightforward story of good guys versus bad guys, where most disputes are resolved by using physical force. It often contains a lot of shooting, explosions and fighting.",
+        "totalMediaCount": 18414,
+        "slug": "action",
+        "nsfw": false,
+        "childCount": 5
+      },
+      "relationships": {
+        "parent": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/150/relationships/parent",
+            "related": "https://kitsu.app/api/edge/categories/150/parent"
+          }
+        },
+        "anime": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/150/relationships/anime",
+            "related": "https://kitsu.app/api/edge/categories/150/anime"
+          }
+        },
+        "drama": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/150/relationships/drama",
+            "related": "https://kitsu.app/api/edge/categories/150/drama"
+          }
+        },
+        "manga": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/150/relationships/manga",
+            "related": "https://kitsu.app/api/edge/categories/150/manga"
+          }
+        }
+      }
+    },
+    {
+      "id": "60",
+      "type": "categories",
+      "links": { "self": "https://kitsu.app/api/edge/categories/60" },
+      "attributes": {
+        "createdAt": "2017-05-31T06:38:49.707Z",
+        "updatedAt": "2021-10-02T01:30:58.926Z",
+        "title": "Space Travel",
+        "description": "Space Travel usually refers going to space or travelling there with or without a spacecraft. There are different forms of space travel like Interplanetary travel, Interstellar travel or Intergalactic travel. Since it isn't possible to travel faster than light, most anime series involve some sort \"sub-space travel mechanism\" as a way to travel faster than light.",
+        "totalMediaCount": 200,
+        "slug": "space-travel",
+        "nsfw": false,
+        "childCount": 0
+      },
+      "relationships": {
+        "parent": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/60/relationships/parent",
+            "related": "https://kitsu.app/api/edge/categories/60/parent"
+          }
+        },
+        "anime": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/60/relationships/anime",
+            "related": "https://kitsu.app/api/edge/categories/60/anime"
+          }
+        },
+        "drama": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/60/relationships/drama",
+            "related": "https://kitsu.app/api/edge/categories/60/drama"
+          }
+        },
+        "manga": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/60/relationships/manga",
+            "related": "https://kitsu.app/api/edge/categories/60/manga"
+          }
+        }
+      }
+    },
+    {
+      "id": "197",
+      "type": "categories",
+      "links": { "self": "https://kitsu.app/api/edge/categories/197" },
+      "attributes": {
+        "createdAt": "2017-05-31T06:39:31.234Z",
+        "updatedAt": "2021-10-02T01:31:01.479Z",
+        "title": "Post Apocalypse",
+        "description": "An anime that takes place on future Earth (or it could be an alternative universe) after a major cataclysm has occurred. World War III, an alien invasion, plague, global warming or some other general disaster are common themes to build a post-apocalyptic world upon, where the effects were severe enough that mankind barely survived.The time frame may be immediately after the catastrophe, focusing on the travails or psychology of survivors, or considerably later, often including the theme that the existence of pre-catastrophe civilization has been forgotten (or mythologised). Post-apocalyptic stories often take place in an agrarian, non-technological future world, or a world where only scattered elements of technology remain. There is a considerable degree of blurring between post-apocalyptic fiction and that which deals with false utopias or dystopian societies.",
+        "totalMediaCount": 525,
+        "slug": "post-apocalypse",
+        "nsfw": false,
+        "childCount": 0
+      },
+      "relationships": {
+        "parent": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/197/relationships/parent",
+            "related": "https://kitsu.app/api/edge/categories/197/parent"
+          }
+        },
+        "anime": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/197/relationships/anime",
+            "related": "https://kitsu.app/api/edge/categories/197/anime"
+          }
+        },
+        "drama": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/197/relationships/drama",
+            "related": "https://kitsu.app/api/edge/categories/197/drama"
+          }
+        },
+        "manga": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/197/relationships/manga",
+            "related": "https://kitsu.app/api/edge/categories/197/manga"
+          }
+        }
+      }
+    },
+    {
+      "id": "77",
+      "type": "categories",
+      "links": { "self": "https://kitsu.app/api/edge/categories/77" },
+      "attributes": {
+        "createdAt": "2017-05-31T06:38:50.800Z",
+        "updatedAt": "2021-10-02T01:31:00.454Z",
+        "title": "Other Planet",
+        "description": "The anime will fit this category if some or all of the action takes place on another planet which is supposedly in the same universe as Earth, not a complete fantasy world; usually there has to be some concept of space travel. The Latin name for Earth - Terra, would also pass the condition of being in the same universe as Earth. Basically, even mentioning of Earth existing or having existed would be enough. Although Moon is a moon, it also qualifies as Other Planet.",
+        "totalMediaCount": 204,
+        "slug": "other-planet",
+        "nsfw": false,
+        "childCount": 1
+      },
+      "relationships": {
+        "parent": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/77/relationships/parent",
+            "related": "https://kitsu.app/api/edge/categories/77/parent"
+          }
+        },
+        "anime": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/77/relationships/anime",
+            "related": "https://kitsu.app/api/edge/categories/77/anime"
+          }
+        },
+        "drama": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/77/relationships/drama",
+            "related": "https://kitsu.app/api/edge/categories/77/drama"
+          }
+        },
+        "manga": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/77/relationships/manga",
+            "related": "https://kitsu.app/api/edge/categories/77/manga"
+          }
+        }
+      }
+    },
+    {
+      "id": "50",
+      "type": "categories",
+      "links": { "self": "https://kitsu.app/api/edge/categories/50" },
+      "attributes": {
+        "createdAt": "2017-05-31T06:38:47.047Z",
+        "updatedAt": "2021-10-02T01:31:00.384Z",
+        "title": "Future",
+        "description": "Anime that fall under the future category are the ones that have a society that could have originated from ours. In most cases it should go hand to hand with sci-fi since we expect the future to consist of advanced technology, however, in the case where it's explicitly stated in the story that the anime takes place \"x years into the future\", the state of technology doesn't matter as long as it's long into the future. The anime can be set in an alternative universe not tied with our own, as long as it has a futuristic feel to it.This category sports quite a lot of anime, mostly stemming from SciFi, but not necessarily only from there.",
+        "totalMediaCount": 776,
+        "slug": "future",
+        "nsfw": false,
+        "childCount": 0
+      },
+      "relationships": {
+        "parent": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/50/relationships/parent",
+            "related": "https://kitsu.app/api/edge/categories/50/parent"
+          }
+        },
+        "anime": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/50/relationships/anime",
+            "related": "https://kitsu.app/api/edge/categories/50/anime"
+          }
+        },
+        "drama": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/50/relationships/drama",
+            "related": "https://kitsu.app/api/edge/categories/50/drama"
+          }
+        },
+        "manga": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/50/relationships/manga",
+            "related": "https://kitsu.app/api/edge/categories/50/manga"
+          }
+        }
+      }
+    },
+    {
+      "id": "78",
+      "type": "categories",
+      "links": { "self": "https://kitsu.app/api/edge/categories/78" },
+      "attributes": {
+        "createdAt": "2017-05-31T06:38:50.836Z",
+        "updatedAt": "2021-10-02T01:31:00.484Z",
+        "title": "Shipboard",
+        "description": "Beam me up, Scotty! Space stations (think Death Star) also count. Basically, this category is to tell if the setting takes place onboard a spaceship in space. This category is not applicable if the spaceship lies on a planet and never actually gets into space.",
+        "totalMediaCount": 213,
+        "slug": "shipboard",
+        "nsfw": false,
+        "childCount": 0
+      },
+      "relationships": {
+        "parent": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/78/relationships/parent",
+            "related": "https://kitsu.app/api/edge/categories/78/parent"
+          }
+        },
+        "anime": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/78/relationships/anime",
+            "related": "https://kitsu.app/api/edge/categories/78/anime"
+          }
+        },
+        "drama": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/78/relationships/drama",
+            "related": "https://kitsu.app/api/edge/categories/78/drama"
+          }
+        },
+        "manga": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/78/relationships/manga",
+            "related": "https://kitsu.app/api/edge/categories/78/manga"
+          }
+        }
+      }
+    },
+    {
+      "id": "201",
+      "type": "categories",
+      "links": { "self": "https://kitsu.app/api/edge/categories/201" },
+      "attributes": {
+        "createdAt": "2017-05-31T06:39:33.928Z",
+        "updatedAt": "2021-10-02T01:30:59.577Z",
+        "title": "Detective",
+        "description": "",
+        "totalMediaCount": 395,
+        "slug": "detective",
+        "nsfw": false,
+        "childCount": 0
+      },
+      "relationships": {
+        "parent": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/201/relationships/parent",
+            "related": "https://kitsu.app/api/edge/categories/201/parent"
+          }
+        },
+        "anime": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/201/relationships/anime",
+            "related": "https://kitsu.app/api/edge/categories/201/anime"
+          }
+        },
+        "drama": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/201/relationships/drama",
+            "related": "https://kitsu.app/api/edge/categories/201/drama"
+          }
+        },
+        "manga": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/201/relationships/manga",
+            "related": "https://kitsu.app/api/edge/categories/201/manga"
+          }
+        }
+      }
+    },
+    {
+      "id": "21",
+      "type": "categories",
+      "links": { "self": "https://kitsu.app/api/edge/categories/21" },
+      "attributes": {
+        "createdAt": "2017-05-31T06:38:34.881Z",
+        "updatedAt": "2021-10-02T01:31:01.397Z",
+        "title": "Bounty Hunter",
+        "description": "Involve hunting down criminals (or other wanted individuals) for money or fame.",
+        "totalMediaCount": 39,
+        "slug": "bounty-hunter",
+        "nsfw": false,
+        "childCount": 0
+      },
+      "relationships": {
+        "parent": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/21/relationships/parent",
+            "related": "https://kitsu.app/api/edge/categories/21/parent"
+          }
+        },
+        "anime": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/21/relationships/anime",
+            "related": "https://kitsu.app/api/edge/categories/21/anime"
+          }
+        },
+        "drama": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/21/relationships/drama",
+            "related": "https://kitsu.app/api/edge/categories/21/drama"
+          }
+        },
+        "manga": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/21/relationships/manga",
+            "related": "https://kitsu.app/api/edge/categories/21/manga"
+          }
+        }
+      }
+    },
+    {
+      "id": "44",
+      "type": "categories",
+      "links": { "self": "https://kitsu.app/api/edge/categories/44" },
+      "attributes": {
+        "createdAt": "2017-05-31T06:38:46.860Z",
+        "updatedAt": "2021-10-02T01:30:58.483Z",
+        "title": "Gunfights",
+        "description": "Fights where two or more parties are firing guns at one another.",
+        "totalMediaCount": 314,
+        "slug": "gunfights",
+        "nsfw": false,
+        "childCount": 0
+      },
+      "relationships": {
+        "parent": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/44/relationships/parent",
+            "related": "https://kitsu.app/api/edge/categories/44/parent"
+          }
+        },
+        "anime": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/44/relationships/anime",
+            "related": "https://kitsu.app/api/edge/categories/44/anime"
+          }
+        },
+        "drama": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/44/relationships/drama",
+            "related": "https://kitsu.app/api/edge/categories/44/drama"
+          }
+        },
+        "manga": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/44/relationships/manga",
+            "related": "https://kitsu.app/api/edge/categories/44/manga"
+          }
+        }
+      }
+    },
+    {
+      "id": "157",
+      "type": "categories",
+      "links": { "self": "https://kitsu.app/api/edge/categories/157" },
+      "attributes": {
+        "createdAt": "2017-05-31T06:39:23.663Z",
+        "updatedAt": "2021-10-02T01:30:59.126Z",
+        "title": "Adventure",
+        "description": "Adventures are exciting stories, with new experiences or exotic locales. Adventures are designed to provide an action-filled, energetic experience for the viewer. Rather than the predominant emphasis on violence and fighting that is found in pure action anime, however, the viewer of adventures can live vicariously through the travels, conquests, explorations, creation of empires, struggles and situations that confront the main characters, actual historical figures or protagonists. Under the category of adventures, we can include traditional swashbucklers, serialized films, and historical spectacles, searches or expeditions for lost continents, \"jungle\" and \"desert\" epics, treasure hunts and quests, disaster films, and heroic journeys or searches for the unknown. Adventure films are often, but not always, set in an historical period, and may include adapted stories of historical or literary adventure heroes, kings, battles, rebellion, or piracy.",
+        "totalMediaCount": 10859,
+        "slug": "adventure",
+        "nsfw": false,
+        "childCount": 0
+      },
+      "relationships": {
+        "parent": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/157/relationships/parent",
+            "related": "https://kitsu.app/api/edge/categories/157/parent"
+          }
+        },
+        "anime": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/157/relationships/anime",
+            "related": "https://kitsu.app/api/edge/categories/157/anime"
+          }
+        },
+        "drama": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/157/relationships/drama",
+            "related": "https://kitsu.app/api/edge/categories/157/drama"
+          }
+        },
+        "manga": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/157/relationships/manga",
+            "related": "https://kitsu.app/api/edge/categories/157/manga"
+          }
+        }
+      }
+    },
+    {
+      "id": "160",
+      "type": "categories",
+      "links": { "self": "https://kitsu.app/api/edge/categories/160" },
+      "attributes": {
+        "createdAt": "2017-05-31T06:39:23.938Z",
+        "updatedAt": "2021-10-02T01:30:59.176Z",
+        "title": "Comedy",
+        "description": "Anime whose central struggle causes hilarious results. These stories are built upon funny characters, situations and events. A comedy anime is laced with humour and sets out to provoke laughter from the audience.\n\nJapanese humour can be a bit strange to westerners, so if you're new to this type of humour, just bear with it; it'll most likely grow on you if you're a fan of other kinds of comedy.",
+        "totalMediaCount": 25927,
+        "slug": "comedy",
+        "nsfw": false,
+        "childCount": 6
+      },
+      "relationships": {
+        "parent": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/160/relationships/parent",
+            "related": "https://kitsu.app/api/edge/categories/160/parent"
+          }
+        },
+        "anime": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/160/relationships/anime",
+            "related": "https://kitsu.app/api/edge/categories/160/anime"
+          }
+        },
+        "drama": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/160/relationships/drama",
+            "related": "https://kitsu.app/api/edge/categories/160/drama"
+          }
+        },
+        "manga": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/categories/160/relationships/manga",
+            "related": "https://kitsu.app/api/edge/categories/160/manga"
+          }
+        }
+      }
+    },
+    {
+      "id": "2259",
+      "type": "streamingLinks",
+      "links": { "self": "https://kitsu.app/api/edge/streaming-links/2259" },
+      "attributes": {
+        "createdAt": "2018-02-07T01:47:32.591Z",
+        "updatedAt": "2018-02-07T01:47:32.591Z",
+        "url": "https://www.amazon.com/gp/video/detail/B06VW8K7ZJ/",
+        "subs": ["en"],
+        "dubs": ["ja"]
+      },
+      "relationships": {
+        "streamer": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/streaming-links/2259/relationships/streamer",
+            "related": "https://kitsu.app/api/edge/streaming-links/2259/streamer"
+          }
+        },
+        "media": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/streaming-links/2259/relationships/media",
+            "related": "https://kitsu.app/api/edge/streaming-links/2259/media"
+          }
+        }
+      }
+    },
+    {
+      "id": "2260",
+      "type": "streamingLinks",
+      "links": { "self": "https://kitsu.app/api/edge/streaming-links/2260" },
+      "attributes": {
+        "createdAt": "2018-02-07T01:48:06.019Z",
+        "updatedAt": "2018-02-07T01:48:06.019Z",
+        "url": "http://www.crunchyroll.com/cowboy-bebop",
+        "subs": ["en"],
+        "dubs": ["ja"]
+      },
+      "relationships": {
+        "streamer": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/streaming-links/2260/relationships/streamer",
+            "related": "https://kitsu.app/api/edge/streaming-links/2260/streamer"
+          }
+        },
+        "media": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/streaming-links/2260/relationships/media",
+            "related": "https://kitsu.app/api/edge/streaming-links/2260/media"
+          }
+        }
+      }
+    },
+    {
+      "id": "2261",
+      "type": "streamingLinks",
+      "links": { "self": "https://kitsu.app/api/edge/streaming-links/2261" },
+      "attributes": {
+        "createdAt": "2018-02-07T01:48:40.389Z",
+        "updatedAt": "2018-02-07T01:48:40.389Z",
+        "url": "https://www.hulu.com/cowboy-bebop",
+        "subs": ["en"],
+        "dubs": ["ja"]
+      },
+      "relationships": {
+        "streamer": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/streaming-links/2261/relationships/streamer",
+            "related": "https://kitsu.app/api/edge/streaming-links/2261/streamer"
+          }
+        },
+        "media": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/streaming-links/2261/relationships/media",
+            "related": "https://kitsu.app/api/edge/streaming-links/2261/media"
+          }
+        }
+      }
+    },
+    {
+      "id": "2296",
+      "type": "streamingLinks",
+      "links": { "self": "https://kitsu.app/api/edge/streaming-links/2296" },
+      "attributes": {
+        "createdAt": "2018-02-07T18:01:43.980Z",
+        "updatedAt": "2018-02-07T18:01:43.980Z",
+        "url": "http://tubitv.com/series/2052/cowboy_bebop",
+        "subs": ["en"],
+        "dubs": ["ja"]
+      },
+      "relationships": {
+        "streamer": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/streaming-links/2296/relationships/streamer",
+            "related": "https://kitsu.app/api/edge/streaming-links/2296/streamer"
+          }
+        },
+        "media": {
+          "links": {
+            "self": "https://kitsu.app/api/edge/streaming-links/2296/relationships/media",
+            "related": "https://kitsu.app/api/edge/streaming-links/2296/media"
+          }
+        }
+      }
+    }
+  ]
+}
