@@ -2,13 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import type { UserOverview } from "@tsuki/api/types";
+import type { MediaType, UserOverview } from "@tsuki/api/types";
 
 import { HeatmapCalendar } from "@/shared/components/heatmap-calendar";
 import { cn } from "@/shared/lib/utils";
 
 import { activityDateKey, activityLevel, activityTooltip } from "../utils";
-import { BENTO_CARD } from "./profile-section";
+import { BENTO_TILE } from "./profile-section";
 
 type ProfileActivity = UserOverview["activity"];
 
@@ -26,9 +26,13 @@ const DEFAULT_WEEKS = 26;
 export function ProfileActivityHeatmap({
   activity,
   className,
+  rangeDays,
+  mediaType,
 }: {
   activity: ProfileActivity;
   className?: string;
+  rangeDays?: number;
+  mediaType?: MediaType;
 }) {
   const latestDay = activity.days.at(-1);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -42,34 +46,51 @@ export function ProfileActivityHeatmap({
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    if (rangeDays && containerRef.current) {
+      containerRef.current.scrollLeft = containerRef.current.scrollWidth;
+    }
+  }, [rangeDays, width]);
+
   const weeks = width ? Math.max(MIN_WEEKS, Math.floor((width - 6) / (CELL + GAP))) : DEFAULT_WEEKS;
 
   return (
-    <section className={cn(BENTO_CARD, "flex flex-col p-4 sm:p-6", className)}>
-      <div ref={containerRef} className="flex min-h-28 flex-1 items-center">
-        <HeatmapCalendar
-          data={activity.days.map((day) => ({
-            date: activityDateKey(day),
-            value: LEVEL_VALUES[activityLevel(day.anime + day.manga)]!,
-            meta: activityTooltip(day),
-          }))}
-          endDate={latestDay ? new Date(activityDateKey(latestDay)) : undefined}
-          cellSize={CELL}
-          cellGap={GAP}
-          legend={false}
-          axisLabels={false}
-          rangeDays={weeks * 7}
-          weekStartsOn={1}
-          className="w-full"
-          levelClassNames={[
-            "bg-muted",
-            "bg-primary/20",
-            "bg-primary/35",
-            "bg-primary/55",
-            "bg-primary/75",
-          ]}
-          renderTooltip={(cell) => cell.meta as string}
-        />
+    <section className={cn(BENTO_TILE, "flex flex-col", className)}>
+      <div ref={containerRef} className="flex min-h-28 flex-1 items-center overflow-x-auto">
+        <div className={cn("w-full", rangeDays && "min-w-[760px] shrink-0")}>
+          <HeatmapCalendar
+            data={activity.days.map((day) => ({
+              date: activityDateKey(day),
+              value:
+                LEVEL_VALUES[
+                  activityLevel(
+                    mediaType === "ANIME"
+                      ? day.anime
+                      : mediaType === "MANGA"
+                        ? day.manga
+                        : day.anime + day.manga,
+                  )
+                ]!,
+              meta: activityTooltip(day, mediaType),
+            }))}
+            endDate={latestDay ? new Date(activityDateKey(latestDay)) : undefined}
+            cellSize={CELL}
+            cellGap={GAP}
+            legend={false}
+            axisLabels={rangeDays ? { showWeekdays: false } : false}
+            rangeDays={rangeDays ?? weeks * 7}
+            weekStartsOn={1}
+            className="w-full"
+            levelClassNames={[
+              "bg-muted",
+              "bg-primary/20",
+              "bg-primary/35",
+              "bg-primary/55",
+              "bg-primary/75",
+            ]}
+            renderTooltip={(cell) => cell.meta as string}
+          />
+        </div>
       </div>
     </section>
   );

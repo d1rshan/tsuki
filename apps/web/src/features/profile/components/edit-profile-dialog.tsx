@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { revalidateLogic, useForm } from "@tanstack/react-form";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Edit2, LoaderCircle, Plus, User, X } from "lucide-react";
 import { toast } from "sonner";
 
@@ -23,7 +23,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/shared/components/ui/dialog";
-import { Field, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "@/shared/components/ui/field";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+} from "@/shared/components/ui/field";
+import { Switch } from "@/shared/components/ui/switch";
 import { cn } from "@/shared/lib/utils";
 import { TextField } from "@/shared/components/text-field";
 
@@ -36,12 +45,15 @@ import { getSocialPreset, SOCIAL_PRESETS, SocialIcon } from "../social-presets";
 export function EditProfileDialog({
   profile,
   avatarImage,
+  isPrivate,
 }: {
   profile: UserOverview["profile"];
   avatarImage?: string | null;
+  isPrivate: boolean;
 }) {
   const router = useRouter();
-  const defaultValues = createProfileFormValues(profile, avatarImage);
+  const queryClient = useQueryClient();
+  const defaultValues = createProfileFormValues(profile, avatarImage, isPrivate);
   const update = useMutation({ mutationFn: updateProfile });
 
   const form = useForm({
@@ -60,6 +72,10 @@ export function EditProfileDialog({
         throw new Error(result.error);
       }
 
+      if (value.isPrivate !== isPrivate && !value.isPrivate) {
+        void queryClient.invalidateQueries({ queryKey: ["follow-requests"] });
+      }
+
       toast.success("Profile updated successfully");
       dialog.close();
       router.refresh();
@@ -76,8 +92,8 @@ export function EditProfileDialog({
         render={
           <Button
             variant="outline"
-            size="sm"
-            className="rounded-full border-border/50 transition-colors hover:border-primary/50 hover:bg-primary/10 hover:text-primary"
+            size="lg"
+            className="rounded-full border-border/50 px-5 transition-colors hover:border-primary/50 hover:bg-primary/10 hover:text-primary"
           >
             <Edit2 data-icon="inline-start" />
             Edit Profile
@@ -243,6 +259,30 @@ export function EditProfileDialog({
                         </FieldSet>
                       );
                     }}
+                  </form.Field>
+
+                  <form.Field name="isPrivate">
+                    {(field) => (
+                      <Field
+                        orientation="horizontal"
+                        data-disabled={isSubmitting}
+                        className="rounded-xl border border-border/50 p-4"
+                      >
+                        <FieldContent>
+                          <FieldLabel htmlFor="edit-profile-private">Private profile</FieldLabel>
+                          <FieldDescription>
+                            Only approved followers can view your profile.
+                          </FieldDescription>
+                        </FieldContent>
+                        <Switch
+                          id="edit-profile-private"
+                          checked={field.state.value}
+                          onCheckedChange={(checked) => field.handleChange(checked)}
+                          onBlur={field.handleBlur}
+                          disabled={isSubmitting}
+                        />
+                      </Field>
+                    )}
                   </form.Field>
 
                   <div className="flex justify-end gap-2 pt-2">

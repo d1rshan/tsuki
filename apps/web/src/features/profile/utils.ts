@@ -1,4 +1,4 @@
-import type { UserOverview } from "@tsuki/api/types";
+import type { MediaType, UserOverview } from "@tsuki/api/types";
 
 export type ProfileActivityDay = UserOverview["activity"]["days"][number];
 
@@ -22,7 +22,7 @@ export function activityLevel(count: number) {
   return 4;
 }
 
-export function activityTooltip(day: ProfileActivityDay) {
+export function activityTooltip(day: ProfileActivityDay, mediaType?: MediaType) {
   const date = day.date.toLocaleDateString("en-US", {
     day: "numeric",
     month: "long",
@@ -32,5 +32,7 @@ export function activityTooltip(day: ProfileActivityDay) {
   const episodes = `${day.anime} ${day.anime === 1 ? "episode" : "episodes"}`;
   const chapters = `${day.manga} ${day.manga === 1 ? "chapter" : "chapters"}`;
 
+  if (mediaType === "ANIME") return `${date}: ${episodes}`;
+  if (mediaType === "MANGA") return `${date}: ${chapters}`;
   return `${date}: ${episodes}, ${chapters}`;
 }

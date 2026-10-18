@@ -18,6 +18,7 @@ export const UploadAuthModel = t.Object({
 });
 
 export const ProfileModel = t.Object({
+  isPrivate: t.Optional(t.Boolean()),
   bio: t.Nullable(RichContentModel),
   bannerImage: t.Nullable(t.String({ pattern: URL_PATTERN })),
   socialLinks: t.Nullable(t.Record(t.String(), t.String({ pattern: URL_PATTERN }))),
@@ -25,6 +26,7 @@ export const ProfileModel = t.Object({
 });
 
 export const UpdateProfileModel = t.Object({
+  isPrivate: t.Optional(t.Boolean()),
   bio: t.Optional(t.Nullable(RichContentModel)),
   bannerImage: t.Optional(t.Nullable(t.String({ pattern: URL_PATTERN }))),
   image: t.Optional(t.Nullable(t.String({ pattern: URL_PATTERN }))),
@@ -76,3 +78,28 @@ export const UserOverviewModel = t.Object({
 
 export type Profile = typeof ProfileModel.static;
 export type UserOverview = typeof UserOverviewModel.static;
+
+const ProfileMediaStatisticsModel = t.Object({
+  total: t.Number(),
+  completed: t.Number(),
+  progress: t.Number(),
+  rated: t.Number(),
+  meanScore: t.Nullable(t.Number()),
+  watchMinutes: t.Number(),
+  runtimeKnownEpisodes: t.Number(),
+  scores: t.Array(t.Object({ score: t.Number(), count: t.Number() })),
+  statuses: t.Array(t.Object({ status: t.String(), count: t.Number() })),
+  genres: t.Array(
+    t.Object({
+      genre: t.String(),
+      count: t.Number(),
+      meanScore: t.Nullable(t.Number()),
+    }),
+  ),
+});
+
+export const ProfileStatisticsModel = t.Object({
+  ANIME: ProfileMediaStatisticsModel,
+  MANGA: ProfileMediaStatisticsModel,
+});
+export type ProfileStatistics = typeof ProfileStatisticsModel.static;

@@ -2,7 +2,6 @@ import { Suspense } from "react";
 
 import { getProfileOverview, resolveUsername } from "../data";
 import { ProfileHeaderShell } from "../components/profile-header";
-import { ProfileHeaderSkeleton } from "../components/profile-header-skeleton";
 
 export function ProfileLayout({
   children,
@@ -12,10 +11,8 @@ export function ProfileLayout({
   params: Promise<{ username: string }>;
 }) {
   return (
-    <div className="min-h-screen pt-20 pb-10 md:pt-28 md:pb-16">
-      <Suspense fallback={<ProfileHeaderSkeleton />}>
-        <ProfileHeaderShell params={params} />
-      </Suspense>
+    <div className="min-h-screen pt-20 pb-12 md:pt-28 md:pb-16">
+      <ProfileHeaderShell params={params} />
       <Suspense fallback={null}>
         <ProfileContent params={params}>{children}</ProfileContent>
       </Suspense>

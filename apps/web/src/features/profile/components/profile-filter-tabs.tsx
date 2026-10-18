@@ -28,7 +28,11 @@ export function ProfileFilterTabs({
 }) {
   return (
     <Tabs value={selected} orientation={orientation} className={className}>
-      <TabsList aria-label={label} className={cn(orientation === "vertical" && "w-full")}>
+      <TabsList
+        aria-label={label}
+        className={cn(orientation === "vertical" && "w-full")}
+        responsiveGrid={orientation === "horizontal"}
+      >
         {options.map((option) => (
           <TabsTrigger
             key={option.value}

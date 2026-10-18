@@ -9,10 +9,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/shared/components/ui/tooltip";
-
 import { cn } from "@/shared/lib/utils";
 
-import { BENTO_CARD } from "./profile-section";
+import { BENTO_TILE } from "./profile-section";
 import { getSocialPreset, SocialIcon } from "../social-presets";
 
 type Profile = UserOverview["profile"];
@@ -22,7 +21,7 @@ export function ProfileBioCard({ className, profile }: { className?: string; pro
   const hasBio = Boolean(profile?.bio);
 
   return (
-    <div className={cn(BENTO_CARD, "flex flex-col p-5 sm:p-6", className)}>
+    <div className={cn(BENTO_TILE, "flex flex-col", className)}>
       {hasBio && (
         <RichContentView
           content={profile?.bio}

@@ -18,6 +18,7 @@ const richContent = z.custom<RichContent | null>(() => true);
 const socialUrl = z.string().trim().min(1, "URL is required");
 
 export const profileFormSchema = z.object({
+  isPrivate: z.boolean(),
   bio: richContent,
   image: z.string().nullable(),
   bannerImage: z.string().nullable(),
@@ -30,6 +31,7 @@ export const profileFormSchema = z.object({
 });
 
 export const profileUpdateSchema = z.object({
+  isPrivate: z.boolean().optional(),
   image: httpUrl.nullable().optional(),
   bannerImage: httpUrl.nullable().optional(),
   bio: richContent.nullable().optional(),
@@ -61,6 +63,7 @@ export function createProfileUpdate(
   const socialLinks = Object.fromEntries(entries.filter(([platform, url]) => platform && url));
 
   return {
+    isPrivate: values.isPrivate === original.isPrivate ? undefined : values.isPrivate,
     bio: values.bio && !isEmptyRichContent(values.bio) ? values.bio : null,
     // Unchanged images are omitted so the API doesn't re-verify legacy URLs it
     // didn't mint (foreign banner URLs from the old URL field would 422).
@@ -87,8 +90,10 @@ function toFormUrl(platform: string, url: string): string {
 export function createProfileFormValues(
   profile: UserOverview["profile"],
   avatarImage?: string | null,
+  isPrivate = false,
 ): ProfileFormValues {
   return {
+    isPrivate,
     bio: profile?.bio ?? null,
     image: avatarImage ?? profile?.image ?? null,
     bannerImage: profile?.bannerImage ?? null,

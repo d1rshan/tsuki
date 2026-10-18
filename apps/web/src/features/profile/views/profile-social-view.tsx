@@ -1,11 +1,12 @@
 import { notFound } from "next/navigation";
 
+import { ProfileCard } from "@/features/social/components/profile-card";
+import { ContentState } from "@/shared/components/content-state";
 import { getSession } from "@/shared/lib/session";
 
-import { ProfileFilterLayout } from "../components/profile-filter-layout";
 import { FollowRequests } from "../components/follow-requests";
+import { ProfileFilterLayout } from "../components/profile-filter-layout";
 import type { ProfileFilterOption } from "../components/profile-filter-tabs";
-import { ProfileUserList } from "../components/profile-user-list";
 import { getProfileFollowers, getProfileFollowing, getProfileOverview } from "../data";
 import { searchParam, type ProfileSearchParams } from "../utils";
 
@@ -46,12 +47,23 @@ export async function ProfileSocialView({
     <div>
       {session.user?.username === username && <FollowRequests />}
       <ProfileFilterLayout label="Social list" options={options} selected={selected}>
-        <ProfileUserList
-          users={list.users}
-          emptyMessage={
-            selected === "following" ? "This user is not following anyone yet" : "No followers yet"
-          }
-        />
+        {list.users.length === 0 ? (
+          <ContentState
+            title={
+              selected === "following"
+                ? "This user is not following anyone yet"
+                : "No followers yet"
+            }
+          />
+        ) : (
+          <ul className="grid grid-cols-2 gap-x-3 gap-y-6 @min-[40rem]:grid-cols-3 @min-[48rem]:grid-cols-4 @min-[64rem]:grid-cols-5">
+            {list.users.map((user) => (
+              <li key={user.id}>
+                <ProfileCard user={user} />
+              </li>
+            ))}
+          </ul>
+        )}
       </ProfileFilterLayout>
     </div>
   );

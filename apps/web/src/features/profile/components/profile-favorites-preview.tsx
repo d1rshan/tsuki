@@ -3,7 +3,7 @@ import type { LibraryEntry, MediaType } from "@tsuki/api/types";
 import { cn } from "@/shared/lib/utils";
 
 import { ProfileMediaCard } from "./profile-media-card";
-import { BENTO_CARD } from "./profile-section";
+import { BENTO_TILE } from "./profile-section";
 
 export function ProfileFavoritesPreview({
   className,
@@ -20,7 +20,7 @@ export function ProfileFavoritesPreview({
   if (matching.length === 0) return null;
 
   return (
-    <div className={cn(BENTO_CARD, "flex flex-col p-5 sm:p-6", className)} aria-label={label}>
+    <div className={cn(BENTO_TILE, "flex flex-col", className)} aria-label={label}>
       <div className="grid flex-1 content-center grid-cols-4 gap-3">
         {matching.map((entry) => {
           if (!entry.media) return null;

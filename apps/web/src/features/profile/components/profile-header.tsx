@@ -1,5 +1,7 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { format } from "date-fns";
 
 import { Skeleton } from "@/shared/components/ui/skeleton";
 
@@ -10,87 +12,116 @@ import { ProfileTabs } from "./profile-tabs";
 import { ProfileViewerActions } from "./profile-viewer-actions";
 
 /**
- * Awaits only route params, so tabs paint immediately while the data
- * islands (banner, identity, actions) stream in on their own boundaries.
+ * The profile "plate": cover, identity and actions share one clipped surface so
+ * they read as a single object, then the tab rail sticks beneath it. The data
+ * islands await route params themselves, so the plate frame never suspends.
  */
-export async function ProfileHeaderShell({ params }: { params: Promise<{ username: string }> }) {
-  const username = resolveUsername((await params).username);
-
+export function ProfileHeaderShell({ params }: { params: Promise<{ username: string }> }) {
   return (
-    <header className="mb-8">
-      <Suspense fallback={<Skeleton className="mb-6 h-48 w-full rounded-2xl md:h-64" />}>
-        <HeaderBanner username={username} />
-      </Suspense>
+    <header className="mb-6 @min-[48rem]:mb-8">
+      <div className="overflow-hidden rounded-3xl border border-border/60 bg-card shadow-sm">
+        <Suspense
+          fallback={
+            <Skeleton className="h-32 w-full rounded-none @min-[48rem]:h-48 @min-[64rem]:h-56" />
+          }
+        >
+          <HeaderCover params={params} />
+        </Suspense>
 
-      <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3 px-2 md:px-6">
-        <div className="flex min-w-0 flex-wrap items-start gap-x-6 gap-y-3">
+        <div className="flex flex-wrap items-end gap-x-5 gap-y-4 px-5 pb-5 @min-[48rem]:px-7 @min-[48rem]:pb-7">
           <Suspense fallback={<IdentitySkeleton />}>
-            <HeaderIdentity username={username} />
+            <HeaderIdentity params={params} />
           </Suspense>
 
-          <Suspense fallback={null}>
-            <HeaderTabs username={username} />
-          </Suspense>
-        </div>
-
-        <div className="shrink-0 pt-3">
-          <Suspense fallback={null}>
-            <HeaderActions username={username} />
-          </Suspense>
+          <div className="w-full empty:hidden @min-[48rem]:w-auto [&_button]:w-full @min-[48rem]:[&_button]:w-auto">
+            <Suspense fallback={null}>
+              <HeaderActions params={params} />
+            </Suspense>
+          </div>
         </div>
       </div>
+
+      <Suspense fallback={null}>
+        <HeaderTabs params={params} />
+      </Suspense>
     </header>
   );
 }
 
-async function HeaderTabs({ username }: { username: string }) {
-  const profile = await getProfileOverview(username);
-  return profile && !profile.locked ? (
-    <div className="min-w-0 max-w-full pt-3">
-      <ProfileTabs username={username} />
-    </div>
-  ) : null;
+async function HeaderTabs({ params }: { params: Promise<{ username: string }> }) {
+  const username = resolveUsername((await params).username);
+  const overview = await getProfileOverview(username);
+  return overview && !overview.locked ? <ProfileTabs /> : null;
 }
 
-async function HeaderBanner({ username }: { username: string }) {
-  const profile = await getProfileOverview(username);
-  if (!profile) notFound();
+async function HeaderCover({ params }: { params: Promise<{ username: string }> }) {
+  const username = resolveUsername((await params).username);
+  const overview = await getProfileOverview(username);
+  if (!overview) notFound();
 
-  return <ProfileBanner bannerImage={profile.profile?.bannerImage} />;
+  return <ProfileBanner bannerImage={overview.profile?.bannerImage} />;
 }
 
-async function HeaderIdentity({ username }: { username: string }) {
-  const profile = await getProfileOverview(username);
-  if (!profile) notFound();
-  const user = profile.user;
+async function HeaderIdentity({ params }: { params: Promise<{ username: string }> }) {
+  const username = resolveUsername((await params).username);
+  const overview = await getProfileOverview(username);
+  if (!overview) notFound();
+
+  const { user, social } = overview;
+  const handle = user.displayUsername.trim();
 
   return (
-    <div className="-mt-16 flex shrink-0 flex-col items-center gap-2 md:-mt-20">
-      <ProfileAvatar user={user} />
-      <h1 className="truncate text-lg font-bold tracking-tight text-foreground md:text-xl">
-        @{user.displayUsername || user.username}
-      </h1>
-    </div>
+    <>
+      <ProfileAvatar user={user} className="-mt-10 @min-[48rem]:-mt-14" />
+      <div className="min-w-0 flex-1">
+        <h1 className="truncate text-xl font-bold tracking-tight @min-[48rem]:text-2xl">
+          {handle}
+        </h1>
+        <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+          <time dateTime={new Date(user.createdAt).toISOString()}>
+            Joined {format(new Date(user.createdAt), "MMMM yyyy")}
+          </time>
+          <Link href={`/${handle}/social`} className="transition-colors hover:text-foreground">
+            <span className="font-mono tabular-nums">{social.followers}</span>{" "}
+            {social.followers === 1 ? "Follower" : "Followers"}
+          </Link>
+          <Link
+            href={`/${handle}/social?list=following`}
+            className="transition-colors hover:text-foreground"
+          >
+            <span className="font-mono tabular-nums">{social.following}</span> Following
+          </Link>
+        </p>
+      </div>
+    </>
   );
 }
 
 function IdentitySkeleton() {
   return (
-    <div className="-mt-16 flex shrink-0 flex-col items-center md:-mt-20" aria-hidden>
-      <Skeleton className="h-24 w-24 rounded-full md:h-32 md:w-32" />
-    </div>
+    <>
+      <Skeleton
+        className="-mt-10 size-20 shrink-0 rounded-full ring-4 ring-card @min-[48rem]:-mt-14 @min-[48rem]:size-28"
+        aria-hidden
+      />
+      <div className="flex-1" aria-hidden>
+        <Skeleton className="h-6 w-40 @min-[48rem]:h-7 @min-[48rem]:w-48" />
+        <Skeleton className="mt-2 h-3 w-56" />
+      </div>
+    </>
   );
 }
 
-async function HeaderActions({ username }: { username: string }) {
-  const profile = await getProfileOverview(username);
-  if (!profile) notFound();
+async function HeaderActions({ params }: { params: Promise<{ username: string }> }) {
+  const username = resolveUsername((await params).username);
+  const overview = await getProfileOverview(username);
+  if (!overview) notFound();
 
   return (
     <ProfileViewerActions
-      profile={profile.profile}
-      user={profile.user}
-      isPrivate={profile.isPrivate}
+      profile={overview.profile}
+      user={overview.user}
+      isPrivate={overview.isPrivate}
     />
   );
 }

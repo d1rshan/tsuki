@@ -116,3 +116,8 @@ export async function getProfileMetadata(username: string): Promise<Metadata> {
     twitter: { card: "summary_large_image", title: name, description },
   };
 }
+
+export async function getProfileStatistics(username: string) {
+  const { data, error } = await (await getServerApi()).users({ username }).stats.get();
+  return resolve(username, "statistics", { data, error });
+}

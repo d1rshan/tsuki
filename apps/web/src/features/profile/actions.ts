@@ -22,11 +22,3 @@ export async function updateProfile(data: ProfileUpdate): Promise<UpdateProfileR
   updateTag(`profile-${user.username}`);
   return { success: true, error: null };
 }
-
-export async function setProfilePrivacy(isPrivate: boolean): Promise<UpdateProfileResult> {
-  const { user } = await getSession();
-  if (!user?.username) return { success: false, error: "You must be signed in." };
-  const { error } = await (await getServerApi()).me.privacy.put({ isPrivate });
-  if (error) return { success: false, error: "Failed to update privacy." };
-  return { success: true, error: null };
-}

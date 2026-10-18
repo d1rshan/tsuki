@@ -15,12 +15,17 @@ function Tabs({ className, orientation = "horizontal", ...props }: TabsPrimitive
   );
 }
 
-function TabsList({ className, ...props }: TabsPrimitive.List.Props) {
+function TabsList({
+  className,
+  responsiveGrid,
+  ...props
+}: TabsPrimitive.List.Props & { responsiveGrid?: boolean }) {
   return (
     <TabsPrimitive.List
       data-slot="tabs-list"
       className={cn(
-        "group/tabs-list inline-flex w-fit max-w-full items-center gap-1 overflow-x-auto rounded-2xl border border-border/50 bg-muted/30 p-1.5 text-muted-foreground shadow-sm group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col",
+        "group/tabs-list inline-flex w-fit max-w-full items-center gap-1 overflow-x-auto rounded-2xl border border-border/50 bg-muted/30 p-1.5 text-muted-foreground shadow-sm no-scrollbar group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col",
+        responsiveGrid && "grid w-full grid-cols-2 @min-[48rem]:inline-flex @min-[48rem]:w-fit",
         className,
       )}
       {...props}

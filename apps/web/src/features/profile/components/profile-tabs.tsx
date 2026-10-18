@@ -1,37 +1,63 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 
-export function ProfileTabs({ username }: { username: string }) {
-  const pathname = usePathname();
+const TAB_DEFS = [
+  { name: "Overview", segment: "" },
+  { name: "Stats", segment: "stats" },
+  { name: "Anime List", segment: "anime-list" },
+  { name: "Manga List", segment: "manga-list" },
+  { name: "Favorites", segment: "favorites" },
+  { name: "Social", segment: "social" },
+  { name: "Reviews", segment: "reviews" },
+] as const;
 
-  const tabs = [
-    { name: "Overview", href: `/${username}` },
-    { name: "Anime List", href: `/${username}/anime-list` },
-    { name: "Manga List", href: `/${username}/manga-list` },
-    { name: "Favorites", href: `/${username}/favorites` },
-    { name: "Social", href: `/${username}/social` },
-    { name: "Reviews", href: `/${username}/reviews` },
-  ];
+/**
+ * Primary profile nav. Stayed a single scrollable row on mobile (not a wrapped
+ * grid) and keeps the active tab in view on navigation.
+ */
+export function ProfileTabs() {
+  const pathname = usePathname();
+  const username = pathname.split("/").filter(Boolean)[0] ?? "";
+  const listRef = useRef<HTMLDivElement>(null);
+
+  const tabs = TAB_DEFS.map((tab) => ({
+    name: tab.name,
+    href: tab.segment ? `/${username}/${tab.segment}` : `/${username}`,
+  }));
+
+  const active =
+    tabs
+      .filter((tab) => pathname === tab.href || pathname.startsWith(`${tab.href}/`))
+      .sort((a, b) => b.href.length - a.href.length)[0]?.href ?? tabs[0]!.href;
+
+  useEffect(() => {
+    listRef.current
+      ?.querySelector<HTMLElement>("[data-active]")
+      ?.scrollIntoView({ inline: "center", block: "nearest" });
+  }, [active]);
 
   return (
-    <Tabs value={pathname}>
-      <TabsList aria-label="Profile">
-        {tabs.map((tab) => (
-          <TabsTrigger
-            key={tab.name}
-            value={tab.href}
-            render={<Link href={tab.href} />}
-            nativeButton={false}
-            className="px-4"
-          >
-            {tab.name}
-          </TabsTrigger>
-        ))}
-      </TabsList>
-    </Tabs>
+    <div className="mt-4">
+      <Tabs value={active}>
+        <TabsList ref={listRef} aria-label="Profile" className="w-full">
+          {tabs.map((tab) => (
+            <TabsTrigger
+              key={tab.name}
+              value={tab.href}
+              render={<Link href={tab.href} />}
+              nativeButton={false}
+              className="px-4"
+            >
+              {tab.name}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
+    </div>
   );
 }
