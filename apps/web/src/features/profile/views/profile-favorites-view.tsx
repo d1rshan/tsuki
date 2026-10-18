@@ -8,7 +8,7 @@ import { ContentState } from "@/shared/components/content-state";
 import { ProfileFilterLayout } from "../components/profile-filter-layout";
 import type { ProfileFilterOption } from "../components/profile-filter-tabs";
 import { ProfileMediaGrid } from "../components/profile-library";
-import { getProfileLibrary } from "../data";
+import { getProfileLibrary, getProfileOverview } from "../data";
 import { searchParam, type ProfileSearchParams } from "../utils";
 
 export async function ProfileFavoritesView({
@@ -18,6 +18,8 @@ export async function ProfileFavoritesView({
   searchParams: Promise<ProfileSearchParams>;
   username: string;
 }) {
+  const profile = await getProfileOverview(username);
+  if (profile?.locked) return null;
   const [entries, params] = await Promise.all([getProfileLibrary(username), searchParams]);
   if (!entries) notFound();
 

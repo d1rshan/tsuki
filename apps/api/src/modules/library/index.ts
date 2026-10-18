@@ -5,7 +5,7 @@ import { libraryDal, reviewsDal } from "@tsuki/db";
 import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
 import { MediaTypeEnum } from "../media/model";
-import { requireUser } from "../profiles/service";
+import { requireProfileAccess } from "../profiles/service";
 import { ReviewModel } from "../reviews/model";
 import { LibraryEntryInputModel, LibraryEntryModel, LibraryQueryModel } from "./model";
 import { logMedia, removeEntry } from "./service";
@@ -14,14 +14,15 @@ export const libraryRoutes = new Elysia({ tags: ["Library"] })
   .use(authPlugin)
   .get(
     "/users/:username/library",
-    async ({ params: { username }, query }) => {
-      const user = await requireUser(username);
+    async ({ params: { username }, query, viewer }) => {
+      const user = await requireProfileAccess(username, viewer?.id ?? null);
       return libraryDal.getUserLibrary(user.id, query);
     },
     {
       params: t.Object({ username: t.String() }),
+      optionalAuth: true,
       query: LibraryQueryModel,
-      response: { 200: t.Array(LibraryEntryModel), 404: ErrorModel },
+      response: { 200: t.Array(LibraryEntryModel), 403: ErrorModel, 404: ErrorModel },
       detail: {
         summary: "Get a user's library",
         description: "Omit `type` to get anime and manga together, most recently updated first.",

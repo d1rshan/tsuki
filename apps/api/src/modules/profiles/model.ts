@@ -61,6 +61,8 @@ export const ProfileSocialModel = t.Object({
 
 export const UserOverviewModel = t.Object({
   user: UserSummaryModel,
+  isPrivate: t.Boolean(),
+  locked: t.Boolean(),
   profile: t.Nullable(ProfileModel),
   stats: t.Object({
     ANIME: MediaStatsModel,
