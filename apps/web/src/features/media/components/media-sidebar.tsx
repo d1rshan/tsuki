@@ -34,7 +34,9 @@ export function MediaSidebar({ count, details, genres, id, links, type }: MediaS
         </dl>
       </MediaSidebarSection>
 
-      {links.items.length > 0 && (
+      {/* TODO: Restore this once anime streamer names are synced into existing
+          catalogue rows and a reliable source for manga reading links is chosen. */}
+      {/* {links.items.length > 0 && (
         <MediaSidebarSection title={links.heading}>
           <div className="flex flex-col items-start gap-2">
             {links.items.map((link) => (
@@ -44,7 +46,7 @@ export function MediaSidebar({ count, details, genres, id, links, type }: MediaS
             ))}
           </div>
         </MediaSidebarSection>
-      )}
+      )} */}
     </aside>
   );
 }

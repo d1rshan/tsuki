@@ -5,7 +5,7 @@ import { reviewsDal } from "@tsuki/db";
 import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
 import { MediaTypeEnum } from "../media/model";
-import { requireUser } from "../profiles/service";
+import { requireProfileAccess } from "../profiles/service";
 import { ReviewInputModel, ReviewModel, ReviewQueryModel } from "./model";
 import { removeReview, submitReview } from "./service";
 
@@ -13,14 +13,15 @@ export const reviewRoutes = new Elysia({ tags: ["Reviews"] })
   .use(authPlugin)
   .get(
     "/users/:username/reviews",
-    async ({ params: { username }, query }) => {
-      const user = await requireUser(username);
+    async ({ params: { username }, query, viewer }) => {
+      const user = await requireProfileAccess(username, viewer?.id ?? null);
       return reviewsDal.getUserReviews(user.id, query);
     },
     {
       params: t.Object({ username: t.String() }),
+      optionalAuth: true,
       query: ReviewQueryModel,
-      response: { 200: t.Array(ReviewModel), 404: ErrorModel },
+      response: { 200: t.Array(ReviewModel), 403: ErrorModel, 404: ErrorModel },
       detail: {
         summary: "Get a user's reviews",
         description: "Omit `type` to get anime and manga reviews together, newest first.",

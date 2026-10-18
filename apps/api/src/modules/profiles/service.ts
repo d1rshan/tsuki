@@ -15,11 +15,20 @@ export async function requireUser(username: string) {
   return user;
 }
 
+export async function requireProfileAccess(username: string, viewerId: string | null) {
+  const user = await requireUser(username);
+  if (!(await socialDal.canViewProfile(viewerId, user.id, user.isPrivate))) {
+    throw status(403, { error: "This profile is private" });
+  }
+  return user;
+}
+
 const FAVORITES_LIMIT = 10;
 const RECENT_REVIEWS_LIMIT = 5;
 
 type ProfileUser = {
   id: string;
+  isPrivate: boolean;
   name: string;
   username: string;
   displayUsername: string;
@@ -105,26 +114,47 @@ function currentActivityStreak(dates: string[], today: Date) {
 /** Everything a Profile page renders in one payload. */
 export async function buildUserOverview(user: ProfileUser, viewer: { id: string } | null) {
   const today = new Date();
-  const [stats, favorites, recentReviews, profile, counts, relationship, activityRows] =
-    await Promise.all([
-      libraryDal.getLibraryStats(user.id),
-      libraryDal.getUserLibrary(user.id, { isFavorite: true, limit: FAVORITES_LIMIT }),
-      reviewsDal.getUserReviews(user.id, { limit: RECENT_REVIEWS_LIMIT }),
-      profileDal.getProfileByUserId(user.id),
-      socialDal.getFollowCounts(user.id),
-      viewer && viewer.id !== user.id ? socialDal.getFollowRelationship(viewer.id, user.id) : null,
-      activityDal.getProgressActivity(user.id),
-    ]);
+  const relationship =
+    viewer && viewer.id !== user.id
+      ? await socialDal.getFollowRelationship(viewer.id, user.id)
+      : null;
+  const locked = !(await socialDal.canViewProfile(viewer?.id ?? null, user.id, user.isPrivate));
+  const counts = await socialDal.getFollowCounts(user.id);
+  const summary = {
+    id: user.id,
+    name: user.name,
+    username: user.username,
+    displayUsername: user.displayUsername,
+    image: user.image,
+    createdAt: user.createdAt,
+  };
+  if (locked)
+    return {
+      user: summary,
+      isPrivate: true,
+      locked: true,
+      profile: null,
+      stats: {
+        ANIME: { total: 0, progress: 0, meanScore: 0 },
+        MANGA: { total: 0, progress: 0, meanScore: 0 },
+      },
+      favorites: [],
+      recentReviews: [],
+      social: { ...counts, viewer: relationship },
+      activity: { days: [], totals: { anime: 0, manga: 0 }, currentStreak: 0 },
+    };
+  const [stats, favorites, recentReviews, profile, activityRows] = await Promise.all([
+    libraryDal.getLibraryStats(user.id),
+    libraryDal.getUserLibrary(user.id, { isFavorite: true, limit: FAVORITES_LIMIT }),
+    reviewsDal.getUserReviews(user.id, { limit: RECENT_REVIEWS_LIMIT }),
+    profileDal.getProfileByUserId(user.id),
+    activityDal.getProgressActivity(user.id),
+  ]);
 
   return {
-    user: {
-      id: user.id,
-      name: user.name,
-      username: user.username,
-      displayUsername: user.displayUsername,
-      image: user.image,
-      createdAt: user.createdAt,
-    },
+    user: summary,
+    isPrivate: user.isPrivate,
+    locked: false,
     profile: profile ?? null,
     stats: {
       ANIME: statsFor(stats, "ANIME"),

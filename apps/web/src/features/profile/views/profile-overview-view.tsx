@@ -14,6 +14,7 @@ import { getProfileOverview } from "../data";
 export async function ProfileOverviewView({ username }: { username: string }) {
   const profile = await getProfileOverview(username);
   if (!profile) notFound();
+  if (profile.locked) return null;
 
   const bioText = profile.profile?.bio ? richContentText(profile.profile.bio).trim() : "";
   const socialLinks = profile.profile?.socialLinks;

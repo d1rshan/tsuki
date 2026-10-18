@@ -2,21 +2,14 @@ import "server-only";
 
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { cacheLife, cacheTag } from "next/cache";
+import { cache } from "react";
 
 import type { MediaType } from "@tsuki/api/types";
 import { richContentText } from "@tsuki/rich-content";
 
 import { parseUsername } from "@/shared/lib/username";
-import { publicApi } from "@/shared/lib/public-api";
 import { getServerApi } from "@/shared/lib/server-api";
 import { siteName } from "@/shared/lib/site";
-
-type ProfileSection = "followers" | "following" | "library" | "overview" | "reviews";
-
-function tagProfile(username: string, section: ProfileSection) {
-  cacheTag("profiles", `profile-${username}`, `profile-${username}-${section}`);
-}
 
 /** 404 means "no such Profile" — an answer, not a failure, so callers get null. */
 function resolve<T>(
@@ -41,32 +34,24 @@ export function resolveUsername(value: string) {
   return username;
 }
 
-export async function getProfileOverview(username: string) {
-  "use cache: remote";
-  cacheLife("minutes");
-  tagProfile(username, "overview");
-
-  const { data, error } = await publicApi.users({ username }).get();
+export const getProfileOverview = cache(async (username: string) => {
+  const { data, error } = await (await getServerApi()).users({ username }).get();
   return resolve(username, "profile", { data, error });
-}
+});
 
 export async function getProfileLibrary(username: string, mediaType?: MediaType) {
-  "use cache: remote";
-  cacheLife("minutes");
-  tagProfile(username, "library");
-
-  const { data, error } = await publicApi
+  const { data, error } = await (
+    await getServerApi()
+  )
     .users({ username })
     .library.get({ query: mediaType ? { type: mediaType } : {} });
   return resolve(username, "library", { data, error });
 }
 
 export async function getProfileReviews(username: string, mediaType?: MediaType) {
-  "use cache: remote";
-  cacheLife("minutes");
-  tagProfile(username, "reviews");
-
-  const { data, error } = await publicApi
+  const { data, error } = await (
+    await getServerApi()
+  )
     .users({ username })
     .reviews.get({ query: mediaType ? { type: mediaType } : {} });
   return resolve(username, "reviews", { data, error });
@@ -78,11 +63,7 @@ async function getProfileConnections(
   limit: number,
   offset: number,
 ) {
-  "use cache: remote";
-  cacheLife("minutes");
-  tagProfile(username, section);
-
-  const { data, error } = await publicApi.users({ username })[section].get({
+  const { data, error } = await (await getServerApi()).users({ username })[section].get({
     query: { limit, offset },
   });
   return resolve(username, section, { data, error });
@@ -116,13 +97,14 @@ export async function getProfileMetadata(username: string): Promise<Metadata> {
 
   const name = profile.user.displayUsername;
   const description =
-    richContentText(profile.profile?.bio).trim().slice(0, 160) ||
+    (profile.locked ? "" : richContentText(profile.profile?.bio).trim().slice(0, 160)) ||
     `View @${profile.user.username} on Tsuki.`;
   const url = `/${username}`;
 
   return {
     title: name,
     description,
+    ...(profile.locked && { robots: { index: false, follow: false } }),
     alternates: { canonical: url },
     openGraph: {
       type: "profile",

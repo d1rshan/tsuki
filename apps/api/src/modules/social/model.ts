@@ -16,6 +16,7 @@ export const UserSummaryModel = t.Object({
 export const FollowRelationshipModel = t.Object({
   following: t.Boolean(),
   followedBy: t.Boolean(),
+  requested: t.Boolean(),
 });
 
 export const DiscoveryUserSummaryModel = t.Object({

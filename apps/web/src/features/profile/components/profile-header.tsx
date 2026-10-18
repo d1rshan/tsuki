@@ -28,9 +28,9 @@ export async function ProfileHeaderShell({ params }: { params: Promise<{ usernam
             <HeaderIdentity username={username} />
           </Suspense>
 
-          <div className="min-w-0 max-w-full pt-3">
-            <ProfileTabs username={username} />
-          </div>
+          <Suspense fallback={null}>
+            <HeaderTabs username={username} />
+          </Suspense>
         </div>
 
         <div className="shrink-0 pt-3">
@@ -41,6 +41,15 @@ export async function ProfileHeaderShell({ params }: { params: Promise<{ usernam
       </div>
     </header>
   );
+}
+
+async function HeaderTabs({ username }: { username: string }) {
+  const profile = await getProfileOverview(username);
+  return profile && !profile.locked ? (
+    <div className="min-w-0 max-w-full pt-3">
+      <ProfileTabs username={username} />
+    </div>
+  ) : null;
 }
 
 async function HeaderBanner({ username }: { username: string }) {
@@ -77,5 +86,11 @@ async function HeaderActions({ username }: { username: string }) {
   const profile = await getProfileOverview(username);
   if (!profile) notFound();
 
-  return <ProfileViewerActions profile={profile.profile} user={profile.user} />;
+  return (
+    <ProfileViewerActions
+      profile={profile.profile}
+      user={profile.user}
+      isPrivate={profile.isPrivate}
+    />
+  );
 }

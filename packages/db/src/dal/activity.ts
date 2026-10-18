@@ -138,7 +138,8 @@ async function getActivity(
 export const getUserActivity = (actorId: string, query: ActivityQuery) =>
   getActivity(eq(activity.actorId, actorId), query);
 
-export const getPublicActivity = (query: ActivityQuery) => getActivity(sql`true`, query);
+export const getPublicActivity = (query: ActivityQuery) =>
+  getActivity(eq(actor.isPrivate, false), query);
 
 export const getFollowingActivity = (viewerId: string, query: ActivityQuery) =>
   getActivity(

@@ -1,9 +1,12 @@
 import { notFound } from "next/navigation";
 
+import { getSession } from "@/shared/lib/session";
+
 import { ProfileFilterLayout } from "../components/profile-filter-layout";
+import { FollowRequests } from "../components/follow-requests";
 import type { ProfileFilterOption } from "../components/profile-filter-tabs";
 import { ProfileUserList } from "../components/profile-user-list";
-import { getProfileFollowers, getProfileFollowing } from "../data";
+import { getProfileFollowers, getProfileFollowing, getProfileOverview } from "../data";
 import { searchParam, type ProfileSearchParams } from "../utils";
 
 // ponytail: one page of 100 per list, no pagination — add ?page per section if a list outgrows it
@@ -16,10 +19,13 @@ export async function ProfileSocialView({
   searchParams: Promise<ProfileSearchParams>;
   username: string;
 }) {
-  const [followers, following, params] = await Promise.all([
+  const profile = await getProfileOverview(username);
+  if (profile?.locked) return null;
+  const [followers, following, params, session] = await Promise.all([
     getProfileFollowers(username, LIMIT, 0),
     getProfileFollowing(username, LIMIT, 0),
     searchParams,
+    getSession(),
   ]);
   if (!followers || !following) notFound();
 
@@ -37,13 +43,16 @@ export async function ProfileSocialView({
   ];
 
   return (
-    <ProfileFilterLayout label="Social list" options={options} selected={selected}>
-      <ProfileUserList
-        users={list.users}
-        emptyMessage={
-          selected === "following" ? "This user is not following anyone yet" : "No followers yet"
-        }
-      />
-    </ProfileFilterLayout>
+    <div>
+      {session.user?.username === username && <FollowRequests />}
+      <ProfileFilterLayout label="Social list" options={options} selected={selected}>
+        <ProfileUserList
+          users={list.users}
+          emptyMessage={
+            selected === "following" ? "This user is not following anyone yet" : "No followers yet"
+          }
+        />
+      </ProfileFilterLayout>
+    </div>
   );
 }

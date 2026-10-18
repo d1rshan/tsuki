@@ -1,6 +1,6 @@
 import { Elysia, t, status } from "elysia";
 
-import { profileDal } from "@tsuki/db";
+import { profileDal, userDal } from "@tsuki/db";
 import type { RichContent } from "@tsuki/rich-content";
 import { isEmptyRichContent, validateRichContent } from "@tsuki/rich-content";
 
@@ -38,6 +38,20 @@ export const profilesRoutes = new Elysia({ tags: ["Profiles"] })
         summary: "Get ImageKit upload authorization",
         description: "Generates temporary credentials for direct browser-to-ImageKit upload.",
       },
+    },
+  )
+  .put(
+    "/me/privacy",
+    async ({ body, user }) => {
+      const [result] = await userDal.setPrivacy(user.id, body.isPrivate);
+      if (!result) return status(500, { error: "Failed to update privacy" });
+      return { isPrivate: result.isPrivate };
+    },
+    {
+      auth: true,
+      body: t.Object({ isPrivate: t.Boolean() }),
+      response: { 200: t.Object({ isPrivate: t.Boolean() }), 500: ErrorModel },
+      detail: { summary: "Set profile privacy" },
     },
   )
   .get(
