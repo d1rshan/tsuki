@@ -1,7 +1,7 @@
 import { and, count, desc, eq, sum } from "drizzle-orm";
 
 import { db } from "../db";
-import { library, type MediaType } from "../schema";
+import { library, media, type MediaType } from "../schema";
 import { MEDIA_COMPACT_COLUMNS } from "./media";
 
 export type InsertLibraryEntry = typeof library.$inferInsert;
@@ -92,3 +92,20 @@ export const upsertEntry = async (entry: InsertLibraryEntry) => {
 export const deleteEntry = async (userId: string, mediaId: number) => {
   return db.delete(library).where(and(eq(library.userId, userId), eq(library.mediaId, mediaId)));
 };
+
+/** Only the fields needed for profile statistics; no notes, covers or pagination. */
+export const getUserStatistics = (userId: string) =>
+  db
+    .select({
+      mediaType: library.mediaType,
+      status: library.status,
+      score: library.score,
+      progress: library.progress,
+      duration: media.duration,
+      genres: media.genres,
+    })
+    .from(library)
+    .innerJoin(media, and(eq(media.id, library.mediaId), eq(media.type, library.mediaType)))
+    .where(eq(library.userId, userId));
+
+export type UserStatisticsRow = Awaited<ReturnType<typeof getUserStatistics>>[number];

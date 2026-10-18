@@ -47,7 +47,9 @@ export function ProfileStatsLedger({
         <PieChart>
           <ChartTooltip
             cursor={false}
-            content={<ChartTooltipContent hideLabel nameKey="label" />}
+            content={
+              <ChartTooltipContent hideLabel nameKey="label" className="[&_.font-mono]:font-sans" />
+            }
           />
           <Pie data={innerData} dataKey="value" nameKey="label" outerRadius="50%" />
           <Pie

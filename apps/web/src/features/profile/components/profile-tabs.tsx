@@ -8,6 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 
 const TAB_DEFS = [
   { name: "Overview", segment: "" },
+  { name: "Stats", segment: "stats" },
   { name: "Anime List", segment: "anime-list" },
   { name: "Manga List", segment: "manga-list" },
   { name: "Favorites", segment: "favorites" },

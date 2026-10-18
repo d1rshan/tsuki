@@ -76,3 +76,28 @@ export const UserOverviewModel = t.Object({
 
 export type Profile = typeof ProfileModel.static;
 export type UserOverview = typeof UserOverviewModel.static;
+
+const ProfileMediaStatisticsModel = t.Object({
+  total: t.Number(),
+  completed: t.Number(),
+  progress: t.Number(),
+  rated: t.Number(),
+  meanScore: t.Nullable(t.Number()),
+  watchMinutes: t.Number(),
+  runtimeKnownEpisodes: t.Number(),
+  scores: t.Array(t.Object({ score: t.Number(), count: t.Number() })),
+  statuses: t.Array(t.Object({ status: t.String(), count: t.Number() })),
+  genres: t.Array(
+    t.Object({
+      genre: t.String(),
+      count: t.Number(),
+      meanScore: t.Nullable(t.Number()),
+    }),
+  ),
+});
+
+export const ProfileStatisticsModel = t.Object({
+  ANIME: ProfileMediaStatisticsModel,
+  MANGA: ProfileMediaStatisticsModel,
+});
+export type ProfileStatistics = typeof ProfileStatisticsModel.static;

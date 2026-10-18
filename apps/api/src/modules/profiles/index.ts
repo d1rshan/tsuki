@@ -1,6 +1,6 @@
 import { Elysia, t, status } from "elysia";
 
-import { profileDal, userDal } from "@tsuki/db";
+import { libraryDal, profileDal, userDal } from "@tsuki/db";
 import type { RichContent } from "@tsuki/rich-content";
 import { isEmptyRichContent, validateRichContent } from "@tsuki/rich-content";
 
@@ -12,8 +12,16 @@ import {
   parseImagePath,
   verifyUploadedImage,
 } from "./imagekit";
-import { buildUserOverview, requireUser } from "./service";
-import { ProfileModel, UpdateProfileModel, UploadAuthModel, UserOverviewModel } from "./model";
+import { buildUserOverview, requireProfileAccess, requireUser } from "./service";
+import {
+  ProfileModel,
+  ProfileStatisticsModel,
+  UpdateProfileModel,
+  UploadAuthModel,
+  UserOverviewModel,
+} from "./model";
+
+import { summarizeStatistics } from "./statistics";
 
 // TODO: Rename `/users/:username` routes to `/profiles/:username` (and
 // `/users/discover`, follower lists etc. in the social module) once the web
@@ -68,6 +76,19 @@ export const profilesRoutes = new Elysia({ tags: ["Profiles"] })
         summary: "Get a user's overview",
         description: "Public profile, per-type stats, favourites and recent activity.",
       },
+    },
+  )
+  .get(
+    "/users/:username/stats",
+    async ({ params: { username }, viewer }) => {
+      const user = await requireProfileAccess(username, viewer?.id ?? null);
+      return summarizeStatistics(await libraryDal.getUserStatistics(user.id));
+    },
+    {
+      optionalAuth: true,
+      params: t.Object({ username: t.String() }),
+      response: { 200: ProfileStatisticsModel, 403: ErrorModel, 404: ErrorModel },
+      detail: { summary: "Get a user's library statistics" },
     },
   )
   .put(
