@@ -129,7 +129,7 @@ export async function ProfileStatsView({
         ]}
       >
         <div className="@container/stats flex flex-col gap-4">
-          <div className="grid grid-cols-1 gap-4 @min-[20rem]/stats:grid-cols-2 @min-[36rem]/stats:grid-cols-4">
+          <div className="grid grid-cols-1 gap-2.5 @min-[20rem]/stats:grid-cols-2 @min-[36rem]/stats:grid-cols-4">
             <StatsTile label="Completed titles" className="p-4 @min-[40rem]:p-4">
               <dl>
                 <Metric

@@ -18,6 +18,7 @@ const richContent = z.custom<RichContent | null>(() => true);
 const socialUrl = z.string().trim().min(1, "URL is required");
 
 export const profileFormSchema = z.object({
+  isPrivate: z.boolean(),
   bio: richContent,
   image: z.string().nullable(),
   bannerImage: z.string().nullable(),
@@ -87,8 +88,10 @@ function toFormUrl(platform: string, url: string): string {
 export function createProfileFormValues(
   profile: UserOverview["profile"],
   avatarImage?: string | null,
+  isPrivate = false,
 ): ProfileFormValues {
   return {
+    isPrivate,
     bio: profile?.bio ?? null,
     image: avatarImage ?? profile?.image ?? null,
     bannerImage: profile?.bannerImage ?? null,
