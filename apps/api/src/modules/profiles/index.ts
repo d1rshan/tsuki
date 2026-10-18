@@ -1,6 +1,6 @@
 import { Elysia, t, status } from "elysia";
 
-import { libraryDal, profileDal, userDal } from "@tsuki/db";
+import { libraryDal, profileDal } from "@tsuki/db";
 import type { RichContent } from "@tsuki/rich-content";
 import { isEmptyRichContent, validateRichContent } from "@tsuki/rich-content";
 
@@ -48,20 +48,6 @@ export const profilesRoutes = new Elysia({ tags: ["Profiles"] })
       },
     },
   )
-  .put(
-    "/me/privacy",
-    async ({ body, user }) => {
-      const [result] = await userDal.setPrivacy(user.id, body.isPrivate);
-      if (!result) return status(500, { error: "Failed to update privacy" });
-      return { isPrivate: result.isPrivate };
-    },
-    {
-      auth: true,
-      body: t.Object({ isPrivate: t.Boolean() }),
-      response: { 200: t.Object({ isPrivate: t.Boolean() }), 500: ErrorModel },
-      detail: { summary: "Set profile privacy" },
-    },
-  )
   .get(
     "/users/:username",
     async ({ params: { username }, viewer }) => {
@@ -94,7 +80,7 @@ export const profilesRoutes = new Elysia({ tags: ["Profiles"] })
   .put(
     "/me/profile",
     async ({ body, user }) => {
-      const { bio: rawBio, image: avatarImage, bannerImage, socialLinks } = body;
+      const { bio: rawBio, image: avatarImage, bannerImage, socialLinks, isPrivate } = body;
 
       let bio: RichContent | null | undefined;
       if (rawBio !== undefined) {
@@ -132,22 +118,16 @@ export const profilesRoutes = new Elysia({ tags: ["Profiles"] })
         ...(rawBio !== undefined && { bio }),
       };
 
-      // Avatar (user row) and profile row are written atomically when both
-      // change, so a failed profile write cannot leave a half-updated profile.
-      if (avatarImage !== undefined) {
-        const { image, profile } = await profileDal.updateUserAndProfile(
-          user.id,
-          avatarImage,
-          profileData,
-        );
-        if (!profile) return status(500, { error: "Failed to update profile" });
-        return { ...profile, image };
-      }
-
-      const [profile] = await profileDal.updateUserProfile(user.id, profileData);
+      const {
+        profile,
+        image,
+        isPrivate: privacy,
+      } = await profileDal.updateUserProfile(user.id, profileData, {
+        ...(avatarImage !== undefined && { image: avatarImage }),
+        ...(isPrivate !== undefined && { isPrivate }),
+      });
       if (!profile) return status(500, { error: "Failed to update profile" });
-
-      return { ...profile, image: user.image ?? null };
+      return { ...profile, image, isPrivate: privacy };
     },
     {
       auth: true,

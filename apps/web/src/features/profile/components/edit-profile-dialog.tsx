@@ -37,7 +37,7 @@ import { cn } from "@/shared/lib/utils";
 import { TextField } from "@/shared/components/text-field";
 
 import type { ImageUploadType } from "../image-utils";
-import { setProfilePrivacy, updateProfile } from "../actions";
+import { updateProfile } from "../actions";
 import { createProfileFormValues, createProfileUpdate, profileFormSchema } from "../schemas";
 import { ProfileImageControls } from "./profile-image-controls";
 import { getSocialPreset, SOCIAL_PRESETS, SocialIcon } from "../social-presets";
@@ -72,18 +72,8 @@ export function EditProfileDialog({
         throw new Error(result.error);
       }
 
-      if (value.isPrivate !== isPrivate) {
-        const privacy = await setProfilePrivacy(value.isPrivate).catch(() => ({
-          success: false as const,
-          error: "Failed to update privacy.",
-        }));
-        if (!privacy.success) {
-          toast.error(privacy.error);
-          throw new Error(privacy.error);
-        }
-        if (!value.isPrivate) {
-          void queryClient.invalidateQueries({ queryKey: ["follow-requests"] });
-        }
+      if (value.isPrivate !== isPrivate && !value.isPrivate) {
+        void queryClient.invalidateQueries({ queryKey: ["follow-requests"] });
       }
 
       toast.success("Profile updated successfully");

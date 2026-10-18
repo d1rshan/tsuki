@@ -68,3 +68,14 @@ describe("social link handle/URL round-trip", () => {
     expect(links).toEqual({ github: "https://github.com/darsh", website: "https://d1rshan.me" });
   });
 });
+
+test("privacy changes are included in the profile update without defaulting omitted changes", () => {
+  const original = createProfileFormValues(null, null, true);
+  expect(createProfileUpdate(original, original).isPrivate).toBeUndefined();
+  const update = createProfileUpdate({ ...original, isPrivate: false }, original);
+  expect(update.isPrivate).toBe(false);
+  expect(
+    createProfileUpdate({ ...original, isPrivate: true }, { ...original, isPrivate: false })
+      .isPrivate,
+  ).toBe(true);
+});

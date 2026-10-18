@@ -18,6 +18,7 @@ export const UploadAuthModel = t.Object({
 });
 
 export const ProfileModel = t.Object({
+  isPrivate: t.Optional(t.Boolean()),
   bio: t.Nullable(RichContentModel),
   bannerImage: t.Nullable(t.String({ pattern: URL_PATTERN })),
   socialLinks: t.Nullable(t.Record(t.String(), t.String({ pattern: URL_PATTERN }))),
@@ -25,6 +26,7 @@ export const ProfileModel = t.Object({
 });
 
 export const UpdateProfileModel = t.Object({
+  isPrivate: t.Optional(t.Boolean()),
   bio: t.Optional(t.Nullable(RichContentModel)),
   bannerImage: t.Optional(t.Nullable(t.String({ pattern: URL_PATTERN }))),
   image: t.Optional(t.Nullable(t.String({ pattern: URL_PATTERN }))),

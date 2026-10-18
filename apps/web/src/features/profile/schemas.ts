@@ -31,6 +31,7 @@ export const profileFormSchema = z.object({
 });
 
 export const profileUpdateSchema = z.object({
+  isPrivate: z.boolean().optional(),
   image: httpUrl.nullable().optional(),
   bannerImage: httpUrl.nullable().optional(),
   bio: richContent.nullable().optional(),
@@ -62,6 +63,7 @@ export function createProfileUpdate(
   const socialLinks = Object.fromEntries(entries.filter(([platform, url]) => platform && url));
 
   return {
+    isPrivate: values.isPrivate === original.isPrivate ? undefined : values.isPrivate,
     bio: values.bio && !isEmptyRichContent(values.bio) ? values.bio : null,
     // Unchanged images are omitted so the API doesn't re-verify legacy URLs it
     // didn't mint (foreign banner URLs from the old URL field would 422).

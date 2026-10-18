@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Star } from "lucide-react";
 
 import type { MediaCompact, MediaType } from "@tsuki/api/types";
 
@@ -58,51 +59,59 @@ export function ProfileMediaCard({
       )}
 
       {progress != null || score != null ? (
-        <div className="absolute top-2 right-2 z-10">
-          <TooltipProvider delay={80}>
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <span className="relative flex size-7 items-center justify-center rounded-full bg-background/60 text-[10px] font-semibold backdrop-blur-md" />
-                }
-              >
-                <svg viewBox="0 0 32 32" className="absolute inset-0 size-full -rotate-90">
-                  <circle
-                    cx="16"
-                    cy="16"
-                    r={RING_RADIUS}
-                    fill="none"
-                    strokeWidth="3"
-                    className="stroke-foreground/15"
-                  />
-                  <circle
-                    cx="16"
-                    cy="16"
-                    r={RING_RADIUS}
-                    fill="none"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    strokeDasharray={RING_CIRCUMFERENCE}
-                    strokeDashoffset={RING_CIRCUMFERENCE * (1 - (ratio ?? 0))}
-                    className="stroke-primary"
-                  />
-                </svg>
-                {progress != null ? <span className="relative">{progress}</span> : null}
-              </TooltipTrigger>
-              <TooltipContent>
-                {[
-                  progress != null
-                    ? total
-                      ? `${progress}/${total} ${MEDIA[mediaType].unitLong.toLowerCase()}`
-                      : `${MEDIA[mediaType].unitAbbrev}. ${progress}`
-                    : null,
-                  score != null ? `Rated ${score}/10` : null,
-                ]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+        <div className="absolute top-2 right-2 z-10 flex items-center gap-1.5">
+          {score != null && (
+            <span
+              aria-label={`Rated ${score} out of 10`}
+              className="flex items-center gap-1 rounded-md bg-background/80 px-1.5 py-1 text-[10px] font-semibold backdrop-blur-md"
+            >
+              <Star className="size-3 fill-primary text-primary" aria-hidden />
+              {score}
+            </span>
+          )}
+          {progress != null && (
+            <TooltipProvider delay={80}>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <span className="relative flex size-7 items-center justify-center rounded-full bg-background/60 text-[10px] font-semibold backdrop-blur-md" />
+                  }
+                >
+                  <svg
+                    aria-hidden
+                    viewBox="0 0 32 32"
+                    className="absolute inset-0 size-full -rotate-90"
+                  >
+                    <circle
+                      cx="16"
+                      cy="16"
+                      r={RING_RADIUS}
+                      fill="none"
+                      strokeWidth="3"
+                      className="stroke-foreground/15"
+                    />
+                    <circle
+                      cx="16"
+                      cy="16"
+                      r={RING_RADIUS}
+                      fill="none"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeDasharray={RING_CIRCUMFERENCE}
+                      strokeDashoffset={RING_CIRCUMFERENCE * (1 - (ratio ?? 0))}
+                      className="stroke-primary"
+                    />
+                  </svg>
+                  <span className="relative">{progress}</span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {total
+                    ? `${progress}/${total} ${MEDIA[mediaType].unitLong.toLowerCase()}`
+                    : `${MEDIA[mediaType].unitAbbrev}. ${progress}`}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
         </div>
       ) : null}
 
