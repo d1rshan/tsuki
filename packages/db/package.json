@@ -15,6 +15,6 @@
   },
   "devDependencies": {
     "@types/node": "^26.6.5",
-    "drizzle-kit": "0.31.10"
+    "drizzle-kit": "0.31.11"
   }
 }
