@@ -28,7 +28,7 @@ export function Navbar() {
         className="group/navbar pointer-events-none fixed inset-x-0 top-0 z-40 pt-6"
         aria-label="Main"
       >
-        <div className="relative mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 md:gap-4">
+        <div className="relative mx-auto flex max-w-5xl items-center justify-between gap-2 px-4 md:gap-4">
           <div className="pointer-events-auto flex min-w-0 items-center gap-3 md:gap-6">
             <div className="flex min-w-0 items-center overflow-x-auto no-scrollbar">
               <NavbarLinks pathname={pathname} user={user} showLogin={!isPending} />

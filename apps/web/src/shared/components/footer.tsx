@@ -1,62 +1,67 @@
 import Link from "next/link";
 
-import { ExternalLink } from "@/shared/components/external-link";
-
 const GITHUB_URL = "https://github.com/d1rshan/tsuki";
 const GITHUB_ISSUES_URL = "https://github.com/d1rshan/tsuki/issues";
 const AUTHOR_URL = "https://github.com/d1rshan";
 const KITSU_URL = "https://kitsu.app";
+const FOOTER_LINK_CLASS =
+  "text-sm font-medium text-muted-foreground transition-colors hover:text-foreground";
 
 export function Footer() {
   return (
-    <footer className="relative isolate overflow-hidden pb-24 md:pb-0" aria-label="Site footer">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-32 bg-gradient-to-t from-primary/10 via-primary/3 to-transparent blur-2xl"
-      />
-      <div className="relative z-10 container mx-auto max-w-6xl px-4">
-        <div className="flex flex-col gap-12 py-12 md:flex-row md:items-end md:justify-between md:py-16">
-          <div className="max-w-sm space-y-5">
-            <Link href="/" className="group flex w-fit items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-foreground transition-all duration-300 group-hover:scale-[1.5]" />
-              <span className="text-xl font-black uppercase tracking-tighter">TSUKI</span>
+    <footer className="px-4 pt-12 pb-24 md:pb-8" aria-label="Site footer">
+      <div className="mx-auto max-w-5xl rounded-2xl bg-muted px-6 py-8 md:px-10 md:py-10">
+        <div className="grid gap-10 md:grid-cols-[minmax(0,1fr)_auto] md:gap-16">
+          <div className="max-w-xs">
+            <Link href="/" className="group inline-flex items-center gap-2.5">
+              <span className="size-2 rounded-full bg-foreground transition-transform duration-200 group-hover:scale-125" />
+              <span className="font-heading text-3xl font-bold tracking-[-0.07em]">tsuki</span>
             </Link>
-            <p className="text-sm leading-relaxed text-muted-foreground">
+            <p className="mt-4 text-sm leading-6 text-muted-foreground">
               Keep track of what you watch, share what you love, and find your next favorite.
             </p>
           </div>
 
-          <nav className="grid grid-cols-2 gap-x-14 gap-y-8 text-sm" aria-label="Footer navigation">
-            <div className="flex flex-col items-start gap-2">
-              <p className="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                Explore
-              </p>
-              <Link className="text-muted-foreground transition-colors hover:text-primary" href="/">
-                Discover
-              </Link>
-              <Link
-                className="text-muted-foreground transition-colors hover:text-primary"
-                href="/social"
-              >
-                Social
-              </Link>
-            </div>
-
-            <div className="flex flex-col items-start gap-2">
-              <p className="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                Project
-              </p>
-              <ExternalLink href={GITHUB_URL}>GitHub</ExternalLink>
-              <ExternalLink href={GITHUB_ISSUES_URL}>Report an issue</ExternalLink>
-              <ExternalLink href={KITSU_URL}>Media data from kitsu.app</ExternalLink>
-            </div>
+          <nav className="flex flex-col items-start gap-3" aria-label="Footer navigation">
+            <a
+              className={FOOTER_LINK_CLASS}
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub
+            </a>
+            <a
+              className={FOOTER_LINK_CLASS}
+              href={GITHUB_ISSUES_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Report an issue
+            </a>
+            <a
+              className={FOOTER_LINK_CLASS}
+              href={KITSU_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Media data from kitsu.app
+            </a>
           </nav>
         </div>
 
-        <div className="flex flex-col gap-2 pb-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <span>© 2026 Tsuki</span>
+        <div className="mt-10 flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <span>© 2026 tsuki</span>
           <span>
-            Made by <ExternalLink href={AUTHOR_URL}>d1rshan</ExternalLink>
+            Made by{" "}
+            <a
+              className={FOOTER_LINK_CLASS}
+              href={AUTHOR_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              d1rshan
+            </a>
           </span>
         </div>
       </div>

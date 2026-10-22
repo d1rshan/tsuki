@@ -36,25 +36,25 @@ function LoginCard() {
   });
 
   return (
-    <AuthFormCard
-      form={form}
-      title="Welcome back"
-      description="Sign in with your email or username."
-      action="sign-up"
-      submitLabel="Sign in"
-    >
+    <AuthFormCard form={form} title="Welcome back" action="sign-up" submitLabel="Sign in">
       <TextField
         form={form}
         name="emailOrUsername"
         label="Email or username"
+        hideLabel
+        placeholder="Email or username"
         autoComplete="username"
+        className="bg-card"
       />
       <TextField
         form={form}
         name="password"
         label="Password"
+        hideLabel
+        placeholder="Password"
         type="password"
         autoComplete="current-password"
+        className="bg-card"
       />
       <Link
         href="/forgot-password"
@@ -68,13 +68,13 @@ function LoginCard() {
 
 function SignupCard() {
   const form = useForm({
-    defaultValues: { name: "", username: "", email: "", password: "" },
+    defaultValues: { username: "", email: "", password: "" },
     validationLogic: revalidateLogic(),
     validators: { onDynamic: signUpSchema },
     onSubmit: async ({ value }) => {
       const values = signUpSchema.parse(value);
       await runAuthRequest(
-        signUp.email({ ...values, callbackURL: window.location.origin }),
+        signUp.email({ ...values, name: values.username, callbackURL: window.location.origin }),
         "Failed to create account",
       );
 
@@ -88,19 +88,37 @@ function SignupCard() {
     <AuthFormCard
       form={form}
       title="Create an account"
-      description="Start tracking anime and manga on Tsuki."
       action="sign-in"
       submitLabel="Create account"
     >
-      <TextField form={form} name="name" label="Name" autoComplete="name" />
-      <TextField form={form} name="username" label="Username" autoComplete="username" />
-      <TextField form={form} name="email" label="Email" type="email" autoComplete="email" />
+      <TextField
+        form={form}
+        name="username"
+        label="Username"
+        hideLabel
+        placeholder="Username"
+        autoComplete="username"
+        className="bg-card"
+      />
+      <TextField
+        form={form}
+        name="email"
+        label="Email"
+        hideLabel
+        placeholder="Email"
+        type="email"
+        autoComplete="email"
+        className="bg-card"
+      />
       <TextField
         form={form}
         name="password"
         label="Password"
+        hideLabel
+        placeholder="Password"
         type="password"
         autoComplete="new-password"
+        className="bg-card"
       />
     </AuthFormCard>
   );

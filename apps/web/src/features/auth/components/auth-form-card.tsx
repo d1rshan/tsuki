@@ -25,7 +25,7 @@ export function AuthFormCard({
 }: {
   action: "sign-in" | "sign-up";
   children: React.ReactNode;
-  description: string;
+  description?: string;
   form: AnyForm;
   submitLabel: string;
   title: string;
@@ -36,7 +36,7 @@ export function AuthFormCard({
     <Card className="w-full max-w-sm">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
+        {description && <CardDescription>{description}</CardDescription>}
         <CardAction>
           <Link
             href={isSignUpAction ? "/login?mode=signup" : "/login"}

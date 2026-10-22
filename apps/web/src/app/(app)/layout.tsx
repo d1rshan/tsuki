@@ -13,7 +13,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <Navbar />
       </Suspense>
       <SoftBlurEdge edge="top" />
-      <main className="container mx-auto max-w-6xl flex-1 px-4 @container">{children}</main>
+      <main className="container mx-auto max-w-5xl flex-1 px-4 @container">{children}</main>
       <Footer />
       {/* <BetaFeedback /> */}
     </div>
