@@ -7,9 +7,10 @@ import type { NavbarUser } from "./";
 type NavbarLinksProps = {
   pathname: string;
   user: NavbarUser | null;
+  showLogin: boolean;
 };
 
-export function NavbarLinks({ pathname, user }: NavbarLinksProps) {
+export function NavbarLinks({ pathname, user, showLogin }: NavbarLinksProps) {
   const links = [
     {
       href: "/",
@@ -30,17 +31,21 @@ export function NavbarLinks({ pathname, user }: NavbarLinksProps) {
             isActive: pathname === `/${user.username}` || pathname.startsWith(`/${user.username}/`),
           },
         ]
-      : []),
-    ...(user?.role === "admin" || user?.role === "owner"
-      ? [{ href: "/admin", label: "Admin", isActive: pathname.startsWith("/admin") }]
-      : []),
+      : showLogin
+        ? [{ href: "/login", label: "Login", isActive: pathname === "/login" }]
+        : []),
   ];
 
   const activeHref = links.find((link) => link.isActive)?.href;
 
   return (
-    <Tabs value={activeHref} orientation="horizontal" variant="rounded">
-      <TabsList aria-label="Main navigation">
+    <Tabs
+      value={activeHref}
+      orientation="horizontal"
+      variant="rounded"
+      className="pointer-events-auto"
+    >
+      <TabsList aria-label="Main navigation" className="max-md:h-10.5">
         {links.map((link) => (
           <TabsTrigger
             key={link.href}

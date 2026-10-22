@@ -42,10 +42,24 @@ export function DiscoverControls() {
   }
 
   return (
-    <div className="flex min-w-0 items-center gap-2 md:gap-3">
+    <div className="flex min-w-0 items-center justify-center gap-2 max-md:w-full md:justify-start md:gap-3">
+      <Tabs
+        value={mediaType}
+        onValueChange={(value) => setMediaType(value as MediaType)}
+        className="order-2 shrink-0 md:order-2"
+        variant="rounded"
+      >
+        <TabsList aria-label="Media type" className="max-md:h-10.5">
+          {MEDIA_TYPES.map((type) => (
+            <TabsTrigger key={type} value={type} aria-label={MEDIA[type].label} className="px-2">
+              {type === "ANIME" ? <Tv aria-hidden="true" /> : <BookOpen aria-hidden="true" />}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
       <InputGroup
         data-search-expanded={expanded}
-        className="group/search w-10.5 shrink-0 overflow-hidden rounded-full has-[>[data-align=inline-start]]:[&>input]:pl-0 has-[[data-slot=input-group-control]:focus-visible]:ring-0 transition-[width] duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] data-[search-expanded=true]:w-[min(15rem,calc(100vw-9rem))] motion-reduce:transition-none md:data-[search-expanded=true]:w-56 lg:data-[search-expanded=true]:w-60"
+        className="group/search order-1 w-10.5 shrink-0 overflow-hidden rounded-full has-[>[data-align=inline-start]]:[&>input]:pl-0 has-[[data-slot=input-group-control]:focus-visible]:ring-0 transition-[width] duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] max-md:h-10.5 max-md:data-[search-expanded=true]:w-[min(18rem,calc(100vw-7.25rem))] motion-reduce:transition-none md:order-1 md:data-[search-expanded=true]:w-56 lg:data-[search-expanded=true]:w-60"
         onBlur={(event) => {
           if (!event.currentTarget.contains(event.relatedTarget)) setIsOpen(false);
         }}
@@ -98,20 +112,6 @@ export function DiscoverControls() {
           </InputGroupButton>
         </InputGroupAddon>
       </InputGroup>
-      <Tabs
-        value={mediaType}
-        onValueChange={(value) => setMediaType(value as MediaType)}
-        className="shrink-0 max-md:group-has-[[data-search-expanded=true]]/navbar:hidden"
-        variant="rounded"
-      >
-        <TabsList aria-label="Media type">
-          {MEDIA_TYPES.map((type) => (
-            <TabsTrigger key={type} value={type} aria-label={MEDIA[type].label} className="px-2">
-              {type === "ANIME" ? <Tv aria-hidden="true" /> : <BookOpen aria-hidden="true" />}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
     </div>
   );
 }

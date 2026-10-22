@@ -2,9 +2,10 @@ import { cn } from "@/shared/lib/utils";
 
 type SoftBlurEdgeProps = {
   edge: "top" | "bottom";
+  className?: string;
 };
 
-export function SoftBlurEdge({ edge }: SoftBlurEdgeProps) {
+export function SoftBlurEdge({ edge, className }: SoftBlurEdgeProps) {
   const isTop = edge === "top";
   const direction = isTop ? "to bottom" : "to top";
   const layers = isTop
@@ -31,6 +32,7 @@ export function SoftBlurEdge({ edge }: SoftBlurEdgeProps) {
             "pointer-events-none fixed inset-x-0 z-30",
             isTop ? "top-0" : "bottom-0",
             layer,
+            className,
           )}
           style={style}
         />

@@ -14,7 +14,7 @@ export function ThemeSelector() {
       onValueChange={(value) => setTheme(String(value))}
       variant="rounded"
     >
-      <TabsList aria-label="Color theme">
+      <TabsList aria-label="Color theme" className="max-md:h-10.5">
         <TabsTrigger value="light" aria-label="Light theme" className="px-2">
           <Sun aria-hidden="true" />
         </TabsTrigger>

@@ -9,7 +9,7 @@ const KITSU_URL = "https://kitsu.app";
 
 export function Footer() {
   return (
-    <footer className="relative isolate overflow-hidden" aria-label="Site footer">
+    <footer className="relative isolate overflow-hidden pb-24 md:pb-0" aria-label="Site footer">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-32 bg-gradient-to-t from-primary/10 via-primary/3 to-transparent blur-2xl"
