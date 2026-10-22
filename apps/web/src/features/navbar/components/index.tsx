@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 
 import { authClient } from "@tsuki/auth/client";
 
+import { DiscoverControls } from "@/features/discover/components/discover-controls";
 import { ThemeSelector } from "@/shared/components/theme-selector";
 
 import { NavbarAuth } from "./navbar-auth";
@@ -23,17 +24,21 @@ export function Navbar() {
     : null;
 
   return (
-    <nav className="pointer-events-none fixed inset-x-0 top-0 z-40 pt-4 md:pt-6" aria-label="Main">
-      <div className="relative mx-auto flex max-w-6xl justify-start px-4">
-        <div className="pointer-events-auto absolute top-0 right-4">
-          <ThemeSelector />
-        </div>
-        <div className="pointer-events-auto relative flex w-fit max-w-full items-center justify-center gap-4 md:gap-6">
-          <div className="flex min-w-0 items-center">
+    <nav
+      className="group/navbar pointer-events-none fixed inset-x-0 top-0 z-40 pt-4 md:pt-6"
+      aria-label="Main"
+    >
+      <div className="relative mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 md:gap-4">
+        <div className="pointer-events-auto flex min-w-0 items-center gap-3 max-md:group-has-[[data-search-expanded=true]]/navbar:hidden md:gap-6">
+          <div className="flex min-w-0 items-center overflow-x-auto no-scrollbar">
             <NavbarLinks pathname={pathname} user={user} />
           </div>
 
           <NavbarAuth isAuthenticated={Boolean(user?.username)} />
+        </div>
+        <div className="pointer-events-auto ml-auto flex shrink-0 items-center gap-2 md:gap-3">
+          {pathname === "/" && <DiscoverControls />}
+          <ThemeSelector />
         </div>
       </div>
     </nav>
