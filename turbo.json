@@ -22,9 +22,6 @@
       "dependsOn": ["^typecheck"]
     },
     "test": {},
-    "generate:themes": {
-      "cache": false
-    },
     "//#lint:check": {},
     "//#lint:fix": {
       "cache": false

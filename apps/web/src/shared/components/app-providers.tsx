@@ -8,7 +8,6 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 import { Toaster } from "@/shared/components/ui/sonner";
 import { getQueryClient } from "@/shared/lib/query-client";
-import { THEME_CLASSES } from "@/features/theme/themes";
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
@@ -19,7 +18,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       defaultTheme="system"
       enableSystem
       disableTransitionOnChange
-      themes={THEME_CLASSES}
+      storageKey="tsuki-color-mode"
     >
       <QueryClientProvider client={queryClient}>
         {/* btw: NuqsAdapter reads searchParams on render — Suspense keeps it from blocking prerender. */}

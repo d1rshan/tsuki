@@ -8,7 +8,7 @@ import { Menu, X } from "lucide-react";
 import { authClient } from "@tsuki/auth/client";
 
 import { Button } from "@/shared/components/ui/button";
-import { ThemeSelector } from "@/features/theme/components/theme-selector";
+import { ModeToggle } from "@/shared/components/mode-toggle";
 
 import { NavbarAuth } from "./navbar-auth";
 import { NavbarLinks } from "./navbar-links";
@@ -51,7 +51,7 @@ export function Navbar() {
             <div className="hidden items-center gap-2 sm:flex">
               <NavbarAuth isAuthenticated={Boolean(user?.username)} />
               <div className="mx-1 h-4 w-px bg-border" />
-              <ThemeSelector />
+              <ModeToggle />
             </div>
             <Button
               type="button"
@@ -78,7 +78,7 @@ export function Navbar() {
                 onNavigate={closeMobileMenu}
               />
               <div className="pr-2">
-                <ThemeSelector />
+                <ModeToggle />
               </div>
             </div>
           </div>
