@@ -1,0 +1,29 @@
+"use client";
+
+import { Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
+
+import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
+
+export function ThemeSelector() {
+  const { resolvedTheme, setTheme } = useTheme();
+
+  return (
+    <Tabs
+      value={resolvedTheme === "dark" ? "dark" : "light"}
+      onValueChange={(value) => setTheme(String(value))}
+    >
+      <TabsList
+        aria-label="Color theme"
+        className="rounded-full [&>[data-slot=tabs-indicator]]:rounded-full"
+      >
+        <TabsTrigger value="light" aria-label="Light theme" className="rounded-full px-2">
+          <Sun aria-hidden="true" />
+        </TabsTrigger>
+        <TabsTrigger value="dark" aria-label="Dark theme" className="rounded-full px-2">
+          <Moon aria-hidden="true" />
+        </TabsTrigger>
+      </TabsList>
+    </Tabs>
+  );
+}

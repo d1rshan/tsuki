@@ -1,14 +1,15 @@
+import Link from "next/link";
+
+import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
+
 import type { NavbarUser } from "./";
-import { NavbarLink } from "./navbar-link";
 
 type NavbarLinksProps = {
-  isMobile?: boolean;
-  onNavigate?: () => void;
   pathname: string;
   user: NavbarUser | null;
 };
 
-export function NavbarLinks({ isMobile = false, onNavigate, pathname, user }: NavbarLinksProps) {
+export function NavbarLinks({ pathname, user }: NavbarLinksProps) {
   const links = [
     {
       href: "/",
@@ -35,16 +36,32 @@ export function NavbarLinks({ isMobile = false, onNavigate, pathname, user }: Na
       : []),
   ];
 
-  return links.map((link) => (
-    <NavbarLink
-      key={link.href}
-      href={link.href}
-      isActive={link.isActive}
-      isMobile={isMobile}
-      onNavigate={onNavigate}
-      prefetch={link.label === "Profile"}
-    >
-      {link.label}
-    </NavbarLink>
-  ));
+  const activeHref = links.find((link) => link.isActive)?.href;
+
+  return (
+    <Tabs value={activeHref} orientation="horizontal">
+      <TabsList
+        aria-label="Main navigation"
+        className="rounded-full [&>[data-slot=tabs-indicator]]:rounded-full"
+      >
+        {links.map((link) => (
+          <TabsTrigger
+            key={link.href}
+            value={link.href}
+            className="rounded-full"
+            nativeButton={false}
+            render={
+              <Link
+                href={link.href}
+                prefetch={link.label === "Profile"}
+                aria-current={link.isActive ? "page" : undefined}
+              />
+            }
+          >
+            {link.label}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
+  );
 }

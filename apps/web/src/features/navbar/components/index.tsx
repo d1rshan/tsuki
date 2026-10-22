@@ -1,14 +1,10 @@
 "use client";
 
-import { useLayoutEffect, useState } from "react";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
 
 import { authClient } from "@tsuki/auth/client";
 
-import { Button } from "@/shared/components/ui/button";
-import { ModeToggle } from "@/shared/components/mode-toggle";
+import { ThemeSelector } from "@/shared/components/theme-selector";
 
 import { NavbarAuth } from "./navbar-auth";
 import { NavbarLinks } from "./navbar-links";
@@ -20,69 +16,28 @@ export type NavbarUser = {
 
 export function Navbar() {
   const pathname = usePathname();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   // ponytail: client session keeps the home route static; accepted tradeoff is a login flash until it resolves.
   const { data } = authClient.useSession();
   const user: NavbarUser | null = data?.user
     ? { role: data.user.role, username: data.user.username }
     : null;
 
-  useLayoutEffect(() => () => setIsMobileMenuOpen(false), []);
-
-  const closeMobileMenu = () => setIsMobileMenuOpen(false);
-
   return (
-    <nav className="pointer-events-none fixed inset-x-0 top-0 z-40 pt-4 md:pt-6" aria-label="Main">
-      <div className="container mx-auto max-w-6xl px-4">
-        <div className="pointer-events-auto relative flex h-12 w-full items-center justify-between rounded-xl border border-black/5 glass px-3 shadow-2xl transition-all duration-300 dark:border-white/10 md:h-14 md:px-6">
-          <div className="mr-auto flex items-center gap-6 md:gap-8">
-            <Link href="/" className="group flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-foreground transition-all duration-300 group-hover:scale-[1.5]" />
-              <span className="text-base font-black uppercase tracking-tighter md:text-lg">
-                TSUKI
-              </span>
-            </Link>
-            <div className="hidden items-center gap-6 sm:flex">
-              <NavbarLinks pathname={pathname} user={user} />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <div className="hidden items-center gap-2 sm:flex">
-              <NavbarAuth isAuthenticated={Boolean(user?.username)} />
-              <div className="mx-1 h-4 w-px bg-border" />
-              <ModeToggle />
-            </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="sm:hidden"
-              onClick={() => setIsMobileMenuOpen((isOpen) => !isOpen)}
-              aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
-              aria-expanded={isMobileMenuOpen}
-            >
-              {isMobileMenuOpen ? <X className="size-4" /> : <Menu className="size-4" />}
-            </Button>
-          </div>
+    <nav
+      className="pointer-events-none fixed inset-x-0 top-0 z-40 pt-4 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:-z-10 before:h-32 before:bg-gradient-to-b before:from-background/80 before:to-transparent before:backdrop-blur-md before:[mask-image:linear-gradient(to_bottom,black,transparent)] md:pt-6"
+      aria-label="Main"
+    >
+      <div className="relative mx-auto flex max-w-6xl justify-center px-4">
+        <div className="pointer-events-auto absolute top-0 right-4">
+          <ThemeSelector />
         </div>
-
-        {isMobileMenuOpen ? (
-          <div className="pointer-events-auto mt-2 flex flex-col gap-1 rounded-xl border border-black/5 bg-background/95 p-3 shadow-2xl backdrop-blur-2xl dark:border-white/10 dark:bg-background/80 sm:hidden">
-            <NavbarLinks isMobile pathname={pathname} user={user} onNavigate={closeMobileMenu} />
-            <div className="my-2 h-px w-full bg-border" />
-            <div className="flex items-center justify-between px-1">
-              <NavbarAuth
-                isAuthenticated={Boolean(user?.username)}
-                isMobile
-                onNavigate={closeMobileMenu}
-              />
-              <div className="pr-2">
-                <ModeToggle />
-              </div>
-            </div>
+        <div className="pointer-events-auto relative flex w-fit max-w-full items-center justify-center gap-4 md:gap-6">
+          <div className="flex min-w-0 items-center">
+            <NavbarLinks pathname={pathname} user={user} />
           </div>
-        ) : null}
+
+          <NavbarAuth isAuthenticated={Boolean(user?.username)} />
+        </div>
       </div>
     </nav>
   );
