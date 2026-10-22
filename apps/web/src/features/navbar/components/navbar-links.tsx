@@ -39,16 +39,12 @@ export function NavbarLinks({ pathname, user }: NavbarLinksProps) {
   const activeHref = links.find((link) => link.isActive)?.href;
 
   return (
-    <Tabs value={activeHref} orientation="horizontal">
-      <TabsList
-        aria-label="Main navigation"
-        className="rounded-full [&>[data-slot=tabs-indicator]]:rounded-full"
-      >
+    <Tabs value={activeHref} orientation="horizontal" variant="rounded">
+      <TabsList aria-label="Main navigation">
         {links.map((link) => (
           <TabsTrigger
             key={link.href}
             value={link.href}
-            className="rounded-full"
             nativeButton={false}
             render={
               <Link

@@ -12,15 +12,13 @@ export function ThemeSelector() {
     <Tabs
       value={resolvedTheme === "dark" ? "dark" : "light"}
       onValueChange={(value) => setTheme(String(value))}
+      variant="rounded"
     >
-      <TabsList
-        aria-label="Color theme"
-        className="rounded-full [&>[data-slot=tabs-indicator]]:rounded-full"
-      >
-        <TabsTrigger value="light" aria-label="Light theme" className="rounded-full px-2">
+      <TabsList aria-label="Color theme">
+        <TabsTrigger value="light" aria-label="Light theme" className="px-2">
           <Sun aria-hidden="true" />
         </TabsTrigger>
-        <TabsTrigger value="dark" aria-label="Dark theme" className="rounded-full px-2">
+        <TabsTrigger value="dark" aria-label="Dark theme" className="px-2">
           <Moon aria-hidden="true" />
         </TabsTrigger>
       </TabsList>

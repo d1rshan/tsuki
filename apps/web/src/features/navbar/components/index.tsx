@@ -23,11 +23,8 @@ export function Navbar() {
     : null;
 
   return (
-    <nav
-      className="pointer-events-none fixed inset-x-0 top-0 z-40 pt-4 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:-z-10 before:h-32 before:bg-gradient-to-b before:from-background/80 before:to-transparent before:backdrop-blur-md before:[mask-image:linear-gradient(to_bottom,black,transparent)] md:pt-6"
-      aria-label="Main"
-    >
-      <div className="relative mx-auto flex max-w-6xl justify-center px-4">
+    <nav className="pointer-events-none fixed inset-x-0 top-0 z-40 pt-4 md:pt-6" aria-label="Main">
+      <div className="relative mx-auto flex max-w-6xl justify-start px-4">
         <div className="pointer-events-auto absolute top-0 right-4">
           <ThemeSelector />
         </div>
