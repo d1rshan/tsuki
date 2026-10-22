@@ -18,7 +18,7 @@ export function DiscoverHero() {
   const [mediaType, setMediaType] = useMediaType();
   const [query, setQuery] = useQueryState("q", { defaultValue: "" });
 
-  useHotkey("mod+k", () => inputRef.current?.focus());
+  useHotkey("/", () => inputRef.current?.focus());
 
   function handleEscape() {
     void setQuery(null);
@@ -27,9 +27,9 @@ export function DiscoverHero() {
 
   return (
     <section className="flex flex-wrap items-center gap-3" aria-label="Search">
-      <InputGroup className="h-11 w-full min-w-56 rounded-xl bg-muted/30 md:w-auto md:max-w-md md:flex-1">
+      <InputGroup className="w-full min-w-56 md:w-auto md:max-w-md md:flex-1">
         <InputGroupAddon>
-          <Search />
+          <Search className="size-4" />
         </InputGroupAddon>
         <InputGroupInput
           ref={inputRef}
@@ -38,12 +38,12 @@ export function DiscoverHero() {
           onKeyDown={(event) => {
             if (event.key === "Escape") handleEscape();
           }}
-          placeholder={`Search ${MEDIA[mediaType].label.toLowerCase()}...`}
+          placeholder={`Search ${MEDIA[mediaType].label.toLowerCase()}`}
           aria-label={`Search ${MEDIA[mediaType].label.toLowerCase()}`}
-          className="h-full"
+          className="h-full text-base"
         />
         <InputGroupAddon align="inline-end" className="hidden md:flex">
-          <Kbd>⌘ + K</Kbd>
+          <Kbd>/</Kbd>
         </InputGroupAddon>
       </InputGroup>
 

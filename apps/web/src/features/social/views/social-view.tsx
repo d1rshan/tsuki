@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { Search, UserX } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
 import { ContentState } from "@/shared/components/content-state";
-import { Input } from "@/shared/components/ui/input";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/shared/components/ui/input-group";
+import { Kbd } from "@/shared/components/ui/kbd";
 import { LoadMoreButton } from "@/shared/components/load-more-button";
 import {
   Sheet,
@@ -17,6 +18,7 @@ import {
 } from "@/shared/components/ui/sheet";
 import { QueryState } from "@/shared/components/query-state";
 import { useDebouncedValue } from "@/shared/hooks/use-debounced-value";
+import { useHotkey } from "@/shared/hooks/use-hotkey";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { SocialActivityCard } from "../components/social-activity-card";
 import { ProfileCard } from "../components/profile-card";
@@ -62,22 +64,30 @@ function Feed({ type }: { type: SocialFeedType }) {
 
 function Discover() {
   const [search, setSearch] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+  useHotkey("/", () => inputRef.current?.focus());
   const username = useDebouncedValue(search.trim(), 250);
   const query = useSocialDiscovery(username);
   const users = query.data ?? [];
 
   return (
     <div>
-      <div className="relative">
-        <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
+      <InputGroup>
+        <InputGroupAddon>
+          <Search className="size-4" />
+        </InputGroupAddon>
+        <InputGroupInput
+          ref={inputRef}
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search by username"
+          placeholder="Search username"
           aria-label="Search by username"
-          className="h-10 rounded-md pl-9"
+          className="h-full text-base"
         />
-      </div>
+        <InputGroupAddon align="inline-end">
+          <Kbd>/</Kbd>
+        </InputGroupAddon>
+      </InputGroup>
       <QueryState
         isLoading={query.isLoading}
         isError={query.isError}
