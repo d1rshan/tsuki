@@ -1,10 +1,10 @@
-import Link from "next/link";
 import Image from "next/image";
 import { Star } from "lucide-react";
 
 import type { MediaCompact, MediaType } from "@tsuki/api/types";
 
-import { MEDIA, mediaHref, mediaImageClass, normalizeMediaCompact } from "@/features/media/media";
+import { MediaLink } from "@/features/media/components/media-link";
+import { MEDIA, mediaImageClass, normalizeMediaCompact } from "@/features/media/media";
 import {
   Tooltip,
   TooltipContent,
@@ -37,8 +37,8 @@ export function ProfileMediaCard({
   const ratio = progress != null && total ? Math.min(progress / total, 1) : null;
 
   return (
-    <Link
-      href={mediaHref(mediaType, media.id)}
+    <MediaLink
+      media={media}
       className="group relative flex aspect-[3/4] flex-col overflow-hidden rounded-xl bg-muted/30 outline-none transition-shadow duration-300 hover:shadow-md focus-visible:ring-1 focus-visible:ring-primary"
     >
       {cover ? (
@@ -126,6 +126,6 @@ export function ProfileMediaCard({
           </div>
         </>
       )}
-    </Link>
+    </MediaLink>
   );
 }

@@ -6,7 +6,7 @@ import { media, type MediaType } from "../schema";
 
 export type InsertMedia = typeof media.$inferInsert;
 
-/** Trimmed column set for grids and media embedded in other rows. */
+/** Trimmed column set for media embedded in library entries and reviews. */
 export const MEDIA_COMPACT_COLUMNS = {
   id: true,
   type: true,
@@ -79,7 +79,6 @@ const escapeIlike = (query: string) => query.replace(/[\\%_]/g, "\\$&");
  * watermark's freshness ceiling stays in Kitsu time. */
 export const listTrending = async (type: MediaType, limit = 70) => {
   return db.query.media.findMany({
-    columns: MEDIA_COMPACT_COLUMNS,
     where: and(eq(media.type, type), eq(media.nsfw, false)),
     orderBy: sql`${media.popularity} desc nulls last`,
     limit,
@@ -94,7 +93,6 @@ export const searchMedia = async (
 ) => {
   const pattern = `%${escapeIlike(query.trim())}%`;
   return db.query.media.findMany({
-    columns: MEDIA_COMPACT_COLUMNS,
     where: and(
       eq(media.type, type),
       sql`${media.titleSearch} ILIKE ${pattern}`,

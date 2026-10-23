@@ -1,18 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { format, formatDistanceToNow } from "date-fns";
 import type { ReactNode } from "react";
 
 import type { Activity } from "@tsuki/api/types";
 
-import {
-  logPhrase,
-  mediaHref,
-  mediaImageClass,
-  normalizeMediaCompact,
-} from "@/features/media/media";
+import { MediaLink } from "@/features/media/components/media-link";
+import { logPhrase, mediaImageClass, normalizeMediaCompact } from "@/features/media/media";
 import type { NormalizedMediaCompact } from "@/features/media/normalize";
 import { SpoilerLayer } from "@/features/rich-content/components/spoiler-layer";
 import { cn } from "@/shared/lib/utils";
@@ -43,8 +38,8 @@ function ActivityCover({
   }
 
   return (
-    <Link
-      href={mediaHref(media.type, media.id)}
+    <MediaLink
+      media={media}
       className={cn(
         "relative block aspect-3/4 shrink-0 self-start overflow-hidden rounded-lg bg-muted ring-1 ring-border/50",
         className,
@@ -63,7 +58,7 @@ function ActivityCover({
           No Image
         </div>
       )}
-    </Link>
+    </MediaLink>
   );
 }
 
@@ -120,12 +115,9 @@ export function ActivityCardCore({
         <p className="text-sm leading-snug text-muted-foreground">
           {lead}{" "}
           {media ? (
-            <Link
-              href={mediaHref(media.type, media.id)}
-              className="font-medium text-inherit hover:text-primary"
-            >
+            <MediaLink media={media} className="font-medium text-inherit hover:text-primary">
               {media.title}
-            </Link>
+            </MediaLink>
           ) : (
             <span className="font-medium">Unknown Title</span>
           )}
