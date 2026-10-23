@@ -30,7 +30,7 @@ vi.mock("@tsuki/db", () => ({
 const { mediaRoutes } = await import("../src/modules/media");
 const { ensureMedia } = await import("../src/modules/media/service");
 
-const compactRow = (id: number) => ({
+const mediaRow = (id: number) => ({
   id,
   type: "ANIME",
   titleRomaji: "Cowboy Bebop",
@@ -45,6 +45,17 @@ const compactRow = (id: number) => ({
   chapters: null,
   seasonYear: 1998,
   averageScore: 86,
+  description: "A crew of bounty hunters travels through space.",
+  status: "FINISHED",
+  duration: 24,
+  volumes: null,
+  startDate: { year: 1998, month: 4, day: 3 },
+  endDate: { year: 1999, month: 4, day: 24 },
+  popularity: 1000,
+  favourites: 100,
+  genres: ["Action", "Sci-Fi"],
+  trailer: { id: "trailer-id", site: "youtube", thumbnail: null },
+  externalLinks: [{ url: "https://example.com/watch", site: "Streaming" }],
 });
 
 const app = new Elysia().use(mediaRoutes);
@@ -56,13 +67,13 @@ beforeEach(() => {
 });
 
 describe("GET /media/:type/search", () => {
-  test("queries our dal with the trimmed term and defaults", async () => {
-    searchMedia.mockResolvedValue([compactRow(1)]);
+  test("returns full media details with the trimmed term and defaults", async () => {
+    searchMedia.mockResolvedValue([mediaRow(1)]);
 
     const res = await app.handle(new Request("http://localhost/media/ANIME/search?q=bebop"));
 
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual([compactRow(1)]);
+    expect(await res.json()).toEqual([mediaRow(1)]);
     expect(searchMedia).toHaveBeenCalledWith("ANIME", "bebop", {
       limit: 24,
       includeNsfw: false,
@@ -118,13 +129,13 @@ describe("GET /media/:type/search", () => {
 });
 
 describe("GET /media/:type/trending", () => {
-  test("serves the local popularity ranking, no upstream call", async () => {
-    listTrending.mockResolvedValue([compactRow(1), compactRow(2)]);
+  test("serves full media details in local popularity order, no upstream call", async () => {
+    listTrending.mockResolvedValue([mediaRow(1), mediaRow(2)]);
 
     const res = await app.handle(new Request("http://localhost/media/ANIME/trending"));
 
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual([compactRow(1), compactRow(2)]);
+    expect(await res.json()).toEqual([mediaRow(1), mediaRow(2)]);
     expect(listTrending).toHaveBeenCalledWith("ANIME", 70);
   });
 });

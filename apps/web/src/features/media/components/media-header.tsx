@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import { Star } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 
 import type { MediaType } from "@tsuki/api/types";
 
@@ -9,6 +12,7 @@ import { cn } from "@/shared/lib/utils";
 import { mediaImageClass } from "../media";
 
 type MediaHeaderProps = {
+  morphId?: string;
   averageScore: number | null;
   coverImage: string | null;
   format: string | null;
@@ -20,6 +24,7 @@ type MediaHeaderProps = {
 };
 
 export function MediaHeader({
+  morphId,
   averageScore,
   coverImage,
   format,
@@ -29,6 +34,8 @@ export function MediaHeader({
   titleNative,
   type,
 }: MediaHeaderProps) {
+  const reduceMotion = useReducedMotion();
+  const sharedId = reduceMotion ? undefined : morphId;
   const badges = [
     averageScore && (
       <Badge key="score" variant="secondary">
@@ -55,7 +62,11 @@ export function MediaHeader({
 
   return (
     <div className="relative z-10 -mt-20 flex flex-col gap-6 border-b pb-8 md:-mt-32 md:flex-row md:items-end md:gap-8">
-      <div className="relative aspect-[3/4] w-40 shrink-0 overflow-hidden rounded-xl bg-muted ring-1 ring-border shadow-xl md:w-56">
+      <motion.div
+        layoutId={sharedId ? `${sharedId}-poster` : undefined}
+        style={{ borderRadius: 12 }}
+        className="relative aspect-[3/4] w-40 shrink-0 overflow-hidden bg-muted ring-1 ring-border shadow-xl md:w-56"
+      >
         {coverImage && (
           <Image
             src={coverImage}
@@ -66,10 +77,16 @@ export function MediaHeader({
             priority
           />
         )}
-      </div>
+      </motion.div>
 
       <div className="flex flex-1 flex-col gap-2 pb-2 md:pb-4">
-        <h1 className="text-3xl font-bold tracking-tight md:text-5xl">{title}</h1>
+        <motion.h1
+          layoutId={sharedId ? `${sharedId}-title` : undefined}
+          layout="position"
+          className="text-3xl font-bold tracking-tight md:text-5xl"
+        >
+          {title}
+        </motion.h1>
 
         {titleNative && titleNative !== title && (
           <p className="font-medium text-muted-foreground">{titleNative}</p>

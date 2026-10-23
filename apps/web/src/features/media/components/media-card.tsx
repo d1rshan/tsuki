@@ -1,25 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 
-import type { MediaCompact } from "@tsuki/api/types";
+import type { Media, MediaCompact } from "@tsuki/api/types";
 
 import { cn } from "@/shared/lib/utils";
 
-import { mediaHref, mediaImageClass, normalizeMediaCompact } from "../media";
+import { mediaImageClass, normalizeMediaCompact } from "../media";
+import { MediaLink } from "./media-link";
 
-export function MediaCard({ media, className }: { media: MediaCompact; className?: string }) {
+export function MediaCard({
+  media,
+  className,
+}: {
+  media: Media | MediaCompact;
+  className?: string;
+}) {
+  const morphId = useId();
   const [expanded, setExpanded] = useState(false);
   const reduceMotion = useReducedMotion();
   const normalizedMedia = normalizeMediaCompact(media);
   const { title, coverImage, type } = normalizedMedia;
 
   return (
-    <Link
-      href={mediaHref(type, normalizedMedia.id)}
+    <MediaLink
+      media={media}
+      morphId={morphId}
+      id={`media-trigger-${morphId}`}
       className={cn(
         "group block min-w-0 rounded-xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring",
         className,
@@ -29,11 +38,19 @@ export function MediaCard({ media, className }: { media: MediaCompact; className
       onFocus={() => setExpanded(true)}
       onBlur={() => setExpanded(false)}
     >
-      <div className="relative overflow-hidden rounded-xl bg-muted p-2">
+      <motion.div
+        layoutId={reduceMotion ? undefined : `${morphId}-surface`}
+        style={{ borderRadius: 12 }}
+        className="relative overflow-hidden bg-muted p-2"
+      >
         <div className="aspect-[3/4]" aria-hidden="true" />
         <div className="h-9" aria-hidden="true" />
         <div className="absolute inset-2 grid grid-rows-[minmax(0,1fr)_auto]">
-          <div className="relative min-h-0 overflow-hidden rounded-lg">
+          <motion.div
+            layoutId={reduceMotion ? undefined : `${morphId}-poster`}
+            style={{ borderRadius: 8 }}
+            className="relative min-h-0 overflow-hidden"
+          >
             {coverImage ? (
               <Image
                 src={coverImage}
@@ -47,24 +64,26 @@ export function MediaCard({ media, className }: { media: MediaCompact; className
                 No Image
               </div>
             )}
-          </div>
+          </motion.div>
           <motion.div
             className="min-h-9 overflow-hidden"
             initial={false}
             animate={{ height: expanded ? "auto" : 36 }}
             transition={{ duration: reduceMotion ? 0 : 0.35, ease: [0.22, 1, 0.36, 1] }}
           >
-            <h3
+            <motion.h3
+              layoutId={reduceMotion ? undefined : `${morphId}-title`}
+              layout="position"
               className={cn(
                 "px-1 pt-3 pb-1 text-sm leading-snug font-semibold transition-colors",
                 expanded ? "text-current" : "line-clamp-1 text-muted-foreground",
               )}
             >
               {title}
-            </h3>
+            </motion.h3>
           </motion.div>
         </div>
-      </div>
-    </Link>
+      </motion.div>
+    </MediaLink>
   );
 }

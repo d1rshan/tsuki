@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion, useReducedMotion } from "framer-motion";
 import { Check, Minus, Plus } from "lucide-react";
@@ -12,8 +11,9 @@ import type { LibraryEntry } from "@tsuki/api/types";
 import { useSession } from "@tsuki/auth/client";
 
 import { logMediaAction } from "@/features/media/actions";
+import { MediaLink } from "@/features/media/components/media-link";
 import { useMediaType } from "@/features/media/hooks/use-media-type";
-import { MEDIA, mediaHref, mediaImageClass, normalizeMediaCompact } from "@/features/media/media";
+import { MEDIA, mediaImageClass, normalizeMediaCompact } from "@/features/media/media";
 import { mediaKeys } from "@/features/media/query-keys";
 import { Button } from "@/shared/components/ui/button";
 import { apiClient } from "@/shared/lib/api-client";
@@ -216,12 +216,12 @@ export function DiscoverCurrentMedia() {
                         expanded ? "text-current" : "line-clamp-1 text-muted-foreground",
                       )}
                     >
-                      <Link
-                        href={mediaHref(mediaType, entry.mediaId)}
+                      <MediaLink
+                        media={entry.media ?? { type: mediaType, id: entry.mediaId }}
                         className="focus-visible:outline-2 focus-visible:outline-ring"
                       >
                         {media.title}
-                      </Link>
+                      </MediaLink>
                     </h3>
                   </motion.div>
                 </div>
