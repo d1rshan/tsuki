@@ -12,3 +12,5 @@
 <samp>
 bun // next.js // shadcn/ui // elysia.js // drizzle orm // better-auth
 </samp>
+
+Local development: see [the setup guide](docs/local-development.md).

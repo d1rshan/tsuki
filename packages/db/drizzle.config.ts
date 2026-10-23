@@ -1,4 +1,5 @@
 import { defineConfig } from "drizzle-kit";
+
 import { env } from "@tsuki/env/db";
 
 export default defineConfig({

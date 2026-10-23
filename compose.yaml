@@ -1,0 +1,43 @@
+name: tsuki-local
+
+services:
+  postgres:
+    image: postgres:17-alpine@sha256:eee6c6e1b0894fa4fe0075eb054af9fd1cf39a35321c2d4110626cfe506411fb
+    environment:
+      POSTGRES_USER: tsuki
+      POSTGRES_PASSWORD: tsuki
+      POSTGRES_DB: tsuki
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tsuki -d tsuki"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+  neon-proxy:
+    image: ghcr.io/timowilhelm/local-neon-http-proxy@sha256:cd2ae14edf2feafbc3330492de5c80506f77274c3bd013154cdef697bdeb768a
+    environment:
+      PG_CONNECTION_STRING: postgres://tsuki:tsuki@postgres:5432/tsuki
+      RUST_LOG: warn
+      OTEL_SDK_DISABLED: "true"
+    ports:
+      - "127.0.0.1:55433:4444"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # The upstream image bakes in a one-year certificate. Renew it at startup
+    # for the proxy's internal TLS hop, including when using an older image.
+    entrypoint: ["/bin/bash", "-ec"]
+    command:
+      - |
+        openssl req -new -x509 -days 365 -nodes \
+          -out server.pem -keyout server.key \
+          -subj '/CN=*.localtest.me' \
+          -addext 'subjectAltName = DNS:*.localtest.me' 2>/dev/null
+        exec ./start.sh
+
+volumes:
+  postgres_data:

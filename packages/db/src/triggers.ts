@@ -1,7 +1,4 @@
-import { neon } from "@neondatabase/serverless";
-import { env } from "@tsuki/env/db";
-
-const sql = neon(env.DATABASE_URL);
+import { sql } from "./connection";
 
 const statements = [
   `CREATE OR REPLACE FUNCTION "public"."record_progress_activity"()

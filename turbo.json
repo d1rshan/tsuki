@@ -3,6 +3,7 @@
   "ui": "tui",
   "globalEnv": [
     "DATABASE_URL",
+    "LOCAL_DATABASE_HTTP_ENDPOINT",
     "BETTER_AUTH_SECRET",
     "SYNC_SECRET",
     "IMAGEKIT_PRIVATE_KEY",

@@ -10,12 +10,20 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   return getMediaMetadata("ANIME", id);
 }
 
-export default async function Page({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default function Page({ params }: { params: Promise<{ id: string }> }) {
   return (
     <Suspense fallback={<MediaPageSkeleton />}>
+      <MediaDetails params={params} />
+    </Suspense>
+  );
+}
+
+async function MediaDetails({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return (
+    <>
       <MediaJsonLd mediaType="ANIME" id={id} />
       <MediaView mediaType="ANIME" id={id} />
-    </Suspense>
+    </>
   );
 }

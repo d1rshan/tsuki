@@ -26,9 +26,8 @@ import type { MediaType } from "../media/model";
  * An interrupted pass resumes against the stored boundary, so it stops where
  * the original pass would have.
  *
- * Bulk pages carry no `included` in bootstrap mode, so genres/links/trailer
- * arrive null and upsertMedia COALESCEs them against the stored value;
- * incremental pages include them, keeping crawled rows detail-complete.
+ * Both walks include categories and anime streaming links with their platform
+ * names, keeping newly crawled rows detail-complete.
  */
 
 const PAGE_SIZE = 20;
@@ -57,9 +56,15 @@ async function writeState(mediaType: MediaType, patch: StatePatch) {
     .onConflictDoUpdate({ target: syncState.id, set: patch });
 }
 
-/** Clears the cursor (and boundary) so the next tick starts a fresh crawl. */
+/** Clears progress and completion so a resumed bootstrap cannot skip the reset. */
 export async function resetSync(mediaType: MediaType) {
-  await writeState(mediaType, { status: "idle", cursor: null, error: null, watermark: null });
+  await writeState(mediaType, {
+    status: "idle",
+    cursor: null,
+    error: null,
+    watermark: null,
+    lastCompletedAt: null,
+  });
 }
 
 export async function getSyncStates() {

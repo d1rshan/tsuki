@@ -48,3 +48,6 @@ anilist-docs/*
 .vercel
 .ai/
 /ai
+
+# Local database snapshots, locks, and private environment backups
+.local-dev/

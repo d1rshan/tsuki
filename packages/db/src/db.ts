@@ -1,16 +1,7 @@
-import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
-import { env } from "@tsuki/env/db";
 
+import { sql } from "./connection";
 import * as schema from "./schema";
-
-// If DATABASE_URL is not set, don't crash at import time, but when queried.
-const sql = neon(env.DATABASE_URL, {
-  fetchOptions: {
-    // Keep Next.js from caching DB responses in its fetch cache.
-    cache: "no-store",
-  },
-});
 
 // KNOWN NOISE — "NeonDbError: Error connecting to database: AbortError: This
 // operation was aborted" in the web app's dev logs. Not a real DB failure;

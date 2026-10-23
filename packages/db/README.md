@@ -8,6 +8,13 @@ bun run db:push     # sync schema.ts to the DB, then re-apply triggers
 bun run db:studio
 ```
 
+For the local Docker database, start with the repository's
+[local development setup](../../docs/local-development.md). It writes
+`.env.local` overrides without replacing your existing `.env`. The schema CLI
+runs under Bun so those overrides are loaded; its `pg` development dependency
+connects directly to local Postgres. App queries still use the Neon HTTP driver
+through the local proxy, preserving the same transactional batch behavior.
+
 PostgreSQL features that Drizzle cannot declare (triggers, functions) live in
 `src/triggers.ts` as idempotent SQL. `db:push` applies them automatically after
 every push, so they exist on fresh databases too.

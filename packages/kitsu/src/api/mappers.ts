@@ -106,9 +106,8 @@ function toTrailer(youtubeVideoId: string | null) {
 }
 
 /**
- * Streaming links → external links. The streamer name resolves only when a
- * streamers resource was fetched alongside; otherwise the row degrades to the
- * generic "streaming" label.
+ * Streaming links → external links, named by the included streamer. Missing
+ * names fall back to the actual hostname rather than an invented provider.
  */
 function toExternalLinks(links: KitsuStreamingLink[], included: IncludedIndex) {
   const seen = new Set<string>();
@@ -117,6 +116,13 @@ function toExternalLinks(links: KitsuStreamingLink[], included: IncludedIndex) {
   for (const link of links) {
     const url = link.attributes.url;
     if (!url || seen.has(url)) continue;
+    let parsed: URL;
+    try {
+      parsed = new URL(url);
+    } catch {
+      continue;
+    }
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") continue;
     seen.add(url);
 
     const relationship = link.relationships?.streamer?.data;
@@ -124,9 +130,9 @@ function toExternalLinks(links: KitsuStreamingLink[], included: IncludedIndex) {
     const streamer = identifier ? included.get(`${identifier.type}:${identifier.id}`) : undefined;
 
     const site =
-      streamer?.type === "streamers"
-        ? (streamer.attributes.siteName ?? streamer.attributes.name ?? "streaming")
-        : "streaming";
+      (streamer?.type === "streamers" &&
+        (streamer.attributes.siteName?.trim() || streamer.attributes.name?.trim())) ||
+      parsed.hostname.replace(/^www\./, "");
 
     externalLinks.push({ site, url });
   }

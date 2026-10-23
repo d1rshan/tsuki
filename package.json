@@ -8,6 +8,11 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "local:setup": "bun run scripts/local.ts setup",
+    "local:up": "bun run scripts/local.ts up",
+    "local:sync": "bun run scripts/local.ts sync",
+    "local:snapshot": "bun run scripts/local.ts snapshot",
+    "local:stop": "bun run scripts/local.ts stop",
     "start": "turbo run start",
     "lint:check": "oxlint .",
     "lint:fix": "oxlint --fix .",

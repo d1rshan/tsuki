@@ -9,7 +9,7 @@ const PATHS: Record<MediaType, "anime" | "manga"> = { ANIME: "anime", MANGA: "ma
 
 // Only anime carries streaming links; asking manga for them is a 400.
 const INCLUDE: Record<MediaType, string> = {
-  ANIME: "categories,streamingLinks",
+  ANIME: "categories,streamingLinks.streamer",
   MANGA: "categories",
 };
 

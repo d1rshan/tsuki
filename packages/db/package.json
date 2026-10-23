@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "src/index.ts",
   "scripts": {
-    "db:push": "bun run src/search-index.ts && drizzle-kit push && bun run src/triggers.ts",
-    "db:studio": "drizzle-kit studio",
+    "db:push": "bun run src/search-index.ts && bunx --bun drizzle-kit push && bun run src/triggers.ts",
+    "db:studio": "bunx --bun drizzle-kit studio",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -15,6 +15,7 @@
   },
   "devDependencies": {
     "@types/node": "^26.6.5",
-    "drizzle-kit": "0.31.10"
+    "drizzle-kit": "0.31.10",
+    "pg": "^8.23.1"
   }
 }

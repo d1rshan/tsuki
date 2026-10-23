@@ -100,14 +100,58 @@ describe("toMediaRow", () => {
     expect(row.genres?.length).toBeLessThanOrEqual(20);
   });
 
-  test("resolves streaming links into externalLinks, generic label without a streamer", () => {
+  test("resolves streaming links with hostname labels when a streamer is absent", () => {
     const row = toMediaRow(animeFixture.data, animeFixture.included);
 
     expect(row.externalLinks).toEqual([
-      { site: "streaming", url: "https://www.amazon.com/gp/video/detail/B06VW8K7ZJ/" },
-      { site: "streaming", url: "http://www.crunchyroll.com/cowboy-bebop" },
-      { site: "streaming", url: "https://www.hulu.com/cowboy-bebop" },
-      { site: "streaming", url: "http://tubitv.com/series/2052/cowboy_bebop" },
+      { site: "amazon.com", url: "https://www.amazon.com/gp/video/detail/B06VW8K7ZJ/" },
+      { site: "crunchyroll.com", url: "http://www.crunchyroll.com/cowboy-bebop" },
+      { site: "hulu.com", url: "https://www.hulu.com/cowboy-bebop" },
+      { site: "tubitv.com", url: "http://tubitv.com/series/2052/cowboy_bebop" },
+    ]);
+  });
+
+  test("uses each link's own included streamer and drops duplicate or unsafe URLs", () => {
+    const links = animeFixture.included.filter((item) => item.type === "streamingLinks");
+    const included: KitsuIncluded[] = [
+      ...links.map((link, i) => ({
+        ...link,
+        relationships: { streamer: { data: { type: "streamers", id: String(i) } } },
+      })),
+      ...["Amazon Prime Video", "Crunchyroll", "Hulu", "Tubi"].map((siteName, i) => ({
+        type: "streamers" as const,
+        id: String(i),
+        attributes: { siteName },
+      })),
+      // A different title's link must never leak in from a shared page include.
+      {
+        type: "streamingLinks",
+        id: "other",
+        attributes: { url: "https://example.org/other", subs: [], dubs: [] },
+      },
+    ];
+    const row = toMediaRow(animeFixture.data, included);
+    expect(row.externalLinks?.map(({ site }) => site)).toEqual([
+      "Amazon Prime Video",
+      "Crunchyroll",
+      "Hulu",
+      "Tubi",
+    ]);
+
+    const withBadLinks = links.map((link, i) => ({
+      ...link,
+      attributes: {
+        ...link.attributes,
+        url: [
+          "javascript:alert(1)",
+          "not a URL",
+          "https://example.org/title",
+          "https://example.org/title",
+        ][i]!,
+      },
+    }));
+    expect(toMediaRow(animeFixture.data, withBadLinks).externalLinks).toEqual([
+      { site: "example.org", url: "https://example.org/title" },
     ]);
   });
 });

@@ -190,7 +190,7 @@ export type KitsuStreamingLink = KitsuResource<{
   dubs: string[];
 }> & { type: "streamingLinks" };
 
-/** Streamers only arrive via a further lookup; resolved when included. */
+/** Streamers arrive via `include=streamingLinks.streamer`. */
 export type KitsuStreamer = KitsuResource<{
   siteName?: string;
   name?: string;

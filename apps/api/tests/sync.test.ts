@@ -230,12 +230,13 @@ describe("runSyncTick — full walk", () => {
     }
   });
 
-  test("resetSync clears the cursor and status", async () => {
+  test("resetSync clears progress and completion so resume cannot skip a reset crawl", async () => {
     states.set("ANIME", {
       id: "ANIME",
       status: "failed",
       cursor: { offset: 100, upserted: 100 },
       error: "boom",
+      lastCompletedAt: new Date("2026-01-01"),
     });
 
     await resetSync("ANIME");
@@ -244,6 +245,7 @@ describe("runSyncTick — full walk", () => {
     expect(state?.status).toBe("idle");
     expect(state?.cursor).toBeNull();
     expect(state?.error).toBeNull();
+    expect(state?.lastCompletedAt).toBeNull();
   });
 });
 
