@@ -17,7 +17,7 @@ export type NavbarUser = {
 
 export function Navbar() {
   const pathname = usePathname();
-  const { data, isPending } = authClient.useSession();
+  const { data } = authClient.useSession();
   const user: NavbarUser | null = data?.user
     ? { role: data.user.role, username: data.user.username }
     : null;
@@ -31,7 +31,7 @@ export function Navbar() {
         <div className="relative mx-auto flex max-w-5xl items-center justify-between gap-2 px-4 md:gap-4">
           <div className="pointer-events-auto flex min-w-0 items-center gap-3 md:gap-6">
             <div className="flex min-w-0 items-center overflow-x-auto no-scrollbar">
-              <NavbarLinks pathname={pathname} user={user} showLogin={!isPending} />
+              <NavbarLinks pathname={pathname} user={user} />
             </div>
           </div>
           <div className="pointer-events-auto ml-auto flex shrink-0 items-center gap-2 md:gap-3">

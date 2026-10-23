@@ -35,7 +35,9 @@ export function MediaCard({
       )}
       onMouseEnter={() => setExpanded(true)}
       onMouseLeave={() => setExpanded(false)}
-      onFocus={() => setExpanded(true)}
+      onFocus={(event) => {
+        if (event.currentTarget.matches(":focus-visible")) setExpanded(true);
+      }}
       onBlur={() => setExpanded(false)}
     >
       <motion.div
