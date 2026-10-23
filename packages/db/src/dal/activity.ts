@@ -2,7 +2,7 @@ import { and, asc, desc, eq, like, lt, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 
 import { db } from "../db";
-import { activity, activityTypeEnum, media, progress, social, user } from "../schema";
+import { activity, activityTypeEnum, media, progress, reviews, social, user } from "../schema";
 
 /**
  * Rows are stored by the progress trigger defined in
@@ -37,7 +37,7 @@ export const upsertActivity = async (row: ActivityInput) => {
         mediaId: row.mediaId,
         mediaType: row.mediaType,
         snapshot: row.snapshot,
-        ...(row.occurredAt ? { occurredAt: row.occurredAt } : {}),
+        ...(row.type === "LOG" && row.occurredAt ? { occurredAt: row.occurredAt } : {}),
       },
     });
 };
@@ -63,23 +63,15 @@ export const deleteActivityLogs = async (actorId: string, mediaId: number) => {
     );
 };
 
-/**
- * The most recent Log cards for one actor+media, newest first — the day-range
- * baseline source. Today's row, when it exists, leads the list so the writer
- * can tell a same-day re-upsert from a new day.
- */
-// ponytail: scans at most 10 rows back for a baseline with progress; deep
-// score-only streaks longer than that lose their range (falls back to state
-// phrasing). Paginate the scan if that ever matters.
-export const getRecentLogs = async (actorId: string, mediaId: number, limit = 10) =>
-  db
-    .select({ sourceId: activity.sourceId, snapshot: activity.snapshot })
-    .from(activity)
-    .where(
-      and(eq(activity.actorId, actorId), eq(activity.type, "LOG"), eq(activity.mediaId, mediaId)),
-    )
-    .orderBy(desc(activity.occurredAt), desc(activity.id))
-    .limit(limit);
+/** Only today's card is needed; the library entry supplies the true baseline. */
+export const getLog = async (actorId: string, sourceId: string) =>
+  db.query.activity.findFirst({
+    where: and(
+      eq(activity.actorId, actorId),
+      eq(activity.type, "LOG"),
+      eq(activity.sourceId, sourceId),
+    ),
+  });
 
 type ActivityQuery = { cursor?: { occurredAt: Date; id: string }; limit: number };
 
@@ -101,6 +93,7 @@ async function getActivity(
       occurredAt: activity.occurredAt,
       // Rides even when the media join misses, so clients can still phrase the card.
       mediaType: activity.mediaType,
+      mediaId: activity.mediaId,
       actor: {
         username: actor.username,
         displayUsername: actor.displayUsername,
@@ -114,6 +107,24 @@ async function getActivity(
     .where(
       and(
         where,
+        // Filter before pagination so unsupported historical rows cannot make
+        // empty pages or leak through any of the three streams.
+        sql`${activity.mediaId} is not null and ${activity.mediaType} is not null and (
+          (${activity.type} = 'REVIEW' and exists (
+            select 1 from ${reviews} where ${reviews.userId} = ${activity.actorId}
+              and ${reviews.mediaId} = ${activity.mediaId} and ${reviews.mediaType} = ${activity.mediaType}
+          )) or (${activity.type} = 'LOG' and (
+            (jsonb_typeof(${activity.snapshot}->'progress') = 'number'
+              and jsonb_typeof(${activity.snapshot}->'progressFrom') = 'number'
+              and (${activity.snapshot}->'progress') > (${activity.snapshot}->'progressFrom'))
+            or (${activity.snapshot}->'progressFrom' = 'null'::jsonb
+              and jsonb_typeof(${activity.snapshot}->'progress') = 'number'
+              and (${activity.snapshot}->'progress') > '0'::jsonb)
+            or (${activity.snapshot} ? 'statusFrom'
+              and ${activity.snapshot}->>'status' in ('CURRENT', 'PLANNING', 'COMPLETED', 'DROPPED', 'PAUSED', 'REPEATING')
+              and ${activity.snapshot}->>'status' is distinct from ${activity.snapshot}->>'statusFrom')
+          ))
+        )`,
         cursor
           ? or(
               lt(activity.occurredAt, cursor.occurredAt),

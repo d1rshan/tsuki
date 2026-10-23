@@ -41,7 +41,13 @@ import {
 } from "@/shared/components/ui/select";
 import { cn } from "@/shared/lib/utils";
 
-import { SCORE_OPTIONS, clampProgress, createActivityForm, hasLoggedActivity } from "../activity";
+import {
+  SCORE_OPTIONS,
+  clampProgress,
+  completionStatus,
+  createActivityForm,
+  hasLoggedActivity,
+} from "../activity";
 import type { MediaActivity } from "../hooks/use-media-activity";
 import { useSaveMediaActivityMutation } from "../hooks/use-save-media-activity-mutation";
 import { MEDIA } from "../media";
@@ -64,7 +70,7 @@ export function LogMediaDialog({
   const hasActivity = hasLoggedActivity(mediaType, activity.entry, activity.review);
   const saveMutation = useSaveMediaActivityMutation(mediaType, mediaId);
   const form = useForm({
-    defaultValues: createActivityForm(mediaType, activity.entry, activity.review),
+    defaultValues: createActivityForm(mediaType, activity.entry, activity.review, total),
     onSubmit: async ({ value }) => {
       const result = await saveMutation.mutateAsync({
         form: value,
@@ -77,7 +83,7 @@ export function LogMediaDialog({
     },
   });
   const dialog = useDiscardableDialog(form.state.isDirty, () =>
-    form.reset(createActivityForm(mediaType, activity.entry, activity.review)),
+    form.reset(createActivityForm(mediaType, activity.entry, activity.review, total)),
   );
 
   useUnloadWarning(form.state.isDirty);
@@ -121,7 +127,15 @@ export function LogMediaDialog({
                     <Select
                       name={field.name}
                       value={field.state.value}
-                      onValueChange={(value) => field.handleChange(value as ListStatus)}
+                      onValueChange={(value) =>
+                        field.handleChange(
+                          completionStatus(
+                            Number.parseInt(form.getFieldValue("progress"), 10),
+                            total,
+                            value as ListStatus,
+                          ),
+                        )
+                      }
                       items={config.statuses}
                     >
                       <SelectTrigger id={`${formId}-status`}>
@@ -161,6 +175,14 @@ export function LogMediaDialog({
                             const value = event.target.value;
                             field.handleChange(
                               value ? String(clampProgress(Number.parseInt(value, 10), total)) : "",
+                            );
+                            form.setFieldValue(
+                              "status",
+                              completionStatus(
+                                clampProgress(Number.parseInt(value, 10), total),
+                                total,
+                                form.getFieldValue("status"),
+                              ),
                             );
                           }}
                           className={cn(hasLimit && "pr-16")}

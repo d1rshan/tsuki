@@ -3,7 +3,12 @@ import Link from "next/link";
 
 import type { Review } from "@tsuki/api/types";
 
-import { mediaHref, mediaImageClass, normalizeMediaCompact } from "@/features/media/media";
+import {
+  mediaHref,
+  mediaImageClass,
+  normalizeMediaCompact,
+  reviewFragment,
+} from "@/features/media/media";
 import { RichContentView } from "@/features/rich-content/components/rich-content-view";
 import { RelativeTime } from "@/shared/components/relative-time";
 import { cn } from "@/shared/lib/utils";
@@ -19,7 +24,10 @@ export function ReviewItem({ className, review }: { className?: string; review: 
   const href = mediaHref(mediaType, mediaId);
 
   return (
-    <article className={cn(BENTO_TILE, "group flex flex-col", className)}>
+    <article
+      id={reviewFragment(mediaType, mediaId)}
+      className={cn(BENTO_TILE, "group flex flex-col scroll-mt-24", className)}
+    >
       <div className="flex items-center gap-3">
         <Link
           href={href}

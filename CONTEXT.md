@@ -38,16 +38,15 @@ deletion removes it. Follows are a relationship, never Activity.
 _Avoid_: heatmap activity, progress activity, notification, follow activity
 
 **Log**:
-An Activity that records the state of a library entry at a point in time,
-including status, score, and progress. One Log exists per entry per day;
-further saves that day update it, and its timestamp reflects the latest save.
-Removing the entry removes all of its Logs.
+An Activity describing an episode/chapter progress increase, a status change,
+or both. One Log exists per title per day; qualifying changes update it,
+while unrelated saves leave it unchanged. Removing the entry removes its Logs.
 _Avoid_: feed post, progress update, library change
 
 **Review**:
-An Activity that carries the full content of a written review. One Review
-exists per entry; editing it updates the Activity in place while preserving
-its original date.
+An Activity identifying a written review and linking to it on the author's
+Profile Reviews page. One Review exists per title; editing it preserves the
+original publication date. The review itself owns its written content.
 _Avoid_: rating, comment
 
 **Activity Feed**:

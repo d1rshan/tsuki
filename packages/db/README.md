@@ -19,6 +19,22 @@ PostgreSQL features that Drizzle cannot declare (triggers, functions) live in
 `src/triggers.ts` as idempotent SQL. `db:push` applies them automatically after
 every push, so they exist on fresh databases too.
 
+## Activity snapshot cleanup
+
+Before deploying the Activity/completion change, run once against the target
+DB from `packages/db`:
+
+```bash
+bun run db:cleanup-activity
+```
+
+This transactional cleanup removes unsupported historical Logs, strips obsolete
+snapshot fields, and rebuilds Review summaries from `reviews` with their original
+creation dates. It never copies review content. It is safe to repeat and preserves
+new explicit progress/status transitions. The application also filters unsupported
+rows and allowlists snapshot fields when serving Activity, including before cleanup.
+The separate heatmap aggregate is untouched.
+
 ## The drizzle-kit patch — do not delete
 
 `../patches/drizzle-kit@0.31.10.patch` (registered under `patchedDependencies`

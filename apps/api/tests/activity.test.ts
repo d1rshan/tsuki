@@ -1,8 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import { encodeActivityCursor, parseActivityCursor } from "../src/modules/activity/service";
-import { logSnapshot, logSourceId } from "../src/modules/library/service";
-import { reviewSnapshot } from "../src/modules/reviews/service";
+import { completedStatus, logSnapshot, logSourceId } from "../src/modules/library/service";
 
 describe("log sourceId day key", () => {
   test("keys by UTC calendar day, not local time", () => {
@@ -43,170 +42,99 @@ describe("activity cursor codec", () => {
   });
 });
 
-describe("snapshot builders", () => {
-  const entry = (overrides: Partial<Parameters<typeof logSnapshot>[0]> = {}) => ({
-    status: "CURRENT" as const,
-    score: null,
-    progress: 12,
-    progressVolumes: null,
-    repeat: 0,
-    ...overrides,
-  });
-  const today = "42:2026-03-10";
+describe("meaningful Log changes", () => {
+  const before = { status: "CURRENT" as const, progress: 12 };
 
-  test("log snapshot copies the entry's viewer-facing state", () => {
-    expect(logSnapshot(entry({ score: 8 }), [], today)).toEqual({
+  test("progress uses the entry baseline and stores no unrelated fields", () => {
+    expect(logSnapshot({ ...before, progress: 15 }, before)).toEqual({
       status: "CURRENT",
-      score: 8,
-      progress: 12,
-      progressVolumes: null,
-      repeat: 0,
+      progressFrom: 12,
+      progress: 15,
     });
-  });
-
-  test("first-ever log states no range", () => {
-    expect(logSnapshot(entry({ progress: 12 }), [], today)).not.toHaveProperty("progressFrom");
-  });
-
-  test("a new day chains where the last logged day closed (13–15 after 12)", () => {
-    const priors = [{ sourceId: "42:2026-03-09", snapshot: { progress: 12 } }];
-    expect(logSnapshot(entry({ progress: 15 }), priors, today)).toEqual({
+    expect(logSnapshot({ ...before, progress: 15 }, undefined)).toEqual({
       status: "CURRENT",
-      score: null,
+      statusFrom: null,
+      progressFrom: null,
       progress: 15,
-      progressVolumes: null,
-      repeat: 0,
+    });
+  });
+
+  test("a legacy same-day snapshot cannot supply unrelated fields or hide a new increase", () => {
+    expect(
+      logSnapshot({ ...before, progress: 15 }, before, {
+        status: "CURRENT",
+        progress: 12,
+        score: 9,
+        repeat: 2,
+        content: { private: "review" },
+      } as never),
+    ).toEqual({ status: "CURRENT", progressFrom: 12, progress: 15 });
+  });
+
+  test("unchanged values and corrections do not replace an existing card", () => {
+    const today = { progress: 12, progressFrom: 4, status: "CURRENT" as const };
+    expect(logSnapshot(before, before, today)).toBeNull();
+    expect(logSnapshot({ ...before, progress: 10 }, before, today)).toBeNull();
+    expect(today).toEqual({ progress: 12, progressFrom: 4, status: "CURRENT" });
+    expect(logSnapshot({ status: null, progress: 0 }, undefined)).toBeNull();
+  });
+
+  test("status-only changes and explicit creation have before/after statuses", () => {
+    expect(logSnapshot({ ...before, status: "PAUSED" }, before)).toEqual({
+      statusFrom: "CURRENT",
+      status: "PAUSED",
+    });
+    expect(logSnapshot({ status: "PLANNING", progress: 0 }, undefined)).toEqual({
+      statusFrom: null,
+      status: "PLANNING",
+    });
+  });
+
+  test("same-day saves retain both opening dimensions, regardless of order", () => {
+    const first = logSnapshot({ ...before, progress: 15 }, before)!;
+    const second = logSnapshot(
+      { status: "PAUSED", progress: 15 },
+      { ...before, progress: 15 },
+      first,
+    )!;
+    expect(second).toEqual({
+      status: "PAUSED",
+      statusFrom: "CURRENT",
       progressFrom: 12,
-    });
-  });
-
-  test("same-day re-upserts extend progress but keep the day's original baseline", () => {
-    const priors = [
-      { sourceId: today, snapshot: { progress: 5, progressFrom: 4 } },
-      { sourceId: "42:2026-03-09", snapshot: { progress: 4 } },
-    ];
-    expect(logSnapshot(entry({ progress: 12 }), priors, today)).toMatchObject({
-      progress: 12,
-      progressFrom: 4,
-    });
-  });
-
-  test("a same-day progress save derives the range the day's first save never stored", () => {
-    // today opened with a score-only save; the later progress save can still
-    // state the day's true range against yesterday's close
-    const priors = [
-      { sourceId: today, snapshot: { score: 8 } },
-      { sourceId: "42:2026-03-09", snapshot: { progress: 12 } },
-    ];
-    expect(logSnapshot(entry({ progress: 15 }), priors, today)).toMatchObject({
       progress: 15,
-      progressFrom: 12,
     });
+    expect(
+      logSnapshot(
+        { status: "COMPLETED", progress: 20 },
+        { status: "PAUSED", progress: 15 },
+        second,
+      ),
+    ).toEqual({ status: "COMPLETED", statusFrom: "CURRENT", progressFrom: 12, progress: 20 });
+    const statusFirst = logSnapshot({ ...before, status: "PAUSED" }, before)!;
+    expect(
+      logSnapshot({ status: "PAUSED", progress: 15 }, { ...before, status: "PAUSED" }, statusFirst),
+    ).toEqual({ status: "PAUSED", statusFrom: "CURRENT", progressFrom: 12, progress: 15 });
   });
 
-  test("a same-day save with no prior baseline states no range", () => {
-    const priors = [{ sourceId: today, snapshot: { score: 8 } }];
-    expect(logSnapshot(entry({ progress: 12 }), priors, today)).not.toHaveProperty("progressFrom");
-  });
-
-  test("a same-day save after a downward correction states no range", () => {
-    const priors = [
-      { sourceId: today, snapshot: { progress: 10 } },
-      { sourceId: "42:2026-03-09", snapshot: { progress: 15 } },
-    ];
-    expect(logSnapshot(entry({ progress: 10 }), priors, today)).not.toHaveProperty("progressFrom");
-  });
-
-  test("a same-day volume save derives the volume baseline", () => {
-    const priors = [
-      { sourceId: today, snapshot: { progressVolumes: 2 } },
-      { sourceId: "42:2026-03-09", snapshot: { progress: 12, progressVolumes: 2 } },
-    ];
-    expect(logSnapshot(entry({ progress: 12, progressVolumes: 4 }), priors, today)).toMatchObject({
-      progressVolumes: 4,
-      progressVolumesFrom: 2,
-    });
-  });
-
-  test("a downward correction states no range", () => {
-    const priors = [{ sourceId: "42:2026-03-09", snapshot: { progress: 15 } }];
-    expect(logSnapshot(entry({ progress: 10 }), priors, today)).not.toHaveProperty("progressFrom");
-  });
-
-  test("a day whose save had no progress is skipped as a baseline", () => {
-    const priors = [
-      { sourceId: "42:2026-03-09", snapshot: { score: 8 } },
-      { sourceId: "42:2026-03-08", snapshot: { progress: 12 } },
-    ];
-    expect(logSnapshot(entry({ progress: 15 }), priors, today)).toMatchObject({
-      progressFrom: 12,
-    });
-  });
-
-  test("a tracked zero baseline grounds the first watch's range (1–5 after 0)", () => {
-    const priors = [{ sourceId: "42:2026-03-09", snapshot: { progress: 0 } }];
-    expect(logSnapshot(entry({ progress: 5 }), priors, today)).toMatchObject({
-      progress: 5,
-      progressFrom: 0,
-    });
-  });
-
-  test("a same-day advance over a zero-opened day states the range too", () => {
-    const priors = [
-      { sourceId: today, snapshot: { progress: 0 } },
-      { sourceId: "42:2026-03-09", snapshot: { progress: 0 } },
-    ];
-    expect(logSnapshot(entry({ progress: 3 }), priors, today)).toMatchObject({
-      progress: 3,
-      progressFrom: 0,
-    });
-  });
-
-  test("a same-day advance over a first-ever log opens from its own state", () => {
-    const priors = [{ sourceId: today, snapshot: { progress: 0 } }];
-    expect(logSnapshot(entry({ progress: 3 }), priors, today)).toMatchObject({
-      progress: 3,
-      progressFrom: 0,
-    });
-    // a first-ever log at a nonzero position works the same way
-    const priors5 = [{ sourceId: today, snapshot: { progress: 5 } }];
-    expect(logSnapshot(entry({ progress: 8 }), priors5, today)).toMatchObject({
-      progress: 8,
+  test("increase after correction starts from the corrected entry, not old Activity", () => {
+    const today = { status: "CURRENT" as const, progressFrom: 12, progress: 15 };
+    expect(logSnapshot({ ...before, progress: 8 }, { ...before, progress: 5 }, today)).toEqual({
+      status: "CURRENT",
       progressFrom: 5,
+      progress: 8,
     });
+    expect(
+      logSnapshot({ status: "PAUSED", progress: 5 }, { ...before, progress: 5 }, today),
+    ).toMatchObject({ progressFrom: 12, progress: 15, statusFrom: "CURRENT", status: "PAUSED" });
   });
 
-  test("a score-only day drops progress, so its card reads 'rated'", () => {
-    const priors = [{ sourceId: "42:2026-03-09", snapshot: { progress: 12 } }];
-    expect(logSnapshot(entry({ progress: 12, score: 8 }), priors, today)).not.toHaveProperty(
-      "progress",
-    );
-  });
-
-  test("same-day score-only saves keep the progress the day already earned", () => {
-    const priors = [{ sourceId: today, snapshot: { progress: 12, progressFrom: 4 } }];
-    expect(logSnapshot(entry({ progress: 12, score: 8 }), priors, today)).toMatchObject({
-      progress: 12,
-      progressFrom: 4,
-    });
-  });
-
-  test("volumes chain their own baseline (3–4 of after 2)", () => {
-    const priors = [{ sourceId: "42:2026-03-09", snapshot: { progress: 12, progressVolumes: 2 } }];
-    expect(logSnapshot(entry({ progress: 12, progressVolumes: 4 }), priors, today)).toMatchObject({
-      progressVolumesFrom: 2,
-    });
-  });
-
-  test("a volume-only day states volumes but no chapter progress", () => {
-    const priors = [{ sourceId: "42:2026-03-09", snapshot: { progress: 12, progressVolumes: 2 } }];
-    const snapshot = logSnapshot(entry({ progress: 12, progressVolumes: 4 }), priors, today);
-    expect(snapshot).toMatchObject({ progressVolumes: 4, progressVolumesFrom: 2 });
-    expect(snapshot).not.toHaveProperty("progress");
-  });
-
-  test("review snapshot carries the full content document", () => {
-    const content = { type: "doc", content: [] } as never;
-    expect(reviewSnapshot({ content })).toEqual({ content });
+  test("completion requires a positive known total and does not undo Completed", () => {
+    expect(completedStatus(200, 200, "CURRENT")).toBe("COMPLETED");
+    expect(completedStatus(201, 200, "REPEATING")).toBe("COMPLETED");
+    for (const total of [undefined, null, 0, -1]) {
+      expect(completedStatus(200, total, "CURRENT")).toBe("CURRENT");
+    }
+    expect(completedStatus(5, 200, "COMPLETED")).toBe("COMPLETED");
+    expect(completedStatus(5, 200, "PAUSED")).toBe("PAUSED");
   });
 });

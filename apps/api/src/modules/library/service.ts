@@ -7,82 +7,55 @@ import { ensureMedia } from "../media/service";
 import type { MediaType } from "../media/model";
 import type { LibraryEntryInputModel } from "./model";
 
-/**
- * The LOG card shows what the entry looked like when it was logged, so the
- * snapshot copies the viewer-facing fields of the saved entry — plus the
- * baseline the day's progress range opened from, when there is one.
- *
- * `priors` is the actor's most recent Log cards for the media, newest first
- * (today's row, when it exists, leads). Days whose save recorded no progress
- * at all are skipped as baselines by that search naturally: their snapshots
- * carry none.
- */
-export function logSnapshot(
-  entry: {
-    status: "CURRENT" | "PLANNING" | "COMPLETED" | "DROPPED" | "PAUSED" | "REPEATING" | null;
-    score: number | null;
-    progress: number;
-    progressVolumes: number | null;
-    repeat: number;
-  },
-  priors: { sourceId: string; snapshot: ActivitySnapshot }[],
-  todaySourceId: string,
-): ActivitySnapshot {
-  const opened = priors[0];
-  const sameDay = opened?.sourceId === todaySourceId;
-  const priorDays = sameDay ? priors.slice(1) : priors;
+type TrackingState = Pick<
+  NonNullable<Awaited<ReturnType<typeof libraryDal.getEntry>>>,
+  "status" | "progress"
+>;
 
-  const snapshot: ActivitySnapshot = {
-    status: entry.status,
-    score: entry.score,
-    repeat: entry.repeat,
-  };
-  // Progress rides along only when the save moved it, so a score-only day's
-  // card reads "rated" and never becomes the next day's baseline.
-  const lastProgress = priorDays.find((p) => p.snapshot.progress != null)?.snapshot.progress;
-  if (sameDay || entry.progress !== lastProgress) snapshot.progress = entry.progress;
-  snapshot.progressVolumes = entry.progressVolumes;
-
-  if (opened && sameDay) {
-    // The day's range keeps the baselines it opened with, so re-logs extend it.
-    if (opened.snapshot.progressFrom != null) snapshot.progressFrom = opened.snapshot.progressFrom;
-    if (opened.snapshot.progressVolumesFrom != null) {
-      snapshot.progressVolumesFrom = opened.snapshot.progressVolumesFrom;
-    }
-  }
-
-  // An axis the day's first save never opened (a score-only or volume-only
-  // save stored none) derives its baseline from the prior days — or, failing
-  // that (a first-ever day), from today's own opening state — with the same
-  // correction guard as a new day: no range for corrections.
-  const openedSnapshot = sameDay ? opened?.snapshot : undefined;
-  const chapterBaseline =
-    snapshot.progressFrom ?? openedSnapshot?.progress ?? lastMoved(priorDays, (s) => s.progress);
-  if (chapterBaseline != null && entry.progress > chapterBaseline) {
-    snapshot.progressFrom = chapterBaseline;
-  }
-  const volumeBaseline =
-    snapshot.progressVolumesFrom ??
-    openedSnapshot?.progressVolumes ??
-    lastMoved(priorDays, (s) => s.progressVolumes);
-  if (volumeBaseline != null && (entry.progressVolumes ?? 0) > volumeBaseline) {
-    snapshot.progressVolumesFrom = volumeBaseline;
-  }
-  return snapshot;
+/** Normalize before writing or evaluating Activity, including partial saves. */
+export function completedStatus(
+  progress: number,
+  total: number | null | undefined,
+  selected: TrackingState["status"],
+): TrackingState["status"] {
+  return total != null && total > 0 && progress >= total ? "COMPLETED" : selected;
 }
 
-/** The last value an axis was at across the prior days, searching newest-first. */
-function lastMoved(
-  priorDays: { snapshot: ActivitySnapshot }[],
-  axis: (snapshot: ActivitySnapshot) => number | null | undefined,
-): number | undefined {
-  for (const { snapshot } of priorDays) {
-    const value = axis(snapshot);
-    // Days whose save recorded no value (score-only) are skipped; a tracked
-    // zero is a real position and grounds the first watch's range.
-    if (value != null) return value;
+/** An excluded-field save or correction leaves today's card entirely untouched. */
+export function logSnapshot(
+  entry: TrackingState,
+  before: TrackingState | undefined,
+  today?: ActivitySnapshot,
+): ActivitySnapshot | null {
+  const increased = entry.progress > (before?.progress ?? 0);
+  const changedStatus = entry.status !== (before?.status ?? null);
+  if (!increased && !changedStatus) return null;
+
+  const snapshot: ActivitySnapshot = { status: entry.status };
+  // Allowlist even when today's row predates the cleanup.
+  if (today?.statusFrom !== undefined) snapshot.statusFrom = today.statusFrom;
+  if (
+    today?.progress != null &&
+    today.progressFrom !== undefined &&
+    (today.progressFrom === null || today.progress > today.progressFrom)
+  ) {
+    snapshot.progress = today.progress;
+    snapshot.progressFrom = today.progressFrom;
   }
-  return undefined;
+  if (increased) {
+    // A correction resets the next increase's baseline. Never claim the
+    // corrected-away progress was earned by the later save.
+    const reset = today?.progress != null && (before?.progress ?? 0) < today.progress;
+    snapshot.progress = entry.progress;
+    if (reset || snapshot.progressFrom === undefined) {
+      if (before) snapshot.progressFrom = before.progress;
+      else snapshot.progressFrom = null;
+    }
+  }
+  if (changedStatus && !Object.hasOwn(snapshot, "statusFrom")) {
+    snapshot.statusFrom = before?.status ?? null;
+  }
+  return snapshot;
 }
 
 /**
@@ -100,11 +73,17 @@ export async function logMedia(
   mediaId: number,
   body: typeof LibraryEntryInputModel.static,
 ) {
-  // Logging from a search result can be the first time we have seen this title.
+  // The catalogue is authoritative for completion totals.
   const media = await ensureMedia(mediaType, mediaId);
   if (!media) return status(404, { error: "Media not found" });
 
-  await libraryDal.upsertEntry({ userId, mediaId, mediaType, ...body });
+  const before = await libraryDal.getEntry(userId, mediaId);
+  const effectiveStatus = completedStatus(
+    body.progress ?? before?.progress ?? 0,
+    mediaType === "ANIME" ? media.episodes : media.chapters,
+    body.status ?? before?.status ?? null,
+  );
+  await libraryDal.upsertEntry({ userId, mediaId, mediaType, ...body, status: effectiveStatus });
 
   const entry = await libraryDal.getEntry(userId, mediaId);
   if (!entry) return status(500, { error: "Failed to save entry" });
@@ -114,21 +93,21 @@ export async function logMedia(
   const now = new Date();
   const sourceId = logSourceId(mediaId, now);
 
-  await activityDal.upsertActivity({
-    actorId: userId,
-    type: "LOG",
-    sourceId,
-    mediaId,
-    mediaType,
-    // The latest save of the day owns the card's timestamp and state.
-    occurredAt: now,
-    // ponytail: read-modify-write race — two overlapping saves for the same
-    // (user, media, day) can both read stale history, so the later upsert may
-    // drop the day's opening baseline. Worst case is one card stating lifetime
-    // progress instead of the day's range; serialize via a per-(user, media)
-    // advisory lock in a transaction if that ever matters.
-    snapshot: logSnapshot(entry, await activityDal.getRecentLogs(userId, mediaId), sourceId),
-  });
+  // ponytail: the existing HTTP DAL uses read-modify-write; concurrent saves
+  // to the same entry can race. Move this write into a DB function if needed.
+  const today = await activityDal.getLog(userId, sourceId);
+  const snapshot = logSnapshot(entry, before, today?.snapshot);
+  if (snapshot) {
+    await activityDal.upsertActivity({
+      actorId: userId,
+      type: "LOG",
+      sourceId,
+      mediaId,
+      mediaType,
+      occurredAt: now,
+      snapshot,
+    });
+  }
 
   return entry;
 }

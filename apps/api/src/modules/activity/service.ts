@@ -1,4 +1,3 @@
-import { renderRichContent } from "@tsuki/rich-content";
 import { activityDal } from "@tsuki/db";
 
 type Cursor = { occurredAt: Date; id: string };
@@ -19,18 +18,23 @@ export function encodeActivityCursor(cursor: Cursor | null): string | null {
   return cursor ? `${cursor.occurredAt.toISOString()}|${cursor.id}` : null;
 }
 
-/**
- * Review cards ship pre-rendered HTML; the stored document never crosses
- * the wire, so clients need no renderer (or its validation) at all.
- */
-function toWire(rows: Awaited<ReturnType<typeof activityDal.getPublicActivity>>["activities"]) {
+/** Explicit allowlist also strips legacy review bodies and obsolete fields. */
+export function toWire(
+  rows: Awaited<ReturnType<typeof activityDal.getPublicActivity>>["activities"],
+) {
   return rows.map((activity) => {
-    const { content, ...snapshot } = activity.snapshot;
+    const { status, statusFrom, progress, progressFrom } = activity.snapshot;
     return {
       ...activity,
-      snapshot: content
-        ? { ...snapshot, contentHtml: renderRichContent(content, "compact") }
-        : snapshot,
+      snapshot:
+        activity.type === "REVIEW"
+          ? {}
+          : {
+              ...(status !== undefined ? { status } : {}),
+              ...(statusFrom !== undefined ? { statusFrom } : {}),
+              ...(progress !== undefined ? { progress } : {}),
+              ...(progressFrom !== undefined ? { progressFrom } : {}),
+            },
     };
   });
 }
