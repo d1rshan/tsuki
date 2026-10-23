@@ -45,7 +45,7 @@ export function MediaBanner({ image, title, type, hasBannerImage }: MediaBannerP
   }
 
   return (
-    <div className="relative h-[250px] overflow-hidden md:h-[350px]">
+    <div className="relative h-[250px] overflow-hidden md:h-[350px] transform-gpu isolate">
       {renderImage()}
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
     </div>

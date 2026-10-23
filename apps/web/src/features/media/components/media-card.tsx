@@ -40,16 +40,26 @@ export function MediaCard({
     >
       <motion.div
         layoutId={reduceMotion ? undefined : `${morphId}-surface`}
-        style={{ borderRadius: 12 }}
-        className="relative overflow-hidden bg-muted p-2"
+        style={{
+          borderRadius: 12,
+          willChange: "transform",
+          transform: "translateZ(0)",
+          backfaceVisibility: "hidden",
+        }}
+        className="relative overflow-hidden bg-muted p-2 isolate"
       >
         <div className="aspect-[3/4]" aria-hidden="true" />
         <div className="h-9" aria-hidden="true" />
         <div className="absolute inset-2 grid grid-rows-[minmax(0,1fr)_auto]">
           <motion.div
             layoutId={reduceMotion ? undefined : `${morphId}-poster`}
-            style={{ borderRadius: 8 }}
-            className="relative min-h-0 overflow-hidden"
+            style={{
+              borderRadius: 8,
+              willChange: "transform",
+              transform: "translateZ(0)",
+              backfaceVisibility: "hidden",
+            }}
+            className="relative min-h-0 overflow-hidden isolate"
           >
             {coverImage ? (
               <Image
@@ -74,6 +84,10 @@ export function MediaCard({
             <motion.h3
               layoutId={reduceMotion ? undefined : `${morphId}-title`}
               layout="position"
+              style={{
+                willChange: "transform",
+                transform: "translateZ(0)",
+              }}
               className={cn(
                 "px-1 pt-3 pb-1 text-sm leading-snug font-semibold transition-colors",
                 expanded ? "text-current" : "line-clamp-1 text-muted-foreground",
