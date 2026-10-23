@@ -7,10 +7,7 @@ export function MediaLayoutGroup({ children }: { children: React.ReactNode }) {
   const id = useId();
 
   return (
-    <MotionConfig
-      transition={{ type: "spring", bounce: 0.05, duration: 0.25 }}
-      reducedMotion="user"
-    >
+    <MotionConfig transition={{ type: "spring", bounce: 0, duration: 0.18 }} reducedMotion="user">
       <LayoutGroup id={id}>{children}</LayoutGroup>
     </MotionConfig>
   );
@@ -27,13 +24,23 @@ export function MediaDetailsReveal({
 }) {
   const reduceMotion = useReducedMotion();
 
+  if (!morphId || reduceMotion) {
+    return <div className={className}>{children}</div>;
+  }
+
   return (
     <motion.div
       className={className}
-      initial={morphId && !reduceMotion ? { opacity: 0, y: 12 } : false}
-      animate={{ opacity: 1, y: 0 }}
-      exit={morphId && !reduceMotion ? { opacity: 0, y: 8 } : undefined}
-      transition={{ duration: reduceMotion ? 0 : 0.15, delay: morphId ? 0.1 : 0 }}
+      initial={{ opacity: 0, y: 12 }}
+      animate={{
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.15, delay: 0.04, ease: "easeOut" },
+      }}
+      exit={{
+        opacity: 0,
+        transition: { duration: 0.1, ease: "easeOut" },
+      }}
     >
       {children}
     </motion.div>

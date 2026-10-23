@@ -1,9 +1,9 @@
 import { Skeleton } from "@/shared/components/ui/skeleton";
 
-export function MediaPageSkeleton({ inModal }: { inModal?: boolean } = {}) {
+export function MediaPageSkeleton() {
   return (
     <>
-      <div className={inModal ? "relative -mx-4" : "relative left-1/2 w-dvw -translate-x-1/2"}>
+      <div className="relative left-1/2 w-dvw -translate-x-1/2">
         <Skeleton className="h-[250px] rounded-none md:h-[350px]" />
       </div>
 

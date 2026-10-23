@@ -31,10 +31,7 @@ export function MediaDetails({ media, morphId }: { media: Media; morphId?: strin
 
   return (
     <>
-      <MediaDetailsReveal
-        morphId={morphId}
-        className={morphId ? "relative -mx-4" : "relative left-1/2 w-dvw -translate-x-1/2"}
-      >
+      <MediaDetailsReveal morphId={morphId} className="relative left-1/2 w-dvw -translate-x-1/2">
         <MediaBanner
           image={bannerImage}
           title={title}
