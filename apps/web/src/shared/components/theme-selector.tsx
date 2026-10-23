@@ -1,16 +1,25 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 
+const subscribe = () => () => {};
+
 export function ThemeSelector() {
   const { resolvedTheme, setTheme } = useTheme();
+  // The saved theme is only available in the browser, after hydration.
+  const hydrated = useSyncExternalStore(
+    subscribe,
+    () => true,
+    () => false,
+  );
 
   return (
     <Tabs
-      value={resolvedTheme === "dark" ? "dark" : "light"}
+      value={hydrated ? (resolvedTheme === "dark" ? "dark" : "light") : null}
       onValueChange={(value) => setTheme(String(value))}
       variant="rounded"
     >
