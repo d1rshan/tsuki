@@ -49,7 +49,7 @@ function FetchedMediaDetails({
     },
   });
 
-  if (isPending) return <MediaPageSkeleton inModal />;
+  if (isPending) return <MediaPageSkeleton />;
 
   if (isError) {
     return (

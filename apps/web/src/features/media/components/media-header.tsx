@@ -88,11 +88,20 @@ export function MediaHeader({
           {title}
         </motion.h1>
 
-        {titleNative && titleNative !== title && (
-          <p className="font-medium text-muted-foreground">{titleNative}</p>
-        )}
+        <motion.div
+          className="flex flex-col gap-2"
+          exit={
+            sharedId && !reduceMotion
+              ? { opacity: 0, transition: { duration: 0.08, ease: "easeOut" } }
+              : undefined
+          }
+        >
+          {titleNative && titleNative !== title && (
+            <p className="font-medium text-muted-foreground">{titleNative}</p>
+          )}
 
-        <div className="flex flex-wrap items-center gap-2">{badges}</div>
+          <div className="flex flex-wrap items-center gap-2">{badges}</div>
+        </motion.div>
       </div>
     </div>
   );
