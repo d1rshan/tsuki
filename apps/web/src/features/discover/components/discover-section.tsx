@@ -17,7 +17,9 @@ export function DiscoverSection({
       {title || actions ? (
         <header className="flex flex-wrap items-center justify-between gap-3">
           {title ? (
-            <h2 className="text-3xl font-medium lowercase tracking-tight">{title}</h2>
+            <h2 className="text-3xl font-medium lowercase tracking-tight text-muted-foreground">
+              {title}
+            </h2>
           ) : null}
           {actions}
         </header>

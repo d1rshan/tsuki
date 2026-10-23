@@ -5,6 +5,7 @@ import { useQueryState } from "nuqs";
 import type { MediaCompact, MediaType } from "@tsuki/api/types";
 
 import { DiscoverSearchResults } from "../components/discover-search-results";
+import { DiscoverCurrentMedia } from "../components/discover-current-media";
 import { DiscoverMediaTrending } from "../components/discover-media-trending";
 
 export function DiscoverView({ trending }: { trending: Record<MediaType, MediaCompact[]> }) {
@@ -16,7 +17,10 @@ export function DiscoverView({ trending }: { trending: Record<MediaType, MediaCo
       {searchQuery ? (
         <DiscoverSearchResults query={searchQuery} />
       ) : (
-        <DiscoverMediaTrending trending={trending} />
+        <>
+          <DiscoverCurrentMedia />
+          <DiscoverMediaTrending trending={trending} />
+        </>
       )}
     </div>
   );
