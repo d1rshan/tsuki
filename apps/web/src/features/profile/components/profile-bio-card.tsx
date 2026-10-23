@@ -26,7 +26,7 @@ export function ProfileBioCard({ className, profile }: { className?: string; pro
         <RichContentView
           content={profile?.bio}
           mode="compact"
-          className="mt-3 text-sm leading-relaxed text-foreground/80"
+          className="text-sm leading-relaxed text-muted-foreground [&_strong]:font-medium"
         />
       )}
 
@@ -46,7 +46,7 @@ export function ProfileBioCard({ className, profile }: { className?: string; pro
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label={name}
-                        className="flex h-9 w-9 items-center justify-center rounded-full border border-border/50 bg-muted/50 text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary"
+                        className="flex h-9 w-9 items-center justify-center rounded-lg bg-card text-muted-foreground transition-colors hover:text-foreground"
                       />
                     }
                   >
