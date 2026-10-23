@@ -22,6 +22,7 @@ export function MediaModal({ children, morphId }: { children: React.ReactNode; m
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: reduceMotion ? 0 : 0.18, ease: "easeOut" }}
+            style={{ willChange: "opacity" }}
           />
         }
         finalFocus={() => (morphId ? document.getElementById(`media-trigger-${morphId}`) : true)}
@@ -35,8 +36,13 @@ export function MediaModal({ children, morphId }: { children: React.ReactNode; m
           animate={{ opacity: 1, scale: 1 }}
           exit={sharedId ? undefined : { opacity: 0, scale: 0.98 }}
           transition={{ type: "spring", bounce: 0, duration: reduceMotion ? 0 : 0.18 }}
-          style={{ borderRadius: 24 }}
-          className="h-full w-full overflow-x-hidden overflow-y-auto bg-background shadow-2xl"
+          style={{
+            borderRadius: 24,
+            willChange: "transform",
+            transform: "translateZ(0)",
+            backfaceVisibility: "hidden",
+          }}
+          className="h-full w-full overflow-x-hidden overflow-y-auto bg-background shadow-2xl isolate"
         >
           <DialogTitle className="sr-only">Media details</DialogTitle>
           {children}

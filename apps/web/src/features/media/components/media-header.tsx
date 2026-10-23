@@ -64,8 +64,13 @@ export function MediaHeader({
     <div className="relative z-10 -mt-20 flex flex-col gap-6 border-b pb-8 md:-mt-32 md:flex-row md:items-end md:gap-8">
       <motion.div
         layoutId={sharedId ? `${sharedId}-poster` : undefined}
-        style={{ borderRadius: 12 }}
-        className="relative aspect-[3/4] w-40 shrink-0 overflow-hidden bg-muted ring-1 ring-border shadow-xl md:w-56"
+        style={{
+          borderRadius: 12,
+          willChange: "transform",
+          transform: "translateZ(0)",
+          backfaceVisibility: "hidden",
+        }}
+        className="relative aspect-[3/4] w-40 shrink-0 overflow-hidden bg-muted ring-1 ring-border shadow-xl md:w-56 isolate"
       >
         {coverImage && (
           <Image
@@ -83,6 +88,10 @@ export function MediaHeader({
         <motion.h1
           layoutId={sharedId ? `${sharedId}-title` : undefined}
           layout="position"
+          style={{
+            willChange: "transform",
+            transform: "translateZ(0)",
+          }}
           className="text-3xl font-bold tracking-tight md:text-5xl"
         >
           {title}
@@ -90,6 +99,7 @@ export function MediaHeader({
 
         <motion.div
           className="flex flex-col gap-2"
+          style={{ willChange: "opacity" }}
           exit={
             sharedId && !reduceMotion
               ? { opacity: 0, transition: { duration: 0.08, ease: "easeOut" } }

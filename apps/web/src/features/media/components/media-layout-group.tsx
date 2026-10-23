@@ -31,10 +31,10 @@ export function MediaDetailsReveal({
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, y: 12 }}
+      style={{ willChange: "opacity" }}
+      initial={{ opacity: 0 }}
       animate={{
         opacity: 1,
-        y: 0,
         transition: { duration: 0.15, delay: 0.04, ease: "easeOut" },
       }}
       exit={{
