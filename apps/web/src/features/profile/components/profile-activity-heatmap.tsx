@@ -82,7 +82,7 @@ export function ProfileActivityHeatmap({
             weekStartsOn={1}
             className="w-full"
             levelClassNames={[
-              "bg-muted",
+              "bg-card",
               "bg-primary/20",
               "bg-primary/35",
               "bg-primary/55",

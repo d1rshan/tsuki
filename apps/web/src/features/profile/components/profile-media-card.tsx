@@ -5,12 +5,6 @@ import type { MediaCompact, MediaType } from "@tsuki/api/types";
 
 import { MediaLink } from "@/features/media/components/media-link";
 import { MEDIA, mediaImageClass, normalizeMediaCompact } from "@/features/media/media";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/shared/components/ui/tooltip";
 import { cn } from "@/shared/lib/utils";
 
 interface ProfileMediaCardProps {
@@ -19,113 +13,57 @@ interface ProfileMediaCardProps {
   score?: number | null;
   /** Episodes watched or chapters read. */
   progress?: number | null;
-  /** Hide the title overlay. */
-  hideTitle?: boolean;
 }
 
-const RING_RADIUS = 13;
-const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
-
-export function ProfileMediaCard({
-  media,
-  mediaType,
-  score,
-  progress,
-  hideTitle,
-}: ProfileMediaCardProps) {
-  const { coverImage: cover, title, count: total } = normalizeMediaCompact(media);
-  const ratio = progress != null && total ? Math.min(progress / total, 1) : null;
+export function ProfileMediaCard({ media, mediaType, score, progress }: ProfileMediaCardProps) {
+  const { coverImage, title, count: total } = normalizeMediaCompact(media);
 
   return (
     <MediaLink
       media={media}
-      className="group relative flex aspect-[3/4] flex-col overflow-hidden rounded-xl bg-muted/30 outline-none transition-shadow duration-300 hover:shadow-md focus-visible:ring-1 focus-visible:ring-primary"
+      className="group block min-w-0 rounded-xl bg-muted p-2 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
     >
-      {cover ? (
-        <Image
-          src={cover}
-          alt={title}
-          fill
-          sizes="(max-width: 768px) 120px, 160px"
-          className={cn(
-            "object-cover transition-transform duration-150 group-hover:scale-[1.03]",
-            mediaImageClass(mediaType),
-          )}
-        />
-      ) : (
-        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted/50 p-4 text-center text-xs text-muted-foreground">
-          {title}
-        </div>
-      )}
-
-      {progress != null || score != null ? (
-        <div className="absolute top-2 right-2 z-10 flex items-center gap-1.5">
-          {score != null && (
-            <span
-              aria-label={`Rated ${score} out of 10`}
-              className="flex items-center gap-1 rounded-md bg-background/80 px-1.5 py-1 text-[10px] font-semibold backdrop-blur-md"
-            >
-              <Star className="size-3 fill-primary text-primary" aria-hidden />
-              {score}
-            </span>
-          )}
-          {progress != null && (
-            <TooltipProvider delay={80}>
-              <Tooltip>
-                <TooltipTrigger
-                  render={
-                    <span className="relative flex size-7 items-center justify-center rounded-full bg-background/60 text-[10px] font-semibold backdrop-blur-md" />
-                  }
-                >
-                  <svg
-                    aria-hidden
-                    viewBox="0 0 32 32"
-                    className="absolute inset-0 size-full -rotate-90"
-                  >
-                    <circle
-                      cx="16"
-                      cy="16"
-                      r={RING_RADIUS}
-                      fill="none"
-                      strokeWidth="3"
-                      className="stroke-foreground/15"
-                    />
-                    <circle
-                      cx="16"
-                      cy="16"
-                      r={RING_RADIUS}
-                      fill="none"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                      strokeDasharray={RING_CIRCUMFERENCE}
-                      strokeDashoffset={RING_CIRCUMFERENCE * (1 - (ratio ?? 0))}
-                      className="stroke-primary"
-                    />
-                  </svg>
-                  <span className="relative">{progress}</span>
-                </TooltipTrigger>
-                <TooltipContent>
-                  {total
-                    ? `${progress}/${total} ${MEDIA[mediaType].unitLong.toLowerCase()}`
-                    : `${MEDIA[mediaType].unitAbbrev}. ${progress}`}
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
-        </div>
-      ) : null}
-
-      {hideTitle ? null : (
-        <>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 pointer-events-none" />
-
-          <div className="absolute inset-x-0 bottom-0 p-3 flex flex-col justify-end z-10 pointer-events-none">
-            <span className="line-clamp-2 text-sm font-semibold text-white drop-shadow-sm">
-              {title}
-            </span>
+      <div className="relative aspect-[3/4] overflow-hidden rounded-lg">
+        {coverImage ? (
+          <Image
+            src={coverImage}
+            alt={title}
+            fill
+            sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 22vw"
+            className={cn("object-cover", mediaImageClass(mediaType))}
+          />
+        ) : (
+          <div className="flex size-full items-center justify-center text-xs text-muted-foreground">
+            No Image
           </div>
-        </>
-      )}
+        )}
+      </div>
+      <div className="px-1 pt-3 pb-1">
+        <h3
+          className="truncate text-sm leading-snug font-semibold text-muted-foreground transition-colors group-hover:text-foreground group-focus-visible:text-foreground"
+          title={title}
+        >
+          {title}
+        </h3>
+        {progress != null || score != null ? (
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-xs text-muted-foreground tabular-nums">
+            {progress != null && (
+              <span
+                aria-label={`${progress}${total ? ` of ${total}` : ""} ${MEDIA[mediaType].unitLong.toLowerCase()}`}
+              >
+                <span className="font-medium text-foreground">{progress}</span>
+                {total ? ` / ${total}` : ""} {MEDIA[mediaType].unitAbbrev.toLowerCase()}.
+              </span>
+            )}
+            {score != null && (
+              <span className="flex items-center gap-1" aria-label={`Rated ${score} out of 10`}>
+                <Star className="size-3" aria-hidden />
+                <span className="font-medium text-foreground">{score}</span>
+              </span>
+            )}
+          </div>
+        ) : null}
+      </div>
     </MediaLink>
   );
 }
