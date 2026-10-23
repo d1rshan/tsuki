@@ -7,10 +7,9 @@ import type { NavbarUser } from "./";
 type NavbarLinksProps = {
   pathname: string;
   user: NavbarUser | null;
-  showLogin: boolean;
 };
 
-export function NavbarLinks({ pathname, user, showLogin }: NavbarLinksProps) {
+export function NavbarLinks({ pathname, user }: NavbarLinksProps) {
   const links = [
     {
       href: "/",
@@ -31,9 +30,7 @@ export function NavbarLinks({ pathname, user, showLogin }: NavbarLinksProps) {
             isActive: pathname === `/${user.username}` || pathname.startsWith(`/${user.username}/`),
           },
         ]
-      : showLogin
-        ? [{ href: "/login", label: "Login", isActive: pathname === "/login" }]
-        : []),
+      : []),
   ];
 
   const activeHref = links.find((link) => link.isActive)?.href;
