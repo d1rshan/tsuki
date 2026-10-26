@@ -38,7 +38,7 @@ export const activityRoutes = new Elysia({ tags: ["Activity"] })
       response: { 200: ActivityPageModel, 403: ErrorModel, 404: ErrorModel },
       detail: {
         summary: "Get a user's Activity",
-        description: "A Profile's own Logs and Reviews, newest-first. Public to any visitor.",
+        description: "A Profile's own Logs, newest-first. Public to any visitor.",
       },
     },
   );

@@ -2,7 +2,7 @@ import { and, asc, desc, eq, like, lt, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 
 import { db } from "../db";
-import { activity, activityTypeEnum, media, progress, reviews, social, user } from "../schema";
+import { activity, media, progress, social, user } from "../schema";
 
 /**
  * Rows are stored by the progress trigger defined in
@@ -20,14 +20,10 @@ export const getProgressActivity = async (userId: string) => {
     .orderBy(asc(progress.activityDate));
 };
 
-export type ActivityType = (typeof activityTypeEnum.enumValues)[number];
-
-type ActivityInput = typeof activity.$inferInsert;
+type ActivityInput = Omit<typeof activity.$inferInsert, "type"> & { type: "LOG" };
 
 export const upsertActivity = async (row: ActivityInput) => {
-  // Upserts replace the snapshot but never the occurredAt: Log bumps it to the
-  // latest save by passing it in the insert, Review edits keep the original
-  // date by leaving it out of the set entirely.
+  // Qualifying saves replace the snapshot and move the Log to the latest save.
   return db
     .insert(activity)
     .values(row)
@@ -37,17 +33,9 @@ export const upsertActivity = async (row: ActivityInput) => {
         mediaId: row.mediaId,
         mediaType: row.mediaType,
         snapshot: row.snapshot,
-        ...(row.type === "LOG" && row.occurredAt ? { occurredAt: row.occurredAt } : {}),
+        ...(row.occurredAt ? { occurredAt: row.occurredAt } : {}),
       },
     });
-};
-
-export const deleteActivity = async (actorId: string, type: ActivityType, sourceId: string) => {
-  return db
-    .delete(activity)
-    .where(
-      and(eq(activity.actorId, actorId), eq(activity.type, type), eq(activity.sourceId, sourceId)),
-    );
 };
 
 /** A Log is keyed per UTC day, so removing an entry removes all of its days. */
@@ -73,7 +61,10 @@ export const getLog = async (actorId: string, sourceId: string) =>
     ),
   });
 
-type ActivityQuery = { cursor?: { occurredAt: Date; id: string }; limit: number };
+type ActivityQuery = {
+  cursor?: { occurredAt: Date; id: string };
+  limit: number;
+};
 
 const actor = alias(user, "activity_actor");
 
@@ -88,7 +79,7 @@ async function getActivity(
   const rows = await db
     .select({
       id: activity.id,
-      type: activity.type,
+      type: sql<"LOG">`${activity.type}`,
       snapshot: activity.snapshot,
       occurredAt: activity.occurredAt,
       // Rides even when the media join misses, so clients can still phrase the card.
@@ -107,13 +98,10 @@ async function getActivity(
     .where(
       and(
         where,
+        eq(activity.type, "LOG"),
         // Filter before pagination so unsupported historical rows cannot make
         // empty pages or leak through any of the three streams.
         sql`${activity.mediaId} is not null and ${activity.mediaType} is not null and (
-          (${activity.type} = 'REVIEW' and exists (
-            select 1 from ${reviews} where ${reviews.userId} = ${activity.actorId}
-              and ${reviews.mediaId} = ${activity.mediaId} and ${reviews.mediaType} = ${activity.mediaType}
-          )) or (${activity.type} = 'LOG' and (
             (jsonb_typeof(${activity.snapshot}->'progress') = 'number'
               and jsonb_typeof(${activity.snapshot}->'progressFrom') = 'number'
               and (${activity.snapshot}->'progress') > (${activity.snapshot}->'progressFrom'))
@@ -124,7 +112,6 @@ async function getActivity(
               and ${activity.snapshot}->>'status' in ('CURRENT', 'PLANNING', 'COMPLETED', 'DROPPED', 'PAUSED', 'REPEATING')
               and (${activity.snapshot}->>'status' is distinct from ${activity.snapshot}->>'statusFrom'
                 or ${activity.snapshot}->'statusChanged' = 'true'::jsonb))
-          ))
         )`,
         cursor
           ? or(

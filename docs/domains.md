@@ -32,7 +32,7 @@ contracts), `service.ts` (everything else).
 | ----------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
 | `media/`    | The owned catalogue: read-only serving + search/trending over our own media table       | `/media/*`                                                                     |
 | `library/`  | A user's log entries for media                                                          | `/users/:username/library`, `/me/library/*`                                    |
-| `reviews/`  | A user's reviews of media                                                               | `/users/:username/reviews`, `/me/reviews/*`                                    |
+| `reviews/`  | A user's reviews of media                                                               | `/reviews`, `/me/reviews`, `/users/:username/reviews`, `/me/reviews/*`         |
 | `profiles/` | Identity + Profile: Username→Profile resolution, Profile page payload, profile settings | `/users/:username`, `/me/profile`                                              |
 | `social/`   | The social graph: Follow relationships, follower lists, user discovery                  | `/users/discover`, `/users/:username/follow*`, `/users/:username/relationship` |
 | `activity/` | The Activity Feed                                                                       | `/me/activity`                                                                 |
@@ -62,7 +62,7 @@ triggers) and `dal/` (one query module per domain):
 | `library`  | Log entries; per-type stats aggregation                               |
 | `reviews`  | Reviews                                                               |
 | `social`   | Follows, follower lists, public user columns, discovery query         |
-| `activity` | Feed records (LOG / REVIEW / FOLLOW) and the daily progress aggregate |
+| `activity` | Feed records (LOG) and the daily progress aggregate                   |
 | `sync`     | `sync_state` cursor rows tracking crawl progress per media type       |
 
 Progress activity is written by a Postgres trigger (`src/triggers.ts`), not

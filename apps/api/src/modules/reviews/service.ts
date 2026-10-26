@@ -1,13 +1,13 @@
 import { status } from "elysia";
 
-import { activityDal, reviewsDal } from "@tsuki/db";
+import { reviewsDal } from "@tsuki/db";
 import { isEmptyRichContent, validateRichContent } from "@tsuki/rich-content";
 
 import { ensureMedia } from "../media/service";
 import type { MediaType } from "../media/model";
 import type { ReviewInputModel } from "./model";
 
-/** Submit a review: creates or replaces it, recording a summary in Activity. */
+/** Submit a review: creates or replaces its full Rich Content document. */
 export async function submitReview(
   userId: string,
   mediaType: MediaType,
@@ -35,23 +35,10 @@ export async function submitReview(
   const review = await reviewsDal.getReview(userId, mediaId);
   if (!review) return status(500, { error: "Failed to save review" });
 
-  await activityDal.upsertActivity({
-    actorId: userId,
-    type: "REVIEW",
-    sourceId: String(mediaId),
-    mediaId,
-    mediaType,
-    snapshot: {},
-    occurredAt: review.createdAt,
-  });
-
   return review;
 }
 
-/** Removing a review removes its Activity with it. */
+/** Remove the review itself. */
 export async function removeReview(userId: string, mediaId: number) {
-  await Promise.all([
-    reviewsDal.deleteReview(userId, mediaId),
-    activityDal.deleteActivity(userId, "REVIEW", String(mediaId)),
-  ]);
+  await reviewsDal.deleteReview(userId, mediaId);
 }

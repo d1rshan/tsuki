@@ -22,7 +22,7 @@ const ActivitySnapshotModel = t.Object(
 
 export const ActivityModel = t.Object({
   id: t.String(),
-  type: t.Union([t.Literal("LOG"), t.Literal("REVIEW")]),
+  type: t.Literal("LOG"),
   snapshot: ActivitySnapshotModel,
   occurredAt: t.Date(),
   actor: ActivityActorModel,

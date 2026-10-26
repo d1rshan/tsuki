@@ -11,7 +11,6 @@ const mocks = vi.hoisted(() => ({
   deleteEntry: vi.fn(),
   deleteActivityLogs: vi.fn(),
   deleteReview: vi.fn(),
-  deleteActivity: vi.fn(),
 }));
 vi.mock("@tsuki/db", () => ({
   libraryDal: {
@@ -23,7 +22,6 @@ vi.mock("@tsuki/db", () => ({
     getLog: mocks.getLog,
     upsertActivity: mocks.upsertActivity,
     deleteActivityLogs: mocks.deleteActivityLogs,
-    deleteActivity: mocks.deleteActivity,
   },
   reviewsDal: {
     getReview: mocks.getReview,
@@ -205,7 +203,7 @@ describe("library saves and Activity", () => {
   });
 });
 
-test("reviews store identity and original time without copying the body", async () => {
+test("saving reviews does not create Activity", async () => {
   const content = {
     version: 1 as const,
     doc: {
@@ -217,15 +215,14 @@ test("reviews store identity and original time without copying the body", async 
   mocks.getReview.mockResolvedValue({ content, createdAt });
   await submitReview("actor", "ANIME", 42, { content });
   await submitReview("actor", "ANIME", 42, { content });
-  expect(mocks.upsertActivity).toHaveBeenLastCalledWith({
-    actorId: "actor",
-    type: "REVIEW",
-    sourceId: "42",
+  expect(mocks.upsertReview).toHaveBeenCalledTimes(2);
+  expect(mocks.upsertReview).toHaveBeenLastCalledWith({
+    userId: "actor",
     mediaId: 42,
     mediaType: "ANIME",
-    snapshot: {},
-    occurredAt: createdAt,
+    content,
   });
+  expect(mocks.upsertActivity).not.toHaveBeenCalled();
 });
 
 test("Activity serialization allowlists fields even for legacy snapshots", () => {
@@ -242,17 +239,16 @@ test("Activity serialization allowlists fields even for legacy snapshots", () =>
       contentHtml: "<p>review</p>",
     },
   };
-  const wire = toWire([row, { ...row, type: "REVIEW" }] as never);
+  const wire = toWire([row] as never);
   expect(wire[0]?.snapshot).toEqual({ status: "CURRENT", progress: 15, progressFrom: 12 });
-  expect(wire[1]?.snapshot).toEqual({});
   expect(JSON.stringify(wire)).not.toContain("review");
 });
 
-test("deleting sources deletes their Activity", async () => {
+test("deleting a library entry removes Logs; deleting a review does not touch Activity", async () => {
   await removeEntry("actor", 42);
   await removeReview("actor", 42);
   expect(mocks.deleteEntry).toHaveBeenCalledWith("actor", 42);
   expect(mocks.deleteActivityLogs).toHaveBeenCalledWith("actor", 42);
   expect(mocks.deleteReview).toHaveBeenCalledWith("actor", 42);
-  expect(mocks.deleteActivity).toHaveBeenCalledWith("actor", "REVIEW", "42");
+  expect(mocks.deleteActivityLogs).toHaveBeenCalledTimes(1);
 });

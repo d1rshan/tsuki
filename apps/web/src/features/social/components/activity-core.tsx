@@ -1,19 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { format, formatDistanceToNow } from "date-fns";
 import type { ReactNode } from "react";
 
 import type { Activity } from "@tsuki/api/types";
 
 import { MediaLink } from "@/features/media/components/media-link";
-import {
-  logPhrase,
-  mediaImageClass,
-  normalizeMediaCompact,
-  reviewHref,
-} from "@/features/media/media";
+import { logPhrase, mediaImageClass, normalizeMediaCompact } from "@/features/media/media";
 import type { NormalizedMediaCompact } from "@/features/media/normalize";
 import { cn } from "@/shared/lib/utils";
 
@@ -67,7 +61,7 @@ function ActivityCover({
   );
 }
 
-/** Shared cover, event sentence, review destination, and relative time. */
+/** Shared Log cover, event sentence, and relative time. */
 export function ActivityCardCore({
   activity,
   coverClassName,
@@ -87,14 +81,8 @@ export function ActivityCardCore({
   // The media row can be missing (deleted or never fetched); the phrase still
   // speaks from the snapshot, using the activity's own media type.
   const mediaType = media?.type ?? activity.mediaType;
-  const phrase =
-    mediaType && activity.type === "LOG" ? logPhrase(mediaType, activity.snapshot) : null;
-  if (activity.type === "LOG" && !phrase) return null;
-  const lead = activity.type === "REVIEW" ? "Reviewed" : phrase!.lead;
-  const titleHref =
-    activity.type === "REVIEW" && mediaType && activity.mediaId != null
-      ? reviewHref(activity.actor.username, mediaType, activity.mediaId)
-      : null;
+  const phrase = mediaType ? logPhrase(mediaType, activity.snapshot) : null;
+  if (!phrase) return null;
 
   return (
     <div className="flex min-w-0 flex-1 gap-3">
@@ -111,12 +99,8 @@ export function ActivityCardCore({
           </time>
         </div>
         <p className="text-sm leading-snug text-muted-foreground">
-          {lead}{" "}
-          {titleHref ? (
-            <Link href={titleHref} className="font-medium text-inherit hover:text-primary">
-              {media?.title ?? "Unknown Title"}
-            </Link>
-          ) : media ? (
+          {phrase.lead}{" "}
+          {media ? (
             <MediaLink media={media} className="font-medium text-inherit hover:text-primary">
               {media.title}
             </MediaLink>

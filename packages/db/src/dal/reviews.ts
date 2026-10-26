@@ -1,7 +1,7 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 
 import { db } from "../db";
-import { reviews, type MediaType } from "../schema";
+import { media, reviews, social, user, type MediaType } from "../schema";
 import { MEDIA_COMPACT_COLUMNS } from "./media";
 
 export type InsertReview = typeof reviews.$inferInsert;
@@ -32,6 +32,46 @@ export const getUserReviews = async (userId: string, options: ReviewQueryOptions
     limit,
     offset,
   });
+};
+
+/** Full reviews, scoped to public Profiles or the viewer's current Follows. */
+export const getRecentReviews = async ({
+  viewerId,
+  limit,
+  offset,
+}: {
+  viewerId?: string;
+  limit: number;
+  offset: number;
+}) => {
+  const rows = await db
+    .select({
+      id: reviews.id,
+      mediaId: reviews.mediaId,
+      mediaType: reviews.mediaType,
+      content: reviews.content,
+      createdAt: reviews.createdAt,
+      updatedAt: reviews.updatedAt,
+      media,
+      author: { username: user.username, displayUsername: user.displayUsername, image: user.image },
+    })
+    .from(reviews)
+    .innerJoin(user, eq(user.id, reviews.userId))
+    .leftJoin(media, and(eq(media.id, reviews.mediaId), eq(media.type, reviews.mediaType)))
+    .where(
+      viewerId
+        ? sql`exists (select 1 from ${social} where ${social.followerId} = ${viewerId}
+            and ${social.followingId} = ${reviews.userId})`
+        : eq(user.isPrivate, false),
+    )
+    .orderBy(desc(reviews.createdAt), desc(reviews.id))
+    .limit(limit + 1)
+    .offset(offset);
+  const hasMore = rows.length > limit;
+  return {
+    reviews: rows.slice(0, limit),
+    nextOffset: hasMore ? offset + limit : null,
+  };
 };
 
 /** Conflicts resolve on (userId, mediaId), so an incoming `id` is ignored on edits. */

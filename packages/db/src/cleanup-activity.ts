@@ -24,8 +24,5 @@ await sql.transaction([
       ELSE '{}'::jsonb END)
     WHERE type = 'LOG'`),
   sql.query(`DELETE FROM activity WHERE type = 'REVIEW'`),
-  sql.query(`INSERT INTO activity (id, actor_id, type, source_id, media_id, media_type, snapshot, occurred_at)
-    SELECT 'review:' || id, user_id, 'REVIEW', media_id::text, media_id, media_type, '{}'::jsonb, created_at
-    FROM reviews`),
 ]);
-console.log("Cleaned Activity snapshots and rebuilt Review summaries.");
+console.log("Cleaned Activity snapshots and removed legacy Review summaries.");

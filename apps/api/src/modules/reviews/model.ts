@@ -24,3 +24,26 @@ export const ReviewQueryModel = t.Object({
 });
 
 export type Review = typeof ReviewModel.static;
+
+export const ReviewFeedItemModel = t.Composite([
+  ReviewModel,
+  t.Object({
+    author: t.Object({
+      username: t.String(),
+      displayUsername: t.String(),
+      image: t.Nullable(t.String()),
+    }),
+  }),
+]);
+
+export const ReviewFeedQueryModel = t.Object({
+  limit: t.Optional(t.Numeric({ minimum: 1, maximum: 20, multipleOf: 1 })),
+  offset: t.Optional(t.Numeric({ minimum: 0, multipleOf: 1 })),
+});
+
+export const ReviewFeedPageModel = t.Object({
+  reviews: t.Array(ReviewFeedItemModel),
+  nextOffset: t.Nullable(t.Number()),
+});
+
+export type ReviewFeedItem = typeof ReviewFeedItemModel.static;

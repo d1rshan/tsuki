@@ -42,6 +42,8 @@ export const LIST_STATUSES = [
   "REPEATING",
 ] as const;
 
+// REVIEW is retained only for compatibility with historical database rows.
+// Activity writers and readers support LOG only.
 export const ACTIVITY_TYPE = ["LOG", "REVIEW"] as const;
 
 export const mediaTypeEnum = pgEnum("media_type", MEDIA_TYPES);

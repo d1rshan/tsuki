@@ -1,5 +1,9 @@
 # Activity and automatic completion spec
 
+The Review Activity requirements below are superseded by
+[ADR 0005](adr/0005-reviews-outside-activity.md). Reviews are now read directly
+from the reviews table and do not participate in Activity.
+
 ## Goal
 
 Make Activity describe only meaningful changes to a user's anime or manga
