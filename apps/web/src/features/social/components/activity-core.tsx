@@ -34,7 +34,7 @@ function ActivityCover({
     return (
       <div
         className={cn(
-          "aspect-3/4 shrink-0 self-start rounded-lg bg-muted ring-1 ring-border/50",
+          "aspect-3/4 shrink-0 self-start rounded-lg border border-card bg-muted",
           className,
         )}
         aria-hidden
@@ -46,7 +46,7 @@ function ActivityCover({
     <MediaLink
       media={media}
       className={cn(
-        "relative block aspect-3/4 shrink-0 self-start overflow-hidden rounded-lg bg-muted ring-1 ring-border/50",
+        "relative block aspect-3/4 shrink-0 self-start overflow-hidden rounded-lg border border-card bg-muted",
         className,
       )}
     >

@@ -20,10 +20,10 @@ describe("Activity wording", () => {
 
   test("status transitions use the media-specific label", () => {
     expect(logPhrase("ANIME", { status: "COMPLETED", statusFrom: "CURRENT" })).toEqual({
-      lead: "Changed status to Completed for",
+      lead: "Completed",
     });
     expect(logPhrase("MANGA", { status: "CURRENT", statusFrom: null })).toEqual({
-      lead: "Changed status to Reading for",
+      lead: "Started reading",
     });
     expect(logPhrase("ANIME", { status: "REPEATING", statusFrom: "COMPLETED" })).toEqual({
       lead: "Changed status to Rewatching for",
@@ -32,16 +32,15 @@ describe("Activity wording", () => {
 
   test("same-day status reversals remain visible with and without progress", () => {
     const snapshot = { status: "CURRENT", statusFrom: "CURRENT", statusChanged: true } as const;
-    expect(logPhrase("ANIME", snapshot)).toEqual({ lead: "Changed status to Watching for" });
-    expect(logPhrase("MANGA", snapshot)).toEqual({ lead: "Changed status to Reading for" });
+    expect(logPhrase("ANIME", snapshot)).toEqual({ lead: "Started watching" });
+    expect(logPhrase("MANGA", snapshot)).toEqual({ lead: "Started reading" });
     expect(logPhrase("ANIME", { ...snapshot, statusChanged: false })).toBeNull();
     expect(logPhrase("ANIME", { ...snapshot, progress: 13, progressFrom: 12 })).toEqual({
       lead: "Watched episodes 13–13 of",
-      tail: "· changed status to Watching",
     });
   });
 
-  test("completion includes both progress and status in one sentence", () => {
+  test("completion ignores episode progress", () => {
     expect(
       logPhrase("ANIME", {
         progress: 200,
@@ -50,9 +49,35 @@ describe("Activity wording", () => {
         statusFrom: "CURRENT",
       }),
     ).toEqual({
-      lead: "Watched episodes 200–200 of",
-      tail: "· changed status to Completed",
+      lead: "Completed",
     });
+  });
+
+  test("planning, dropped, and paused use status wording regardless of progress", () => {
+    for (const mediaType of ["ANIME", "MANGA"] as const) {
+      for (const progress of [undefined, 0, 5]) {
+        for (const status of ["PLANNING", "DROPPED", "PAUSED"] as const) {
+          expect(
+            logPhrase(mediaType, { status, statusFrom: "CURRENT", progress, progressFrom: 0 }),
+          ).toEqual(
+            status === "PLANNING"
+              ? { lead: "Added", tail: mediaType === "MANGA" ? "to read list" : "to watch list" }
+              : { lead: status === "DROPPED" ? "Dropped" : "Paused" },
+          );
+        }
+      }
+    }
+  });
+
+  test("watching without episode progress says started watching", () => {
+    expect(
+      logPhrase("ANIME", {
+        status: "CURRENT",
+        statusFrom: "PLANNING",
+        progress: 0,
+        progressFrom: 0,
+      }),
+    ).toEqual({ lead: "Started watching" });
   });
 
   test("unsupported snapshots and corrections have no generic fallback", () => {

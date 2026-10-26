@@ -76,6 +76,21 @@ export function logPhrase(
     status != null && statusFrom !== undefined && (statusChanged === true || status !== statusFrom);
   if (!increased && !changedStatus) return null;
 
+  switch (status) {
+    case "PLANNING":
+      return { lead: "Added", tail: mediaType === "MANGA" ? "to read list" : "to watch list" };
+    case "DROPPED":
+      return { lead: "Dropped" };
+    case "PAUSED":
+      return { lead: "Paused" };
+    case "COMPLETED":
+      return { lead: "Completed" };
+    case "CURRENT":
+      if (progress == null || progress === 0) {
+        return { lead: mediaType === "MANGA" ? "Started reading" : "Started watching" };
+      }
+  }
+
   const statusText = status ? statusLabel(mediaType, status) : "";
   if (!increased) return { lead: `Changed status to ${statusText} for` };
 
@@ -85,7 +100,7 @@ export function logPhrase(
     progressFrom == null ? `${progress} ${units}` : `${units} ${progressFrom + 1}–${progress}`;
   return {
     lead: `${verb} ${count} of`,
-    ...(changedStatus ? { tail: `· changed status to ${statusText}` } : {}),
+    ...(changedStatus && status !== "CURRENT" ? { tail: `· changed status to ${statusText}` } : {}),
   };
 }
 

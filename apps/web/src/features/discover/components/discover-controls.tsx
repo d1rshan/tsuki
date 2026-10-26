@@ -1,45 +1,22 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { BookOpen, Search, Tv, X } from "lucide-react";
+import { useState } from "react";
+import { BookOpen, Tv } from "lucide-react";
 import { useQueryState } from "nuqs";
 
 import type { MediaType } from "@tsuki/api/types";
 
 import { MEDIA, MEDIA_TYPES } from "@/features/media/labels";
 import { useMediaType } from "@/features/media/hooks/use-media-type";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-} from "@/shared/components/ui/input-group";
+import { SearchControl } from "@/shared/components/search-control";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
-import { useHotkey } from "@/shared/hooks/use-hotkey";
 
 export function DiscoverControls() {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
   const [mediaType, setMediaType] = useMediaType();
   const [query, setQuery] = useQueryState("q", { defaultValue: "" });
   const [isOpen, setIsOpen] = useState(false);
   const expanded = isOpen || Boolean(query);
   const searchLabel = `Search ${MEDIA[mediaType].label.toLowerCase()}`;
-
-  useHotkey("/", () => {
-    setIsOpen(true);
-    inputRef.current?.focus();
-  });
-
-  useEffect(() => {
-    if (expanded) inputRef.current?.focus({ preventScroll: true });
-  }, [expanded]);
-
-  function closeSearch() {
-    void setQuery(null);
-    setIsOpen(false);
-    triggerRef.current?.focus({ preventScroll: true });
-  }
 
   return (
     <div className="flex min-w-0 items-center justify-center gap-2 max-md:w-full md:justify-start md:gap-3">
@@ -57,61 +34,20 @@ export function DiscoverControls() {
           ))}
         </TabsList>
       </Tabs>
-      <InputGroup
-        data-search-expanded={expanded}
-        className="group/search order-1 w-10.5 shrink-0 overflow-hidden rounded-full has-[>[data-align=inline-start]]:[&>input]:pl-0 has-[[data-slot=input-group-control]:focus-visible]:ring-0 transition-[width] duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] max-md:h-10.5 max-md:data-[search-expanded=true]:w-[min(18rem,calc(100vw-7.25rem))] motion-reduce:transition-none md:order-1 md:data-[search-expanded=true]:w-56 lg:data-[search-expanded=true]:w-60"
+      <SearchControl
+        value={query}
+        onValueChange={(value) => void setQuery(value || null)}
+        expanded={expanded}
+        onExpandedChange={(open) => {
+          setIsOpen(open);
+          if (!open) void setQuery(null);
+        }}
         onBlur={(event) => {
           if (!event.currentTarget.contains(event.relatedTarget)) setIsOpen(false);
         }}
-        onKeyDown={(event) => {
-          if (event.key === "Escape") {
-            event.preventDefault();
-            closeSearch();
-          }
-        }}
-      >
-        <InputGroupAddon className="w-10.5 shrink-0 pl-0 has-[>button]:ml-0">
-          <InputGroupButton
-            ref={triggerRef}
-            size="icon-sm"
-            className="rounded-full"
-            aria-label={searchLabel}
-            aria-expanded={expanded}
-            aria-controls="discover-search"
-            onClick={() => {
-              setIsOpen(true);
-              inputRef.current?.focus();
-            }}
-          >
-            <Search aria-hidden="true" className="text-muted-foreground" />
-          </InputGroupButton>
-        </InputGroupAddon>
-        <InputGroupInput
-          id="discover-search"
-          ref={inputRef}
-          value={query}
-          inert={!expanded}
-          aria-hidden={!expanded}
-          onChange={(event) => void setQuery(event.target.value || null)}
-          placeholder={searchLabel}
-          aria-label={searchLabel}
-          className="h-full min-w-0 text-base opacity-0 transition-opacity duration-200 group-data-[search-expanded=true]/search:opacity-100 motion-reduce:transition-none"
-        />
-        <InputGroupAddon
-          align="inline-end"
-          className="hidden pr-1.25 group-data-[search-expanded=true]/search:flex"
-          inert={!expanded}
-        >
-          <InputGroupButton
-            size="icon-sm"
-            className="rounded-full"
-            aria-label="Close search"
-            onClick={closeSearch}
-          >
-            <X aria-hidden="true" />
-          </InputGroupButton>
-        </InputGroupAddon>
-      </InputGroup>
+        searchLabel={searchLabel}
+        className="order-1"
+      />
     </div>
   );
 }

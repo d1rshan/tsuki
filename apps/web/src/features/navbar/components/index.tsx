@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { authClient } from "@tsuki/auth/client";
 
 import { DiscoverControls } from "@/features/discover/components/discover-controls";
+import { PeopleSearchControls } from "@/features/social/components/people-search-controls";
 import { ThemeSelector } from "@/shared/components/theme-selector";
 import { SoftBlurEdge } from "@/shared/components/soft-blur-edge";
 
@@ -38,6 +39,11 @@ export function Navbar() {
             {pathname === "/" && (
               <div className="max-md:fixed max-md:bottom-4 max-md:left-1/2 max-md:flex max-md:w-[calc(100vw-2rem)] max-md:-translate-x-1/2 max-md:justify-center">
                 <DiscoverControls />
+              </div>
+            )}
+            {pathname === "/social" && (
+              <div className="max-md:fixed max-md:bottom-4 max-md:left-1/2 max-md:flex max-md:w-[calc(100vw-2rem)] max-md:-translate-x-1/2 max-md:justify-center">
+                <PeopleSearchControls />
               </div>
             )}
             <ThemeSelector />
