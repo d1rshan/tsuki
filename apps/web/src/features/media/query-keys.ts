@@ -1,6 +1,8 @@
 import type { MediaType } from "@tsuki/api/types";
 
 export const mediaKeys = {
+  detail: (mediaType: MediaType, mediaId: number) =>
+    ["media", "detail", mediaType, mediaId] as const,
   activity: (mediaType: MediaType, mediaId: number) =>
     ["media", "activity", mediaType, mediaId] as const,
   search: (mediaType: MediaType, query: string) => ["media", "search", mediaType, query] as const,

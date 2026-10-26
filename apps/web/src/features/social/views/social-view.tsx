@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-import Link from "next/link";
 import { Search, UserX } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
@@ -114,15 +113,6 @@ function Discover() {
 }
 
 export function SocialView({ isAuthenticated }: { isAuthenticated: boolean }) {
-  const signInTeaser = (
-    <p className="text-sm text-muted-foreground">
-      <Link href="/login" className="font-semibold text-primary hover:underline">
-        Sign in
-      </Link>{" "}
-      to see Activity from people you follow.
-    </p>
-  );
-
   const findPeopleSheet = (
     <Sheet>
       <SheetTrigger
@@ -149,12 +139,6 @@ export function SocialView({ isAuthenticated }: { isAuthenticated: boolean }) {
     </Sheet>
   );
 
-  // CSS-toggled, not JS-toggled: useIsMobile's server snapshot is always false,
-  // so a JS branch would flash the desktop layout on every mobile reload.
-  const mobileTeaser = !isAuthenticated && (
-    <div className="mb-4 @min-[48rem]:hidden">{signInTeaser}</div>
-  );
-
   return (
     <div className="grid gap-6 pt-28 pb-24 @min-[48rem]:grid-cols-[minmax(0,1fr)_minmax(0,18rem)] @min-[64rem]:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] @min-[64rem]:gap-8 md:pt-32 md:pb-16">
       <section aria-label="Activity" className="min-w-0">
@@ -177,13 +161,11 @@ export function SocialView({ isAuthenticated }: { isAuthenticated: boolean }) {
         ) : (
           <>
             <h2 className="mb-4 text-lg font-semibold">Recent Activity</h2>
-            {mobileTeaser}
             <Feed type="public" />
           </>
         )}
       </section>
       <aside className="hidden min-w-0 flex-col gap-6 border-t pt-6 @min-[48rem]:flex @min-[48rem]:border-t-0 @min-[48rem]:border-l @min-[48rem]:pt-0 @min-[48rem]:pl-6 @min-[64rem]:gap-8 @min-[64rem]:pl-8">
-        {!isAuthenticated && signInTeaser}
         <section aria-label="Discover people">
           <h2 className="mb-4 text-lg font-semibold">Find People</h2>
           <Discover />

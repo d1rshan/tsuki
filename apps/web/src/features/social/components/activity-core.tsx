@@ -7,9 +7,9 @@ import type { ReactNode } from "react";
 
 import type { Activity } from "@tsuki/api/types";
 
+import { MediaLink } from "@/features/media/components/media-link";
 import {
   logPhrase,
-  mediaHref,
   mediaImageClass,
   normalizeMediaCompact,
   reviewHref,
@@ -43,8 +43,8 @@ function ActivityCover({
   }
 
   return (
-    <Link
-      href={mediaHref(media.type, media.id)}
+    <MediaLink
+      media={media}
       className={cn(
         "relative block aspect-3/4 shrink-0 self-start overflow-hidden rounded-lg bg-muted ring-1 ring-border/50",
         className,
@@ -63,7 +63,7 @@ function ActivityCover({
           No Image
         </div>
       )}
-    </Link>
+    </MediaLink>
   );
 }
 
@@ -94,9 +94,7 @@ export function ActivityCardCore({
   const titleHref =
     activity.type === "REVIEW" && mediaType && activity.mediaId != null
       ? reviewHref(activity.actor.username, mediaType, activity.mediaId)
-      : media
-        ? mediaHref(media.type, media.id)
-        : null;
+      : null;
 
   return (
     <div className="flex min-w-0 flex-1 gap-3">
@@ -118,6 +116,10 @@ export function ActivityCardCore({
             <Link href={titleHref} className="font-medium text-inherit hover:text-primary">
               {media?.title ?? "Unknown Title"}
             </Link>
+          ) : media ? (
+            <MediaLink media={media} className="font-medium text-inherit hover:text-primary">
+              {media.title}
+            </MediaLink>
           ) : (
             <span className="font-medium">Unknown Title</span>
           )}

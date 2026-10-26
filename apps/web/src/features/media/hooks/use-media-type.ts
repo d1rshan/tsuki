@@ -6,6 +6,7 @@ import { parseAsStringEnum, useQueryState } from "nuqs";
 import type { MediaType } from "@tsuki/api/types";
 
 import { MEDIA_TYPES } from "../media";
+import { useMediaBackgroundSearch } from "./use-media-background-search";
 
 const STORAGE_KEY = "discover-media-type";
 const CHANGE_EVENT = "tsuki:media-type-change";
@@ -42,12 +43,15 @@ function storeMediaType(value: MediaType) {
 }
 
 export function useMediaType() {
+  const backgroundSearch = useMediaBackgroundSearch();
   const storedMediaType = useSyncExternalStore(subscribe, getStoredMediaType, getDefaultMediaType);
   const [mediaTypeParam, setMediaTypeParam] = useQueryState(
     "type",
     parseAsStringEnum<MediaType>([...MEDIA_TYPES]),
   );
-  const mediaType = mediaTypeParam ?? storedMediaType;
+  const type =
+    backgroundSearch === null ? mediaTypeParam : new URLSearchParams(backgroundSearch).get("type");
+  const mediaType = type === "ANIME" || type === "MANGA" ? type : storedMediaType;
 
   useEffect(() => {
     if (mediaTypeParam) storeMediaType(mediaTypeParam);

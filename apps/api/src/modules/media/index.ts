@@ -4,7 +4,7 @@ import { mediaDal } from "@tsuki/db";
 
 import { ErrorModel } from "../../plugins/errors";
 import { ensureMedia } from "./service";
-import { MediaCompactModel, MediaModel, MediaTypeEnum } from "./model";
+import { MediaModel, MediaTypeEnum } from "./model";
 
 const TRENDING_LIMIT = 70;
 const SEARCH_LIMIT_DEFAULT = 24;
@@ -33,7 +33,7 @@ export const mediaRoutes = new Elysia({ prefix: "/media", tags: ["Media"] })
         limit: t.Optional(t.Integer({ minimum: 1, maximum: SEARCH_LIMIT_MAX })),
         nsfw: t.Optional(t.Boolean()),
       }),
-      response: { 200: t.Array(MediaCompactModel) },
+      response: { 200: t.Array(MediaModel) },
       detail: {
         summary: "Search media",
         description:
@@ -48,7 +48,7 @@ export const mediaRoutes = new Elysia({ prefix: "/media", tags: ["Media"] })
     },
     {
       params: t.Object({ type: MediaTypeEnum }),
-      response: { 200: t.Array(MediaCompactModel) },
+      response: { 200: t.Array(MediaModel) },
       detail: {
         summary: "Get trending media",
         description: "Top non-NSFW titles ranked by popularity in our own catalogue (ADR 0004).",

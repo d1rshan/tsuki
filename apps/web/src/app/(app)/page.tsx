@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { getDiscoverMediaTrending } from "@/features/discover/data";
+import { getDiscoverTrendingDetails } from "@/features/discover/data";
 import { DiscoverView } from "@/features/discover/views/discover-view";
 import { ContentState } from "@/shared/components/content-state";
 
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  const trending = await getDiscoverMediaTrending();
+  const trending = await getDiscoverTrendingDetails();
 
   if (!trending) {
     return (

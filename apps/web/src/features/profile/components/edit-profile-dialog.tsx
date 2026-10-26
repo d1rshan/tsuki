@@ -93,10 +93,11 @@ export function EditProfileDialog({
           <Button
             variant="outline"
             size="lg"
-            className="rounded-full border-border/50 px-5 transition-colors hover:border-primary/50 hover:bg-primary/10 hover:text-primary"
+            aria-label="Edit profile"
+            className="rounded-lg border-0 bg-card px-4 text-muted-foreground hover:bg-card hover:text-foreground"
           >
             <Edit2 data-icon="inline-start" />
-            Edit Profile
+            <span className="hidden @min-[40rem]:inline">Edit Profile</span>
           </Button>
         }
       />
