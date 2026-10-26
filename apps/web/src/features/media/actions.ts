@@ -45,6 +45,15 @@ export async function logMediaAction(mediaType: MediaType, mediaId: number, data
   );
 }
 
+export async function removeMediaAction(mediaType: MediaType, mediaId: number) {
+  const type = mediaTypeSchema.parse(mediaType);
+  const id = mediaIdSchema.parse(mediaId);
+
+  await mediaAction("removeMediaAction", "library", (api) =>
+    api.me.library({ type })({ id }).delete(),
+  );
+}
+
 export async function submitReviewAction(
   mediaType: MediaType,
   mediaId: number,

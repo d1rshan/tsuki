@@ -3,7 +3,7 @@
 import { useId } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "@tanstack/react-form";
-import { Check, LoaderCircle, Plus, Star } from "lucide-react";
+import { Check, LoaderCircle, NotebookPen, Plus, Star } from "lucide-react";
 
 import type { ListStatus, MediaType } from "@tsuki/api/types";
 
@@ -57,11 +57,13 @@ export function LogMediaDialog({
   mediaId,
   mediaType,
   total,
+  compact = false,
 }: {
   activity: MediaActivity;
   mediaId: number;
   mediaType: MediaType;
   total?: number | null;
+  compact?: boolean;
 }) {
   const router = useRouter();
   const formId = useId();
@@ -100,11 +102,28 @@ export function LogMediaDialog({
   return (
     <Dialog open={dialog.isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger
-        render={<Button disabled={activity.isPending} className="flex-1" />}
-        aria-label={hasActivity ? `Edit ${config.label.toLowerCase()} log` : undefined}
+        render={
+          <Button
+            disabled={activity.isPending}
+            className="flex-1"
+            size={compact ? "sm" : "default"}
+            variant={compact ? "secondary" : "default"}
+          />
+        }
+        aria-label={
+          hasActivity
+            ? `Edit ${config.label.toLowerCase()} log`
+            : `Log ${config.label.toLowerCase()}`
+        }
       >
-        {hasActivity ? <Check data-icon="inline-start" /> : <Plus data-icon="inline-start" />}
-        {hasActivity ? "Edit log" : "Add to list"}
+        {compact ? (
+          <NotebookPen data-icon="inline-start" />
+        ) : hasActivity ? (
+          <Check data-icon="inline-start" />
+        ) : (
+          <Plus data-icon="inline-start" />
+        )}
+        {hasActivity ? "Edit log" : compact ? "Log" : "Add to list"}
       </DialogTrigger>
 
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
