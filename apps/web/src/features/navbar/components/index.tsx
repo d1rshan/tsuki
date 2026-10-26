@@ -35,11 +35,21 @@ export function Navbar() {
               <NavbarLinks pathname={pathname} user={user} />
             </div>
           </div>
+          {pathname === "/" && (
+            <div className="pointer-events-auto absolute left-1/2 top-0 hidden -translate-x-1/2 items-center md:flex">
+              <DiscoverControls mode="switcher" />
+            </div>
+          )}
           <div className="pointer-events-auto ml-auto flex shrink-0 items-center gap-2 md:gap-3">
             {pathname === "/" && (
-              <div className="max-md:fixed max-md:bottom-4 max-md:left-1/2 max-md:flex max-md:w-[calc(100vw-2rem)] max-md:-translate-x-1/2 max-md:justify-center">
-                <DiscoverControls />
-              </div>
+              <>
+                <div className="max-md:fixed max-md:bottom-4 max-md:left-1/2 max-md:flex max-md:w-[calc(100vw-2rem)] max-md:-translate-x-1/2 max-md:justify-center md:hidden">
+                  <DiscoverControls />
+                </div>
+                <div className="hidden md:flex">
+                  <DiscoverControls mode="search" />
+                </div>
+              </>
             )}
             {pathname === "/social" && (
               <div className="max-md:fixed max-md:bottom-4 max-md:left-1/2 max-md:flex max-md:w-[calc(100vw-2rem)] max-md:-translate-x-1/2 max-md:justify-center">

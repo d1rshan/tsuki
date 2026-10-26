@@ -16,9 +16,7 @@ export function DiscoverSection({
     <section className={cn("flex flex-col gap-4 md:gap-5", className)} {...props}>
       {title || actions ? (
         <header className="flex flex-wrap items-center justify-between gap-3">
-          {title ? (
-            <h2 className="text-xl font-medium tracking-tight text-muted-foreground">{title}</h2>
-          ) : null}
+          {title ? <h2 className="text-lg font-medium text-foreground">{title}</h2> : null}
           {actions}
         </header>
       ) : null}

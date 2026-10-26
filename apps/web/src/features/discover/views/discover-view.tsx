@@ -10,7 +10,6 @@ import { useMediaBackgroundSearch } from "@/features/media/hooks/use-media-backg
 import { Button } from "@/shared/components/ui/button";
 
 import { DiscoverSearchResults } from "../components/discover-search-results";
-import { DiscoverCurrentMedia } from "../components/discover-current-media";
 import { DiscoverMediaTrending } from "../components/discover-media-trending";
 
 export function DiscoverView({ trending }: { trending: Record<MediaType, Media[]> }) {
@@ -37,7 +36,6 @@ export function DiscoverView({ trending }: { trending: Record<MediaType, Media[]
               </Button>
             </div>
           )}
-          <DiscoverCurrentMedia />
           <DiscoverMediaTrending trending={trending} />
         </>
       )}

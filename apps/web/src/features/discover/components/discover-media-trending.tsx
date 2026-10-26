@@ -10,7 +10,7 @@ export function DiscoverMediaTrending({ trending }: { trending: Record<MediaType
   const items = trending[mediaType];
 
   return (
-    <DiscoverSection title="Trending">
+    <DiscoverSection>
       <MediaGrid items={items} />
     </DiscoverSection>
   );
