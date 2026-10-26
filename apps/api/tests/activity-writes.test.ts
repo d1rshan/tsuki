@@ -81,6 +81,7 @@ describe("library saves and Activity", () => {
             progress: 200,
             statusFrom: "CURRENT",
             status: "COMPLETED",
+            statusChanged: true,
           },
         }),
       );
@@ -102,7 +103,9 @@ describe("library saves and Activity", () => {
       isFavorite: true,
     });
     expect(mocks.upsertActivity).toHaveBeenCalledWith(
-      expect.objectContaining({ snapshot: { statusFrom: "CURRENT", status: "COMPLETED" } }),
+      expect.objectContaining({
+        snapshot: { statusFrom: "CURRENT", status: "COMPLETED", statusChanged: true },
+      }),
     );
   });
 
@@ -133,6 +136,37 @@ describe("library saves and Activity", () => {
     },
   );
 
+  test("same-day status reversals survive serialization and later progress saves", async () => {
+    libraryState(12);
+    let today: { snapshot: unknown } | undefined;
+    mocks.getLog.mockImplementation(async () => today);
+    mocks.upsertActivity.mockImplementation(async (row) => {
+      today = row;
+    });
+
+    await logMedia("actor", "ANIME", 42, { status: "PAUSED" });
+    await logMedia("actor", "ANIME", 42, { status: "CURRENT" });
+    expect(today?.snapshot).toEqual({
+      status: "CURRENT",
+      statusFrom: "CURRENT",
+      statusChanged: true,
+    });
+    expect(toWire([today] as never)[0]?.snapshot).toEqual(today?.snapshot);
+
+    await logMedia("actor", "ANIME", 42, { status: "CURRENT" });
+    await logMedia("actor", "ANIME", 42, { score: 8 });
+    expect(mocks.upsertActivity).toHaveBeenCalledTimes(2);
+
+    await logMedia("actor", "ANIME", 42, { progress: 13 });
+    expect(today?.snapshot).toEqual({
+      status: "CURRENT",
+      statusFrom: "CURRENT",
+      statusChanged: true,
+      progressFrom: 12,
+      progress: 13,
+    });
+  });
+
   test("same-day accumulation, correction reset and new-day baseline use entry state", async () => {
     libraryState(12);
     let today: { snapshot: unknown; sourceId: string } | undefined;
@@ -149,6 +183,7 @@ describe("library saves and Activity", () => {
       progress: 15,
       statusFrom: "CURRENT",
       status: "PAUSED",
+      statusChanged: true,
     });
     const writes = mocks.upsertActivity.mock.calls.length;
     await logMedia("actor", "ANIME", 42, { progress: 5 });
@@ -159,6 +194,7 @@ describe("library saves and Activity", () => {
       progress: 8,
       statusFrom: "CURRENT",
       status: "PAUSED",
+      statusChanged: true,
     });
     vi.setSystemTime(new Date("2026-10-24T12:00:00Z"));
     await logMedia("actor", "ANIME", 42, { progress: 10 });

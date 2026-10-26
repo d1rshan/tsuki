@@ -45,6 +45,8 @@ export const progress = pgTable(
 export type ActivitySnapshot = {
   status?: (typeof listStatusEnum.enumValues)[number] | null;
   statusFrom?: (typeof listStatusEnum.enumValues)[number] | null;
+  /** A real same-day transition occurred, even if status returns to statusFrom. */
+  statusChanged?: boolean;
   progress?: number;
   /** null explicitly records an increase without a pre-existing entry baseline. */
   progressFrom?: number | null;

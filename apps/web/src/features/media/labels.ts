@@ -67,12 +67,13 @@ export function logPhrase(
   mediaType: MediaType,
   snapshot: ActivityPhraseInput,
 ): { lead: string; tail?: string } | null {
-  const { status, statusFrom, progress, progressFrom } = snapshot;
+  const { status, statusFrom, statusChanged, progress, progressFrom } = snapshot;
   const increased =
     progress != null &&
     progress > 0 &&
     (progressFrom === null || (progressFrom !== undefined && progress > progressFrom));
-  const changedStatus = status != null && statusFrom !== undefined && status !== statusFrom;
+  const changedStatus =
+    status != null && statusFrom !== undefined && (statusChanged === true || status !== statusFrom);
   if (!increased && !changedStatus) return null;
 
   const statusText = status ? statusLabel(mediaType, status) : "";

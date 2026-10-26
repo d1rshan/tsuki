@@ -12,11 +12,13 @@ await sql.transaction([
       AND snapshot->'progress' > '0'::jsonb)
     OR (snapshot ? 'statusFrom'
       AND snapshot->>'status' IN ('CURRENT', 'PLANNING', 'COMPLETED', 'DROPPED', 'PAUSED', 'REPEATING')
-      AND snapshot->>'status' IS DISTINCT FROM snapshot->>'statusFrom')
+      AND (snapshot->>'status' IS DISTINCT FROM snapshot->>'statusFrom'
+        OR snapshot->'statusChanged' = 'true'::jsonb))
   ) IS NOT TRUE`),
   sql.query(`UPDATE activity SET snapshot =
     (CASE WHEN snapshot ? 'status' THEN jsonb_build_object('status', snapshot->'status') ELSE '{}'::jsonb END)
     || (CASE WHEN snapshot ? 'statusFrom' THEN jsonb_build_object('statusFrom', snapshot->'statusFrom') ELSE '{}'::jsonb END)
+    || (CASE WHEN snapshot->'statusChanged' = 'true'::jsonb THEN jsonb_build_object('statusChanged', true) ELSE '{}'::jsonb END)
     || (CASE WHEN snapshot ? 'progressFrom' THEN
       jsonb_build_object('progress', snapshot->'progress', 'progressFrom', snapshot->'progressFrom')
       ELSE '{}'::jsonb END)

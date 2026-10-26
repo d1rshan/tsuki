@@ -5,6 +5,8 @@ two event kinds. A **Log** is keyed per media per UTC day
 (`sourceId = mediaId:date`). Only episode/chapter increases or effective status
 changes qualify; other saves do not replace or retimestamp the card. Qualifying
 same-day saves preserve opening values and update endpoints and occurrence time.
+Snapshots retain a `statusChanged` marker when a real transition occurs, so a
+same-day reversal back to the opening status remains visible.
 The pre-save library entry supplies eligibility and progress baselines; a
 correction resets the baseline for the next increase.
 

@@ -122,7 +122,8 @@ async function getActivity(
               and (${activity.snapshot}->'progress') > '0'::jsonb)
             or (${activity.snapshot} ? 'statusFrom'
               and ${activity.snapshot}->>'status' in ('CURRENT', 'PLANNING', 'COMPLETED', 'DROPPED', 'PAUSED', 'REPEATING')
-              and ${activity.snapshot}->>'status' is distinct from ${activity.snapshot}->>'statusFrom')
+              and (${activity.snapshot}->>'status' is distinct from ${activity.snapshot}->>'statusFrom'
+                or ${activity.snapshot}->'statusChanged' = 'true'::jsonb))
           ))
         )`,
         cursor

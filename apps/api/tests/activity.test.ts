@@ -54,6 +54,7 @@ describe("meaningful Log changes", () => {
     expect(logSnapshot({ ...before, progress: 15 }, undefined)).toEqual({
       status: "CURRENT",
       statusFrom: null,
+      statusChanged: true,
       progressFrom: null,
       progress: 15,
     });
@@ -82,10 +83,12 @@ describe("meaningful Log changes", () => {
   test("status-only changes and explicit creation have before/after statuses", () => {
     expect(logSnapshot({ ...before, status: "PAUSED" }, before)).toEqual({
       statusFrom: "CURRENT",
+      statusChanged: true,
       status: "PAUSED",
     });
     expect(logSnapshot({ status: "PLANNING", progress: 0 }, undefined)).toEqual({
       statusFrom: null,
+      statusChanged: true,
       status: "PLANNING",
     });
   });
@@ -100,6 +103,7 @@ describe("meaningful Log changes", () => {
     expect(second).toEqual({
       status: "PAUSED",
       statusFrom: "CURRENT",
+      statusChanged: true,
       progressFrom: 12,
       progress: 15,
     });
@@ -109,11 +113,23 @@ describe("meaningful Log changes", () => {
         { status: "PAUSED", progress: 15 },
         second,
       ),
-    ).toEqual({ status: "COMPLETED", statusFrom: "CURRENT", progressFrom: 12, progress: 20 });
+    ).toEqual({
+      status: "COMPLETED",
+      statusFrom: "CURRENT",
+      statusChanged: true,
+      progressFrom: 12,
+      progress: 20,
+    });
     const statusFirst = logSnapshot({ ...before, status: "PAUSED" }, before)!;
     expect(
       logSnapshot({ status: "PAUSED", progress: 15 }, { ...before, status: "PAUSED" }, statusFirst),
-    ).toEqual({ status: "PAUSED", statusFrom: "CURRENT", progressFrom: 12, progress: 15 });
+    ).toEqual({
+      status: "PAUSED",
+      statusFrom: "CURRENT",
+      statusChanged: true,
+      progressFrom: 12,
+      progress: 15,
+    });
   });
 
   test("increase after correction starts from the corrected entry, not old Activity", () => {

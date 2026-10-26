@@ -23,7 +23,7 @@ export function toWire(
   rows: Awaited<ReturnType<typeof activityDal.getPublicActivity>>["activities"],
 ) {
   return rows.map((activity) => {
-    const { status, statusFrom, progress, progressFrom } = activity.snapshot;
+    const { status, statusFrom, statusChanged, progress, progressFrom } = activity.snapshot;
     return {
       ...activity,
       snapshot:
@@ -32,6 +32,7 @@ export function toWire(
           : {
               ...(status !== undefined ? { status } : {}),
               ...(statusFrom !== undefined ? { statusFrom } : {}),
+              ...(statusChanged === true ? { statusChanged } : {}),
               ...(progress !== undefined ? { progress } : {}),
               ...(progressFrom !== undefined ? { progressFrom } : {}),
             },

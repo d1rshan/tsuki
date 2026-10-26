@@ -77,6 +77,8 @@ all qualifying dimensions for that day:
   earned. An increase after a decrease is measured from the decreased value.
 - If status changes more than once on the same day, show the final status and
   the status at the start of that day's first status change.
+  Preserve a `statusChanged` marker so returning to that opening status still
+  describes a real change, rather than becoming indistinguishable from a no-op.
 
 The entry's state before the save is authoritative for eligibility and
 baselines. Do not infer eligibility only from a prior Activity snapshot: a

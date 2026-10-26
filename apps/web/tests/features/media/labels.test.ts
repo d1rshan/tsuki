@@ -30,6 +30,17 @@ describe("Activity wording", () => {
     });
   });
 
+  test("same-day status reversals remain visible with and without progress", () => {
+    const snapshot = { status: "CURRENT", statusFrom: "CURRENT", statusChanged: true } as const;
+    expect(logPhrase("ANIME", snapshot)).toEqual({ lead: "Changed status to Watching for" });
+    expect(logPhrase("MANGA", snapshot)).toEqual({ lead: "Changed status to Reading for" });
+    expect(logPhrase("ANIME", { ...snapshot, statusChanged: false })).toBeNull();
+    expect(logPhrase("ANIME", { ...snapshot, progress: 13, progressFrom: 12 })).toEqual({
+      lead: "Watched episodes 13–13 of",
+      tail: "· changed status to Watching",
+    });
+  });
+
   test("completion includes both progress and status in one sentence", () => {
     expect(
       logPhrase("ANIME", {

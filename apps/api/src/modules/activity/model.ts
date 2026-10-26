@@ -13,6 +13,7 @@ const ActivitySnapshotModel = t.Object(
   {
     status: t.Optional(t.Nullable(ListStatusEnum)),
     statusFrom: t.Optional(t.Nullable(ListStatusEnum)),
+    statusChanged: t.Optional(t.Boolean()),
     progress: t.Optional(t.Number()),
     progressFrom: t.Optional(t.Nullable(t.Number())),
   },

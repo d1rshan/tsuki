@@ -34,6 +34,7 @@ export function logSnapshot(
   const snapshot: ActivitySnapshot = { status: entry.status };
   // Allowlist even when today's row predates the cleanup.
   if (today?.statusFrom !== undefined) snapshot.statusFrom = today.statusFrom;
+  if (changedStatus || today?.statusChanged === true) snapshot.statusChanged = true;
   if (
     today?.progress != null &&
     today.progressFrom !== undefined &&
