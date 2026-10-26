@@ -13,35 +13,21 @@ import {
   ReviewFeedQueryModel,
   ReviewFeedPageModel,
 } from "./model";
-import { removeReview, submitReview } from "./service";
+import { getReviewFeed, removeReview, submitReview } from "./service";
 
 export const reviewRoutes = new Elysia({ tags: ["Reviews"] })
   .use(authPlugin)
-  .get(
-    "/reviews",
-    ({ query }) =>
-      reviewsDal.getRecentReviews({ limit: query.limit ?? 5, offset: query.offset ?? 0 }),
-    {
-      query: ReviewFeedQueryModel,
-      response: { 200: ReviewFeedPageModel },
-      detail: { summary: "Get recent full reviews from public Profiles" },
-    },
-  )
-  .get(
-    "/me/reviews",
-    ({ query, user }) =>
-      reviewsDal.getRecentReviews({
-        viewerId: user.id,
-        limit: query.limit ?? 5,
-        offset: query.offset ?? 0,
-      }),
-    {
-      auth: true,
-      query: ReviewFeedQueryModel,
-      response: { 200: ReviewFeedPageModel },
-      detail: { summary: "Get recent full reviews from accounts the viewer follows" },
-    },
-  )
+  .get("/reviews", ({ query }) => getReviewFeed(query), {
+    query: ReviewFeedQueryModel,
+    response: { 200: ReviewFeedPageModel },
+    detail: { summary: "Get recent full reviews from public Profiles" },
+  })
+  .get("/me/reviews", ({ query, user }) => getReviewFeed(query, user.id), {
+    auth: true,
+    query: ReviewFeedQueryModel,
+    response: { 200: ReviewFeedPageModel },
+    detail: { summary: "Get recent full reviews from accounts the viewer follows" },
+  })
   .get(
     "/users/:username/reviews",
     async ({ params: { username }, query, viewer }) => {

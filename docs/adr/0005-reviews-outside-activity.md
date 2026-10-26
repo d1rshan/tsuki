@@ -13,4 +13,4 @@ Recent reviews on Social are read directly from the reviews table with full Rich
 Content and author information. Public lists include only public Profiles;
 Following lists include accounts the viewer currently follows. Reviews are ordered
 by original publication time and have independent pagination. The Public/Following
-control selects the audience for both Activity and recent reviews.
+control selects the audience for Activity only. Recent reviews stays public.

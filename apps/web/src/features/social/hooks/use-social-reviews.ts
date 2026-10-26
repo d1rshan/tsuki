@@ -9,7 +9,7 @@ export function useSocialReviews(type: SocialFeedType) {
   return useInfiniteQuery({
     queryKey: socialKeys.reviews(type),
     queryFn: ({ pageParam }) => getSocialReviews(type, pageParam),
-    initialPageParam: 0,
-    getNextPageParam: (page) => page.nextOffset,
+    initialPageParam: null as string | null,
+    getNextPageParam: (page) => page.nextCursor,
   });
 }

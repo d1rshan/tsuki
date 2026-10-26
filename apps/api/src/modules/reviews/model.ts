@@ -38,12 +38,12 @@ export const ReviewFeedItemModel = t.Composite([
 
 export const ReviewFeedQueryModel = t.Object({
   limit: t.Optional(t.Numeric({ minimum: 1, maximum: 20, multipleOf: 1 })),
-  offset: t.Optional(t.Numeric({ minimum: 0, multipleOf: 1 })),
+  cursor: t.Optional(t.String()),
 });
 
 export const ReviewFeedPageModel = t.Object({
   reviews: t.Array(ReviewFeedItemModel),
-  nextOffset: t.Nullable(t.Number()),
+  nextCursor: t.Nullable(t.String()),
 });
 
 export type ReviewFeedItem = typeof ReviewFeedItemModel.static;

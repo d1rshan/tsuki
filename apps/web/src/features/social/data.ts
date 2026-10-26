@@ -22,8 +22,8 @@ export async function getSocialDiscovery(username: string) {
   return data.users;
 }
 
-export async function getSocialReviews(type: SocialFeedType, offset = 0) {
-  const query = { offset };
+export async function getSocialReviews(type: SocialFeedType, cursor?: string | null) {
+  const query = cursor ? { cursor } : {};
   const { data, error } =
     type === "public"
       ? await apiClient.reviews.get({ query })

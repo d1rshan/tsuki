@@ -7,6 +7,28 @@ import { ensureMedia } from "../media/service";
 import type { MediaType } from "../media/model";
 import type { ReviewInputModel } from "./model";
 
+type ReviewCursor = { createdAt: Date; id: string };
+
+/** Invalid cursors restart at the newest review, matching Activity pagination. */
+export function parseReviewCursor(raw?: string | null): ReviewCursor | undefined {
+  const [createdAt, id] = raw?.split("|") ?? [];
+  if (!createdAt || !id || Number.isNaN(Date.parse(createdAt))) return undefined;
+  return { createdAt: new Date(createdAt), id };
+}
+
+export function encodeReviewCursor(cursor: ReviewCursor | null): string | null {
+  return cursor ? `${cursor.createdAt.toISOString()}|${cursor.id}` : null;
+}
+
+export async function getReviewFeed(query: { cursor?: string; limit?: number }, viewerId?: string) {
+  const page = await reviewsDal.getRecentReviews({
+    viewerId,
+    cursor: parseReviewCursor(query.cursor),
+    limit: query.limit ?? 5,
+  });
+  return { reviews: page.reviews, nextCursor: encodeReviewCursor(page.nextCursor) };
+}
+
 /** Submit a review: creates or replaces its full Rich Content document. */
 export async function submitReview(
   userId: string,
