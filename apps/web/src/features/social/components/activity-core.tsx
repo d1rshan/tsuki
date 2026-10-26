@@ -1,15 +1,20 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { format, formatDistanceToNow } from "date-fns";
 import type { ReactNode } from "react";
 
 import type { Activity } from "@tsuki/api/types";
 
 import { MediaLink } from "@/features/media/components/media-link";
-import { logPhrase, mediaImageClass, normalizeMediaCompact } from "@/features/media/media";
+import {
+  logPhrase,
+  mediaImageClass,
+  normalizeMediaCompact,
+  reviewHref,
+} from "@/features/media/media";
 import type { NormalizedMediaCompact } from "@/features/media/normalize";
-import { SpoilerLayer } from "@/features/rich-content/components/spoiler-layer";
 import { cn } from "@/shared/lib/utils";
 
 /**
@@ -62,31 +67,19 @@ function ActivityCover({
   );
 }
 
-/**
- * The layout two purpose-built Activity cards share: cover on the left; the
- * actor slot (social), the phrase sentence — lead + title link + tail — and
- * optional extra content (a Review's rendered text) on the right, with the
- * relative timestamp (full date on hover) pinned top-right. `mode` is only
- * the voice: social cards speak "watched …", profile cards speak verb-first
- * ("Watched …").
- */
+/** Shared cover, event sentence, review destination, and relative time. */
 export function ActivityCardCore({
   activity,
-  mode,
   coverClassName,
   coverSizes,
   actor,
-  review,
   footer,
 }: {
   activity: Activity;
-  mode: "social" | "profile";
   coverClassName: string;
   coverSizes: string;
   /** Rendered above the lead; links to the actor's Profile. */
   actor?: ReactNode;
-  /** Rendered beneath the statement; the profile passes nothing. */
-  review?: ReactNode;
   /** Rendered at the bottom of the content column. */
   footer?: ReactNode;
 }) {
@@ -95,8 +88,13 @@ export function ActivityCardCore({
   // speaks from the snapshot, using the activity's own media type.
   const mediaType = media?.type ?? activity.mediaType;
   const phrase =
-    mediaType && activity.type === "LOG" ? logPhrase(mediaType, activity.snapshot, mode) : null;
-  const lead = activity.type === "REVIEW" ? "Reviewed" : (phrase?.lead ?? "Updated");
+    mediaType && activity.type === "LOG" ? logPhrase(mediaType, activity.snapshot) : null;
+  if (activity.type === "LOG" && !phrase) return null;
+  const lead = activity.type === "REVIEW" ? "Reviewed" : phrase!.lead;
+  const titleHref =
+    activity.type === "REVIEW" && mediaType && activity.mediaId != null
+      ? reviewHref(activity.actor.username, mediaType, activity.mediaId)
+      : null;
 
   return (
     <div className="flex min-w-0 flex-1 gap-3">
@@ -114,7 +112,11 @@ export function ActivityCardCore({
         </div>
         <p className="text-sm leading-snug text-muted-foreground">
           {lead}{" "}
-          {media ? (
+          {titleHref ? (
+            <Link href={titleHref} className="font-medium text-inherit hover:text-primary">
+              {media?.title ?? "Unknown Title"}
+            </Link>
+          ) : media ? (
             <MediaLink media={media} className="font-medium text-inherit hover:text-primary">
               {media.title}
             </MediaLink>
@@ -123,32 +125,8 @@ export function ActivityCardCore({
           )}
           {phrase?.tail ? ` ${phrase.tail}` : null}
         </p>
-        {/* ponytail: metadata row (score star, volumes, progress) hidden for
-            now per design call — restore when the details row earns its place
-        {phrase && (phrase.details || phrase.score != null) ? (
-          <p className="flex flex-wrap items-center gap-x-2 text-sm">
-            {phrase.details}
-            {phrase.score != null ? (
-              <span className="inline-flex items-center gap-1 font-medium text-foreground">
-                <Star className="size-4 fill-primary text-primary" aria-hidden />
-                {phrase.score}/10
-              </span>
-            ) : null}
-          </p>
-        ) : null}
-        */}
-        {review}
         {footer}
       </div>
-    </div>
-  );
-}
-
-/** The rendered review content a feed card shows inline, in a card inset. */
-export function ActivityReviewContent({ html }: { html: string }) {
-  return (
-    <div className="mt-3 rounded-lg border border-border/50 bg-muted/20 p-3 text-sm text-foreground">
-      <SpoilerLayer html={html} className="text-foreground/90" />
     </div>
   );
 }

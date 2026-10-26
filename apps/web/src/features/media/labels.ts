@@ -62,96 +62,39 @@ export function statusLabel(mediaType: MediaType, status: ListStatus): string {
 /** The Log fields a phrase can speak about — the wire snapshot itself. */
 export type ActivityPhraseInput = Activity["snapshot"];
 
-function ordinal(n: number) {
-  const rem10 = n % 10;
-  const rem100 = n % 100;
-  if (rem10 === 1 && rem100 !== 11) return `${n}st`;
-  if (rem10 === 2 && rem100 !== 12) return `${n}nd`;
-  if (rem10 === 3 && rem100 !== 13) return `${n}rd`;
-  return `${n}th`;
-}
-
-/**
- * Everything an Activity Log card says, in natural English: the lead between
- * actor (or nothing) and title, the tail after it, and the details row
- * beneath — which only carries what the lead does not already state. The
- * lead is always capitalized; `"profile"` mode additionally drops the
- * possessive ("to the watch list"), since the page IS the actor.
- */
+/** Shared sentence fragments for Public, Following, and Profile Activity. */
 export function logPhrase(
   mediaType: MediaType,
   snapshot: ActivityPhraseInput,
-  mode: "social" | "profile" = "social",
-): { lead: string; tail?: string; details: string; score?: number } {
-  const read = mediaType === "MANGA";
-  const verb = read ? "read" : "watched";
-  const reverb = read ? "reread" : "rewatched";
-  const units = read ? "chapters" : "episodes";
-  const { status, score, progress, progressFrom, progressVolumes, progressVolumesFrom, repeat } =
-    snapshot;
+): { lead: string; tail?: string } | null {
+  const { status, statusFrom, statusChanged, progress, progressFrom } = snapshot;
+  const increased =
+    progress != null &&
+    progress > 0 &&
+    (progressFrom === null || (progressFrom !== undefined && progress > progressFrom));
+  const changedStatus =
+    status != null && statusFrom !== undefined && (statusChanged === true || status !== statusFrom);
+  if (!increased && !changedStatus) return null;
 
-  const dayVerb = status === "REPEATING" ? reverb : verb;
-  const possessive = mode === "profile" ? "the" : "their";
+  const statusText = status ? statusLabel(mediaType, status) : "";
+  if (!increased) return { lead: `Changed status to ${statusText} for` };
 
-  let lead: string;
-  let tail: string | undefined;
-  let volumesStated = false;
-  let progressStated = false;
+  const verb = mediaType === "MANGA" ? "Read" : "Watched";
+  const units = mediaType === "MANGA" ? "chapters" : "episodes";
+  const count =
+    progressFrom == null ? `${progress} ${units}` : `${units} ${progressFrom + 1}–${progress}`;
+  return {
+    lead: `${verb} ${count} of`,
+    ...(changedStatus ? { tail: `· changed status to ${statusText}` } : {}),
+  };
+}
 
-  if (progress != null && progressFrom != null && progress > progressFrom) {
-    lead = `${dayVerb} ${units} ${progressFrom + 1}–${progress} of`;
-    progressStated = true;
-  } else if (
-    progressVolumes != null &&
-    progressVolumesFrom != null &&
-    progressVolumes > progressVolumesFrom
-  ) {
-    // volumes are the axis the day moved; the chapter count is noise next to it
-    lead = `${dayVerb} volumes ${progressVolumesFrom + 1}–${progressVolumes} of`;
-    volumesStated = true;
-    progressStated = true;
-  } else if (progress && (status === "CURRENT" || status === "REPEATING")) {
-    lead = `${dayVerb} ${progress} ${units} of`;
-    progressStated = true;
-  } else if (score && (status === "CURRENT" || status == null)) {
-    lead = "rated";
-  } else {
-    switch (status) {
-      case "PLANNING":
-        lead = "added";
-        tail = read ? `to ${possessive} read list` : `to ${possessive} watch list`;
-        break;
-      case "COMPLETED":
-        lead = "completed";
-        break;
-      case "DROPPED":
-        lead = "dropped";
-        break;
-      case "PAUSED":
-        lead = "paused";
-        break;
-      case "CURRENT":
-      case "REPEATING":
-        lead = dayVerb;
-        break;
-      default:
-        lead = "updated";
-    }
-  }
+export function reviewFragment(mediaType: MediaType, mediaId: number) {
+  return `review-${mediaType.toLowerCase()}-${mediaId}`;
+}
 
-  if (!tail && repeat) tail = `for the ${ordinal(repeat)} time`;
-
-  lead = lead.charAt(0).toUpperCase() + lead.slice(1);
-
-  const details = [
-    progressStated || !progress ? null : String(progress),
-    volumesStated || progressVolumes == null ? null : `${progressVolumes} volumes`,
-  ]
-    .filter(Boolean)
-    .join(" · ");
-
-  // The score renders with a star icon, so it travels separately from the text row.
-  return { lead, tail, details, score: score ?? undefined };
+export function reviewHref(username: string, mediaType: MediaType, mediaId: number) {
+  return `/${username}/reviews?type=${mediaType}#${reviewFragment(mediaType, mediaId)}`;
 }
 
 export function mediaHref(mediaType: MediaType, id: number) {

@@ -12,8 +12,6 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 
-import type { RichContent } from "@tsuki/rich-content";
-
 import { listStatusEnum, mediaTypeEnum } from "../enums";
 import { user } from "./auth";
 import { activityTypeEnum } from "../enums";
@@ -43,32 +41,20 @@ export const progress = pgTable(
   ],
 );
 
+/** Only qualifying progress and status changes belong in Activity. Reviews use {}. */
 export type ActivitySnapshot = {
   status?: (typeof listStatusEnum.enumValues)[number] | null;
-  score?: number | null;
+  statusFrom?: (typeof listStatusEnum.enumValues)[number] | null;
+  /** A real same-day transition occurred, even if status returns to statusFrom. */
+  statusChanged?: boolean;
   progress?: number;
-  /**
-   * Baseline the day's progress range opened from (the card states
-   * progressFrom+1 → progress). Absent for first-ever logs, corrections,
-   * and days whose save moved no progress.
-   */
-  progressFrom?: number;
-  progressVolumes?: number | null;
-  progressVolumesFrom?: number;
-  repeat?: number;
-  /** Rich Content document (review preset) for REVIEW cards. */
-  content?: RichContent;
+  /** null explicitly records an increase without a pre-existing entry baseline. */
+  progressFrom?: number | null;
 };
 
-/*
-Activity is a single event store with two kinds:
-- LOG: one card per media per UTC day; the sourceId is "<mediaId>:<yyyy-mm-dd>".
-  A same-day re-log upserts (snapshot replaced, occurredAt bumped); a new UTC
-  day yields a new row.
-- REVIEW: one card per media; re-submission replaces the snapshot while the
-  original occurredAt is preserved (upsert never touches the timestamp).
-*/
-
+/* LOG: one qualifying card per media per UTC day, latest qualifying timestamp.
+ * REVIEW: one summary per media, preserving the review's original creation time.
+ */
 export const activity = pgTable(
   "activity",
   {

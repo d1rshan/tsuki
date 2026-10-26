@@ -4,6 +4,7 @@
   "main": "src/index.ts",
   "scripts": {
     "db:push": "bun run src/search-index.ts && bunx --bun drizzle-kit push && bun run src/triggers.ts",
+    "db:cleanup-activity": "bun run src/cleanup-activity.ts",
     "db:studio": "bunx --bun drizzle-kit studio",
     "typecheck": "tsc --noEmit"
   },

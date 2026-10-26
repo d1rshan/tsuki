@@ -19,16 +19,29 @@ export function clampProgress(value: number, total?: number | null) {
   return typeof total === "number" && total > 0 ? Math.min(progress, total) : progress;
 }
 
+export function completionStatus(
+  progress: number,
+  total: number | null | undefined,
+  selected: ListStatus,
+): ListStatus {
+  return total != null && total > 0 && progress >= total ? "COMPLETED" : selected;
+}
+
 export function createActivityForm(
   mediaType: MediaType,
   entry: LibraryEntry | null,
   review: Review | null,
+  total?: number | null,
 ): ActivityForm {
   return {
     progress: entry ? String(entry.progress) : "0",
     review: review?.content ?? null,
     score: entry?.score ?? 0,
-    status: entry?.status ?? MEDIA[mediaType].defaultStatus,
+    status: completionStatus(
+      entry?.progress ?? 0,
+      total,
+      entry?.status ?? MEDIA[mediaType].defaultStatus,
+    ),
   };
 }
 
@@ -38,7 +51,11 @@ export function createLogMediaInput(
   total?: number | null,
 ): LogMediaInput {
   return {
-    status: form.status,
+    status: completionStatus(
+      clampProgress(Number.parseInt(form.progress, 10), total),
+      total,
+      form.status,
+    ),
     score: form.score || null,
     progress: clampProgress(Number.parseInt(form.progress, 10), total),
     isFavorite,

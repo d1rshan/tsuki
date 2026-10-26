@@ -3,7 +3,7 @@ import Image from "next/image";
 import type { Review } from "@tsuki/api/types";
 
 import { MediaLink } from "@/features/media/components/media-link";
-import { mediaImageClass, normalizeMediaCompact } from "@/features/media/media";
+import { mediaImageClass, normalizeMediaCompact, reviewFragment } from "@/features/media/media";
 import { RichContentView } from "@/features/rich-content/components/rich-content-view";
 import { RelativeTime } from "@/shared/components/relative-time";
 import { cn } from "@/shared/lib/utils";
@@ -11,14 +11,17 @@ import { cn } from "@/shared/lib/utils";
 import { BENTO_TILE } from "./profile-section";
 
 export function ReviewItem({ className, review }: { className?: string; review: Review }) {
-  const { mediaType, media, content, createdAt, updatedAt } = review;
+  const { mediaType, mediaId, media, content, createdAt, updatedAt } = review;
 
   if (!media) return null;
 
   const { coverImage: cover, title } = normalizeMediaCompact(media);
 
   return (
-    <article className={cn(BENTO_TILE, "group flex flex-col", className)}>
+    <article
+      id={reviewFragment(mediaType, mediaId)}
+      className={cn(BENTO_TILE, "group flex flex-col scroll-mt-24", className)}
+    >
       <div className="flex items-center gap-3">
         <MediaLink
           media={media}
