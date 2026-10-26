@@ -1,13 +1,35 @@
 import { status } from "elysia";
 
-import { activityDal, reviewsDal } from "@tsuki/db";
+import { reviewsDal } from "@tsuki/db";
 import { isEmptyRichContent, validateRichContent } from "@tsuki/rich-content";
 
 import { ensureMedia } from "../media/service";
 import type { MediaType } from "../media/model";
 import type { ReviewInputModel } from "./model";
 
-/** Submit a review: creates or replaces it, recording a summary in Activity. */
+type ReviewCursor = { createdAt: Date; id: string };
+
+/** Invalid cursors restart at the newest review, matching Activity pagination. */
+export function parseReviewCursor(raw?: string | null): ReviewCursor | undefined {
+  const [createdAt, id] = raw?.split("|") ?? [];
+  if (!createdAt || !id || Number.isNaN(Date.parse(createdAt))) return undefined;
+  return { createdAt: new Date(createdAt), id };
+}
+
+export function encodeReviewCursor(cursor: ReviewCursor | null): string | null {
+  return cursor ? `${cursor.createdAt.toISOString()}|${cursor.id}` : null;
+}
+
+export async function getReviewFeed(query: { cursor?: string; limit?: number }, viewerId?: string) {
+  const page = await reviewsDal.getRecentReviews({
+    viewerId,
+    cursor: parseReviewCursor(query.cursor),
+    limit: query.limit ?? 5,
+  });
+  return { reviews: page.reviews, nextCursor: encodeReviewCursor(page.nextCursor) };
+}
+
+/** Submit a review: creates or replaces its full Rich Content document. */
 export async function submitReview(
   userId: string,
   mediaType: MediaType,
@@ -35,23 +57,10 @@ export async function submitReview(
   const review = await reviewsDal.getReview(userId, mediaId);
   if (!review) return status(500, { error: "Failed to save review" });
 
-  await activityDal.upsertActivity({
-    actorId: userId,
-    type: "REVIEW",
-    sourceId: String(mediaId),
-    mediaId,
-    mediaType,
-    snapshot: {},
-    occurredAt: review.createdAt,
-  });
-
   return review;
 }
 
-/** Removing a review removes its Activity with it. */
+/** Remove the review itself. */
 export async function removeReview(userId: string, mediaId: number) {
-  await Promise.all([
-    reviewsDal.deleteReview(userId, mediaId),
-    activityDal.deleteActivity(userId, "REVIEW", String(mediaId)),
-  ]);
+  await reviewsDal.deleteReview(userId, mediaId);
 }

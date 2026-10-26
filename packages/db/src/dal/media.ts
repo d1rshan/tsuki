@@ -24,6 +24,14 @@ export const MEDIA_COMPACT_COLUMNS = {
   averageScore: true,
 } as const;
 
+const mediaColumns = getTableColumns(media);
+export const MEDIA_COMPACT_SELECT = Object.fromEntries(
+  Object.keys(MEDIA_COMPACT_COLUMNS).map((key) => [
+    key,
+    mediaColumns[key as keyof typeof MEDIA_COMPACT_COLUMNS],
+  ]),
+) as Pick<typeof mediaColumns, keyof typeof MEDIA_COMPACT_COLUMNS>;
+
 /** Nullable columns an incoming row may leave unfilled (updatedAt has no
  * upstream time on malformed Kitsu payloads; enrichment fields are absent
  * from bulk list pages). Keep the stored value instead of wiping it. */

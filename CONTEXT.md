@@ -32,7 +32,7 @@ Activity. It does not denote a separate relationship type.
 _Avoid_: friends relationship, friendship
 
 **Activity**:
-A user-visible record of a person's tracking action: a Log or a Review. It
+A user-visible record of a person's tracking action: a Log. It
 reflects the action's current visible state: edits update its Activity and
 deletion removes it. Follows are a relationship, never Activity.
 _Avoid_: heatmap activity, progress activity, notification, follow activity
@@ -44,9 +44,9 @@ while unrelated saves leave it unchanged. Removing the entry removes its Logs.
 _Avoid_: feed post, progress update, library change
 
 **Review**:
-An Activity identifying a written review and linking to it on the author's
-Profile Reviews page. One Review exists per title; editing it preserves the
-original publication date. The review itself owns its written content.
+A written Rich Content review, shown on the author's Profile Reviews page and
+in Recent reviews on Social. One Review exists per title; editing it preserves
+the original publication date. Reviews are separate from Activity.
 _Avoid_: rating, comment
 
 **Activity Feed**:

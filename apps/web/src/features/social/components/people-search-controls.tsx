@@ -16,7 +16,7 @@ export function PeopleSearchControls() {
         void setSearch(open ? { search: true } : { search: null, q: null })
       }
       searchLabel="Search username"
-      className="max-md:data-[search-expanded=true]:w-[min(18rem,calc(100vw-11rem))]"
+      className="max-md:data-[search-expanded=true]:w-[min(18rem,calc(100vw-14rem))]"
     />
   );
 }

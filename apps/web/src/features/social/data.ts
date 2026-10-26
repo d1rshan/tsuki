@@ -21,3 +21,13 @@ export async function getSocialDiscovery(username: string) {
 
   return data.users;
 }
+
+export async function getSocialReviews(type: SocialFeedType, cursor?: string | null) {
+  const query = cursor ? { cursor } : {};
+  const { data, error } =
+    type === "public"
+      ? await apiClient.reviews.get({ query })
+      : await apiClient.me.reviews.get({ query });
+  if (error || !data) throw error ?? new Error("Failed to load reviews");
+  return data;
+}

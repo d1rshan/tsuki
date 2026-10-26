@@ -6,11 +6,28 @@ import { authPlugin } from "../../plugins/auth";
 import { ErrorModel } from "../../plugins/errors";
 import { MediaTypeEnum } from "../media/model";
 import { requireProfileAccess } from "../profiles/service";
-import { ReviewInputModel, ReviewModel, ReviewQueryModel } from "./model";
-import { removeReview, submitReview } from "./service";
+import {
+  ReviewInputModel,
+  ReviewModel,
+  ReviewQueryModel,
+  ReviewFeedQueryModel,
+  ReviewFeedPageModel,
+} from "./model";
+import { getReviewFeed, removeReview, submitReview } from "./service";
 
 export const reviewRoutes = new Elysia({ tags: ["Reviews"] })
   .use(authPlugin)
+  .get("/reviews", ({ query }) => getReviewFeed(query), {
+    query: ReviewFeedQueryModel,
+    response: { 200: ReviewFeedPageModel },
+    detail: { summary: "Get recent full reviews from public Profiles" },
+  })
+  .get("/me/reviews", ({ query, user }) => getReviewFeed(query, user.id), {
+    auth: true,
+    query: ReviewFeedQueryModel,
+    response: { 200: ReviewFeedPageModel },
+    detail: { summary: "Get recent full reviews from accounts the viewer follows" },
+  })
   .get(
     "/users/:username/reviews",
     async ({ params: { username }, query, viewer }) => {

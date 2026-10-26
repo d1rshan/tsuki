@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import type { Review, MediaType } from "@tsuki/api/types";
 import { isEmptyRichContent } from "@tsuki/rich-content";
 
+import { socialKeys } from "@/features/social/query-keys";
+
 import { deleteReviewAction, logMediaAction, submitReviewAction } from "../actions";
 import { createLogMediaInput, saveMediaActivity, type ActivityForm } from "../activity";
 import { MEDIA } from "../media";
@@ -29,7 +31,10 @@ export function useSaveMediaActivityMutation(mediaType: MediaType, mediaId: numb
         },
       ),
     onSuccess: async (result) => {
-      await queryClient.invalidateQueries({ queryKey: mediaKeys.activity(mediaType, mediaId) });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: mediaKeys.activity(mediaType, mediaId) }),
+        queryClient.invalidateQueries({ queryKey: socialKeys.all }),
+      ]);
 
       if (result === "review-failed") {
         toast.error("Log saved, but the review failed. Try saving again.");

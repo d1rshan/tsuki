@@ -41,7 +41,7 @@ export const progress = pgTable(
   ],
 );
 
-/** Only qualifying progress and status changes belong in Activity. Reviews use {}. */
+/** Only qualifying progress and status changes belong in Activity. */
 export type ActivitySnapshot = {
   status?: (typeof listStatusEnum.enumValues)[number] | null;
   statusFrom?: (typeof listStatusEnum.enumValues)[number] | null;
@@ -52,9 +52,7 @@ export type ActivitySnapshot = {
   progressFrom?: number | null;
 };
 
-/* LOG: one qualifying card per media per UTC day, latest qualifying timestamp.
- * REVIEW: one summary per media, preserving the review's original creation time.
- */
+/** One qualifying Log per media per UTC day, latest qualifying timestamp. */
 export const activity = pgTable(
   "activity",
   {

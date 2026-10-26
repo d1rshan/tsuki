@@ -18,7 +18,7 @@ export function encodeActivityCursor(cursor: Cursor | null): string | null {
   return cursor ? `${cursor.occurredAt.toISOString()}|${cursor.id}` : null;
 }
 
-/** Explicit allowlist also strips legacy review bodies and obsolete fields. */
+/** Explicit allowlist strips obsolete snapshot fields. */
 export function toWire(
   rows: Awaited<ReturnType<typeof activityDal.getPublicActivity>>["activities"],
 ) {
@@ -26,16 +26,13 @@ export function toWire(
     const { status, statusFrom, statusChanged, progress, progressFrom } = activity.snapshot;
     return {
       ...activity,
-      snapshot:
-        activity.type === "REVIEW"
-          ? {}
-          : {
-              ...(status !== undefined ? { status } : {}),
-              ...(statusFrom !== undefined ? { statusFrom } : {}),
-              ...(statusChanged === true ? { statusChanged } : {}),
-              ...(progress !== undefined ? { progress } : {}),
-              ...(progressFrom !== undefined ? { progressFrom } : {}),
-            },
+      snapshot: {
+        ...(status !== undefined ? { status } : {}),
+        ...(statusFrom !== undefined ? { statusFrom } : {}),
+        ...(statusChanged === true ? { statusChanged } : {}),
+        ...(progress !== undefined ? { progress } : {}),
+        ...(progressFrom !== undefined ? { progressFrom } : {}),
+      },
     };
   });
 }
@@ -56,7 +53,10 @@ const USER_ACTIVITY_LIMIT = 10;
 type FeedQuery = { cursor?: string; limit?: number };
 
 function toDalOptions(query: FeedQuery, defaultLimit: number) {
-  return { cursor: parseActivityCursor(query.cursor), limit: query.limit ?? defaultLimit };
+  return {
+    cursor: parseActivityCursor(query.cursor),
+    limit: query.limit ?? defaultLimit,
+  };
 }
 
 /** The Following Activity Feed: accounts the viewer follows, newest-first. */
