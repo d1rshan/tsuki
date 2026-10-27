@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { LoaderCircle, MailCheck } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -10,7 +9,8 @@ import { env } from "@tsuki/env/web";
 
 import { Button } from "@/shared/components/ui/button";
 
-import { AuthStatusCard } from "../components/auth-status-card";
+import { AuthStatus } from "../components/auth-status";
+import { useAuthDialog } from "../hooks/use-auth-dialog";
 
 export function VerifyEmailView({ email }: { email?: string }) {
   return email ? <VerifyEmailResendCard email={email} /> : <VerifyEmailCard />;
@@ -18,7 +18,7 @@ export function VerifyEmailView({ email }: { email?: string }) {
 
 function VerifyEmailCard() {
   return (
-    <AuthStatusCard
+    <AuthStatus
       icon={MailCheck}
       title="Check your inbox"
       description={[
@@ -56,7 +56,7 @@ function VerifyEmailResendCard({ email }: { email: string }) {
   }
 
   return (
-    <AuthStatusCard
+    <AuthStatus
       icon={MailCheck}
       title="Check your inbox"
       description={[
@@ -65,11 +65,16 @@ function VerifyEmailResendCard({ email }: { email: string }) {
       ]}
       actions={
         <>
-          <Button variant="outline" disabled={isResending} onClick={resendVerificationEmail}>
+          <BackToSignInButton />
+          <Button
+            variant="outline"
+            className="w-full"
+            disabled={isResending}
+            onClick={resendVerificationEmail}
+          >
             {isResending ? <LoaderCircle className="animate-spin" /> : null}
             Resend verification email
           </Button>
-          <BackToSignInButton />
         </>
       }
     />
@@ -77,8 +82,9 @@ function VerifyEmailResendCard({ email }: { email: string }) {
 }
 
 function BackToSignInButton() {
+  const { openAuth } = useAuthDialog();
   return (
-    <Button variant="link" render={<Link href="/login" replace />} nativeButton={false}>
+    <Button variant="link" className="w-full" onClick={() => openAuth()}>
       Back to sign in
     </Button>
   );

@@ -6,13 +6,7 @@ import { Navbar } from "@/features/navbar/components";
 import { Footer } from "@/shared/components/footer";
 import { SoftBlurEdge } from "@/shared/components/soft-blur-edge";
 
-export default function Layout({
-  children,
-  auth,
-}: {
-  children: React.ReactNode;
-  auth: React.ReactNode;
-}) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <MediaNavigationProvider>
       <div className="relative flex min-h-screen flex-col">
@@ -23,7 +17,6 @@ export default function Layout({
         <SoftBlurEdge edge="top" />
         <main className="container mx-auto max-w-5xl flex-1 px-4 @container">{children}</main>
         <Footer />
-        {auth}
         {/* <BetaFeedback /> */}
       </div>
     </MediaNavigationProvider>

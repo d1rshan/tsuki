@@ -1,12 +1,12 @@
 "use client";
 
 import { useId } from "react";
-import { useRouter } from "next/navigation";
 import { useForm } from "@tanstack/react-form";
 import { Check, LoaderCircle, NotebookPen, Plus } from "lucide-react";
 
 import type { ListStatus, MediaType } from "@tsuki/api/types";
 
+import { useAuthDialog } from "@/features/auth/hooks/use-auth-dialog";
 import {
   useDiscardableDialog,
   useUnloadWarning,
@@ -51,7 +51,7 @@ export function LogMediaDialog({
   total?: number | null;
   compact?: boolean;
 }) {
-  const router = useRouter();
+  const { openAuth } = useAuthDialog();
   const formId = useId();
   const config = MEDIA[mediaType];
   const isFavorite = activity.entry?.isFavorite ?? false;
@@ -80,7 +80,7 @@ export function LogMediaDialog({
 
   function handleOpenChange(nextIsOpen: boolean) {
     if (nextIsOpen && !activity.isAuthenticated) {
-      router.push("/login");
+      openAuth();
       return;
     }
 

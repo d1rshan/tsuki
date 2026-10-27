@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { revalidateLogic, useForm } from "@tanstack/react-form";
 import { CircleCheck, KeyRound } from "lucide-react";
 
@@ -8,9 +7,11 @@ import { authClient } from "@tsuki/auth/client";
 
 import { Button } from "@/shared/components/ui/button";
 
-import { AuthFormCard } from "../components/auth-form-card";
-import { AuthStatusCard } from "../components/auth-status-card";
 import { TextField } from "@/shared/components/text-field";
+
+import { AuthForm } from "../components/auth-form";
+import { AuthStatus } from "../components/auth-status";
+import { useAuthDialog } from "../hooks/use-auth-dialog";
 import { resetPasswordSchema } from "../schemas";
 import { runAuthRequest } from "../run-auth-request";
 
@@ -19,6 +20,7 @@ export function ResetPasswordView({ token }: { token?: string }) {
 }
 
 function ResetPasswordCard({ token }: { token?: string }) {
+  const { openAuth } = useAuthDialog();
   const form = useForm({
     defaultValues: { password: "", confirmPassword: "" },
     validationLogic: revalidateLogic(),
@@ -34,12 +36,12 @@ function ResetPasswordCard({ token }: { token?: string }) {
 
   if (!token)
     return (
-      <AuthStatusCard
+      <AuthStatus
         icon={KeyRound}
         title="Reset link unavailable"
         description={["This reset link is invalid or has expired."]}
         actions={
-          <Button render={<Link href="/forgot-password" replace />} nativeButton={false}>
+          <Button className="w-full" onClick={() => openAuth({ mode: "forgot-password" })}>
             Request a new link
           </Button>
         }
@@ -50,7 +52,7 @@ function ResetPasswordCard({ token }: { token?: string }) {
     <form.Subscribe selector={(state) => state.isSubmitSuccessful}>
       {(isComplete) =>
         isComplete ? (
-          <AuthStatusCard
+          <AuthStatus
             icon={CircleCheck}
             title="Password updated"
             description={[
@@ -58,13 +60,13 @@ function ResetPasswordCard({ token }: { token?: string }) {
               "You can now sign in with your new password.",
             ]}
             actions={
-              <Button render={<Link href="/login" replace />} nativeButton={false}>
+              <Button className="w-full" onClick={() => openAuth()}>
                 Sign in
               </Button>
             }
           />
         ) : (
-          <AuthFormCard
+          <AuthForm
             form={form}
             title="Choose a new password"
             description="Use at least 8 characters."
@@ -75,6 +77,8 @@ function ResetPasswordCard({ token }: { token?: string }) {
               form={form}
               name="password"
               label="New password"
+              hideLabel
+              placeholder="New password"
               type="password"
               autoComplete="new-password"
             />
@@ -82,10 +86,12 @@ function ResetPasswordCard({ token }: { token?: string }) {
               form={form}
               name="confirmPassword"
               label="Confirm new password"
+              hideLabel
+              placeholder="Confirm new password"
               type="password"
               autoComplete="new-password"
             />
-          </AuthFormCard>
+          </AuthForm>
         )
       }
     </form.Subscribe>

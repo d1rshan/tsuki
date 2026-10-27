@@ -1,10 +1,10 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { Heart, RefreshCw } from "lucide-react";
 
 import type { MediaType } from "@tsuki/api/types";
 
+import { useAuthDialog } from "@/features/auth/hooks/use-auth-dialog";
 import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
 
@@ -21,7 +21,7 @@ export function MediaActions({
   mediaId: number;
   total?: number | null;
 }) {
-  const router = useRouter();
+  const { openAuth } = useAuthDialog();
   const activity = useMediaActivity(mediaType, mediaId);
   const isFavorite = activity.entry?.isFavorite ?? false;
   const favoriteMutation = useFavoriteMediaMutation(mediaType, mediaId);
@@ -42,7 +42,7 @@ export function MediaActions({
 
   function toggleFavorite() {
     if (!activity.isAuthenticated) {
-      router.push("/login");
+      openAuth();
       return;
     }
 

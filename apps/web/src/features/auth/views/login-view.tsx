@@ -1,22 +1,32 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { revalidateLogic, useForm } from "@tanstack/react-form";
 
 import { signIn, signUp } from "@tsuki/auth/client";
 
-import { AuthFormCard } from "../components/auth-form-card";
 import { TextField } from "@/shared/components/text-field";
+import { Button } from "@/shared/components/ui/button";
+import { DialogDescription, DialogTitle } from "@/shared/components/ui/dialog";
+
+import { AuthForm } from "../components/auth-form";
+import { useAuthDialog } from "../hooks/use-auth-dialog";
 import { loginSchema, signUpSchema } from "../schemas";
 import { runAuthRequest } from "../run-auth-request";
 
-export function LoginView({ mode }: { mode?: string }) {
-  return mode === "signup" ? <SignupCard /> : <LoginCard />;
+export function LoginView({ mode }: { mode: "sign-in" | "sign-up" }) {
+  return (
+    <>
+      <DialogTitle className="sr-only">{mode === "sign-in" ? "Log in" : "Sign up"}</DialogTitle>
+      <DialogDescription className="sr-only">Sign in or create an account.</DialogDescription>
+      {mode === "sign-in" ? <LoginCard /> : <SignupCard />}
+    </>
+  );
 }
 
 function LoginCard() {
   const router = useRouter();
+  const { openAuth, closeAuth } = useAuthDialog();
   const form = useForm({
     defaultValues: { emailOrUsername: "", password: "" },
     validationLogic: revalidateLogic(),
@@ -30,13 +40,21 @@ function LoginCard() {
 
       await runAuthRequest(request, "Failed to sign in");
 
-      router.push("/");
+      closeAuth();
       router.refresh();
     },
   });
 
   return (
-    <AuthFormCard form={form} title="Welcome back" action="sign-up" submitLabel="Sign in">
+    <AuthForm
+      form={form}
+      title="Welcome back"
+      description="Sign in to your Tsuki account."
+      showHeader={false}
+      action="sign-up"
+      compactSubmit
+      submitLabel="Log in"
+    >
       <TextField
         form={form}
         name="emailOrUsername"
@@ -44,29 +62,34 @@ function LoginCard() {
         hideLabel
         placeholder="Email or username"
         autoComplete="username"
-        className="bg-card"
       />
-      <TextField
-        form={form}
-        name="password"
-        label="Password"
-        hideLabel
-        placeholder="Password"
-        type="password"
-        autoComplete="current-password"
-        className="bg-card"
-      />
-      <Link
-        href="/forgot-password"
-        className="text-sm text-primary underline-offset-4 hover:underline"
-      >
-        Forgot password?
-      </Link>
-    </AuthFormCard>
+      <div className="relative">
+        <TextField
+          form={form}
+          name="password"
+          label="Password"
+          hideLabel
+          placeholder="Password"
+          type="password"
+          autoComplete="current-password"
+          className="pr-20"
+        />
+        <Button
+          type="button"
+          variant="link"
+          aria-label="Forgot password?"
+          className="absolute top-0 right-1 h-10.5"
+          onClick={() => openAuth({ mode: "forgot-password" })}
+        >
+          Forgot?
+        </Button>
+      </div>
+    </AuthForm>
   );
 }
 
 function SignupCard() {
+  const { openAuth } = useAuthDialog();
   const form = useForm({
     defaultValues: { username: "", email: "", password: "" },
     validationLogic: revalidateLogic(),
@@ -78,18 +101,19 @@ function SignupCard() {
         "Failed to create account",
       );
 
-      const destination = new URL("/verify-email", window.location.origin);
-      destination.searchParams.set("email", values.email);
-      window.location.assign(destination);
+      openAuth({ mode: "verify-email", email: values.email });
     },
   });
 
   return (
-    <AuthFormCard
+    <AuthForm
       form={form}
       title="Create an account"
+      description="Start tracking anime and manga with Tsuki."
+      showHeader={false}
       action="sign-in"
-      submitLabel="Create account"
+      compactSubmit
+      submitLabel="Sign up"
     >
       <TextField
         form={form}
@@ -98,7 +122,6 @@ function SignupCard() {
         hideLabel
         placeholder="Username"
         autoComplete="username"
-        className="bg-card"
       />
       <TextField
         form={form}
@@ -108,7 +131,6 @@ function SignupCard() {
         placeholder="Email"
         type="email"
         autoComplete="email"
-        className="bg-card"
       />
       <TextField
         form={form}
@@ -118,8 +140,7 @@ function SignupCard() {
         placeholder="Password"
         type="password"
         autoComplete="new-password"
-        className="bg-card"
       />
-    </AuthFormCard>
+    </AuthForm>
   );
 }

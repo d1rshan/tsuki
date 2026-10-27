@@ -1,10 +1,10 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { Check, LoaderCircle, Plus, RefreshCw } from "lucide-react";
 
 import type { MediaType } from "@tsuki/api/types";
 
+import { useAuthDialog } from "@/features/auth/hooks/use-auth-dialog";
 import { Button } from "@/shared/components/ui/button";
 
 import { useMediaActivity } from "../hooks/use-media-activity";
@@ -20,7 +20,7 @@ export function MediaCardActions({
   mediaId: number;
   total?: number | null;
 }) {
-  const router = useRouter();
+  const { openAuth } = useAuthDialog();
   const activity = useMediaActivity(mediaType, mediaId);
   const watchlistMutation = useWatchlistMediaMutation(mediaType, mediaId);
   const listLabel = mediaType === "ANIME" ? "watchlist" : "read list";
@@ -46,7 +46,7 @@ export function MediaCardActions({
         disabled={activity.isPending || watchlistMutation.isPending}
         onClick={() => {
           if (!activity.isAuthenticated) {
-            router.push("/login");
+            openAuth();
             return;
           }
           watchlistMutation.mutate(!isListed);

@@ -4,10 +4,12 @@ import { usePathname } from "next/navigation";
 
 import { authClient } from "@tsuki/auth/client";
 
+import { useAuthDialog } from "@/features/auth/hooks/use-auth-dialog";
 import { DiscoverControls } from "@/features/discover/components/discover-controls";
 import { PeopleSearchControls } from "@/features/social/components/people-search-controls";
 import { ThemeSelector } from "@/shared/components/theme-selector";
 import { SoftBlurEdge } from "@/shared/components/soft-blur-edge";
+import { Button } from "@/shared/components/ui/button";
 
 import { NavbarLinks } from "./navbar-links";
 
@@ -17,8 +19,9 @@ export type NavbarUser = {
 };
 
 export function Navbar() {
+  const { openAuth } = useAuthDialog();
   const pathname = usePathname();
-  const { data } = authClient.useSession();
+  const { data, isPending } = authClient.useSession();
   const user: NavbarUser | null = data?.user
     ? { role: data.user.role, username: data.user.username }
     : null;
@@ -57,6 +60,17 @@ export function Navbar() {
               </div>
             )}
             <ThemeSelector />
+            {!isPending && !user && (
+              <div className="rounded-full bg-muted p-1">
+                <Button
+                  variant="ghost"
+                  onClick={() => openAuth()}
+                  className="h-auto rounded-full border-0 px-4 py-[7px] hover:bg-transparent hover:text-foreground"
+                >
+                  Sign in
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </nav>
