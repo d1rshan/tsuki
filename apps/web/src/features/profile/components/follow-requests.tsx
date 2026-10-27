@@ -54,7 +54,11 @@ export function FollowRequests() {
       <ul className="space-y-3">
         {requests.data.map((person) => (
           <li key={person.id} className="flex items-center justify-between gap-3">
-            <Link href={`/${person.username}`} className="font-medium hover:underline">
+            <Link
+              href={`/${person.username}`}
+              prefetch={true}
+              className="font-medium hover:underline"
+            >
               @{person.displayUsername}
             </Link>
             <div className="flex gap-2">

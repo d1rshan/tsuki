@@ -9,6 +9,7 @@ export function ProfileCard({ user }: { user: UserSummary }) {
   return (
     <Link
       href={`/${user.username}`}
+      prefetch={true}
       className="flex flex-col items-center gap-2 rounded-xl text-center outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
     >
       <Avatar className="size-20">

@@ -26,6 +26,7 @@ function ReviewCard({ review }: { review: ReviewFeedItem }) {
           <div className="mb-1.5 flex min-w-0 items-baseline justify-between gap-3">
             <Link
               href={`/${author.username}`}
+              prefetch={true}
               className="flex min-w-0 items-center gap-2 text-sm font-medium text-foreground"
             >
               <Avatar className="size-6 shrink-0">

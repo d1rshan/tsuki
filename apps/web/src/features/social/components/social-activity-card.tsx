@@ -18,13 +18,14 @@ export function SocialActivityCard({ activity }: { activity: Activity }) {
         actor={
           <Link
             href={`/${activity.actor.username}`}
+            prefetch={true}
             className="block w-fit text-sm font-medium text-foreground"
           >
             {activity.actor.displayUsername}
           </Link>
         }
         footer={
-          <Link href={`/${activity.actor.username}`} className="mt-2 block w-fit">
+          <Link href={`/${activity.actor.username}`} prefetch={true} className="mt-2 block w-fit">
             <Avatar className="size-6">
               {activity.actor.image ? <AvatarImage src={activity.actor.image} alt="" /> : null}
               <AvatarFallback className="bg-card text-xs">

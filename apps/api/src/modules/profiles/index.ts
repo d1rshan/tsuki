@@ -14,6 +14,7 @@ import {
 } from "./imagekit";
 import { buildUserOverview, requireProfileAccess, requireUser } from "./service";
 import {
+  ProfileIdentityModel,
   ProfileModel,
   ProfileStatisticsModel,
   UpdateProfileModel,
@@ -62,6 +63,30 @@ export const profilesRoutes = new Elysia({ tags: ["Profiles"] })
         summary: "Get a user's overview",
         description: "Public profile, per-type stats, favourites and recent activity.",
       },
+    },
+  )
+  .get(
+    "/users/:username/identity",
+    async ({ params: { username } }) => {
+      const user = await requireUser(username);
+      const profile = user.isPrivate ? null : await profileDal.getProfileByUserId(user.id);
+      return {
+        user: {
+          id: user.id,
+          name: user.name,
+          username: user.username,
+          displayUsername: user.displayUsername,
+          image: user.image,
+          createdAt: user.createdAt,
+        },
+        isPrivate: user.isPrivate,
+        bannerImage: profile?.bannerImage ?? null,
+      };
+    },
+    {
+      params: t.Object({ username: t.String() }),
+      response: { 200: ProfileIdentityModel, 404: ErrorModel },
+      detail: { summary: "Get public profile header identity" },
     },
   )
   .get(

@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { Metadata } from "next";
+import { cacheLife, cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 
@@ -8,6 +9,7 @@ import type { MediaType } from "@tsuki/api/types";
 import { richContentText } from "@tsuki/rich-content";
 
 import { parseUsername } from "@/shared/lib/username";
+import { publicApi } from "@/shared/lib/public-api";
 import { getServerApi } from "@/shared/lib/server-api";
 import { siteName } from "@/shared/lib/site";
 
@@ -32,6 +34,16 @@ export function resolveUsername(value: string) {
   if (!username) notFound();
 
   return username;
+}
+
+/** Public identity is prefetched separately from session and tab content. */
+export async function getProfileIdentity(username: string) {
+  "use cache: remote";
+  cacheTag(`profile-${username}`, "profiles");
+  cacheLife("hours");
+
+  const { data, error } = await publicApi.users({ username }).identity.get();
+  return resolve(username, "profile identity", { data, error });
 }
 
 export const getProfileOverview = cache(async (username: string) => {

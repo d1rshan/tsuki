@@ -61,6 +61,13 @@ export const ProfileSocialModel = t.Object({
   viewer: t.Nullable(FollowRelationshipModel),
 });
 
+/** Private banners remain access-controlled through the overview endpoint. */
+export const ProfileIdentityModel = t.Object({
+  user: UserSummaryModel,
+  isPrivate: t.Boolean(),
+  bannerImage: t.Nullable(t.String({ pattern: URL_PATTERN })),
+});
+
 export const UserOverviewModel = t.Object({
   user: UserSummaryModel,
   isPrivate: t.Boolean(),

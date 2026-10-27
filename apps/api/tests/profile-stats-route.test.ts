@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   getUser: vi.fn(),
   canView: vi.fn(),
   getStatistics: vi.fn(),
+  getProfile: vi.fn(),
   viewer: null as { id: string } | null,
 }));
 
@@ -12,6 +13,7 @@ vi.mock("@tsuki/db", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@tsuki/db")>();
   return {
     ...actual,
+    profileDal: { ...actual.profileDal, getProfileByUserId: mocks.getProfile },
     userDal: { ...actual.userDal, getUserByUsername: mocks.getUser },
     socialDal: { ...actual.socialDal, canViewProfile: mocks.canView },
     libraryDal: { ...actual.libraryDal, getUserStatistics: mocks.getStatistics },
@@ -64,5 +66,61 @@ describe("GET /users/:username/stats", () => {
     const response = await app.handle(new Request("http://localhost/users/missing/stats"));
     expect(response.status).toBe(404);
     expect(mocks.getStatistics).not.toHaveBeenCalled();
+  });
+});
+
+describe("GET /users/:username/identity", () => {
+  const identityUser = {
+    id: "owner",
+    username: "nami",
+    displayUsername: "Nami",
+    name: "Nami",
+    image: null,
+    createdAt: new Date("2026-01-01"),
+    isPrivate: false,
+    email: "private@example.com",
+  };
+
+  test("returns only public identity without loading overview data", async () => {
+    mocks.getUser.mockResolvedValue(identityUser);
+    mocks.getProfile.mockResolvedValue({
+      bannerImage: "https://example.com/banner.webp",
+      bio: "private bio",
+    });
+    const response = await app.handle(new Request("http://localhost/users/nami/identity"));
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      user: {
+        id: "owner",
+        username: "nami",
+        displayUsername: "Nami",
+        name: "Nami",
+        image: null,
+        createdAt: identityUser.createdAt.toISOString(),
+      },
+      isPrivate: false,
+      bannerImage: "https://example.com/banner.webp",
+    });
+    expect(mocks.canView).not.toHaveBeenCalled();
+    expect(mocks.getStatistics).not.toHaveBeenCalled();
+  });
+
+  test("never loads or exposes a private banner, even with a viewer cookie", async () => {
+    mocks.getUser.mockResolvedValue({ ...identityUser, isPrivate: true });
+    const response = await app.handle(
+      new Request("http://localhost/users/nami/identity", {
+        headers: { cookie: "session=owner" },
+      }),
+    );
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ isPrivate: true, bannerImage: null });
+    expect(mocks.getProfile).not.toHaveBeenCalled();
+  });
+
+  test("returns 404 without loading a banner for a missing profile", async () => {
+    mocks.getUser.mockResolvedValue(null);
+    const response = await app.handle(new Request("http://localhost/users/missing/identity"));
+    expect(response.status).toBe(404);
+    expect(mocks.getProfile).not.toHaveBeenCalled();
   });
 });
