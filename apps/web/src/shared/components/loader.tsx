@@ -9,17 +9,17 @@ export function Loader({ className }: { className?: string }) {
     >
       <div
         aria-hidden="true"
-        className="relative size-5 animate-[spin_1s_steps(12)_infinite] motion-reduce:animate-none"
+        className="relative size-5 animate-[spin_1s_steps(8)_infinite] motion-reduce:animate-none"
       >
-        {Array.from({ length: 12 }, (_, index) => (
+        {Array.from({ length: 8 }, (_, index) => (
           <span
             key={index}
             className="absolute inset-0"
-            style={{ transform: `rotate(${index * 30}deg)` }}
+            style={{ transform: `rotate(${index * 45}deg)` }}
           >
             <span
               className="absolute top-0 left-1/2 h-1.5 w-[2px] -translate-x-1/2 rounded-full bg-muted-foreground"
-              style={{ opacity: (index + 1) / 12 }}
+              style={{ opacity: (index + 1) / 8 }}
             />
           </span>
         ))}

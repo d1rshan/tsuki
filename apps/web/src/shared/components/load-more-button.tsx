@@ -29,7 +29,7 @@ export function LoadMoreButton({
       variant="outline"
     >
       {fetching ? (
-        <Loader className="min-h-0 [&>svg]:size-4" />
+        <Loader className="min-h-0 [&>div]:size-4 [&_span_span]:h-1" />
       ) : (
         <ChevronDown className="size-4" />
       )}
