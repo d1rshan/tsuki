@@ -40,7 +40,6 @@ function HeaderIdentityFallback() {
         <div className="flex h-6 items-center @min-[48rem]:h-7" aria-hidden="true">
           <Skeleton className="h-4 w-20 bg-background/40" />
         </div>
-        <div className="mt-1 min-h-11" aria-hidden="true" />
       </IdentityColumn>
       <ProfileBanner />
     </>
@@ -62,7 +61,7 @@ async function HeaderIdentity({ params }: { params: Promise<{ username: string }
         <h1 className="w-full min-w-0 text-center text-base font-medium tracking-tight text-foreground @min-[48rem]:text-lg">
           <span className="block truncate">{handle}</span>
         </h1>
-        <div className="mt-1 flex min-h-11 max-w-full items-center justify-center empty:hidden">
+        <div className="mt-1 hidden min-h-11 max-w-full items-center justify-center has-[button]:flex">
           <Suspense fallback={null}>
             <HeaderActions params={params} />
           </Suspense>

@@ -20,20 +20,21 @@ export function NavbarLinks({ pathname, user }: NavbarLinksProps) {
     {
       href: "/social",
       label: "Social",
-      isActive: pathname.startsWith("/social"),
+      isActive: pathname === "/social" || pathname.startsWith("/social/"),
     },
     ...(user?.username
       ? [
           {
             href: `/${user.username}`,
             label: "Profile",
-            isActive: pathname === `/${user.username}` || pathname.startsWith(`/${user.username}/`),
+            isActive: pathname.split("/")[1]?.toLowerCase() === user.username.toLowerCase(),
           },
         ]
       : []),
   ];
 
-  const activeHref = links.find((link) => link.isActive)?.href;
+  // null keeps Tabs controlled when the route has no matching navigation item.
+  const activeHref = links.find((link) => link.isActive)?.href ?? null;
 
   return (
     <Tabs
