@@ -1,7 +1,3 @@
-"use client";
-
-import { motion } from "framer-motion";
-
 import { cn } from "@/shared/lib/utils";
 
 export function Loader({ className }: { className?: string }) {
@@ -11,15 +7,23 @@ export function Loader({ className }: { className?: string }) {
       role="status"
       aria-label="Loading"
     >
-      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" className="text-foreground">
-        <motion.path
-          d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8L12 2z"
-          fill="currentColor"
-          animate={{ scale: [1, 1.25, 0.85, 1], rotate: [0, 90] }}
-          transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-          style={{ originX: "50%", originY: "50%" }}
-        />
-      </svg>
+      <div
+        aria-hidden="true"
+        className="relative size-5 animate-[spin_1s_steps(12)_infinite] motion-reduce:animate-none"
+      >
+        {Array.from({ length: 12 }, (_, index) => (
+          <span
+            key={index}
+            className="absolute inset-0"
+            style={{ transform: `rotate(${index * 30}deg)` }}
+          >
+            <span
+              className="absolute top-0 left-1/2 h-1.5 w-[2px] -translate-x-1/2 rounded-full bg-muted-foreground"
+              style={{ opacity: (index + 1) / 12 }}
+            />
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
