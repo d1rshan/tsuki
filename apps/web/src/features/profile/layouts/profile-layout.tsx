@@ -1,5 +1,7 @@
 import { Suspense } from "react";
 
+import { Loader } from "@/shared/components/loader";
+
 import { getProfileOverview, resolveUsername } from "../data";
 import { ProfileHeaderShell } from "../components/profile-header";
 
@@ -13,7 +15,7 @@ export function ProfileLayout({
   return (
     <div className="min-h-screen pt-20 pb-12 md:pt-28 md:pb-16">
       <ProfileHeaderShell params={params} />
-      <Suspense fallback={null}>
+      <Suspense fallback={<Loader />}>
         <ProfileContent params={params}>{children}</ProfileContent>
       </Suspense>
     </div>
