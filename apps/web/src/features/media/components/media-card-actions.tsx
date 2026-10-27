@@ -29,12 +29,7 @@ export function MediaCardActions({
 
   if (activity.isError) {
     return (
-      <Button
-        size="sm"
-        variant="secondary"
-        className="w-full"
-        onClick={() => void activity.retry()}
-      >
+      <Button size="sm" className="w-full" onClick={() => void activity.retry()}>
         <RefreshCw />
         Retry actions
       </Button>
@@ -45,7 +40,6 @@ export function MediaCardActions({
     <div className="flex items-center gap-1.5">
       <Button
         size="icon-sm"
-        variant="secondary"
         aria-label={watchlistLabel}
         aria-pressed={isListed}
         title={watchlistLabel}

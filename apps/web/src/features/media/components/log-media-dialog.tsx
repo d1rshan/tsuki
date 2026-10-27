@@ -95,7 +95,6 @@ export function LogMediaDialog({
             disabled={activity.isPending}
             className="flex-1"
             size={compact ? "sm" : "default"}
-            variant={compact ? "secondary" : "default"}
           />
         }
         aria-label={
