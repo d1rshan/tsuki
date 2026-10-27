@@ -117,8 +117,8 @@ export function SocialView({ isAuthenticated }: { isAuthenticated: boolean }) {
   return (
     <div className="pt-28 pb-24 md:pt-32 md:pb-16">
       {isSearching ? (
-        <section aria-label="Find People">
-          <h2 className="mb-4 text-lg font-semibold">Find People</h2>
+        <section aria-label="Find people">
+          <h2 className="mb-4 text-base font-medium">Find people</h2>
           <Discover search={q} />
         </section>
       ) : (
