@@ -93,7 +93,7 @@ export function MediaCard({
                 alt=""
                 fill
                 className={cn("object-cover", mediaImageClass(type))}
-                sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 22vw"
+                sizes="(max-width: 639px) 45vw, (max-width: 1023px) 30vw, 20vw"
               />
             ) : (
               <div className="flex size-full items-center justify-center text-xs text-muted-foreground">

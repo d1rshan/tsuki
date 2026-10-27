@@ -23,6 +23,8 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
+    // Artwork URLs usually remain stable; retain optimized variants for a week.
+    minimumCacheTTL: 60 * 60 * 24 * 7,
     remotePatterns: [
       {
         protocol: "https",
