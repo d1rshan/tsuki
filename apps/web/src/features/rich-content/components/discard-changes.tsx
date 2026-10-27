@@ -36,7 +36,11 @@ export function useUnloadWarning(isDirty: boolean) {
  * editor: confirm-discard on dirty close, plus a reset key that remounts the
  * uncontrolled editor whenever the form resets (open, discard, close).
  */
-export function useDiscardableDialog(isDirty: boolean, onReset: () => void) {
+export function useDiscardableDialog(
+  isDirty: boolean,
+  onReset: () => void,
+  confirmOnDirtyClose = true,
+) {
   const [isOpen, setIsOpen] = useState(false);
   const [isConfirmingClose, setIsConfirmingClose] = useState(false);
   const [editorResetKey, setEditorResetKey] = useState(0);
@@ -59,7 +63,7 @@ export function useDiscardableDialog(isDirty: boolean, onReset: () => void) {
 
   /** Close honouring unsaved changes; may open the confirm dialog instead. */
   function requestClose() {
-    if (isDirty) {
+    if (isDirty && confirmOnDirtyClose) {
       setIsConfirmingClose(true);
       return;
     }
@@ -67,7 +71,7 @@ export function useDiscardableDialog(isDirty: boolean, onReset: () => void) {
   }
 
   function handleOpenChange(nextIsOpen: boolean) {
-    if (!nextIsOpen && isDirty) {
+    if (!nextIsOpen && isDirty && confirmOnDirtyClose) {
       setIsConfirmingClose(true);
       return;
     }

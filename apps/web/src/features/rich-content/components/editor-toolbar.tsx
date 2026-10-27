@@ -65,7 +65,11 @@ function ToolButton({
             size="icon-sm"
             aria-label={label}
             aria-pressed={active}
-            className={active ? "bg-primary/10 text-primary" : undefined}
+            className={
+              active
+                ? "rounded-lg bg-muted text-foreground hover:bg-muted"
+                : "rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
+            }
             onClick={onClick}
           >
             {icon}
@@ -218,7 +222,7 @@ export function EditorToolbar({
       <div
         role="toolbar"
         aria-label="Formatting"
-        className="flex flex-wrap items-center gap-0.5 rounded-md border bg-muted/30 p-1"
+        className="flex flex-wrap items-center gap-0.5 rounded-lg bg-card p-1"
       >
         {tools.map((tool) => (
           <ToolButton key={tool.label} {...tool} />

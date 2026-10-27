@@ -3,34 +3,21 @@
 import { useId } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "@tanstack/react-form";
-import { Check, LoaderCircle, NotebookPen, Plus, Star } from "lucide-react";
+import { Check, LoaderCircle, NotebookPen, Plus } from "lucide-react";
 
 import type { ListStatus, MediaType } from "@tsuki/api/types";
 
 import {
-  DiscardChangesDialog,
   useDiscardableDialog,
   useUnloadWarning,
 } from "@/features/rich-content/components/discard-changes";
 import { RichContentEditor } from "@/features/rich-content/components/rich-content-editor";
 
 import { Button } from "@/shared/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/shared/components/ui/dialog";
-import {
-  Field,
-  FieldGroup,
-  FieldLabel,
-  FieldLegend,
-  FieldSeparator,
-  FieldSet,
-} from "@/shared/components/ui/field";
+import { Dialog, DialogContent, DialogTrigger } from "@/shared/components/ui/dialog";
+import { Field, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
+import { Rating } from "@/shared/components/ui/rating";
 import {
   Select,
   SelectContent,
@@ -42,7 +29,6 @@ import {
 import { cn } from "@/shared/lib/utils";
 
 import {
-  SCORE_OPTIONS,
   clampProgress,
   completionStatus,
   createActivityForm,
@@ -84,8 +70,10 @@ export function LogMediaDialog({
       if (result === "saved") dialog.close();
     },
   });
-  const dialog = useDiscardableDialog(form.state.isDirty, () =>
-    form.reset(createActivityForm(mediaType, activity.entry, activity.review, total)),
+  const dialog = useDiscardableDialog(
+    form.state.isDirty,
+    () => form.reset(createActivityForm(mediaType, activity.entry, activity.review, total)),
+    false,
   );
 
   useUnloadWarning(form.state.isDirty);
@@ -127,10 +115,6 @@ export function LogMediaDialog({
       </DialogTrigger>
 
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Log {config.label}</DialogTitle>
-        </DialogHeader>
-
         <form
           onSubmit={(event) => {
             event.preventDefault();
@@ -222,27 +206,7 @@ export function LogMediaDialog({
               {(field) => (
                 <FieldSet>
                   <FieldLegend variant="label">Rating</FieldLegend>
-                  <div className="flex flex-wrap gap-1">
-                    {SCORE_OPTIONS.map((score) => (
-                      <button
-                        type="button"
-                        key={score}
-                        onClick={() => field.handleChange(score === field.state.value ? 0 : score)}
-                        className="group rounded-sm p-0.5 focus-visible:outline-2 focus-visible:outline-ring"
-                        aria-label={`Rate ${score} out of 10`}
-                        aria-pressed={field.state.value === score}
-                      >
-                        <Star
-                          className={cn(
-                            "size-5",
-                            field.state.value >= score
-                              ? "fill-primary text-primary"
-                              : "text-muted-foreground group-hover:text-primary",
-                          )}
-                        />
-                      </button>
-                    ))}
-                  </div>
+                  <Rating value={field.state.value} onValueChange={field.handleChange} />
                 </FieldSet>
               )}
             </form.Field>
@@ -250,7 +214,6 @@ export function LogMediaDialog({
             <form.Field name="review">
               {(field) => (
                 <>
-                  <FieldSeparator />
                   <Field>
                     <FieldLabel>Review</FieldLabel>
                     <RichContentEditor
@@ -284,11 +247,6 @@ export function LogMediaDialog({
           </FieldGroup>
         </form>
       </DialogContent>
-      <DiscardChangesDialog
-        open={dialog.isConfirmingClose}
-        onDiscard={dialog.discard}
-        onKeepEditing={dialog.keepEditing}
-      />
     </Dialog>
   );
 }

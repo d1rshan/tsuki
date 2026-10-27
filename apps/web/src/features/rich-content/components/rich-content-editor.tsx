@@ -61,8 +61,8 @@ export function RichContentEditor({
       attributes: {
         class: cn(
           "rich-content-editing",
-          "min-h-24 w-full rounded-md border border-input bg-transparent px-3 py-2",
-          "text-base outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 md:text-sm",
+          "min-h-36 w-full rounded-lg bg-muted px-2.5 py-2.5",
+          "text-base font-medium text-foreground transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring/30 md:text-sm",
           "[&_p:first-child]:mt-0 [&_p:last-child]:mb-0",
           className,
         ),
@@ -130,10 +130,10 @@ export function RichContentEditor({
     [editor, spoilerAncestor],
   );
 
-  if (!editor) return <div className="min-h-28 animate-pulse rounded-md bg-muted/50" />;
+  if (!editor) return <div className="min-h-48 animate-pulse rounded-xl bg-muted" />;
 
   return (
-    <div className="space-y-1.5">
+    <div className={cn("space-y-1.5 rounded-xl bg-muted p-1.5", disabled && "opacity-50")}>
       <EditorToolbar editor={editor} preset={preset} onOpenDialog={setDialog} />
       <EditorContent editor={editor} />
 
