@@ -114,7 +114,7 @@ export function LogMediaDialog({
         {hasActivity ? "Edit log" : compact ? "Log" : "Add to list"}
       </DialogTrigger>
 
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+      <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-lg">
         <form
           onSubmit={(event) => {
             event.preventDefault();
@@ -219,6 +219,8 @@ export function LogMediaDialog({
                     <RichContentEditor
                       key={dialog.editorResetKey}
                       preset="review"
+                      showLink={false}
+                      showMedia={false}
                       value={field.state.value}
                       onChange={(value) => field.handleChange(value)}
                       disabled={saveMutation.isPending}

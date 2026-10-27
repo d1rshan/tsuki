@@ -85,10 +85,14 @@ export function EditorToolbar({
   editor,
   preset,
   onOpenDialog,
+  showLink = true,
+  showMedia = true,
 }: {
   editor: Editor;
   preset: RichContentPresetName;
   onOpenDialog: (dialog: InsertKind) => void;
+  showLink?: boolean;
+  showMedia?: boolean;
 }) {
   const isReview = preset === "review";
 
@@ -197,9 +201,18 @@ export function EditorToolbar({
         ]
       : []),
 
-    { label: "Link", icon: <Link2 />, active: state.isLink, onClick: () => onOpenDialog("link") },
+    ...(showLink
+      ? [
+          {
+            label: "Link",
+            icon: <Link2 />,
+            active: state.isLink,
+            onClick: () => onOpenDialog("link"),
+          },
+        ]
+      : []),
 
-    ...(isReview
+    ...(isReview && showMedia
       ? [
           { label: "Insert image", icon: <ImagePlus />, onClick: () => onOpenDialog("image") },
           { label: "Embed video", icon: <Clapperboard />, onClick: () => onOpenDialog("video") },

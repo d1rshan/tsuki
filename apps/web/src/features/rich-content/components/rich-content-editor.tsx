@@ -38,6 +38,8 @@ export function RichContentEditor({
   onChange,
   preset,
   disabled = false,
+  showLink = true,
+  showMedia = true,
   ariaLabel,
   className,
 }: {
@@ -45,6 +47,8 @@ export function RichContentEditor({
   onChange: (value: RichContent | null) => void;
   preset: RichContentPresetName;
   disabled?: boolean;
+  showLink?: boolean;
+  showMedia?: boolean;
   ariaLabel?: string;
   className?: string;
 }) {
@@ -134,7 +138,13 @@ export function RichContentEditor({
 
   return (
     <div className={cn("space-y-1.5 rounded-xl bg-muted p-1.5", disabled && "opacity-50")}>
-      <EditorToolbar editor={editor} preset={preset} onOpenDialog={setDialog} />
+      <EditorToolbar
+        editor={editor}
+        preset={preset}
+        onOpenDialog={setDialog}
+        showLink={showLink}
+        showMedia={showMedia}
+      />
       <EditorContent editor={editor} />
 
       <LinkDialog editor={editor} open={dialog === "link"} onOpenChange={setDialog} />

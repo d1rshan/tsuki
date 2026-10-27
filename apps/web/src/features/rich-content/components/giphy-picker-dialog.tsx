@@ -8,15 +8,7 @@ import { Grid } from "@giphy/react-components";
 import { env } from "@tsuki/env/web";
 import type { RichContentPresetName } from "@tsuki/rich-content";
 
-import { Button } from "@/shared/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/shared/components/ui/dialog";
-import { Field, FieldLabel } from "@/shared/components/ui/field";
+import { Dialog, DialogContent } from "@/shared/components/ui/dialog";
 import { Input } from "@/shared/components/ui/input";
 import { useDebouncedValue } from "@/shared/hooks/use-debounced-value";
 
@@ -74,16 +66,14 @@ function PickerBody({
 
   return (
     <>
-      <Field>
-        <FieldLabel htmlFor="rich-content-gif-search">Search</FieldLabel>
-        <Input
-          id="rich-content-gif-search"
-          placeholder="Search GIFs…"
-          value={query}
-          autoFocus
-          onChange={(event) => setQuery(event.target.value)}
-        />
-      </Field>
+      <Input
+        id="rich-content-gif-search"
+        aria-label="Search GIFs"
+        placeholder="Search GIFs…"
+        value={query}
+        autoFocus
+        onChange={(event) => setQuery(event.target.value)}
+      />
 
       <div ref={gridRef} className="min-h-0 flex-1 overflow-y-auto pt-1">
         {width > 0 && (
@@ -132,37 +122,15 @@ export function GiphyPickerDialog({
 
   return (
     <Dialog open={open} onOpenChange={() => onOpenChange(null)}>
-      <DialogContent className="flex max-h-[85vh] flex-col sm:max-w-[480px]">
-        <DialogHeader>
-          <DialogTitle>Insert a GIF</DialogTitle>
-          <DialogDescription>Search Giphy for a reaction.</DialogDescription>
-        </DialogHeader>
-
+      <DialogContent
+        aria-label="GIF picker"
+        className="flex h-[80vh] max-h-[80vh] flex-col overflow-hidden sm:max-w-lg"
+      >
         {apiKey ? (
           <>
             <PickerBody preset={preset} onSelect={handleSelect} />
-
-            <p className="pt-2 text-center text-xs text-muted-foreground">
-              Powered by{" "}
-              <a
-                href="https://giphy.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-semibold underline-offset-2 hover:underline"
-              >
-                GIPHY
-              </a>
-            </p>
           </>
-        ) : (
-          <p className="py-8 text-center text-sm text-muted-foreground">
-            GIF search is not configured. Set the Giphy key for this section to enable it.
-          </p>
-        )}
-
-        <Button type="button" variant="ghost" onClick={() => onOpenChange(null)}>
-          Cancel
-        </Button>
+        ) : null}
       </DialogContent>
     </Dialog>
   );
