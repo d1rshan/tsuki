@@ -14,8 +14,8 @@ export function SoftBlurEdge({ edge, className }: SoftBlurEdgeProps) {
         "h-20 max-sm:h-12 backdrop-blur-[3px]",
       ]
     : [
-        "h-20 max-sm:h-12 backdrop-blur-[2px] max-sm:backdrop-filter-none",
-        "h-36 max-sm:h-22 backdrop-blur-[3px]",
+        "h-8 max-sm:h-5 backdrop-blur-[2px] max-sm:backdrop-filter-none",
+        "h-16 max-sm:h-10 backdrop-blur-[3px]",
       ];
   const style = {
     backgroundImage: `linear-gradient(${direction}, color-mix(in srgb, var(--background) 85%, transparent), color-mix(in srgb, var(--background) 35%, transparent), transparent)`,
