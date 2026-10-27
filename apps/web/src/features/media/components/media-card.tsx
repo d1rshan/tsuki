@@ -72,7 +72,7 @@ export function MediaCard({
           morphId={morphId}
           id={`media-trigger-${morphId}`}
           aria-label={title}
-          className="absolute inset-0 z-10 rounded-xl focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
+          className="absolute inset-0 z-10 rounded-xl outline-none"
         />
         <div className="aspect-[3/4]" aria-hidden="true" />
         <div className="h-9" aria-hidden="true" />
