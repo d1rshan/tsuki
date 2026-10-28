@@ -39,7 +39,7 @@ export function Navbar() {
             </div>
           </div>
           {pathname === "/" && (
-            <div className="pointer-events-auto absolute left-1/2 top-0 hidden -translate-x-1/2 items-center md:flex">
+            <div className="pointer-events-auto absolute left-1/2 top-14 flex -translate-x-1/2 items-center md:top-0">
               <DiscoverControls mode="switcher" />
             </div>
           )}
@@ -47,7 +47,7 @@ export function Navbar() {
             {pathname === "/" && (
               <>
                 <div className="max-md:fixed max-md:bottom-4 max-md:left-1/2 max-md:flex max-md:w-[calc(100vw-2rem)] max-md:-translate-x-1/2 max-md:justify-center md:hidden">
-                  <DiscoverControls />
+                  <DiscoverControls mode="search" />
                 </div>
                 <div className="hidden md:flex">
                   <DiscoverControls mode="search" />
