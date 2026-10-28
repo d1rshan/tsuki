@@ -39,23 +39,86 @@ function DialogContent({
   className,
   overlayClassName,
   overlayRender,
+  mobileSheet = true,
   children,
   ...props
 }: DialogPrimitive.Popup.Props & {
   overlayClassName?: string;
   overlayRender?: DialogPrimitive.Backdrop.Props["render"];
+  /** Keep the centered dialog presentation on mobile. */
+  mobileSheet?: boolean;
 }) {
+  const closeRef = React.useRef<HTMLButtonElement>(null);
+  const drag = React.useRef<{ start: number; distance: number; time: number } | null>(null);
+
+  function finishDrag(event: React.PointerEvent<HTMLDivElement>, cancelled = false) {
+    const current = drag.current;
+    if (!current) return;
+    drag.current = null;
+    const popup = event.currentTarget.parentElement;
+    popup?.removeAttribute("data-sheet-dragging");
+    if (
+      !cancelled &&
+      (current.distance > 120 || (current.distance > 45 && performance.now() - current.time < 250))
+    ) {
+      closeRef.current?.click();
+      // A controlled dialog can reject the request. Let it settle back in that case;
+      // otherwise keep the offset while the closing animation travels downwards.
+      requestAnimationFrame(() => {
+        if (popup?.hasAttribute("data-open")) popup.style.removeProperty("--sheet-drag");
+      });
+    } else {
+      popup?.style.removeProperty("--sheet-drag");
+    }
+  }
+
   return (
     <DialogPortal>
       <DialogOverlay className={overlayClassName} render={overlayRender} />
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-background p-4 text-sm text-foreground duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          "fixed z-50 grid w-full gap-4 bg-background p-4 text-sm text-foreground outline-none",
+          mobileSheet
+            ? "bottom-0 left-0 max-sm:max-h-[min(90dvh,calc(100dvh-env(safe-area-inset-top)))] max-w-none translate-y-[var(--sheet-drag,0px)] max-sm:overflow-y-auto rounded-t-xl pt-8 pb-[max(1rem,env(safe-area-inset-bottom))] transition-transform duration-200 data-[sheet-dragging]:duration-0 data-open:animate-in data-open:slide-in-from-bottom data-closed:animate-out data-closed:slide-out-to-bottom motion-reduce:duration-0 motion-reduce:animate-none sm:top-1/2 sm:bottom-auto sm:left-1/2 sm:max-w-sm sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl sm:p-4 sm:data-open:fade-in-0 sm:data-open:zoom-in-95 sm:data-closed:fade-out-0 sm:data-closed:zoom-out-95 sm:data-open:slide-in-from-bottom-0 sm:data-closed:slide-out-to-bottom-0"
+            : "top-1/2 left-1/2 max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl duration-100 sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
           className,
         )}
         {...props}
       >
+        {mobileSheet && (
+          <>
+            <div
+              aria-hidden="true"
+              className="absolute inset-x-0 top-0 flex h-8 touch-none cursor-grab justify-center pt-3 active:cursor-grabbing sm:hidden"
+              onPointerDown={(event) => {
+                if (event.button !== 0) return;
+                drag.current = { start: event.clientY, distance: 0, time: performance.now() };
+                event.currentTarget.setPointerCapture(event.pointerId);
+                event.currentTarget.parentElement?.setAttribute("data-sheet-dragging", "");
+              }}
+              onPointerMove={(event) => {
+                if (!drag.current) return;
+                drag.current.distance = Math.max(0, event.clientY - drag.current.start);
+                event.currentTarget.parentElement?.style.setProperty(
+                  "--sheet-drag",
+                  `${drag.current.distance}px`,
+                );
+              }}
+              onPointerUp={(event) => finishDrag(event)}
+              onPointerCancel={(event) => finishDrag(event, true)}
+              onLostPointerCapture={(event) => finishDrag(event, true)}
+            >
+              <span className="h-1 w-10 rounded-full bg-muted-foreground/40" />
+            </div>
+            <DialogPrimitive.Close
+              ref={closeRef}
+              tabIndex={-1}
+              aria-hidden="true"
+              className="hidden"
+            />
+          </>
+        )}
         {children}
       </DialogPrimitive.Popup>
     </DialogPortal>

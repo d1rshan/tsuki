@@ -23,6 +23,7 @@ export function MediaModal({ children, morphId }: { children: React.ReactNode; m
     // AnimatePresence keeps the accessible dialog mounted until its return morph finishes.
     <Dialog open onOpenChange={(open) => isPresent && !open && router.back()}>
       <DialogContent
+        mobileSheet={false}
         render={<motion.div layoutRoot />}
         overlayRender={
           <motion.div

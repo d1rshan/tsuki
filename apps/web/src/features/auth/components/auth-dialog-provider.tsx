@@ -45,7 +45,7 @@ export function AuthDialogProvider({ children }: { children: React.ReactNode }) 
           className={
             state.mode === "verify-email"
               ? undefined
-              : "max-h-[80vh] max-w-[min(20rem,calc(100%-2rem))] overflow-y-auto sm:max-w-80"
+              : "sm:max-h-[80vh] sm:max-w-80 sm:overflow-y-auto"
           }
           finalFocus={returnFocus}
         >

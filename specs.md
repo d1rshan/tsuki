@@ -102,7 +102,11 @@ Implement mobile bottom-sheet behavior at the shared dialog source so dialogs re
 
 Provide an explicit per-dialog opt-out for cases that do not suit a sheet, and assess existing dialog consumers including auth verification, crop, rich-content, and discard confirmation. Keep the media details modal in its current full-screen-style layout on mobile, using the opt-out as appropriate, and preserve its custom morphing, history, and return focus. Honor existing busy or guarded close handlers.
 
-**Comments:** Pending.
+**Comments:**
+
+- Added default mobile sheets with handle dragging and controlled dismissal; media details opts out.
+- Passed typecheck, oxlint, mobile/desktop Chrome fixture checks, auth and media close checks; see consumer assessment.
+- Fixture covers nested, long and guarded dialogs; no physical touch or software keyboard verification.
 
 ---
 
