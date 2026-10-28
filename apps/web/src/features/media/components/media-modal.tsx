@@ -37,7 +37,7 @@ export function MediaModal({ children, morphId }: { children: React.ReactNode; m
         initialFocus={() => scrollRef.current}
         finalFocus={() => (morphId ? document.getElementById(`media-trigger-${morphId}`) : true)}
         className="h-[calc(100dvh-1rem)] max-h-[calc(100dvh-1rem)] w-[calc(100vw-1rem)] max-w-none gap-0 overflow-visible border-0 !bg-transparent p-0 shadow-none ring-0 !backdrop-blur-none data-open:animate-none data-closed:animate-none sm:max-w-none"
-        overlayClassName="bg-black/30 !backdrop-blur-none supports-backdrop-filter:!backdrop-blur-none data-open:animate-none data-closed:animate-none"
+        overlayClassName="data-open:animate-none data-closed:animate-none"
       >
         <motion.div
           layoutId={sharedId ? `${sharedId}-surface` : undefined}

@@ -136,4 +136,8 @@ When the mobile software keyboard appears, keep the input visibly above it as th
 
 Improve the shared dialog backdrop so open dialogs are clearly separated from the page, using a restrained blur and/or dimming that fits Tsuki's existing soft-blur visual language. Preserve readability, performance, backdrop dismissal, stacking of nested dialogs, and a usable fallback where blur is unsupported. Review the media modal's explicit backdrop overrides and make its result coherent without breaking its custom transition. Check that the new appearance works with the mobile sheets introduced above.
 
-**Comments:** Pending.
+**Comments:**
+
+- Added restrained 4px shared backdrop blur and theme-aware dimming; media inherits it while retaining its morph transition.
+- Passed typecheck, root oxlint, all 5 navigation tests, and Chrome light/dark mobile/desktop checks for auth, nesting, dismissal, media close and reduced motion.
+- No-blur fallback was simulated by removing the filter enhancement; no unsupported browser or physical device was available. Nested dialogs retain Base UI's shared backdrop and Escape behavior.
