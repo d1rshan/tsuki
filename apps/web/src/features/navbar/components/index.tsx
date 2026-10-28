@@ -46,7 +46,7 @@ export function Navbar() {
           <div className="pointer-events-auto ml-auto flex shrink-0 items-center gap-2 md:gap-3">
             {pathname === "/" && (
               <>
-                <div className="max-md:fixed max-md:bottom-4 max-md:left-1/2 max-md:flex max-md:w-[calc(100vw-2rem)] max-md:-translate-x-1/2 max-md:justify-center md:hidden">
+                <div className="md:hidden">
                   <DiscoverControls mode="search" />
                 </div>
                 <div className="hidden md:flex">
@@ -55,7 +55,7 @@ export function Navbar() {
               </>
             )}
             {pathname === "/social" && (
-              <div className="max-md:fixed max-md:bottom-4 max-md:left-1/2 max-md:flex max-md:w-[calc(100vw-2rem)] max-md:-translate-x-1/2 max-md:justify-center">
+              <div>
                 <PeopleSearchControls />
               </div>
             )}

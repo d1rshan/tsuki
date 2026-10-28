@@ -120,7 +120,11 @@ Place the collapsed mobile search control at the bottom right on both home and s
 
 When the mobile software keyboard appears, keep the input visibly above it as the viewport changes, including during typing, rotation, and keyboard dismissal. Account for the existing bottom soft blur so it remains visually coherent and does not obscure the input or content; adapt or remove it when appropriate. Use feature detection and graceful fallbacks for differing browser viewport behavior, avoid layout jumps, and do not claim emulator-only checks prove native keyboard behavior.
 
-**Comments:** Pending.
+**Comments:**
+
+- Moved mobile search to the bottom right; expanded width respects safe areas and follows the visual viewport.
+- Passed typecheck, oxlint, and Chrome checks on home and social at 320/430/1024px, including long text, close, reduced motion and simulated viewport changes.
+- No physical device or native software keyboard was available; viewport behavior was simulated.
 
 ---
 

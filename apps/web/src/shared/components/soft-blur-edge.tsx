@@ -30,7 +30,7 @@ export function SoftBlurEdge({ edge, className }: SoftBlurEdgeProps) {
           aria-hidden="true"
           className={cn(
             "pointer-events-none fixed inset-x-0 z-30",
-            isTop ? "top-0" : "bottom-0",
+            isTop ? "top-0" : "bottom-0 max-md:[[data-search-keyboard]_&]:hidden",
             layer,
             className,
           )}
