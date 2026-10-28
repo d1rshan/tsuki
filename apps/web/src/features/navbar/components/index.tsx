@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { LogIn } from "lucide-react";
 
 import { authClient } from "@tsuki/auth/client";
 
@@ -34,12 +35,12 @@ export function Navbar() {
       >
         <div className="relative mx-auto flex max-w-5xl items-center justify-between gap-2 px-4 md:gap-4">
           <div className="pointer-events-auto flex min-w-0 items-center gap-3 md:gap-6">
-            <div className="flex min-w-0 items-center overflow-x-auto no-scrollbar">
+            <div className="flex min-w-0 items-center">
               <NavbarLinks pathname={pathname} user={user} />
             </div>
           </div>
           {pathname === "/" && (
-            <div className="pointer-events-auto absolute left-1/2 top-14 flex -translate-x-1/2 items-center md:top-0">
+            <div className="pointer-events-auto absolute left-1/2 top-0 flex -translate-x-1/2 items-center">
               <DiscoverControls mode="switcher" />
             </div>
           )}
@@ -59,15 +60,17 @@ export function Navbar() {
                 <PeopleSearchControls />
               </div>
             )}
-            <ThemeSelector />
+            <ThemeSelector compactMobile />
             {!isPending && !user && (
               <div className="rounded-full bg-muted p-1">
                 <Button
                   variant="ghost"
                   onClick={() => openAuth()}
-                  className="h-auto rounded-full border-0 px-4 py-[7px] hover:bg-transparent hover:text-foreground"
+                  aria-label="Sign in"
+                  className="h-auto rounded-full border-0 px-4 py-[7px] hover:bg-transparent hover:text-foreground max-md:size-8.5 max-md:p-0"
                 >
-                  Sign in
+                  <LogIn aria-hidden="true" className="md:hidden" />
+                  <span className="max-md:hidden">Sign in</span>
                 </Button>
               </div>
             )}

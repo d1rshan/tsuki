@@ -1,6 +1,49 @@
 import { expect, test } from "@playwright/test";
 import { instant } from "@next/playwright";
 
+test("mobile navigation expands one surface beside the centered media switcher", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 800 });
+  await page.goto("/");
+  await expect(page.getByRole("button", { name: "Sign in", exact: true })).toBeVisible();
+  const trigger = page.getByRole("button", { name: "Main navigation: Discover" });
+  const surface = trigger.locator("..");
+  const collapsedHeight = await surface.evaluate(
+    (element) => element.getBoundingClientRect().height,
+  );
+  const routeBox = await trigger.boundingBox();
+  const mediaBox = await page.getByRole("tablist", { name: "Media type" }).boundingBox();
+  expect(mediaBox!.x + mediaBox!.width / 2).toBe(160);
+  expect(mediaBox!.y + mediaBox!.height / 2).toBe(routeBox!.y + routeBox!.height / 2);
+  expect(routeBox!.x + routeBox!.width).toBeLessThan(mediaBox!.x);
+
+  await trigger.focus();
+  await page.keyboard.press("ArrowDown");
+  const social = surface.getByRole("link", { name: "Social", exact: true });
+  await expect(social).toBeFocused();
+  await expect(surface.getByRole("link", { name: "Discover", exact: true })).toHaveCount(0);
+  await expect
+    .poll(() => surface.evaluate((element) => element.getBoundingClientRect().height))
+    .toBeGreaterThan(collapsedHeight);
+  await page.keyboard.press("Escape");
+  await expect(trigger).toBeFocused();
+  await expect(trigger).toHaveAttribute("aria-expanded", "false");
+
+  await trigger.click();
+  await social.click();
+  await expect(page).toHaveURL(/\/social$/);
+  const nextTrigger = page.getByRole("button", { name: "Main navigation: Social" });
+  await expect(nextTrigger).toHaveAttribute("aria-expanded", "false");
+  await nextTrigger.click();
+  await expect(
+    nextTrigger.locator("..").getByRole("link", { name: "Social", exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    nextTrigger.locator("..").getByRole("link", { name: "Discover", exact: true }),
+  ).toBeVisible();
+});
+
 test("discover has a useful shell before URL state and data resolve", async ({ page, baseURL }) => {
   await instant(
     page,

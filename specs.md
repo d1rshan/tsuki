@@ -14,12 +14,12 @@ If requirements prove impossible or a dependency is unavailable, report the spec
 - **Browser verification:** Yes — narrow mobile and desktop widths, signed-in and signed-out navigation, route changes, and reduced motion.
 - **Commit:** `feat: add mobile dropdown navigation`
 
-Replace the mobile horizontal navigation with a compact dropdown-like control showing the current route. Its collapsed appearance should look like the existing main rounded tabs component with just one tab, maintaining consistency with the navbar. Open a vertical dropdown of the existing tab-style route options. Animate opening, closing, and selection smoothly; support keyboard navigation, focus management, outside dismissal, and reduced motion. Keep route highlighting, available links, and desktop navigation behavior correct. Move the home page's anime/manga switcher to the top center on mobile as well as desktop, avoiding collisions with navigation, theme, and sign-in controls at narrow widths. Preserve its existing selection behavior.
+Replace the mobile horizontal navigation with a compact rounded surface showing the current route. Expand that same surface vertically using Framer Motion to reveal the other route options; the active route appears only once, with no separate dropdown popup. Animate opening, closing, and selection smoothly; support keyboard navigation, focus management, outside dismissal, and reduced motion. Keep route highlighting, available links, and desktop navigation behavior correct. Center the home page's anime/manga switcher in the same header row on mobile as on desktop, avoiding collisions with navigation, theme, and sign-in controls at narrow widths. Preserve its existing selection behavior.
 
 **Comments:**
 
-- Added accessible mobile route dropdown; centered mobile discover switcher above content; desktop tabs retained.
-- Passed web typecheck, navbar lint, and Chrome checks at 320/375/768/1280px: routes, keyboard/focus, outside dismissal, media selection, reduced motion.
+- Mobile route pill now expands its own surface with Framer Motion; current route appears once. Media switcher is centered in the same header row, with compact mobile theme/sign-in controls; desktop tabs retained.
+- Passed build, typecheck, lint, six navigation regressions, and Chrome checks at 320–1280px: expansion, routes, keyboard/focus, dismissal, media selection, theme/auth controls, and reduced motion.
 - Auth states used mocked sessions; no physical-device verification.
 
 ---
