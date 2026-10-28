@@ -84,7 +84,11 @@ The current social page renders `SocialView` as signed out in its Suspense fallb
 
 Add a clearly visible, circular icon-only close or back button to the media details modal, styled consistently with the minimized search button. It must remain reachable while viewing details, have an accessible name and focus indicator, and use the existing modal close/history flow so the background and focus restore correctly. Avoid obscuring content or conflicting with modal animations and mobile safe areas.
 
-**Comments:** Pending.
+**Comments:**
+
+- Added a sticky circular close button with safe-area spacing, using the existing history and focus-return flow.
+- Passed typecheck, oxlint, formatting, and mobile/desktop browser checks for scrolling, close, Escape, Back, and focus restoration.
+- Standalone ESLint could not start because typescript-eslint does not support the installed TypeScript 7.0 API.
 
 ---
 
