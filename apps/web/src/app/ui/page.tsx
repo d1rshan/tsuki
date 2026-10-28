@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, LoaderCircle, Plus } from "lucide-react";
 
+import { AuthVerificationPreview } from "@/features/auth/components/auth-verification-preview";
 import { ThemeSelector } from "@/shared/components/theme-selector";
 import { Button } from "@/shared/components/ui/button";
 
@@ -25,7 +26,7 @@ export default function UiPage() {
             Home
           </Button>
           <div className="space-y-2">
-            <h1 className="text-3xl font-medium tracking-tight text-foreground">Buttons</h1>
+            <h1 className="text-3xl font-medium tracking-tight text-foreground">UI preview</h1>
             <p className="text-sm text-muted-foreground">
               Temporary preview of the shared button styles. Hover or use Tab to compare states.
             </p>
@@ -33,6 +34,13 @@ export default function UiPage() {
         </div>
         <ThemeSelector />
       </header>
+
+      <section aria-labelledby="auth-heading" className="space-y-4">
+        <h2 id="auth-heading" className="text-lg font-medium text-foreground">
+          Email verification
+        </h2>
+        <AuthVerificationPreview />
+      </section>
 
       <section aria-labelledby="variants-heading" className="space-y-4">
         <h2 id="variants-heading" className="text-lg font-medium text-foreground">

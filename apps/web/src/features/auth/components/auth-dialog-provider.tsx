@@ -42,7 +42,11 @@ export function AuthDialogProvider({ children }: { children: React.ReactNode }) 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent
           data-auth-dialog
-          className="max-h-[80vh] max-w-[min(20rem,calc(100%-2rem))] overflow-y-auto sm:max-w-80"
+          className={
+            state.mode === "verify-email"
+              ? undefined
+              : "max-h-[80vh] max-w-[min(20rem,calc(100%-2rem))] overflow-y-auto sm:max-w-80"
+          }
           finalFocus={returnFocus}
         >
           <AuthDialogView
