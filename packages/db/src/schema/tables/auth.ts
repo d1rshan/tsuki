@@ -1,13 +1,4 @@
-import {
-  bigint,
-  boolean,
-  index,
-  integer,
-  pgTable,
-  text,
-  timestamp,
-  uniqueIndex,
-} from "drizzle-orm/pg-core";
+import { bigint, boolean, index, integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -56,9 +47,7 @@ export const account = pgTable(
     id: text("id").primaryKey(),
     accountId: text("account_id").notNull(),
     providerId: text("provider_id").notNull(),
-    // btw: required by better-auth 1.7 — credential rows use issuer
-    // "local:credential" with account_id = user.id (backfilled, see 1.7 upgrade).
-    issuer: text("issuer").notNull(),
+    issuer: text("issuer"),
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
@@ -75,10 +64,7 @@ export const account = pgTable(
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),
   },
-  (table) => [
-    index("account_userId_idx").on(table.userId),
-    uniqueIndex("account_issuer_accountId_uidx").on(table.issuer, table.accountId),
-  ],
+  (table) => [index("account_userId_idx").on(table.userId)],
 );
 
 export const verification = pgTable(
