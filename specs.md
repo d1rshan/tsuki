@@ -34,7 +34,11 @@ On touch/no-hover devices, place a small, discoverable reveal button next to the
 
 `MediaCard` currently mounts actions for every no-hover card, and `useMediaActivity` requests activity per mounted card when authenticated. TanStack Query already caches this data with a default 60-second stale time. Reuse and assess that cache rather than adding a parallel cache; ensure repeated reveals benefit from appropriate freshness, mutations update or invalidate the right data, and activity cannot leak between accounts after sign-out or account changes. Verify requests are deferred until interaction and state remains correct after actions and session changes.
 
-**Comments:** Pending.
+**Comments:**
+
+- Added touch reveal and account-scoped activity cache; old account queries are cancelled and removed.
+- Passed typecheck, oxlint, and Chrome checks for deferred/repeated requests, mocked mutations and account changes, auth prompt, poster navigation, hover and focus.
+- Sessions, activity and mutation transport were mocked; real authenticated mutations and physical touch were not verified.
 
 ---
 

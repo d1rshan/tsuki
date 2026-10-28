@@ -1,8 +1,9 @@
 "use client";
 
-import { useId, useState, useSyncExternalStore } from "react";
+import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
+import { Ellipsis } from "lucide-react";
 
 import type { Media, MediaCompact } from "@tsuki/api/types";
 
@@ -36,22 +37,40 @@ export function MediaCard({
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
   const [activated, setActivated] = useState(false);
-  const expanded = hovered || focused;
+  const [revealed, setRevealed] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const expanded = noHover ? revealed : hovered || focused;
   const reduceMotion = useReducedMotion();
   const { title, coverImage, type, count } = normalizeMediaCompact(media);
 
+  useEffect(() => {
+    if (!revealed) return;
+    function dismiss(event: PointerEvent) {
+      if (!cardRef.current?.contains(event.target as Node)) setRevealed(false);
+    }
+    document.addEventListener("pointerdown", dismiss);
+    return () => document.removeEventListener("pointerdown", dismiss);
+  }, [revealed]);
+
   return (
     <div
+      ref={cardRef}
       className={cn("group relative min-w-0 rounded-xl", className)}
       onPointerEnter={(event) => {
-        setActivated(true);
-        if (event.pointerType !== "touch") setHovered(true);
+        if (event.pointerType !== "touch" && !noHover) {
+          setActivated(true);
+          setHovered(true);
+        }
       }}
       onPointerLeave={() => setHovered(false)}
-      onPointerDown={() => setActivated(true)}
+      onKeyDown={(event) => {
+        if (event.key === "Escape" && revealed) setRevealed(false);
+      }}
       onFocus={() => {
-        setActivated(true);
-        setFocused(true);
+        if (!noHover) {
+          setActivated(true);
+          setFocused(true);
+        }
       }}
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false);
@@ -102,34 +121,48 @@ export function MediaCard({
             )}
           </motion.div>
           <motion.div
-            className="min-h-9 overflow-hidden [@media(hover:none)]:h-auto!"
+            className="min-h-9 overflow-hidden"
             initial={false}
             animate={{ height: expanded ? "auto" : 36 }}
             transition={{ duration: reduceMotion ? 0 : 0.35, ease: [0.22, 1, 0.36, 1] }}
           >
-            <motion.h3
-              layoutId={reduceMotion ? undefined : `${morphId}-title`}
-              layout="position"
-              style={{
-                willChange: "transform",
-                transform: "translateZ(0)",
-              }}
-              className={cn(
-                "px-1 pt-3 pb-1 text-sm leading-snug font-semibold transition-colors [@media(hover:none)]:line-clamp-none",
-                expanded ? "text-current" : "line-clamp-1 text-muted-foreground",
-              )}
-            >
-              {title}
-            </motion.h3>
+            <div className="flex min-w-0 items-start gap-1">
+              <motion.h3
+                layoutId={reduceMotion ? undefined : `${morphId}-title`}
+                layout="position"
+                style={{
+                  willChange: "transform",
+                  transform: "translateZ(0)",
+                }}
+                className={cn(
+                  "min-w-0 flex-1 px-1 pt-3 pb-1 text-sm leading-snug font-semibold transition-colors",
+                  expanded ? "text-current" : "line-clamp-1 text-muted-foreground",
+                )}
+              >
+                {title}
+              </motion.h3>
+              <button
+                type="button"
+                aria-label={`Quick actions for ${title}`}
+                aria-expanded={expanded}
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  setActivated(true);
+                  setRevealed((value) => !value);
+                }}
+                className="relative z-20 mt-2 hidden size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring [@media(hover:none)]:flex"
+              >
+                <Ellipsis className="size-4" />
+              </button>
+            </div>
             <div
               className={cn(
-                "relative z-20 px-1 pt-2 pb-1 transition-opacity duration-200 motion-reduce:transition-none [@media(hover:none)]:visible [@media(hover:none)]:opacity-100",
+                "relative z-20 px-1 pt-2 pb-1 transition-opacity duration-200 motion-reduce:transition-none",
                 expanded ? "visible opacity-100" : "invisible opacity-0",
               )}
             >
-              {(activated || noHover) && (
-                <MediaCardActions mediaType={type} mediaId={media.id} total={count} />
-              )}
+              {activated && <MediaCardActions mediaType={type} mediaId={media.id} total={count} />}
             </div>
           </motion.div>
         </div>

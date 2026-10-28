@@ -20,18 +20,18 @@ export function useMediaActivity(mediaType: MediaType, mediaId: number) {
   const { data: session, isPending: isSessionPending } = useSession();
   const isAuthenticated = Boolean(session?.user);
   const query = useQuery({
-    queryKey: mediaKeys.activity(mediaType, mediaId),
+    queryKey: [...mediaKeys.activity(mediaType, mediaId), session?.user?.id ?? null],
     queryFn: () => getMediaActivity(mediaType, mediaId),
     enabled: isAuthenticated,
   });
 
   return {
-    entry: query.data?.entry ?? null,
+    entry: isAuthenticated ? (query.data?.entry ?? null) : null,
     isAuthenticated,
     isError: query.isError,
     isPending: isSessionPending || (isAuthenticated && query.isFetching),
     retry: query.refetch,
-    review: query.data?.review ?? null,
+    review: isAuthenticated ? (query.data?.review ?? null) : null,
   };
 }
 
