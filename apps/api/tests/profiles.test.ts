@@ -69,10 +69,13 @@ describe("ImageKit path convention", () => {
   });
 
   test("extracts the upload epoch from a convention-conforming path", () => {
+    const before = Math.floor(Date.now() / 1000);
     const auth = generateImageKitUploadAuth("user-1", "avatar");
     const path = `/avatars/${auth.fileName}`;
+    const after = Math.floor(Date.now() / 1000);
 
-    expect(uploadedAtFromFilePath(path)).toBe(Math.floor(Date.now() / 1000));
+    expect(uploadedAtFromFilePath(path)).toBeGreaterThanOrEqual(before);
+    expect(uploadedAtFromFilePath(path)).toBeLessThanOrEqual(after);
     expect(uploadedAtFromFilePath("/avatars/some-random-file.webp")).toBeNull();
   });
 });
