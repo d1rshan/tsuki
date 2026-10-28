@@ -2,6 +2,8 @@
 
 import { UserX } from "lucide-react";
 
+import { authClient } from "@tsuki/auth/client";
+
 import { ContentState } from "@/shared/components/content-state";
 import { LoadMoreButton } from "@/shared/components/load-more-button";
 import { QueryState } from "@/shared/components/query-state";
@@ -65,7 +67,11 @@ function SocialFeeds({
       <section aria-label="Activity" className="min-w-0">
         <div className="mb-2 flex items-center justify-between gap-4">
           <h2 className="text-base font-medium">Activity</h2>
-          {showSwitcher && <SocialFeedSwitcher />}
+          {showSwitcher ? (
+            <SocialFeedSwitcher />
+          ) : (
+            <div aria-hidden="true" className="invisible h-[42px] shrink-0" />
+          )}
         </div>
         <Feed type={type} />
       </section>
@@ -110,8 +116,10 @@ function Discover({ search }: { search: string }) {
 }
 
 export function SocialView({ isAuthenticated }: { isAuthenticated: boolean }) {
+  const { data: session, isPending } = authClient.useSession();
   const [{ search, q }] = usePeopleSearch();
   const [feedMode] = useSocialFeedMode();
+  const isSignedIn = isPending ? isAuthenticated : Boolean(session?.user);
   const isSearching = search || Boolean(q);
 
   return (
@@ -123,13 +131,46 @@ export function SocialView({ isAuthenticated }: { isAuthenticated: boolean }) {
         </section>
       ) : (
         <div className="min-w-0">
-          {isAuthenticated ? (
+          {isSignedIn ? (
             <SocialFeeds type={feedMode} />
           ) : (
             <SocialFeeds type="public" showSwitcher={false} />
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+export function SocialPendingView() {
+  return (
+    <div className="pt-28 pb-24 md:pt-32 md:pb-16">
+      <div className="grid gap-8 @min-[48rem]:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+        <section aria-label="Activity" aria-busy="true" className="min-w-0">
+          <div className="mb-2 flex items-center justify-between gap-4">
+            <h2 className="text-base font-medium">Activity</h2>
+            <div
+              role="status"
+              aria-label="Checking sign-in status"
+              className="inline-flex h-[42px] w-[11.25rem] max-w-[calc(100vw-2rem)] shrink-0 items-center gap-1 rounded-xl bg-muted p-1"
+            >
+              <span className="h-full flex-1 rounded-lg bg-card/70" />
+              <span className="h-full flex-1 rounded-lg bg-card/70" />
+            </div>
+          </div>
+          <div className="space-y-4" aria-hidden="true">
+            <div className="h-28 animate-pulse rounded-xl bg-muted motion-reduce:animate-none" />
+            <div className="h-28 animate-pulse rounded-xl bg-muted motion-reduce:animate-none" />
+          </div>
+        </section>
+        <aside aria-label="Recent reviews" className="min-w-0">
+          <h2 className="mb-4 text-base font-medium">Recent reviews</h2>
+          <div
+            className="h-28 animate-pulse rounded-xl bg-muted motion-reduce:animate-none"
+            aria-hidden="true"
+          />
+        </aside>
+      </div>
     </div>
   );
 }

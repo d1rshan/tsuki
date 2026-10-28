@@ -68,7 +68,11 @@ Use the installed Next.js validation tools and relevant automated checks, includ
 
 The current social page renders `SocialView` as signed out in its Suspense fallback and then replaces it with the session-dependent view. Remove the resulting appearance or layout flash of the public/following switcher while preserving an immediate useful shell, correct signed-out public feed, signed-in selection, URL state, and access control. Reserve stable space or use another visually appropriate pending treatment; do not render an incorrect signed-in state as a shortcut. Check that switching feeds and authentication changes remain correct.
 
-**Comments:** Pending.
+**Comments:**
+
+- Replaced the false signed-out fallback with a neutral feed shell; preserved header space and client session/feed updates.
+- Passed web typecheck, oxlint, and all 5 navigation browser checks, including 320px layout, delayed session, feed URL and auth changes.
+- Session and feed API responses were mocked in browser checks; no real authenticated account was used.
 
 ---
 

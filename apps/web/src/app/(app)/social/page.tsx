@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 
-import { SocialView } from "@/features/social/views/social-view";
+import { SocialPendingView, SocialView } from "@/features/social/views/social-view";
 import { getSession } from "@/shared/lib/session";
 import { siteName } from "@/shared/lib/site";
 
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <Suspense fallback={<SocialView isAuthenticated={false} />}>
+    <Suspense fallback={<SocialPendingView />}>
       <SocialGate />
     </Suspense>
   );
