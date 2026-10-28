@@ -22,8 +22,8 @@
     "test": "turbo run test",
     "deploy": "bun run deploy:check && bun run deploy:web && bun run deploy:api",
     "deploy:check": "bun run build && bun run typecheck",
-    "deploy:web": "vercel --project tsuki-web --prod",
-    "deploy:api": "vercel --project tsuki-api --prod",
+    "deploy:web": "npx vercel --project tsuki-web --prod",
+    "deploy:api": "npx vercel --project tsuki-api --prod",
     "db:push": "turbo -F @tsuki/db db:push",
     "db:studio": "turbo -F @tsuki/db db:studio",
     "prepare": "husky"
