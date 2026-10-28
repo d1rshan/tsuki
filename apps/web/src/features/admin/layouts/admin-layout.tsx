@@ -9,7 +9,15 @@ import { requireAdmin } from "../require-admin";
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <Suspense fallback={<Loader className="min-h-screen" />}>
+    <Suspense
+      fallback={
+        <main className="mx-auto flex min-h-screen max-w-xl flex-col justify-center gap-3 p-6">
+          <h1 className="text-2xl font-semibold">Administration</h1>
+          <p className="text-muted-foreground">Checking access…</p>
+          <Loader />
+        </main>
+      }
+    >
       <AdminLayoutContent>{children}</AdminLayoutContent>
     </Suspense>
   );

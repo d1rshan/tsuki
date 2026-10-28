@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:navigation": "playwright test"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
@@ -45,6 +46,8 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@next/playwright": "16.4.3",
+    "@playwright/test": "1.64.1",
     "@tailwindcss/postcss": "^4",
     "@tanstack/react-query-devtools": "^5.104.5",
     "@types/node": "^26",

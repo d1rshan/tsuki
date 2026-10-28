@@ -76,7 +76,7 @@ export function NavbarLinks({ pathname, user }: NavbarLinksProps) {
                 render={
                   <Link
                     href={link.href}
-                    prefetch={link.label === "Profile"}
+                    prefetch={link.label === "Profile" ? true : undefined}
                     aria-current={link.isActive ? "page" : undefined}
                   />
                 }
@@ -107,7 +107,7 @@ export function NavbarLinks({ pathname, user }: NavbarLinksProps) {
               render={
                 <Link
                   href={link.href}
-                  prefetch={link.label === "Profile"}
+                  prefetch={link.label === "Profile" ? true : undefined}
                   aria-current={link.isActive ? "page" : undefined}
                 />
               }

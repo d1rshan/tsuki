@@ -52,7 +52,11 @@ Audit all application routes and their actual navigation entry points against th
 
 Use the installed Next.js validation tools and relevant automated checks, including meaningful regression coverage where practical. Report the route audit, validation, and any unavoidable exceptions in the task completion report. Do not weaken auth checks or change freshness requirements merely to pass validation.
 
-**Comments:** Pending.
+**Comments:**
+
+- Audited all routes; added Discover/admin shells and restored navbar shell prefetch; retained bounded media modal behavior.
+- Passed production build, typecheck, oxlint, Next validation and Chrome shell/navigation checks; added instant() regression tests.
+- See `docs/agents/instant-navigation-audit.md`; authenticated admin/private-profile browser access unavailable.
 
 ---
 
