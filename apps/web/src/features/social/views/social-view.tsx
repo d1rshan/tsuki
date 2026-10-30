@@ -6,6 +6,7 @@ import { authClient } from "@tsuki/auth/client";
 
 import { ContentState } from "@/shared/components/content-state";
 import { LoadMoreButton } from "@/shared/components/load-more-button";
+import { Loader } from "@/shared/components/loader";
 import { QueryState } from "@/shared/components/query-state";
 import { useDebouncedValue } from "@/shared/hooks/use-debounced-value";
 
@@ -149,26 +150,13 @@ export function SocialPendingView() {
         <section aria-label="Activity" aria-busy="true" className="min-w-0">
           <div className="mb-2 flex items-center justify-between gap-4">
             <h2 className="text-base font-medium">Activity</h2>
-            <div
-              role="status"
-              aria-label="Checking sign-in status"
-              className="inline-flex h-9 w-36 max-w-[calc(100vw-2rem)] shrink-0 items-center gap-1 rounded-xl bg-muted p-1"
-            >
-              <span className="h-full flex-1 rounded-lg bg-card/70" />
-              <span className="h-full flex-1 rounded-lg bg-card/70" />
-            </div>
+            <div aria-hidden="true" className="h-9 shrink-0" />
           </div>
-          <div className="space-y-4" aria-hidden="true">
-            <div className="h-28 animate-pulse rounded-xl bg-muted motion-reduce:animate-none" />
-            <div className="h-28 animate-pulse rounded-xl bg-muted motion-reduce:animate-none" />
-          </div>
+          <Loader />
         </section>
         <aside aria-label="Recent reviews" className="min-w-0">
           <h2 className="mb-4 text-base font-medium">Recent reviews</h2>
-          <div
-            className="h-28 animate-pulse rounded-xl bg-muted motion-reduce:animate-none"
-            aria-hidden="true"
-          />
+          <Loader />
         </aside>
       </div>
     </div>
