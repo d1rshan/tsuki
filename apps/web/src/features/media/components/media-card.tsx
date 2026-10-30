@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
-import { Ellipsis } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
 import type { Media, MediaCompact } from "@tsuki/api/types";
 
@@ -126,7 +126,7 @@ export function MediaCard({
             animate={{ height: expanded ? "auto" : 36 }}
             transition={{ duration: reduceMotion ? 0 : 0.35, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="flex min-w-0 items-start gap-1">
+            <div className="flex min-w-0 items-start">
               <motion.h3
                 layoutId={reduceMotion ? undefined : `${morphId}-title`}
                 layout="position"
@@ -135,8 +135,8 @@ export function MediaCard({
                   transform: "translateZ(0)",
                 }}
                 className={cn(
-                  "min-w-0 flex-1 px-1 pt-3 pb-1 text-sm leading-snug font-semibold transition-colors",
-                  expanded ? "text-current" : "line-clamp-1 text-muted-foreground",
+                  "min-w-0 flex-1 px-1 pt-3 pb-1 text-sm leading-snug font-medium text-foreground",
+                  !expanded && "line-clamp-1 max-sm:break-all",
                 )}
               >
                 {title}
@@ -151,9 +151,14 @@ export function MediaCard({
                   setActivated(true);
                   setRevealed((value) => !value);
                 }}
-                className="relative z-20 mt-2 hidden size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring [@media(hover:none)]:flex"
+                className="relative z-20 mt-2 hidden h-7 w-5 shrink-0 items-center justify-center rounded-md text-muted-foreground before:absolute before:-inset-2 hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring [@media(hover:none)]:flex"
               >
-                <Ellipsis className="size-4" />
+                <ChevronDown
+                  className={cn(
+                    "size-4 transition-transform motion-reduce:transition-none",
+                    expanded && "rotate-180",
+                  )}
+                />
               </button>
             </div>
             <div

@@ -8,11 +8,12 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-card text-foreground hover:bg-muted aria-expanded:bg-muted",
+        default:
+          "bg-muted text-foreground hover:bg-[color-mix(in_oklch,var(--muted),var(--foreground)_5%)] aria-expanded:bg-[color-mix(in_oklch,var(--muted),var(--foreground)_5%)]",
         outline:
           "border-muted-foreground/20 bg-transparent text-foreground hover:border-transparent hover:bg-muted aria-expanded:border-transparent aria-expanded:bg-muted",
         secondary:
-          "bg-muted text-foreground hover:bg-[color-mix(in_oklch,var(--muted),var(--foreground)_5%)] aria-expanded:bg-[color-mix(in_oklch,var(--muted),var(--foreground)_5%)]",
+          "bg-card text-muted-foreground hover:text-foreground aria-expanded:text-foreground",
         ghost:
           "bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground",
         destructive:

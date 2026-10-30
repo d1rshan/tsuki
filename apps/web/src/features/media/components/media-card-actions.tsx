@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, LoaderCircle, Plus, RefreshCw } from "lucide-react";
+import { Bookmark, BookmarkCheck, LoaderCircle, RefreshCw } from "lucide-react";
 
 import type { MediaType } from "@tsuki/api/types";
 
@@ -29,7 +29,12 @@ export function MediaCardActions({
 
   if (activity.isError) {
     return (
-      <Button size="sm" className="w-full" onClick={() => void activity.retry()}>
+      <Button
+        variant="secondary"
+        size="sm"
+        className="w-full"
+        onClick={() => void activity.retry()}
+      >
         <RefreshCw />
         Retry actions
       </Button>
@@ -39,6 +44,7 @@ export function MediaCardActions({
   return (
     <div className="flex items-center gap-1.5">
       <Button
+        variant="secondary"
         size="icon-sm"
         aria-label={watchlistLabel}
         aria-pressed={isListed}
@@ -55,9 +61,9 @@ export function MediaCardActions({
         {watchlistMutation.isPending ? (
           <LoaderCircle className="animate-spin" />
         ) : isListed ? (
-          <Check />
+          <BookmarkCheck />
         ) : (
-          <Plus />
+          <Bookmark />
         )}
       </Button>
       <LogMediaDialog

@@ -46,7 +46,7 @@ export default function UiPage() {
         <h2 id="variants-heading" className="text-lg font-medium text-foreground">
           Variants & states
         </h2>
-        <div className="overflow-x-auto rounded-2xl bg-card p-4 sm:p-6">
+        <div className="overflow-x-auto">
           <table className="w-full border-separate border-spacing-x-3 border-spacing-y-4 text-left">
             <thead className="text-xs font-medium text-muted-foreground">
               <tr>
@@ -115,7 +115,7 @@ export default function UiPage() {
         </h2>
         <div className="grid gap-6 sm:grid-cols-2">
           {variants.map((variant) => (
-            <div key={variant} className="space-y-5 rounded-2xl bg-card p-5">
+            <div key={variant} className="space-y-5">
               <h3 className="text-sm font-medium text-muted-foreground">{variant}</h3>
               <div className="flex flex-wrap items-end gap-3">
                 {sizes.map((size) => (

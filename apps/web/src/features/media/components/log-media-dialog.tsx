@@ -94,6 +94,7 @@ export function LogMediaDialog({
           <Button
             disabled={activity.isPending}
             className="flex-1"
+            variant={compact ? "secondary" : "default"}
             size={compact ? "sm" : "default"}
           />
         }
