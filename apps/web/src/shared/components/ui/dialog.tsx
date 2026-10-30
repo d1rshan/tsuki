@@ -28,7 +28,7 @@ function DialogOverlay({ className, ...props }: DialogPrimitive.Backdrop.Props) 
       data-slot="dialog-overlay"
       className={cn(
         // Keep dimming without filter support; animate opacity rather than the blur radius.
-        "fixed inset-0 isolate z-50 bg-black/40 dark:bg-black/50 supports-backdrop-filter:backdrop-blur-[4px] duration-150 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 motion-reduce:!animate-none",
+        "fixed inset-0 isolate z-50 bg-black/40 dark:bg-black/50 supports-backdrop-filter:backdrop-blur-[4px] duration-150 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 data-closed:fill-mode-forwards motion-reduce:!animate-none",
         className,
       )}
       {...props}
@@ -79,7 +79,7 @@ function DialogContent({
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(
-          "fixed z-50 grid w-full gap-4 bg-background p-4 text-sm text-foreground outline-none",
+          "fixed z-50 grid w-full gap-4 bg-background p-4 text-sm text-foreground outline-none data-closed:fill-mode-forwards",
           mobileSheet
             ? "bottom-0 left-0 max-sm:max-h-[min(90dvh,calc(100dvh-env(safe-area-inset-top)))] max-w-none translate-y-[var(--sheet-drag,0px)] max-sm:overflow-y-auto rounded-t-xl pt-8 pb-[max(1rem,env(safe-area-inset-bottom))] transition-transform duration-200 data-[sheet-dragging]:duration-0 data-open:animate-in data-open:slide-in-from-bottom data-closed:animate-out data-closed:slide-out-to-bottom motion-reduce:duration-0 motion-reduce:animate-none sm:top-1/2 sm:bottom-auto sm:left-1/2 sm:max-w-sm sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl sm:p-4 sm:data-open:fade-in-0 sm:data-open:zoom-in-95 sm:data-closed:fade-out-0 sm:data-closed:zoom-out-95 sm:data-open:slide-in-from-bottom-0 sm:data-closed:slide-out-to-bottom-0"
             : "top-1/2 left-1/2 max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl duration-100 sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
