@@ -65,3 +65,13 @@ with a fresh Kitsu crawl. Images and optional services still require internet.
 To inspect services, run `docker compose ps` or `docker compose logs neon-proxy`.
 Local scripts never use an inherited remote `DATABASE_URL`; their database
 target and connection credentials are fixed to this local Compose setup.
+
+## Access from a phone with Tailscale
+
+Connect both devices to the same tailnet, then run `bun run tailscale` from
+the repository root. Open the URL printed by the command on your phone. The
+command discovers the computer's Tailscale IPv4 address and configures the
+app and authentication for it for that session; it does not edit your env files.
+Stop it with Ctrl+C. Start the local database separately with `bun run local:up`
+if you use the Docker setup above. If the phone cannot connect, check your
+firewall permits connections to port 3000 over Tailscale.

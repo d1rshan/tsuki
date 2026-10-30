@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 import { env } from "@tsuki/env/web";
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: [new URL(env.NEXT_PUBLIC_APP_URL).hostname],
   cacheComponents: true,
   partialPrefetching: true,
   // experimental: {

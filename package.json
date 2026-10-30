@@ -8,6 +8,7 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "tailscale": "TSUKI_TAILSCALE_IP=$(tailscale ip -4) && test -n \"$TSUKI_TAILSCALE_IP\" && echo \"Open http://$TSUKI_TAILSCALE_IP:3000 on your phone\" && NEXT_PUBLIC_APP_URL=http://$TSUKI_TAILSCALE_IP:3000 NEXT_PUBLIC_API_URL=http://localhost:3001 bun run dev",
     "local:setup": "bun run scripts/local.ts setup",
     "local:up": "bun run scripts/local.ts up",
     "local:sync": "bun run scripts/local.ts sync",
