@@ -10,7 +10,7 @@ import { ActivityCardCore } from "./activity-core";
 
 export function SocialActivityCard({ activity }: { activity: Activity }) {
   return (
-    <article className="rounded-xl bg-muted p-4">
+    <article className="py-4">
       <ActivityCardCore
         activity={activity}
         coverClassName="w-14"
@@ -19,19 +19,15 @@ export function SocialActivityCard({ activity }: { activity: Activity }) {
           <Link
             href={`/${activity.actor.username}`}
             prefetch={true}
-            className="block w-fit text-sm font-medium text-foreground"
+            className="flex min-w-0 items-center gap-2 text-sm font-medium text-foreground hover:underline"
           >
-            {activity.actor.displayUsername}
-          </Link>
-        }
-        footer={
-          <Link href={`/${activity.actor.username}`} prefetch={true} className="mt-2 block w-fit">
             <Avatar className="size-6">
               {activity.actor.image ? <AvatarImage src={activity.actor.image} alt="" /> : null}
-              <AvatarFallback className="bg-card text-xs">
+              <AvatarFallback className="bg-muted text-xs">
                 {activity.actor.displayUsername[0]?.toUpperCase()}
               </AvatarFallback>
             </Avatar>
+            <span className="truncate">{activity.actor.displayUsername}</span>
           </Link>
         }
       />

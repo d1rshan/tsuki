@@ -88,7 +88,7 @@ export function ActivityCardCore({
     <div className="flex min-w-0 flex-1 gap-3">
       <ActivityCover media={media} className={coverClassName} sizes={coverSizes} />
       <div className="min-w-0 flex-1">
-        <div className="mb-1.5 flex items-baseline justify-between gap-3">
+        <div className="mb-1.5 flex items-center justify-between gap-3">
           {actor}
           <time
             dateTime={activity.occurredAt.toISOString()}

@@ -39,7 +39,7 @@ function Feed({ type }: { type: SocialFeedType }) {
       }
     >
       <div className="relative">
-        <div className="space-y-4 pb-10">
+        <div className="divide-y divide-border pb-10">
           {activities.map((activity) => (
             <SocialActivityCard key={activity.id} activity={activity} />
           ))}
@@ -70,7 +70,7 @@ function SocialFeeds({
           {showSwitcher ? (
             <SocialFeedSwitcher />
           ) : (
-            <div aria-hidden="true" className="invisible h-[42px] shrink-0" />
+            <div aria-hidden="true" className="invisible h-9 shrink-0" />
           )}
         </div>
         <Feed type={type} />
@@ -152,7 +152,7 @@ export function SocialPendingView() {
             <div
               role="status"
               aria-label="Checking sign-in status"
-              className="inline-flex h-[42px] w-[11.25rem] max-w-[calc(100vw-2rem)] shrink-0 items-center gap-1 rounded-xl bg-muted p-1"
+              className="inline-flex h-9 w-36 max-w-[calc(100vw-2rem)] shrink-0 items-center gap-1 rounded-xl bg-muted p-1"
             >
               <span className="h-full flex-1 rounded-lg bg-card/70" />
               <span className="h-full flex-1 rounded-lg bg-card/70" />

@@ -10,8 +10,12 @@ export function SocialFeedSwitcher() {
   return (
     <Tabs value={mode} onValueChange={(value) => void setMode(value as typeof mode)}>
       <TabsList aria-label="Activity audience">
-        <TabsTrigger value="public">Public</TabsTrigger>
-        <TabsTrigger value="following">Following</TabsTrigger>
+        <TabsTrigger className="px-2.5 py-1 text-sm" value="public">
+          Public
+        </TabsTrigger>
+        <TabsTrigger className="px-2.5 py-1 text-sm" value="following">
+          Following
+        </TabsTrigger>
       </TabsList>
     </Tabs>
   );

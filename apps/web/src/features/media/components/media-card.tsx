@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import { Plus } from "lucide-react";
 
 import type { Media, MediaCompact } from "@tsuki/api/types";
 
@@ -153,10 +153,10 @@ export function MediaCard({
                 }}
                 className="relative z-20 mt-2 hidden h-7 w-5 shrink-0 items-center justify-center rounded-md text-muted-foreground before:absolute before:-inset-2 hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring [@media(hover:none)]:flex"
               >
-                <ChevronDown
+                <Plus
                   className={cn(
-                    "size-4 transition-transform motion-reduce:transition-none",
-                    expanded && "rotate-180",
+                    "size-4 transition-transform duration-200 motion-reduce:transition-none",
+                    expanded && "rotate-45",
                   )}
                 />
               </button>
