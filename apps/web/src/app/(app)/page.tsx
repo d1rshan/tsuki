@@ -1,37 +1,29 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 
-import { DiscoverSkeleton } from "@/features/discover/components/discover-skeleton";
+import { DiscoverSection } from "@/features/discover/components/discover-section";
 import { getDiscoverTrendingDetails } from "@/features/discover/data";
 import { DiscoverView } from "@/features/discover/views/discover-view";
-import { ContentState } from "@/shared/components/content-state";
+import { MediaGrid } from "@/features/media/components/media-grid";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
-export default function Page() {
-  return (
-    <Suspense fallback={<DiscoverSkeleton />}>
-      <DiscoverContent />
-    </Suspense>
-  );
-}
-
-async function DiscoverContent() {
+export default async function Page() {
   const trending = await getDiscoverTrendingDetails();
 
-  if (!trending) {
-    return (
-      <div className="flex min-h-screen items-center justify-center pt-24">
-        <ContentState
-          error
-          title="Failed to load discover"
-          description="Please try again in a moment."
-        />
-      </div>
-    );
-  }
-
-  return <DiscoverView trending={trending} />;
+  return (
+    <Suspense
+      fallback={
+        <div className="flex flex-col gap-12 pb-24 pt-32 md:gap-16 md:pb-24">
+          <DiscoverSection>
+            <MediaGrid items={trending.ANIME} />
+          </DiscoverSection>
+        </div>
+      }
+    >
+      <DiscoverView trending={trending} />
+    </Suspense>
+  );
 }

@@ -9,15 +9,9 @@ import { publicApi } from "@/shared/lib/public-api";
 export async function getDiscoverTrendingDetails() {
   "use cache: remote";
 
-  try {
-    const [anime, manga] = await Promise.all([getTrending("ANIME"), getTrending("MANGA")]);
-    cacheLife("days");
-    return { ANIME: anime, MANGA: manga };
-  } catch {
-    // ponytail: don't poison the cache on failure — retry on next request instead
-    cacheLife({ stale: 0, revalidate: 30, expire: 60 });
-    return null;
-  }
+  cacheLife("days");
+  const [anime, manga] = await Promise.all([getTrending("ANIME"), getTrending("MANGA")]);
+  return { ANIME: anime, MANGA: manga };
 }
 
 async function getTrending(mediaType: MediaType) {
