@@ -13,7 +13,9 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     env:
-      DATABASE_URL: "postgresql://dummy:dummy@localhost.neon.tech/dummy"
+      DATABASE_URL: "postgres://tsuki:tsuki@127.0.0.1:55432/tsuki"
+      LOCAL_DATABASE_HTTP_ENDPOINT: "http://127.0.0.1:55433/sql"
+      NEXT_PUBLIC_API_URL: "http://127.0.0.1:3001"
       BETTER_AUTH_SECRET: "dummy"
       RESEND_API_KEY: "dummy"
       RESEND_FROM_EMAIL: "dummy"
@@ -42,5 +44,43 @@ jobs:
       - name: Test
         run: bun run test
 
+      - name: Start build database
+        run: |
+          docker compose up -d --wait --wait-timeout 120
+          for attempt in {1..30}; do
+            if bun run --cwd packages/db src/search-index.ts; then
+              break
+            fi
+            if [ "$attempt" -eq 30 ]; then
+              docker compose logs
+              exit 1
+            fi
+            sleep 2
+          done
+          bun run --cwd packages/db db:push
+
+      - name: Start build API
+        run: |
+          bun run --cwd apps/api start > /tmp/tsuki-api.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl --fail --silent --max-time 5 http://127.0.0.1:3001/media/ANIME/trending > /dev/null &&
+               curl --fail --silent --max-time 5 http://127.0.0.1:3001/media/MANGA/trending > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/tsuki-api.log
+          exit 1
+
       - name: Build
         run: bun run build
+
+      - name: Build service logs
+        if: failure()
+        run: |
+          cat /tmp/tsuki-api.log 2>/dev/null || true
+          docker compose logs
+
+      - name: Stop build services
+        if: always()
+        run: docker compose down --volumes
