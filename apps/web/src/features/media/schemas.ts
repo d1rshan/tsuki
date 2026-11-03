@@ -9,6 +9,15 @@ export const logMediaSchema = z.object({
   status: z.enum(["CURRENT", "PLANNING", "COMPLETED", "DROPPED", "PAUSED", "REPEATING"]).optional(),
   score: z.number().int().min(1).max(10).nullable().optional(),
   progress: z.number().int().nonnegative().optional(),
+  progressDate: z.string().nullable().optional(),
+  startedAt: z
+    .object({ year: z.number(), month: z.number(), day: z.number() })
+    .nullable()
+    .optional(),
+  completedAt: z
+    .object({ year: z.number(), month: z.number(), day: z.number() })
+    .nullable()
+    .optional(),
   isFavorite: z.boolean().optional(),
 });
 

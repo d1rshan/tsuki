@@ -12,6 +12,8 @@ Tsuki is an anime tracking platform (like Letterboxd for anime), built as a Turb
 
 ## FYI
 
+- commit messages — use lowercase conventional commit format
+
 - `cn` util lives in `apps/web/src/shared/lib/utils.ts`
 
 - **import order** — four groups separated by a blank line: external libraries → monorepo packages → path-aliased imports (`@/`) → local relative imports.

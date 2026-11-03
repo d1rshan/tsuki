@@ -1,4 +1,4 @@
-import { Elysia, t } from "elysia";
+import { Elysia, t, status } from "elysia";
 
 import { libraryDal, reviewsDal } from "@tsuki/db";
 
@@ -7,7 +7,12 @@ import { ErrorModel } from "../../plugins/errors";
 import { MediaTypeEnum } from "../media/model";
 import { requireProfileAccess } from "../profiles/service";
 import { ReviewModel } from "../reviews/model";
-import { LibraryEntryInputModel, LibraryEntryModel, LibraryQueryModel } from "./model";
+import {
+  LibraryEntryInputModel,
+  LibraryEntryModel,
+  LibraryQueryModel,
+  ProgressSessionInputModel,
+} from "./model";
 import { logMedia, removeEntry } from "./service";
 
 export const libraryRoutes = new Elysia({ tags: ["Library"] })
@@ -57,6 +62,38 @@ export const libraryRoutes = new Elysia({ tags: ["Library"] })
       },
     },
   )
+  .get(
+    "/me/library/:type/:id/sessions",
+    ({ user, params }) => libraryDal.getSessions(user.id, params.id),
+    { auth: true, params: t.Object({ type: MediaTypeEnum, id: t.Numeric() }) },
+  )
+  .put(
+    "/me/library/:type/:id/sessions/:sessionId",
+    async ({ user, params, body }) => {
+      try {
+        await libraryDal.changeSession(user.id, params.id, params.sessionId, body);
+        return { success: true };
+      } catch {
+        return status(409, { error: "Invalid or overlapping range, or missing session." });
+      }
+    },
+    {
+      auth: true,
+      params: t.Object({ type: MediaTypeEnum, id: t.Numeric(), sessionId: t.String() }),
+      body: ProgressSessionInputModel,
+    },
+  )
+  .delete(
+    "/me/library/:type/:id/sessions/:sessionId",
+    async ({ user, params }) => {
+      await libraryDal.changeSession(user.id, params.id, params.sessionId, null);
+      return { success: true };
+    },
+    {
+      auth: true,
+      params: t.Object({ type: MediaTypeEnum, id: t.Numeric(), sessionId: t.String() }),
+    },
+  )
   .put(
     "/me/library/:type/:id",
     ({ params: { type, id }, body, user }) => logMedia(user.id, type, id, body),
@@ -64,7 +101,7 @@ export const libraryRoutes = new Elysia({ tags: ["Library"] })
       auth: true,
       params: t.Object({ type: MediaTypeEnum, id: t.Numeric() }),
       body: LibraryEntryInputModel,
-      response: { 200: LibraryEntryModel, 404: ErrorModel, 500: ErrorModel },
+      response: { 200: LibraryEntryModel, 409: ErrorModel, 404: ErrorModel, 500: ErrorModel },
       detail: {
         summary: "Log media",
         description: "Creates or updates the entry. Omitted fields keep their current value.",

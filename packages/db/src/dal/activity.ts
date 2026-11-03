@@ -4,19 +4,17 @@ import { alias } from "drizzle-orm/pg-core";
 import { db } from "../db";
 import { activity, media, progress, social, user } from "../schema";
 
-/**
- * Rows are stored by the progress trigger defined in
- * `src/triggers.ts` whenever library progress increases.
- */
+/** Daily totals from dated sessions only. */
 export const getProgressActivity = async (userId: string) => {
   return db
     .select({
-      date: progress.activityDate,
+      date: sql<string>`${progress.activityDate}`,
       mediaType: progress.mediaType,
-      amount: progress.amount,
+      amount: sql<number>`sum(${progress.end} - ${progress.start} + 1)`.mapWith(Number),
     })
     .from(progress)
-    .where(eq(progress.userId, userId))
+    .where(and(eq(progress.userId, userId), sql`${progress.activityDate} is not null`))
+    .groupBy(progress.activityDate, progress.mediaType)
     .orderBy(asc(progress.activityDate));
 };
 
