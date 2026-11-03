@@ -25,3 +25,13 @@ test("form status and payload agree at known totals for anime and manga", () => 
     }
   }
 });
+
+test("consumption dates stay calendar strings and unknown stays null", () => {
+  const form = createActivityForm("ANIME", null, null);
+  form.progress = "6";
+  form.progressDate = "2026-11-01";
+  expect(createLogMediaInput(form, false).progressDate).toBe("2026-11-01");
+  form.progressDate = "";
+  expect(createLogMediaInput(form, false).progressDate).toBeNull();
+  expect(createLogMediaInput(form, false).completedAt).toBeNull();
+});

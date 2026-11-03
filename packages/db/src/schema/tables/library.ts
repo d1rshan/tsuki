@@ -4,6 +4,7 @@ import {
   text,
   timestamp,
   boolean,
+  date,
   integer,
   jsonb,
   primaryKey,
@@ -44,6 +45,7 @@ export const library = pgTable(
      */
     progress: integer("progress").default(0).notNull(),
     /** Manga only. */
+    progressDate: date("progress_date"),
     progressVolumes: integer("progress_volumes"),
     /** Rewatch/reread count, pairs with status REPEATING. */
     repeat: integer("repeat").default(0).notNull(),

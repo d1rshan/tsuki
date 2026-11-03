@@ -61,7 +61,7 @@ export function logSnapshot(
 
 /**
  * A Log is one card per media per UTC day: same-day re-logs upsert, a new UTC
- * day starts a new card. Day boundary matches the progress rollup and heatmap.
+ * day starts a new card. Consumption dates are independent of posting dates.
  */
 export function logSourceId(mediaId: number, at: Date) {
   return `${mediaId}:${at.toISOString().slice(0, 10)}`;
@@ -84,7 +84,16 @@ export async function logMedia(
     mediaType === "ANIME" ? media.episodes : media.chapters,
     body.status ?? before?.status ?? null,
   );
-  await libraryDal.upsertEntry({ userId, mediaId, mediaType, ...body, status: effectiveStatus });
+  try {
+    await libraryDal.upsertEntry({ userId, mediaId, mediaType, ...body, status: effectiveStatus });
+  } catch (error) {
+    const code = (error as { cause?: { code?: string } }).cause?.code;
+    if (code === "23P01" || code === "23514")
+      return status(409, {
+        error: "Progress conflicts with recorded sessions. Edit sessions to correct progress.",
+      });
+    throw error;
+  }
 
   const entry = await libraryDal.getEntry(userId, mediaId);
   if (!entry) return status(500, { error: "Failed to save entry" });
