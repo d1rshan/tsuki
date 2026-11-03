@@ -3,6 +3,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { useSession } from "@tsuki/auth/client";
 import type { MediaType } from "@tsuki/api/types";
 
 import { Button } from "@/shared/components/ui/button";
@@ -11,6 +12,7 @@ import { apiClient } from "@/shared/lib/api-client";
 
 import { changeProgressSessionAction } from "../actions";
 import { localDay } from "../activity";
+import { mediaKeys } from "../query-keys";
 
 export function ProgressSessions({
   mediaType,
@@ -20,9 +22,12 @@ export function ProgressSessions({
   mediaId: number;
 }) {
   const client = useQueryClient();
+  const { data: session, isPending } = useSession();
+  const userId = session?.user?.id ?? null;
   const route = apiClient.me.library({ type: mediaType })({ id: mediaId }).sessions;
   const query = useQuery({
-    queryKey: ["progress-sessions", mediaType, mediaId],
+    queryKey: mediaKeys.sessions(mediaType, mediaId, userId),
+    enabled: !isPending && Boolean(userId),
     queryFn: async () => {
       const { data, error } = await route.get();
       if (error) throw error;

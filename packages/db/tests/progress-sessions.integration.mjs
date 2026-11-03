@@ -8,7 +8,9 @@ const connectionString = process.env.PROGRESS_TEST_URL;
 if (!connectionString) throw new Error("PROGRESS_TEST_URL must point at a disposable database");
 const pool = new pg.Pool({ connectionString });
 try {
-  await pool.query(`CREATE TABLE library(user_id text, media_id integer, media_type text, progress integer default 0, progress_date date, updated_at timestamp default now(), PRIMARY KEY(user_id,media_id));
+  await pool.query(`CREATE TYPE list_status AS ENUM ('CURRENT','COMPLETED','PAUSED');
+    CREATE TABLE library(user_id text, media_id integer, media_type text, progress integer default 0, progress_date date, updated_at timestamp default now(), status list_status default 'CURRENT', PRIMARY KEY(user_id,media_id));
+    CREATE TABLE media(id integer,type text,episodes integer,chapters integer);
     CREATE TABLE progress_session(id text PRIMARY KEY,user_id text,media_id integer,media_type text,start_number integer CHECK(start_number>0),end_number integer,activity_date date,updated_at timestamp default now(), CHECK(end_number>=start_number), FOREIGN KEY(user_id,media_id) REFERENCES library ON DELETE CASCADE);`);
   for (const statement of statements) await pool.query(statement);
   await pool.query(`INSERT INTO library VALUES('u',1,'ANIME',3,null)`);
@@ -71,6 +73,37 @@ try {
       { media_type: "MANGA", amount: 2 },
     ],
   );
+  for (const [titleId, type, episodes, chapters] of [
+    [3, "ANIME", 12, null],
+    [4, "MANGA", null, 12],
+    [5, "ANIME", null, null],
+    [6, "MANGA", null, 0],
+  ]) {
+    await pool.query("INSERT INTO media VALUES($1,$2,$3,$4)", [titleId, type, episodes, chapters]);
+    await pool.query(
+      "INSERT INTO library(user_id,media_id,media_type,progress) VALUES('u',$1,$2,11)",
+      [titleId, type],
+    );
+    const sessionId = (
+      await pool.query("SELECT id FROM progress_session WHERE media_id=$1", [titleId])
+    ).rows[0].id;
+    await pool.query("SELECT change_progress_session('u',$1,$2,1,12,null,false)", [
+      titleId,
+      sessionId,
+    ]);
+    let entry = (
+      await pool.query("SELECT progress,status FROM library WHERE media_id=$1", [titleId])
+    ).rows[0];
+    assert.deepEqual(entry, { progress: 12, status: titleId < 5 ? "COMPLETED" : "CURRENT" });
+    // Date-only edits must preserve status, even at a known total.
+    await pool.query("UPDATE library SET status='PAUSED' WHERE media_id=$1", [titleId]);
+    await pool.query("SELECT change_progress_session('u',$1,$2,1,12,'2026-11-01',false)", [
+      titleId,
+      sessionId,
+    ]);
+    entry = (await pool.query("SELECT status FROM library WHERE media_id=$1", [titleId])).rows[0];
+    assert.equal(entry.status, "PAUSED");
+  }
   console.log("Progress session integration checks passed");
 } finally {
   await pool.end();

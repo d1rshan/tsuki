@@ -26,7 +26,7 @@ export const statements = [
   `CREATE TRIGGER record_progress_session AFTER INSERT OR UPDATE OF progress ON public.library FOR EACH ROW EXECUTE FUNCTION public.record_progress_session()`,
   `CREATE OR REPLACE FUNCTION public.change_progress_session(owner_id text, title_id integer, session_id text, first_number integer, last_number integer, consumed_date date, remove_session boolean)
   RETURNS void LANGUAGE plpgsql AS $$
-  DECLARE old_first integer; old_last integer;
+  DECLARE old_first integer; old_last integer; next_progress integer; known_total integer;
   BEGIN
     PERFORM 1 FROM public.library WHERE user_id=owner_id AND media_id=title_id FOR UPDATE;
     SELECT start_number,end_number INTO old_first,old_last FROM public.progress_session WHERE id=session_id AND user_id=owner_id AND media_id=title_id;
@@ -40,7 +40,15 @@ export const statements = [
       -- Disable automatic session creation for this reconciliation by using a
       -- transaction-local flag consumed by the trigger.
       PERFORM set_config('tsuki.reconciling', 'on', true);
-      UPDATE public.library SET progress=COALESCE((SELECT max(end_number) FROM public.progress_session WHERE user_id=owner_id AND media_id=title_id),0),updated_at=now() WHERE user_id=owner_id AND media_id=title_id;
+      SELECT COALESCE(max(end_number),0) INTO next_progress FROM public.progress_session WHERE user_id=owner_id AND media_id=title_id;
+      SELECT CASE WHEN media.type = 'ANIME' THEN media.episodes ELSE media.chapters END
+        INTO known_total FROM public.media
+        JOIN public.library ON library.media_id=media.id AND library.media_type=media.type
+        WHERE library.user_id=owner_id AND library.media_id=title_id;
+      UPDATE public.library SET
+        status=CASE WHEN next_progress > progress AND known_total > 0 AND next_progress >= known_total THEN 'COMPLETED' ELSE status END,
+        progress=next_progress,updated_at=now()
+        WHERE user_id=owner_id AND media_id=title_id;
       PERFORM set_config('tsuki.reconciling', 'off', true);
     END IF;
   END $$`,
