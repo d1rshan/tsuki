@@ -30,9 +30,10 @@ export const LibraryEntryModel = t.Object({
 
 /** Every field optional — a partial log preserves whatever it omits. */
 export const LibraryEntryInputModel = t.Object({
+  progressDate: t.Optional(t.Nullable(t.String({ format: "date" }))),
   status: t.Optional(ListStatusEnum),
   score: t.Optional(t.Nullable(t.Number({ minimum: 1, maximum: 10 }))),
-  progress: t.Optional(t.Number({ minimum: 0 })),
+  progress: t.Optional(t.Integer({ minimum: 0 })),
   progressVolumes: t.Optional(t.Nullable(t.Number({ minimum: 0 }))),
   repeat: t.Optional(t.Number({ minimum: 0 })),
   isFavorite: t.Optional(t.Boolean()),
@@ -49,3 +50,9 @@ export const LibraryQueryModel = t.Object({
 
 export type LibraryEntry = typeof LibraryEntryModel.static;
 export type ListStatus = typeof ListStatusEnum.static;
+
+export const ProgressSessionInputModel = t.Object({
+  start: t.Integer({ minimum: 1 }),
+  end: t.Integer({ minimum: 1 }),
+  activityDate: t.Nullable(t.String({ format: "date" })),
+});

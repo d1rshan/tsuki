@@ -64,3 +64,10 @@ _Avoid_: people search, name search
 The default Friends list: up to 24 users with the highest follower counts,
 excluding the viewer; newer accounts break ties.
 _Avoid_: recommended users, trending users
+
+**Progress Session**:
+An inclusive episode/chapter range for one user and title, with an optional
+watched/read calendar date. Sessions may have gaps but cannot overlap. Unknown
+dates contribute nothing to the heatmap. Session corrections reconcile library
+progress without creating or retimestamping Activity Logs. Title start/finish
+dates are optional summaries, independent of sessions.

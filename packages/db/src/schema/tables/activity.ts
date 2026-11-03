@@ -6,38 +6,42 @@ import {
   integer,
   jsonb,
   pgTable,
-  primaryKey,
+  foreignKey,
   text,
   timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 import { listStatusEnum, mediaTypeEnum } from "../enums";
+import { library } from "./library";
 import { user } from "./auth";
 import { activityTypeEnum } from "../enums";
 
-// progress table -> for heatmap, updated via db trigger
-// tracks only watching, reading deltas
-
+/** A consumed inclusive range; calendar date is independent of posting time. */
 export const progress = pgTable(
-  "progress",
+  "progress_session",
   {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
+    mediaId: integer("media_id").notNull(),
     mediaType: mediaTypeEnum("media_type").notNull(),
-    activityDate: date("activity_date")
-      // ponytail: no explicit ::date cast here AND written PG-normalized —
-      // drizzle-kit strips a trailing cast from the introspected default but
-      // not from the schema side, so any other spelling churns a no-op
-      // SET DEFAULT on every push.
-      .default(sql`(now() AT TIME ZONE 'UTC'::text)`)
-      .notNull(),
-    amount: integer("amount").notNull(),
+    start: integer("start_number").notNull(),
+    end: integer("end_number").notNull(),
+    activityDate: date("activity_date"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [
-    primaryKey({ columns: [table.userId, table.mediaType, table.activityDate] }),
-    check("progress_amount_positive", sql`${table.amount} > 0`),
+    check("session_valid_range", sql`${table.start} > 0 AND ${table.end} >= ${table.start}`),
+    index("session_user_date_idx").on(table.userId, table.activityDate),
+    foreignKey({
+      columns: [table.userId, table.mediaId],
+      foreignColumns: [library.userId, library.mediaId],
+    }).onDelete("cascade"),
   ],
 );
 
