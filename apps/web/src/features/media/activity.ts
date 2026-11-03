@@ -6,6 +6,9 @@ import { MEDIA } from "./media";
 
 export type ActivityForm = {
   progress: string;
+  progressDate?: string;
+  startedDate?: string;
+  completedDate?: string;
   /** Rich Content document (review preset); null when the author wrote nothing. */
   review: RichContent | null;
   score: number;
@@ -34,6 +37,9 @@ export function createActivityForm(
   total?: number | null,
 ): ActivityForm {
   return {
+    progressDate: localDay(),
+    startedDate: fuzzyInput(entry?.startedAt),
+    completedDate: fuzzyInput(entry?.completedAt),
     progress: entry ? String(entry.progress) : "0",
     review: review?.content ?? null,
     score: entry?.score ?? 0,
@@ -59,6 +65,9 @@ export function createLogMediaInput(
     score: form.score || null,
     progress: clampProgress(Number.parseInt(form.progress, 10), total),
     isFavorite,
+    progressDate: form.progressDate || null,
+    startedAt: parseSummary(form.startedDate),
+    completedAt: parseSummary(form.completedDate),
   };
 }
 
@@ -87,4 +96,28 @@ export async function saveMediaActivity(
   } catch {
     return "review-failed";
   }
+}
+
+export function localDay() {
+  const d = new Date();
+  return [
+    d.getFullYear(),
+    String(d.getMonth() + 1).padStart(2, "0"),
+    String(d.getDate()).padStart(2, "0"),
+  ].join("-");
+}
+function fuzzyInput(
+  d: { year?: number | null; month?: number | null; day?: number | null } | null | undefined,
+) {
+  return d?.year && d.month && d.day
+    ? [d.year, String(d.month).padStart(2, "0"), String(d.day).padStart(2, "0")].join("-")
+    : d
+      ? undefined
+      : "";
+}
+function parseSummary(s?: string) {
+  if (s === undefined) return undefined;
+  if (!s) return null;
+  const [year, month, day] = s.split("-").map(Number);
+  return year && month && day ? { year, month, day } : null;
 }

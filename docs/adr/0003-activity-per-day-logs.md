@@ -22,6 +22,12 @@ progress and status before/after values, never score, repeat count, or volumes.
 Historical Logs without a proven increase are removed rather than inventing
 past status changes; Review summaries are rebuilt from current reviews.
 
-The heatmap remains the independent `progress` daily rollup of positive episode/
-chapter deltas. Status, reviews, and volume changes do not add heatmap intensity.
+The dated-progress specification supersedes the daily rollup: the heatmap sums
+inclusive ranges in `progress_session` by consumption calendar date and media
+type, excluding unknown dates. Session edits and deletions reconcile the library
+counter atomically to the highest remaining endpoint (zero with no history).
+Gaps are permitted; overlaps within a title are rejected, including concurrent
+writes. Repeated watches/reads require a future separate identity.
+Session corrections leave Activity snapshots and UTC posting timestamps intact.
+Status, reviews, and volume changes do not add heatmap intensity.
 Follows remain relationships in `social`, never Activity.

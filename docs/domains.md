@@ -62,11 +62,13 @@ triggers) and `dal/` (one query module per domain):
 | `library`  | Log entries; per-type stats aggregation                               |
 | `reviews`  | Reviews                                                               |
 | `social`   | Follows, follower lists, public user columns, discovery query         |
-| `activity` | Feed records (LOG) and the daily progress aggregate                   |
+| `activity` | Feed records (LOG) and totals read from dated progress sessions       |
 | `sync`     | `sync_state` cursor rows tracking crawl progress per media type       |
 
-Progress activity is written by a Postgres trigger (`src/triggers.ts`), not
-application code.
+Progress increases create dated sessions atomically through a Postgres trigger
+(`src/triggers.ts`). Session corrections lock the library row and reconcile its
+counter in a database function; a GiST exclusion constraint rejects overlaps.
+Activity Logs remain separate social records keyed by UTC posting day.
 
 ## packages/kitsu — external integration
 

@@ -33,10 +33,13 @@ import {
   completionStatus,
   createActivityForm,
   hasLoggedActivity,
+  localDay,
 } from "../activity";
 import type { MediaActivity } from "../hooks/use-media-activity";
 import { useSaveMediaActivityMutation } from "../hooks/use-save-media-activity-mutation";
 import { MEDIA } from "../media";
+
+import { ProgressSessions } from "./progress-sessions";
 
 export function LogMediaDialog({
   activity,
@@ -202,6 +205,64 @@ export function LogMediaDialog({
               </form.Field>
             </FieldGroup>
 
+            <form.Subscribe selector={(state) => state.values.progress}>
+              {(value) =>
+                Number(value) > (activity.entry?.progress ?? 0) ? (
+                  <form.Field name="progressDate">
+                    {(field) => (
+                      <Field>
+                        <FieldLabel htmlFor={formId + "-date"}>
+                          {mediaType === "ANIME" ? "Watched on" : "Read on"}
+                        </FieldLabel>
+                        <Input
+                          id={formId + "-date"}
+                          type="date"
+                          max={localDay()}
+                          value={field.state.value ?? ""}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => field.handleChange("")}
+                        >
+                          I don’t remember
+                        </Button>
+                      </Field>
+                    )}
+                  </form.Field>
+                ) : null
+              }
+            </form.Subscribe>
+            <details>
+              <summary>More options</summary>
+              <form.Field name="startedDate">
+                {(field) => (
+                  <Field>
+                    <FieldLabel htmlFor={formId + "-started"}>Started on</FieldLabel>
+                    <Input
+                      id={formId + "-started"}
+                      type="date"
+                      value={field.state.value ?? ""}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                  </Field>
+                )}
+              </form.Field>
+              <form.Field name="completedDate">
+                {(field) => (
+                  <Field>
+                    <FieldLabel htmlFor={formId + "-completed"}>Finished on</FieldLabel>
+                    <Input
+                      id={formId + "-completed"}
+                      type="date"
+                      value={field.state.value ?? ""}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                  </Field>
+                )}
+              </form.Field>
+            </details>
             <form.Field name="score">
               {(field) => (
                 <FieldSet>
@@ -248,6 +309,9 @@ export function LogMediaDialog({
             </div>
           </FieldGroup>
         </form>
+        {dialog.isOpen && activity.isAuthenticated && (
+          <ProgressSessions mediaType={mediaType} mediaId={mediaId} />
+        )}
       </DialogContent>
     </Dialog>
   );

@@ -79,3 +79,17 @@ export async function deleteReviewAction(mediaType: MediaType, mediaId: number) 
     api.me.reviews({ type })({ id }).delete(),
   );
 }
+
+export async function changeProgressSessionAction(
+  mediaType: MediaType,
+  mediaId: number,
+  sessionId: string,
+  body: { start: number; end: number; activityDate: string | null } | null,
+) {
+  const type = mediaTypeSchema.parse(mediaType);
+  const id = mediaIdSchema.parse(mediaId);
+  await mediaAction("changeProgressSession", "library", (api) => {
+    const route = api.me.library({ type })({ id }).sessions({ sessionId });
+    return body ? route.put(body) : route.delete();
+  });
+}

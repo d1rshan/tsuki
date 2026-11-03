@@ -1,7 +1,7 @@
-import { and, count, desc, eq, sum } from "drizzle-orm";
+import { and, count, desc, eq, sum, sql } from "drizzle-orm";
 
 import { db } from "../db";
-import { library, media, type MediaType } from "../schema";
+import { library, media, progress, type MediaType } from "../schema";
 import { MEDIA_COMPACT_COLUMNS } from "./media";
 
 export type InsertLibraryEntry = typeof library.$inferInsert;
@@ -60,12 +60,6 @@ export const getLibraryStats = async (userId: string) => {
 
 export type LibraryStatsRow = Awaited<ReturnType<typeof getLibraryStats>>[number];
 
-/**
- * Progress activity is recorded by the trigger in
- * `drizzle/0001_record_progress_activity.sql`. Keeping it in PostgreSQL avoids
- * an extra cursor column: neon-http has no interactive transaction for locking
- * the entry, reading its old progress, and updating both tables atomically.
- */
 export const upsertEntry = async (entry: InsertLibraryEntry) => {
   const [result] = await db
     .insert(library)
@@ -76,6 +70,7 @@ export const upsertEntry = async (entry: InsertLibraryEntry) => {
         status: entry.status,
         score: entry.score,
         progress: entry.progress,
+        progressDate: entry.progressDate ?? null,
         progressVolumes: entry.progressVolumes,
         repeat: entry.repeat,
         isFavorite: entry.isFavorite,
@@ -109,3 +104,20 @@ export const getUserStatistics = (userId: string) =>
     .where(eq(library.userId, userId));
 
 export type UserStatisticsRow = Awaited<ReturnType<typeof getUserStatistics>>[number];
+
+export const getSessions = (userId: string, mediaId: number) =>
+  db
+    .select()
+    .from(progress)
+    .where(and(eq(progress.userId, userId), eq(progress.mediaId, mediaId)))
+    .orderBy(desc(progress.start));
+
+export const changeSession = async (
+  userId: string,
+  mediaId: number,
+  id: string,
+  body: { start: number; end: number; activityDate: string | null } | null,
+) => {
+  await db.execute(sql`select public.change_progress_session(${userId}, ${mediaId}, ${id},
+    ${body?.start ?? null}::integer, ${body?.end ?? null}::integer, ${body?.activityDate ?? null}::date, ${body === null})`);
+};
