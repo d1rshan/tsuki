@@ -1,1 +1,9 @@
 .turbo
+
+# Local credentials, backups and catalog snapshots never belong in deployments.
+.env
+.env.*
+**/.env
+**/.env.*
+.secrets
+.local-dev

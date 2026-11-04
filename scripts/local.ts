@@ -1,4 +1,3 @@
-import { randomBytes } from "node:crypto";
 import {
   chmodSync,
   closeSync,
@@ -10,14 +9,21 @@ import {
   unlinkSync,
   writeFileSync,
 } from "node:fs";
-import { dirname, join } from "node:path";
-import { parseEnv } from "node:util";
+import { join } from "node:path";
 
-const root = dirname(import.meta.dir);
+import {
+  assertNoLegacyEnvFiles,
+  ensureLocalEnvironment,
+  loadEnvironment,
+  localDatabaseUrl,
+  localProxyUrl,
+  root,
+} from "./environment";
+
 const storage = join(root, ".local-dev");
 const snapshot = join(storage, "catalog.dump");
-const databaseUrl = "postgres://tsuki:tsuki@127.0.0.1:55432/tsuki";
-const proxyUrl = "http://127.0.0.1:55433/sql";
+const databaseUrl = localDatabaseUrl;
+const proxyUrl = localProxyUrl;
 const command = process.argv[2];
 const commands = ["setup", "up", "sync", "snapshot", "stop"];
 if (!commands.includes(command ?? "")) {
@@ -27,14 +33,10 @@ if (!commands.includes(command ?? "")) {
 mkdirSync(storage, { recursive: true, mode: 0o700 });
 chmodSync(storage, 0o700);
 
-// All local commands use fixed local credentials, regardless of inherited .env.
-const localEnv: Record<string, string> = {
-  DATABASE_URL: databaseUrl,
-  LOCAL_DATABASE_HTTP_ENDPOINT: proxyUrl,
-  NEXT_PUBLIC_APP_URL: "http://localhost:3000",
-  NEXT_PUBLIC_API_URL: "http://localhost:3001",
-  NODE_ENV: "development",
-};
+assertNoLegacyEnvFiles();
+ensureLocalEnvironment();
+// Never inherit a remote database target, including when invoked directly.
+const localEnv = loadEnvironment("local");
 
 async function run(
   args: string[],
@@ -47,7 +49,7 @@ async function run(
 ) {
   const child = Bun.spawn(args, {
     cwd: options.cwd ?? root,
-    env: { ...process.env, ...localEnv },
+    env: localEnv,
     stdin: options.stdin ?? "inherit",
     stdout: options.stdout ?? (options.capture ? "pipe" : "inherit"),
     stderr: "inherit",
@@ -94,47 +96,7 @@ const psql = async (query: string) =>
     { capture: true },
   );
 
-function configureEnvironment() {
-  const files = [
-    ".env.local",
-    "apps/api/.env.local",
-    "apps/web/.env.local",
-    "packages/db/.env.local",
-  ];
-  const apiEnv = ["apps/api/.env", "apps/api/.env.local"].reduce<Record<string, string>>(
-    (values, file) => ({
-      ...values,
-      ...(existsSync(join(root, file)) ? parseEnv(readFileSync(join(root, file), "utf8")) : {}),
-    }),
-    {},
-  );
-  localEnv.BETTER_AUTH_SECRET = apiEnv.BETTER_AUTH_SECRET || randomBytes(32).toString("hex");
-  for (const relative of files) {
-    const target = join(root, relative);
-    let text = existsSync(target) ? readFileSync(target, "utf8") : "";
-    const backup = join(storage, "env-backups", relative.replaceAll("/", "__"));
-    if (text && !existsSync(backup)) {
-      mkdirSync(dirname(backup), { recursive: true, mode: 0o700 });
-      writeFileSync(backup, text, { mode: 0o600 });
-    }
-    for (const [key, value] of Object.entries(localEnv)) {
-      if (key === "NODE_ENV") continue;
-      const line = `${key}=${JSON.stringify(value)}`;
-      const pattern = new RegExp(`^(?:export\\s+)?${key}\\s*=.*$`, "m");
-      text = pattern.test(text) ? text.replace(pattern, line) : `${text.trimEnd()}\n${line}\n`;
-    }
-    // Rename replaces a possible worktree symlink instead of modifying its target.
-    writeFileSync(`${target}.tmp`, text.trimStart(), { mode: 0o600 });
-    renameSync(`${target}.tmp`, target);
-    chmodSync(target, 0o600);
-  }
-  console.log(
-    "Configured local database overrides in .env.local files; existing .env files are untouched.",
-  );
-}
-
 async function up() {
-  configureEnvironment();
   await run(compose("up", "-d", "--wait", "--wait-timeout", "120"));
   for (let attempt = 0; attempt < 30; attempt++) {
     try {
@@ -169,7 +131,7 @@ async function complete() {
 
 async function saveSnapshot() {
   if (!(await complete()) || (await psql("select count(*) from media")) === "0") {
-    throw new Error("Finish bun run local:setup before saving a complete catalog snapshot.");
+    throw new Error("Finish bun run setup before saving a complete catalog snapshot.");
   }
   const temporary = `${snapshot}.tmp`;
   const file = openSync(temporary, "w", 0o600);
@@ -227,7 +189,9 @@ try {
   } else {
     await up();
     if (command === "setup") {
-      await run(["bun", "run", "db:push"], { cwd: join(root, "packages/db") });
+      await run(["bun", "--no-env-file", "../../scripts/run.ts", "db:push"], {
+        cwd: join(root, "packages/db"),
+      });
       if (!(await complete())) {
         if ((await psql("select count(*) from media")) === "0" && existsSync(snapshot)) {
           console.log("Restoring the catalog snapshot into the empty local database...");
@@ -254,26 +218,26 @@ try {
           );
         } else {
           console.log(
-            "Bootstrapping the complete Kitsu catalog. This can take hours; rerun local:setup to resume.",
+            "Bootstrapping the complete Kitsu catalog. This can take hours; rerun bun run setup to resume.",
           );
-          await run(["bun", "run", "scripts/sync-bootstrap.ts", "--resume"], {
+          await run(["bun", "--no-env-file", "scripts/sync-bootstrap.ts", "--resume"], {
             cwd: join(root, "apps/api"),
           });
         }
       } else {
         console.log(
-          "Existing completed catalog preserved. Run local:sync when you want fresh data.",
+          "Existing completed catalog preserved. Run catalog:sync when you want fresh data.",
         );
       }
       await saveSnapshot();
       console.log("Local setup is ready. Start the app with bun run dev.");
     } else if (command === "sync") {
       if (!(await complete()))
-        throw new Error("Run bun run local:setup to finish the first full catalog crawl.");
-      await run(["bun", "run", "scripts/sync-bootstrap.ts", "--incremental"], {
+        throw new Error("Run bun run setup to finish the first full catalog crawl.");
+      await run(["bun", "--no-env-file", "scripts/sync-bootstrap.ts", "--incremental"], {
         cwd: join(root, "apps/api"),
       });
-      console.log("Local catalog refreshed. Run local:snapshot to update your saved snapshot.");
+      console.log("Local catalog refreshed. Run catalog:snapshot to update your saved snapshot.");
     } else if (command === "snapshot") {
       await saveSnapshot();
     } else {

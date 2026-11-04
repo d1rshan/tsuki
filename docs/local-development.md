@@ -4,48 +4,92 @@ Install Bun and Docker with Compose, then run from the repository root:
 
 ```bash
 bun install
-bun run local:setup
+bun run setup
 bun run dev
 ```
 
-For a Treehouse worktree, run `treehouse` from the main checkout. Treehouse
-copies the ignored environment files listed in `.worktreeinclude` from the main
-checkout when acquiring a worktree. Commit that manifest to the base branch
-before relying on it. The copies are independent; changes in the main checkout
-do not automatically update an existing worktree. Run `bun install` in the
-worktree before starting the dev servers.
+The setup command creates a private root `.env` with a generated local auth secret
+if it does not exist. Optional service credentials go in that same file; see
+[.env.example](../.env.example). Docker database/proxy URLs and localhost ports
+are supplied by the launcher. Do not put production database credentials here.
 
-`local:setup` starts Postgres and a local Neon HTTP proxy, waits for readiness,
+For a Treehouse worktree, run `treehouse` from the main checkout, then `bun install`
+in the worktree. `.worktreeinclude` copies only the root `.env`. Copies are
+independent; production credentials are intentionally excluded. Worktrees currently
+share the same Docker database and ports, so run one dev server at a time.
+
+`setup` starts Postgres and a local Neon HTTP proxy, waits for readiness,
 applies the schema, search extension and triggers, then populates the catalog.
 The proxy keeps the same database driver and atomic profile-update batches as
 production; it talks only to the Postgres container, never Neon cloud.
 
 The first setup crawls all anime and manga from Kitsu. Allow several hours and
-keep the command running. If interrupted, rerun `bun run local:setup`: it resumes
+keep the command running. If interrupted, rerun `bun run setup`: it resumes
 saved cursors and skips already completed collections. A successful setup saves
 a catalog snapshot automatically. Later setup runs preserve existing data. An
 empty database restores the snapshot when one is available.
 
-The scripts write local connection overrides into gitignored `.env.local` files
-at the root, API, web and database package. Existing `.env` files are untouched;
-existing `.env.local` contents are backed up privately under
-`.local-dev/env-backups/` before the first change. The API and web share the same
-authentication secret. Optional external services retain their existing settings.
+Only root `.env` is read for local commands. The launcher replaces inherited app
+settings, supplies the fixed Docker URLs, and passes configuration to child
+processes. Bun's automatic env loading is disabled in `bunfig.toml`; package-level
+env files and root `.env.local` are rejected to prevent hidden overrides.
+`local:up` starts containers without changing any env files.
+
 The database and proxy listen only on loopback, ports 55432 and 55433.
 
 ## Commands
 
-| Command                  | Behavior                                                                                                        |
-| ------------------------ | --------------------------------------------------------------------------------------------------------------- |
-| `bun run local:setup`    | Start services, apply schema, restore or resume the first full crawl, save a snapshot.                          |
-| `bun run local:up`       | Start services and configure local environment without crawling.                                                |
-| `bun run local:sync`     | Start services and run incremental Kitsu sync against the local catalog. Rerun after an interruption to resume. |
-| `bun run local:snapshot` | Atomically replace the host catalog snapshot with the current catalog.                                          |
-| `bun run local:stop`     | Stop services and preserve the database and snapshot.                                                           |
+| Command                           | Behavior                                                                                                                        |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `bun run setup`                   | First-time setup: services, schema/indexes/triggers, catalog restore or resumable crawl, snapshot.                              |
+| `bun run dev`                     | Start local Docker services, API, and web at `http://localhost:3000`.                                                           |
+| `bun run dev:mobile`              | Same local database and services, using the detected Tailscale app address.                                                     |
+| `bun run local:up`                | Start containers without starting the apps or crawling.                                                                         |
+| `bun run db:push`                 | Apply schema, search indexes, and triggers to local Postgres.                                                                   |
+| `bun run db:studio`               | Inspect local Postgres.                                                                                                         |
+| `bun run catalog:sync`            | Refresh local catalog; resumes after interruption.                                                                              |
+| `bun run catalog:snapshot`        | Save the current catalog snapshot.                                                                                              |
+| `bun run local:stop`              | Stop containers; preserve database and snapshot.                                                                                |
+| `bun run env:check`               | Show selected local database and app address without connecting.                                                                |
+| `bun run build` / `bun run start` | Build/run locally in production runtime mode, still using Docker Postgres. Build starts Docker and a temporary API when needed. |
 
-Run `local:sync` every few days when you want fresh data. It uses the same
+`local:setup`, `local:sync`, `local:snapshot`, and `tailscale` remain aliases for existing habits.
+Append `--dry-run` to launcher commands to inspect their subprocesses without executing them.
+For example: `bun run db:push:prod --dry-run`.
+
+## Production
+
+Deployed apps receive configuration from their Vercel project settings. Keep the
+web and API production auth secrets aligned, with their production app/API URLs
+and Neon database URL. Local root `.env` is never a deployment config source.
+Use each app's own build command on Vercel; root `build` is for local validation.
+
+For explicit production database administration, copy
+[.secrets/neon.env.example](../.secrets/neon.env.example) to `.secrets/neon.env`
+and set `DATABASE_URL` to the Neon connection string. This file is ignored and
+is used only by commands ending in `:prod`:
+
+```bash
+bun run env:check:prod       # show host/database, no connection or credentials printed
+bun run db:push:prod         # schema + search indexes + triggers on Neon
+bun run db:studio:prod       # inspect Neon
+```
+
+Production DB commands discard inherited database settings and the local proxy.
+They require a PostgreSQL URL on a `.neon.tech` host and never fall back to the
+local `.env`. The same commands work from `packages/db`.
+`db:cleanup-activity` and `db:cleanup-activity:prod` explicitly select the target
+for the one-off cleanup described in [the database guide](../packages/db/README.md).
+
+To change production app settings, update the hosting project settings; changing
+root `.env` affects local development only. Preview deployments should have their
+own database and credentials.
+
+## Catalog refresh
+
+Run `catalog:sync` every few days when you want fresh data. It uses the same
 incremental engine as the nightly production cron, without needing the API
-server or a local scheduler. Run `local:snapshot` afterward when you want that
+server or a local scheduler. Run `catalog:snapshot` afterward when you want that
 freshness included in your saved snapshot. Normal app/container restarts never
 require reseeding.
 
@@ -75,10 +119,12 @@ target and connection credentials are fixed to this local Compose setup.
 
 ## Access from a phone with Tailscale
 
-Connect both devices to the same tailnet, then run `bun run tailscale` from
-the repository root. Open the URL printed by the command on your phone. The
-command discovers the computer's Tailscale IPv4 address and configures the
-app and authentication for it for that session; it does not edit your env files.
-Stop it with Ctrl+C. Start the local database separately with `bun run local:up`
-if you use the Docker setup above. If the phone cannot connect, check your
-firewall permits connections to port 3000 over Tailscale.
+Connect both devices to the same tailnet, then run `bun run dev:mobile` from
+the repository root. It starts Docker automatically, detects the computer's
+Tailscale IPv4 address, and prints the URL to open on your phone. The API stays
+at localhost:3001 behind the web app's `/api` proxy; only port 3000 needs to be
+reachable over Tailscale. No files change, and the same local account/catalog
+is available in both modes.
+
+Stop with Ctrl+C. Docker remains running; use `bun run local:stop` to stop it.
+If the phone cannot connect, check your firewall permits port 3000 over Tailscale.

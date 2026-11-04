@@ -12,7 +12,15 @@
     "NEXT_PUBLIC_APP_URL",
     "NEXT_PUBLIC_API_URL",
     "NODE_ENV",
-    "CI"
+    "CI",
+    "RESEND_API_KEY",
+    "RESEND_FROM_EMAIL",
+    "SYNC_CRON_BUDGET_MS",
+    "CRON_SECRET",
+    "NEXT_PUBLIC_GIPHY_BIO_KEY",
+    "NEXT_PUBLIC_GIPHY_REVIEW_KEY",
+    "NEXT_PUBLIC_SITE_URL",
+    "GOOGLE_SITE_VERIFICATION"
   ],
   "tasks": {
     "build": {
