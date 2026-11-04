@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
+import { memo, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
+import { LayoutGroup, motion, useReducedMotion } from "framer-motion";
 import { Plus } from "lucide-react";
 
 import type { Media, MediaCompact } from "@tsuki/api/types";
@@ -10,6 +10,7 @@ import type { Media, MediaCompact } from "@tsuki/api/types";
 import { cn } from "@/shared/lib/utils";
 
 import { mediaImageClass, normalizeMediaCompact } from "../media";
+import { MEDIA_EASE_OUT, MEDIA_EASE_OUT_CSS, MEDIA_REVEAL_DURATION } from "../motion";
 import { MediaCardActions } from "./media-card-actions";
 import { MediaLink } from "./media-link";
 
@@ -25,13 +26,21 @@ function getNoHoverSnapshot() {
   return window.matchMedia(NO_HOVER_QUERY).matches;
 }
 
-export function MediaCard({
-  media,
-  className,
-}: {
+type MediaCardProps = {
   media: Media | MediaCompact;
   className?: string;
-}) {
+};
+
+export const MediaCard = memo(function MediaCard(props: MediaCardProps) {
+  return (
+    // Share modal IDs without remeasuring every card when one card updates.
+    <LayoutGroup inherit="id">
+      <MediaCardContent {...props} />
+    </LayoutGroup>
+  );
+});
+
+function MediaCardContent({ media, className }: MediaCardProps) {
   const morphId = useId();
   const noHover = useSyncExternalStore(subscribeToHover, getNoHoverSnapshot, () => false);
   const [hovered, setHovered] = useState(false);
@@ -78,12 +87,7 @@ export function MediaCard({
     >
       <motion.div
         layoutId={reduceMotion ? undefined : `${morphId}-surface`}
-        style={{
-          borderRadius: 12,
-          willChange: "transform",
-          transform: "translateZ(0)",
-          backfaceVisibility: "hidden",
-        }}
+        style={{ borderRadius: 12 }}
         className="relative overflow-hidden bg-muted p-2 isolate"
       >
         <MediaLink
@@ -98,12 +102,7 @@ export function MediaCard({
         <div className="absolute inset-2 grid grid-rows-[minmax(0,1fr)_auto]">
           <motion.div
             layoutId={reduceMotion ? undefined : `${morphId}-poster`}
-            style={{
-              borderRadius: 8,
-              willChange: "transform",
-              transform: "translateZ(0)",
-              backfaceVisibility: "hidden",
-            }}
+            style={{ borderRadius: 8 }}
             className="relative min-h-0 overflow-hidden isolate"
           >
             {coverImage ? (
@@ -124,22 +123,18 @@ export function MediaCard({
             className="min-h-9 overflow-hidden"
             initial={false}
             animate={{ height: expanded ? "auto" : 36 }}
-            transition={{ duration: reduceMotion ? 0 : 0.35, ease: [0.22, 1, 0.36, 1] }}
+            transition={{
+              duration: reduceMotion ? 0 : MEDIA_REVEAL_DURATION,
+              ease: MEDIA_EASE_OUT,
+            }}
           >
             <div className="flex min-w-0 items-start">
               <motion.h3
                 layoutId={reduceMotion ? undefined : `${morphId}-title`}
                 layout="position"
-                style={{
-                  willChange: "transform",
-                  transform: "translateZ(0)",
-                }}
-                className={cn(
-                  "min-w-0 flex-1 px-1 pt-3 pb-1 text-sm leading-snug font-medium text-foreground",
-                  !expanded && "line-clamp-1 max-sm:break-all",
-                )}
+                className="min-w-0 flex-1 px-1 pt-3 pb-1 text-sm leading-snug font-medium break-words text-foreground"
               >
-                {title}
+                <span className={cn("block", !expanded && "line-clamp-1")}>{title}</span>
               </motion.h3>
               <button
                 type="button"
@@ -162,10 +157,13 @@ export function MediaCard({
               </button>
             </div>
             <div
-              className={cn(
-                "relative z-20 px-1 pt-2 pb-1 transition-opacity duration-200 motion-reduce:transition-none",
-                expanded ? "visible opacity-100" : "invisible opacity-0",
-              )}
+              inert={!expanded}
+              aria-hidden={!expanded}
+              className="relative z-20 px-1 pt-2 pb-1"
+              style={{
+                opacity: expanded ? 1 : 0,
+                transition: `opacity ${MEDIA_REVEAL_DURATION}s ${MEDIA_EASE_OUT_CSS}`,
+              }}
             >
               {activated && <MediaCardActions mediaType={type} mediaId={media.id} total={count} />}
             </div>
