@@ -10,6 +10,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { cn } from "@/shared/lib/utils";
 
 import { mediaImageClass } from "../media";
+import { MediaDetailsReveal } from "./media-layout-group";
 
 type MediaHeaderProps = {
   morphId?: string;
@@ -64,12 +65,7 @@ export function MediaHeader({
     <div className="relative z-10 -mt-20 flex flex-col gap-6 border-b pb-8 md:-mt-32 md:flex-row md:items-end md:gap-8">
       <motion.div
         layoutId={sharedId ? `${sharedId}-poster` : undefined}
-        style={{
-          borderRadius: 12,
-          willChange: "transform",
-          transform: "translateZ(0)",
-          backfaceVisibility: "hidden",
-        }}
+        style={{ borderRadius: 12 }}
         className="relative aspect-[3/4] w-40 shrink-0 overflow-hidden bg-muted ring-1 ring-border shadow-xl md:w-56 isolate"
       >
         {coverImage && (
@@ -88,30 +84,18 @@ export function MediaHeader({
         <motion.h1
           layoutId={sharedId ? `${sharedId}-title` : undefined}
           layout="position"
-          style={{
-            willChange: "transform",
-            transform: "translateZ(0)",
-          }}
           className="text-3xl font-bold tracking-tight md:text-5xl"
         >
           {title}
         </motion.h1>
 
-        <motion.div
-          className="flex flex-col gap-2"
-          style={{ willChange: "opacity" }}
-          exit={
-            sharedId && !reduceMotion
-              ? { opacity: 0, transition: { duration: 0.08, ease: "easeOut" } }
-              : undefined
-          }
-        >
+        <MediaDetailsReveal morphId={morphId} className="flex flex-col gap-2">
           {titleNative && titleNative !== title && (
             <p className="font-medium text-muted-foreground">{titleNative}</p>
           )}
 
           <div className="flex flex-wrap items-center gap-2">{badges}</div>
-        </motion.div>
+        </MediaDetailsReveal>
       </div>
     </div>
   );

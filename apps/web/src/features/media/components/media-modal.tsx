@@ -8,6 +8,13 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/shared/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/shared/components/ui/dialog";
 
+import {
+  MEDIA_EASE_OUT,
+  MEDIA_MORPH_TRANSITION,
+  MEDIA_OVERLAY_DURATION,
+  MEDIA_REVEAL_DURATION,
+} from "../motion";
+
 export function MediaModal({ children, morphId }: { children: React.ReactNode; morphId?: string }) {
   const router = useRouter();
   const isPresent = useIsPresent();
@@ -30,8 +37,10 @@ export function MediaModal({ children, morphId }: { children: React.ReactNode; m
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: reduceMotion ? 0 : 0.18, ease: "easeOut" }}
-            style={{ willChange: "opacity" }}
+            transition={{
+              duration: reduceMotion ? MEDIA_REVEAL_DURATION : MEDIA_OVERLAY_DURATION,
+              ease: MEDIA_EASE_OUT,
+            }}
           />
         }
         initialFocus={() => scrollRef.current}
@@ -42,17 +51,16 @@ export function MediaModal({ children, morphId }: { children: React.ReactNode; m
         <motion.div
           layoutId={sharedId ? `${sharedId}-surface` : undefined}
           layoutScroll
-          initial={sharedId || reduceMotion ? false : { opacity: 0, scale: 0.98 }}
+          initial={sharedId ? false : { opacity: 0, scale: reduceMotion ? 1 : 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
-          exit={sharedId ? undefined : { opacity: 0, scale: 0.98 }}
-          transition={{ type: "spring", bounce: 0, duration: reduceMotion ? 0 : 0.18 }}
+          exit={sharedId ? undefined : { opacity: 0, scale: reduceMotion ? 1 : 0.98 }}
+          transition={
+            reduceMotion
+              ? { duration: MEDIA_REVEAL_DURATION, ease: MEDIA_EASE_OUT }
+              : MEDIA_MORPH_TRANSITION
+          }
           ref={scrollRef}
-          style={{
-            borderRadius: 24,
-            willChange: "transform",
-            transform: "translateZ(0)",
-            backfaceVisibility: "hidden",
-          }}
+          style={{ borderRadius: 24 }}
           className="no-scrollbar h-full w-full overflow-x-hidden overflow-y-auto bg-background shadow-2xl isolate"
         >
           <div className="sticky top-0 z-30 flex h-0 justify-end px-3">
