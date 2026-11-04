@@ -1,8 +1,8 @@
 "use client";
 
-import { useId } from "react";
+import { useId, useState } from "react";
 import { useForm } from "@tanstack/react-form";
-import { Check, LoaderCircle, NotebookPen, Plus } from "lucide-react";
+import { Check, LoaderCircle, NotebookPen, Plus, X } from "lucide-react";
 
 import type { ListStatus, MediaType } from "@tsuki/api/types";
 
@@ -14,7 +14,7 @@ import {
 import { RichContentEditor } from "@/features/rich-content/components/rich-content-editor";
 
 import { Button } from "@/shared/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/shared/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/shared/components/ui/dialog";
 import { Field, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { Rating } from "@/shared/components/ui/rating";
@@ -56,6 +56,7 @@ export function LogMediaDialog({
 }) {
   const { openAuth } = useAuthDialog();
   const formId = useId();
+  const [showRange, setShowRange] = useState(false);
   const config = MEDIA[mediaType];
   const isFavorite = activity.entry?.isFavorite ?? false;
   const hasActivity = hasLoggedActivity(mediaType, activity.entry, activity.review);
@@ -64,7 +65,7 @@ export function LogMediaDialog({
     defaultValues: createActivityForm(mediaType, activity.entry, activity.review, total),
     onSubmit: async ({ value }) => {
       const result = await saveMutation.mutateAsync({
-        form: value,
+        form: showRange ? { ...value, progressDate: "" } : value,
         isFavorite,
         review: activity.review,
         total,
@@ -87,6 +88,7 @@ export function LogMediaDialog({
       return;
     }
 
+    if (nextIsOpen) setShowRange(false);
     dialog.handleOpenChange(nextIsOpen);
   }
 
@@ -117,15 +119,20 @@ export function LogMediaDialog({
         {hasActivity ? "Edit log" : compact ? "Log" : "Add to list"}
       </DialogTrigger>
 
-      <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-lg">
+      <DialogContent className="max-h-[90dvh] gap-0 overflow-y-auto sm:max-w-xl sm:p-0">
+        <DialogTitle className="sr-only">
+          {hasActivity ? "Edit your log" : "Add to your list"}
+        </DialogTitle>
         <form
+          id={formId}
+          className="px-1 pt-2 sm:px-6 sm:pt-6"
           onSubmit={(event) => {
             event.preventDefault();
             void form.handleSubmit().catch(() => undefined);
           }}
         >
-          <FieldGroup>
-            <FieldGroup className="sm:grid sm:grid-cols-[3fr_2fr]">
+          <FieldGroup className="gap-5">
+            <FieldGroup className="grid grid-cols-[3fr_2fr] gap-3">
               <form.Field name="status">
                 {(field) => (
                   <Field>
@@ -206,63 +213,111 @@ export function LogMediaDialog({
             </FieldGroup>
 
             <form.Subscribe selector={(state) => state.values.progress}>
-              {(value) =>
-                Number(value) > (activity.entry?.progress ?? 0) ? (
-                  <form.Field name="progressDate">
-                    {(field) => (
-                      <Field>
-                        <FieldLabel htmlFor={formId + "-date"}>
-                          {mediaType === "ANIME" ? "Watched on" : "Read on"}
-                        </FieldLabel>
-                        <Input
-                          id={formId + "-date"}
-                          type="date"
-                          max={localDay()}
-                          value={field.state.value ?? ""}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => field.handleChange("")}
-                        >
-                          I don’t remember
-                        </Button>
-                      </Field>
+              {(value) => {
+                const hasNewProgress = Number(value) > (activity.entry?.progress ?? 0);
+                const rangeVisible = showRange;
+                return (
+                  <div>
+                    <div className="flex items-baseline justify-between gap-3">
+                      {hasNewProgress ? (
+                        <div>
+                          <span className="text-sm font-medium">
+                            {mediaType === "ANIME" ? "When did you watch?" : "When did you read?"}
+                          </span>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            {config.unitLong} {(activity.entry?.progress ?? 0) + 1}–{value}
+                          </p>
+                        </div>
+                      ) : (
+                        <span className="text-sm font-medium">Dates</span>
+                      )}
+                      <button
+                        type="button"
+                        className="shrink-0 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                        aria-expanded={rangeVisible}
+                        onClick={() => setShowRange(!showRange)}
+                      >
+                        {rangeVisible
+                          ? hasNewProgress
+                            ? "Single date"
+                            : "Hide dates"
+                          : "Start & finish dates"}
+                      </button>
+                    </div>
+                    {!rangeVisible && hasNewProgress && (
+                      <div className="animate-in fade-in-0 duration-200 motion-reduce:animate-none">
+                        <form.Field name="progressDate">
+                          {(field) => (
+                            <div className="flex items-center gap-2 pt-3">
+                              <Input
+                                aria-label={mediaType === "ANIME" ? "Watched on" : "Read on"}
+                                className="w-auto min-w-0 flex-1"
+                                type="date"
+                                max={localDay()}
+                                value={field.state.value ?? ""}
+                                onChange={(e) => field.handleChange(e.target.value)}
+                              />
+                              {field.state.value ? (
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon-sm"
+                                  aria-label="Clear date"
+                                  onClick={() => field.handleChange("")}
+                                >
+                                  <X />
+                                </Button>
+                              ) : (
+                                <span className="shrink-0 text-xs text-muted-foreground">
+                                  No date
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </form.Field>
+                      </div>
                     )}
-                  </form.Field>
-                ) : null
-              }
+                    {rangeVisible && (
+                      <div className="animate-in fade-in-0 duration-200 motion-reduce:animate-none">
+                        <div className="grid grid-cols-1 gap-3 pt-3 sm:grid-cols-2">
+                          <form.Field name="startedDate">
+                            {(field) => (
+                              <Field>
+                                <FieldLabel htmlFor={formId + "-started"}>Started on</FieldLabel>
+                                <Input
+                                  id={formId + "-started"}
+                                  type="date"
+                                  value={field.state.value ?? ""}
+                                  onChange={(e) => field.handleChange(e.target.value)}
+                                />
+                              </Field>
+                            )}
+                          </form.Field>
+                          <form.Field name="completedDate">
+                            {(field) => (
+                              <Field>
+                                <FieldLabel htmlFor={formId + "-completed"}>Finished on</FieldLabel>
+                                <Input
+                                  id={formId + "-completed"}
+                                  type="date"
+                                  value={field.state.value ?? ""}
+                                  onChange={(e) => field.handleChange(e.target.value)}
+                                />
+                              </Field>
+                            )}
+                          </form.Field>
+                        </div>
+                        {hasNewProgress && (
+                          <p className="pt-2 text-xs text-muted-foreground">
+                            Progress will be saved without a date.
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              }}
             </form.Subscribe>
-            <details>
-              <summary>More options</summary>
-              <form.Field name="startedDate">
-                {(field) => (
-                  <Field>
-                    <FieldLabel htmlFor={formId + "-started"}>Started on</FieldLabel>
-                    <Input
-                      id={formId + "-started"}
-                      type="date"
-                      value={field.state.value ?? ""}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                    />
-                  </Field>
-                )}
-              </form.Field>
-              <form.Field name="completedDate">
-                {(field) => (
-                  <Field>
-                    <FieldLabel htmlFor={formId + "-completed"}>Finished on</FieldLabel>
-                    <Input
-                      id={formId + "-completed"}
-                      type="date"
-                      value={field.state.value ?? ""}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                    />
-                  </Field>
-                )}
-              </form.Field>
-            </details>
             <form.Field name="score">
               {(field) => (
                 <FieldSet>
@@ -291,27 +346,26 @@ export function LogMediaDialog({
                 </>
               )}
             </form.Field>
-
-            <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
-                Cancel
-              </Button>
-              <form.Subscribe selector={(state) => state.isSubmitting}>
-                {(isSubmitting) => (
-                  <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting && (
-                      <LoaderCircle data-icon="inline-start" className="animate-spin" />
-                    )}
-                    Save
-                  </Button>
-                )}
-              </form.Subscribe>
-            </div>
           </FieldGroup>
         </form>
-        {dialog.isOpen && activity.isAuthenticated && (
-          <ProgressSessions mediaType={mediaType} mediaId={mediaId} />
+        {dialog.isOpen && activity.isAuthenticated && hasActivity && (
+          <div className="px-1 pt-5 sm:px-6">
+            <ProgressSessions mediaType={mediaType} mediaId={mediaId} />
+          </div>
         )}
+        <div className="sticky bottom-0 flex justify-end gap-2 border-t bg-background px-1 py-4 sm:px-6">
+          <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
+            Cancel
+          </Button>
+          <form.Subscribe selector={(state) => state.isSubmitting}>
+            {(isSubmitting) => (
+              <Button type="submit" form={formId} disabled={isSubmitting}>
+                {isSubmitting && <LoaderCircle data-icon="inline-start" className="animate-spin" />}
+                Save log
+              </Button>
+            )}
+          </form.Subscribe>
+        </div>
       </DialogContent>
     </Dialog>
   );
