@@ -8,6 +8,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 
 import { MediaOgPreview } from "./media-og-preview";
+import { ProfileOgPreview } from "./profile-og-preview";
 
 export const metadata: Metadata = {
   title: "UI preview",
@@ -64,26 +65,24 @@ export default function UiPage() {
               <TabsContent value="media">
                 <MediaOgPreview />
               </TabsContent>
-              {[
-                ["site", "Site"],
-                ["profile", "Profile"],
-              ].map(([design, label]) => (
-                <TabsContent key={design} value={design}>
-                  <figure className="space-y-2">
-                    <figcaption className="text-sm font-medium text-muted-foreground">
-                      {label}
-                    </figcaption>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={`/ui/og-preview/${design}`}
-                      alt={`${label} Open Graph preview`}
-                      width={1200}
-                      height={630}
-                      className="h-auto w-full rounded-lg border"
-                    />
-                  </figure>
-                </TabsContent>
-              ))}
+              <TabsContent value="site">
+                <figure className="space-y-2">
+                  <figcaption className="text-sm font-medium text-muted-foreground">
+                    Site
+                  </figcaption>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/ui/og-preview/site"
+                    alt="Site Open Graph preview"
+                    width={1200}
+                    height={630}
+                    className="h-auto w-full rounded-lg border"
+                  />
+                </figure>
+              </TabsContent>
+              <TabsContent value="profile">
+                <ProfileOgPreview />
+              </TabsContent>
             </Tabs>
           </section>
         </TabsContent>

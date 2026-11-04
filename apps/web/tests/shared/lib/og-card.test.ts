@@ -15,6 +15,7 @@ describe("og card layout", () => {
       variant: "banner",
       kicker: "Anime",
       title: "Frieren",
+      titleNative: null,
       bannerUrl: "https://media.kitsu.io/banner.jpg",
       coverUrl: "https://media.kitsu.io/cover.jpg",
     });
@@ -32,20 +33,39 @@ describe("og card layout", () => {
       variant: "fallback",
       kicker: "Manga",
       title: "Frieren",
+      titleNative: null,
       coverUrl: "https://media.kitsu.io/cover.jpg",
     });
   });
 
-  test("profiles render the minimal cover-less layout", () => {
+  test("media keeps a distinct native title and recognizes cover-only banners", () => {
+    const layout = buildMediaOgCard({
+      title: "Frieren",
+      titleNative: "葬送のフリーレン",
+      type: "ANIME",
+      bannerImage: "cover.jpg",
+      coverImage: "cover.jpg",
+      hasBannerImage: false,
+    });
+
+    expect(layout).toMatchObject({
+      variant: "fallback",
+      titleNative: "葬送のフリーレン",
+    });
+  });
+
+  test("profiles render their identity layout", () => {
     const layout = buildProfileOgCard({
       displayUsername: "Mugi",
       bio: "Tea enjoyer.",
     });
 
     expect(layout).toEqual({
-      variant: "minimal",
+      variant: "profile",
       title: "Mugi",
       description: "Tea enjoyer.",
+      avatarUrl: null,
+      bannerUrl: null,
     });
   });
 });
