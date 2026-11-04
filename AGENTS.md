@@ -12,6 +12,8 @@ Tsuki is an anime tracking platform (like Letterboxd for anime), built as a Turb
 
 ## FYI
 
+- Be concise; sacrifice grammar for concision when communicating with the user.
+
 - commit messages — use lowercase conventional commit format
 
 - `cn` util lives in `apps/web/src/shared/lib/utils.ts`
