@@ -7,6 +7,8 @@ import { ThemeSelector } from "@/shared/components/theme-selector";
 import { Button } from "@/shared/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 
+import { MediaOgPreview } from "./media-og-preview";
+
 export const metadata: Metadata = {
   title: "UI preview",
   robots: { index: false, follow: false },
@@ -50,29 +52,39 @@ export default function UiPage() {
                 Open Graph images
               </h2>
               <p className="text-sm text-muted-foreground">
-                Current designs with sample content. Media artwork is a placeholder.
+                Current designs with sample content. Enter a media ID to preview its card.
               </p>
             </div>
-            {[
-              ["site", "Site"],
-              ["profile", "Profile"],
-              ["media", "Anime / manga"],
-            ].map(([design, label]) => (
-              <figure key={design} className="space-y-2">
-                <figcaption className="text-sm font-medium text-muted-foreground">
-                  {label}
-                </figcaption>
-                {/* Render through ImageResponse so the preview matches the generated OG image. */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={`/ui/og-preview/${design}`}
-                  alt={`${label} Open Graph preview`}
-                  width={1200}
-                  height={630}
-                  className="h-auto w-full rounded-lg border"
-                />
-              </figure>
-            ))}
+            <Tabs defaultValue="media" className="gap-6">
+              <TabsList aria-label="Open Graph designs">
+                <TabsTrigger value="media">Anime / manga</TabsTrigger>
+                <TabsTrigger value="site">Site</TabsTrigger>
+                <TabsTrigger value="profile">Profile</TabsTrigger>
+              </TabsList>
+              <TabsContent value="media">
+                <MediaOgPreview />
+              </TabsContent>
+              {[
+                ["site", "Site"],
+                ["profile", "Profile"],
+              ].map(([design, label]) => (
+                <TabsContent key={design} value={design}>
+                  <figure className="space-y-2">
+                    <figcaption className="text-sm font-medium text-muted-foreground">
+                      {label}
+                    </figcaption>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`/ui/og-preview/${design}`}
+                      alt={`${label} Open Graph preview`}
+                      width={1200}
+                      height={630}
+                      className="h-auto w-full rounded-lg border"
+                    />
+                  </figure>
+                </TabsContent>
+              ))}
+            </Tabs>
           </section>
         </TabsContent>
 

@@ -23,6 +23,7 @@ type MediaOgInput = {
   type: "ANIME" | "MANGA";
   bannerImage: string | null;
   coverImage: string | null;
+  hasBannerImage?: boolean;
 };
 
 /**
@@ -34,8 +35,9 @@ export function buildMediaOgCard({
   type,
   bannerImage,
   coverImage,
+  hasBannerImage = Boolean(bannerImage),
 }: MediaOgInput): OgCardLayout {
-  if (bannerImage) {
+  if (bannerImage && hasBannerImage) {
     return {
       variant: "banner",
       kicker: type === "ANIME" ? "Anime" : "Manga",
