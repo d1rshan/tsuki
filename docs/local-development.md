@@ -8,6 +8,13 @@ bun run local:setup
 bun run dev
 ```
 
+For a Treehouse worktree, run `treehouse` from the main checkout. Treehouse
+copies the ignored environment files listed in `.worktreeinclude` from the main
+checkout when acquiring a worktree. Commit that manifest to the base branch
+before relying on it. The copies are independent; changes in the main checkout
+do not automatically update an existing worktree. Run `bun install` in the
+worktree before starting the dev servers.
+
 `local:setup` starts Postgres and a local Neon HTTP proxy, waits for readiness,
 applies the schema, search extension and triggers, then populates the catalog.
 The proxy keeps the same database driver and atomic profile-update batches as

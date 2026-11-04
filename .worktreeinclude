@@ -1,0 +1,9 @@
+# Copy local environment configuration from the main checkout into worktrees.
+/.env
+/.env.*
+/apps/api/.env
+/apps/api/.env.*
+/apps/web/.env
+/apps/web/.env.*
+/packages/db/.env
+/packages/db/.env.*
