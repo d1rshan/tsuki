@@ -5,6 +5,7 @@ import { buildMediaOgCard, buildMinimalOgCard } from "@/shared/lib/og-card";
 
 import { getMedia } from "./data";
 import { normalizeMedia, parseMediaId } from "./media";
+import { getMediaOgFonts } from "./og-fonts";
 
 export const ogImageSize = { width: 1200, height: 630 };
 
@@ -17,5 +18,8 @@ export async function renderMediaOgImage(mediaType: "ANIME" | "MANGA", id: strin
     ? buildMediaOgCard(normalizeMedia(media))
     : buildMinimalOgCard("Tsuki", "Track anime & manga.");
 
-  return new ImageResponse(<OgCard layout={layout} />, ogImageSize);
+  return new ImageResponse(<OgCard layout={layout} />, {
+    ...ogImageSize,
+    fonts: await getMediaOgFonts(),
+  });
 }
