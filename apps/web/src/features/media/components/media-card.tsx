@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
+import { memo, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
+import { LayoutGroup, motion, useReducedMotion } from "framer-motion";
 import { Plus } from "lucide-react";
 
 import type { Media, MediaCompact } from "@tsuki/api/types";
@@ -26,13 +26,21 @@ function getNoHoverSnapshot() {
   return window.matchMedia(NO_HOVER_QUERY).matches;
 }
 
-export function MediaCard({
-  media,
-  className,
-}: {
+type MediaCardProps = {
   media: Media | MediaCompact;
   className?: string;
-}) {
+};
+
+export const MediaCard = memo(function MediaCard(props: MediaCardProps) {
+  return (
+    // Share modal IDs without remeasuring every card when one card updates.
+    <LayoutGroup inherit="id">
+      <MediaCardContent {...props} />
+    </LayoutGroup>
+  );
+});
+
+function MediaCardContent({ media, className }: MediaCardProps) {
   const morphId = useId();
   const noHover = useSyncExternalStore(subscribeToHover, getNoHoverSnapshot, () => false);
   const [hovered, setHovered] = useState(false);
