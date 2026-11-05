@@ -21,7 +21,7 @@
     "@tsuki/kitsu": "workspace:*",
     "@tsuki/rich-content": "workspace:*",
     "drizzle-orm": "^0.45.4",
-    "elysia": "latest"
+    "elysia": "1.4.30"
   },
   "devDependencies": {
     "bun-types": "latest",
