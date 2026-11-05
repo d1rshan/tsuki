@@ -1,9 +1,2 @@
-# Copy local environment configuration from the main checkout into worktrees.
+# Copy the single local config into new worktrees. Production credentials stay in the main checkout.
 /.env
-/.env.*
-/apps/api/.env
-/apps/api/.env.*
-/apps/web/.env
-/apps/web/.env.*
-/packages/db/.env
-/packages/db/.env.*

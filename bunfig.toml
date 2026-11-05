@@ -1,0 +1,2 @@
+# scripts/run.ts selects configuration explicitly for each command.
+env = false

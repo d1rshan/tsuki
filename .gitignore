@@ -51,3 +51,7 @@ anilist-docs/*
 
 # Local database snapshots, locks, and private environment backups
 .local-dev/
+
+# Explicit production database credentials
+.secrets/*
+!.secrets/*.example

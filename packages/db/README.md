@@ -8,12 +8,23 @@ bun run db:push     # sync schema.ts to the DB, then re-apply triggers
 bun run db:studio
 ```
 
-For the local Docker database, start with the repository's
-[local development setup](../../docs/local-development.md). It writes
-`.env.local` overrides without replacing your existing `.env`. The schema CLI
-runs under Bun so those overrides are loaded; its `pg` development dependency
-connects directly to local Postgres. App queries still use the Neon HTTP driver
-through the local proxy, preserving the same transactional batch behavior.
+Commands select local Docker Postgres explicitly. They load the root `.env`
+through `scripts/run.ts`; package-level env files are not used. Start Docker
+with `bun run local:up` from the repo root first.
+
+For Neon, put its `DATABASE_URL` in the ignored root `.secrets/neon.env`:
+
+```bash
+bun run db:push:prod           # schema + indexes + triggers on Neon
+bun run db:studio:prod
+bun run db:push:prod --dry-run  # inspect the target and subprocesses without connecting
+```
+
+These commands work from the repo root and `packages/db`. Production commands
+never inherit the local proxy or fall back to local credentials. See the
+[environment and local development guide](../../docs/local-development.md).
+The schema CLI uses direct Postgres connections; local app queries still use
+the Neon HTTP driver through the Docker proxy.
 
 PostgreSQL features that Drizzle cannot declare (triggers, functions) live in
 `src/triggers.ts` as idempotent SQL. `db:push` applies them automatically after
@@ -25,7 +36,8 @@ Before deploying the Activity/completion change, run once against the target
 DB from `packages/db`:
 
 ```bash
-bun run db:cleanup-activity
+bun run db:cleanup-activity       # local
+bun run db:cleanup-activity:prod  # Neon
 ```
 
 This transactional cleanup removes unsupported historical Logs, strips obsolete
