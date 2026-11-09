@@ -53,7 +53,7 @@ export function MediaModal({ children, morphId }: { children: React.ReactNode; m
           layoutScroll
           initial={sharedId ? false : { opacity: 0, scale: reduceMotion ? 1 : 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
-          exit={sharedId ? undefined : { opacity: 0, scale: reduceMotion ? 1 : 0.98 }}
+          exit={{ opacity: 0, ...(sharedId ? {} : { scale: reduceMotion ? 1 : 0.98 }) }}
           transition={
             reduceMotion
               ? { duration: MEDIA_REVEAL_DURATION, ease: MEDIA_EASE_OUT }
