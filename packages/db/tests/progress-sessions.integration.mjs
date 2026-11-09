@@ -22,6 +22,34 @@ try {
       )
     ).rows;
   assert.deepEqual(await totals(), [{ day: "2026-11-01", amount: 3 }]);
+  await pool.query(`UPDATE library SET progress=4 WHERE user_id='u' AND media_id=1`);
+  assert.deepEqual(await totals(), [{ day: "2026-11-01", amount: 1 }]);
+  assert.deepEqual(
+    (
+      await pool.query(
+        `SELECT start_number,end_number FROM progress_session WHERE media_id=1 ORDER BY start_number`,
+      )
+    ).rows,
+    [
+      { start_number: 1, end_number: 3 },
+      { start_number: 4, end_number: 4 },
+    ],
+  );
+  await pool.query(`UPDATE library SET progress=6 WHERE user_id='u' AND media_id=1`);
+  await pool.query(`UPDATE library SET progress=3 WHERE user_id='u' AND media_id=1`);
+  assert.deepEqual(await totals(), []);
+  await pool.query(`UPDATE library SET progress=0 WHERE user_id='u' AND media_id=1`);
+  assert.equal(
+    (await pool.query(`SELECT count(*)::int AS n FROM progress_session WHERE media_id=1`)).rows[0]
+      .n,
+    0,
+  );
+  await pool.query(
+    `UPDATE library SET progress=3,progress_date=null WHERE user_id='u' AND media_id=1`,
+  );
+  await pool.query(
+    `UPDATE library SET progress=6,progress_date='2026-11-01' WHERE user_id='u' AND media_id=1`,
+  );
   const id = (await pool.query(`SELECT id FROM progress_session WHERE start_number=4`)).rows[0].id;
   const change = (start, end, date, remove = false) =>
     pool.query(`SELECT change_progress_session('u',1,$1,$2,$3,$4,$5)`, [
