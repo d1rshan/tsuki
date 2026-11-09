@@ -39,8 +39,6 @@ import type { MediaActivity } from "../hooks/use-media-activity";
 import { useSaveMediaActivityMutation } from "../hooks/use-save-media-activity-mutation";
 import { MEDIA } from "../media";
 
-import { ProgressSessions } from "./progress-sessions";
-
 export function LogMediaDialog({
   activity,
   mediaId,
@@ -234,8 +232,7 @@ export function LogMediaDialog({
                 ) : null
               }
             </form.Subscribe>
-            <details>
-              <summary>More options</summary>
+            <FieldGroup className="grid grid-cols-2 gap-3">
               <form.Field name="startedDate">
                 {(field) => (
                   <Field>
@@ -258,11 +255,15 @@ export function LogMediaDialog({
                       type="date"
                       value={field.state.value ?? ""}
                       onChange={(e) => field.handleChange(e.target.value)}
+                      className={cn(
+                        !field.state.value &&
+                          "[&::-webkit-calendar-picker-indicator]:ml-auto [&::-webkit-datetime-edit]:hidden",
+                      )}
                     />
                   </Field>
                 )}
               </form.Field>
-            </details>
+            </FieldGroup>
             <form.Field name="score">
               {(field) => (
                 <FieldSet>
@@ -309,9 +310,6 @@ export function LogMediaDialog({
             </div>
           </FieldGroup>
         </form>
-        {dialog.isOpen && activity.isAuthenticated && (
-          <ProgressSessions mediaType={mediaType} mediaId={mediaId} />
-        )}
       </DialogContent>
     </Dialog>
   );

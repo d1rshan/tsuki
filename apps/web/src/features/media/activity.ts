@@ -38,7 +38,7 @@ export function createActivityForm(
 ): ActivityForm {
   return {
     progressDate: localDay(),
-    startedDate: fuzzyInput(entry?.startedAt),
+    startedDate: entry?.startedAt ? fuzzyInput(entry.startedAt) : localDay(),
     completedDate: fuzzyInput(entry?.completedAt),
     progress: entry ? String(entry.progress) : "0",
     review: review?.content ?? null,

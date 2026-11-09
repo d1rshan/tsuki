@@ -5,7 +5,5 @@ export const mediaKeys = {
     ["media", "detail", mediaType, mediaId] as const,
   activity: (mediaType: MediaType, mediaId: number) =>
     ["media", "activity", mediaType, mediaId] as const,
-  sessions: (mediaType: MediaType, mediaId: number, userId: string | null) =>
-    [...mediaKeys.activity(mediaType, mediaId), userId, "sessions"] as const,
   search: (mediaType: MediaType, query: string) => ["media", "search", mediaType, query] as const,
 };

@@ -17,8 +17,12 @@ export const statements = [
     IF NEW.progress > previous THEN
       INSERT INTO public.progress_session(id,user_id,media_id,media_type,start_number,end_number,activity_date)
       VALUES(gen_random_uuid()::text,NEW.user_id,NEW.media_id,NEW.media_type,previous+1,NEW.progress,NEW.progress_date);
-    ELSIF NEW.progress < previous AND NEW.progress <> COALESCE((SELECT max(end_number) FROM public.progress_session WHERE user_id=NEW.user_id AND media_id=NEW.media_id),0) THEN
-      RAISE EXCEPTION 'Correct individual progress sessions to lower progress' USING ERRCODE='23514';
+    ELSIF NEW.progress < previous THEN
+      DELETE FROM public.progress_session
+        WHERE user_id=NEW.user_id AND media_id=NEW.media_id AND start_number > NEW.progress;
+      UPDATE public.progress_session SET end_number=NEW.progress, updated_at=now()
+        WHERE user_id=NEW.user_id AND media_id=NEW.media_id
+          AND start_number <= NEW.progress AND end_number > NEW.progress;
     END IF;
     RETURN NEW;
   END $$`,
