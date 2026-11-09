@@ -19,7 +19,7 @@ export function ProfileAvatar({ className, user }: ProfileAvatarProps) {
             alt={user.name}
             fill
             preload
-            sizes="(max-width: 768px) 64px, 80px"
+            sizes="(max-width: 768px) 96px, 128px"
             className="object-cover"
           />
         ) : (

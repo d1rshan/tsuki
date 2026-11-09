@@ -13,7 +13,7 @@ export function ProfileLayout({
   params: Promise<{ username: string }>;
 }) {
   return (
-    <div className="min-h-screen pt-20 pb-12 md:pt-28 md:pb-16">
+    <div className="min-h-screen pb-12 md:pb-16">
       <ProfileHeaderShell params={params} />
       <Suspense fallback={<Loader />}>
         <ProfileContent params={params}>{children}</ProfileContent>
