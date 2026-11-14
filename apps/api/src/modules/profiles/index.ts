@@ -22,6 +22,8 @@ import {
   UserOverviewModel,
 } from "./model";
 
+import { processProfileMedia, removeSource, sourceUploadAuth } from "./media-processing";
+
 import { summarizeStatistics } from "./statistics";
 
 // TODO: Rename `/users/:username` routes to `/profiles/:username` (and
@@ -37,16 +39,83 @@ export const profilesRoutes = new Elysia({ tags: ["Profiles"] })
       if (!isImageKitConfigured()) {
         return status(503, { error: "Image uploads are not configured on this deployment" });
       }
-      return generateImageKitUploadAuth(user.id, query.type);
+      return query.extension
+        ? sourceUploadAuth(user.id, query.type, query.extension)
+        : generateImageKitUploadAuth(user.id, query.type);
     },
     {
       auth: true,
-      query: t.Object({ type: t.Union([t.Literal("avatar"), t.Literal("banner")]) }),
+      query: t.Object({
+        type: t.Union([t.Literal("avatar"), t.Literal("banner")]),
+        extension: t.Optional(
+          t.Union([
+            t.Literal("jpg"),
+            t.Literal("png"),
+            t.Literal("webp"),
+            t.Literal("gif"),
+            t.Literal("mp4"),
+          ]),
+        ),
+      }),
       response: { 200: UploadAuthModel, 503: ErrorModel },
       detail: {
         summary: "Get ImageKit upload authorization",
         description: "Generates temporary credentials for direct browser-to-ImageKit upload.",
       },
+    },
+  )
+  .post(
+    "/me/profile/process-media",
+    async ({ body, user }) => {
+      if (!isImageKitConfigured())
+        return status(503, { error: "Media uploads are not configured." });
+      try {
+        const url = await processProfileMedia(user.id, body);
+        return { url, pending: url === null };
+      } catch (error) {
+        return status(422, {
+          error: error instanceof Error ? error.message : "Processing failed. Please try again.",
+        });
+      }
+    },
+    {
+      auth: true,
+      body: t.Object({
+        fileId: t.String({ minLength: 1, maxLength: 100 }),
+        type: t.Union([t.Literal("avatar"), t.Literal("banner")]),
+        crop: t.Object({
+          x: t.Number({ minimum: 0, maximum: 20000 }),
+          y: t.Number({ minimum: 0, maximum: 20000 }),
+          width: t.Number({ minimum: 2, maximum: 20000 }),
+          height: t.Number({ minimum: 2, maximum: 20000 }),
+        }),
+        start: t.Number({ minimum: 0, maximum: 86400 }),
+        duration: t.Number({ minimum: 0.1, maximum: 6 }),
+      }),
+      response: {
+        200: t.Object({ url: t.Nullable(t.String()), pending: t.Boolean() }),
+        422: ErrorModel,
+        503: ErrorModel,
+      },
+    },
+  )
+  .delete(
+    "/me/profile/source-upload",
+    async ({ body, user }) => {
+      try {
+        await removeSource(body.fileId, user.id, body.type);
+        return { success: true };
+      } catch {
+        return status(422, { error: "Could not remove temporary upload." });
+      }
+    },
+    {
+      auth: true,
+      body: t.Object({
+        fileId: t.String({ maxLength: 100 }),
+        type: t.Union([t.Literal("avatar"), t.Literal("banner")]),
+      }),
+      response: { 200: t.Object({ success: t.Boolean() }), 422: ErrorModel },
     },
   )
   .get(

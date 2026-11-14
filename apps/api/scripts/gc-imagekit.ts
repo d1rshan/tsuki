@@ -25,6 +25,8 @@ const GRACE_SECONDS = 48 * 60 * 60;
 const FOLDERS: Array<{ folder: string; type: ImageUploadType }> = [
   { folder: "/avatars", type: "avatar" },
   { folder: "/banners", type: "banner" },
+  { folder: "/profile-uploads/avatar", type: "avatar" },
+  { folder: "/profile-uploads/banner", type: "banner" },
 ];
 
 const dryRun = process.argv.includes("--dry-run");

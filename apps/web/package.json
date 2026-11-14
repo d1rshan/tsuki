@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "bun scripts/media-engine.ts && next dev",
-    "build": "bun scripts/media-engine.ts && next build",
+    "dev": "next dev",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
@@ -14,8 +14,6 @@
   "dependencies": {
     "@base-ui/react": "^1.9.0",
     "@elysiajs/eden": "^1",
-    "@ffmpeg/core": "^0.12.10",
-    "@ffmpeg/ffmpeg": "^0.12.15",
     "@giphy/js-fetch-api": "^5.8.0",
     "@giphy/js-types": "^5.1.0",
     "@giphy/react-components": "^10.1.2",

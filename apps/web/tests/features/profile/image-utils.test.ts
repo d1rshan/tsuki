@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 
 import {
   ALLOWED_IMAGE_TYPES,
+  isAnimatedWebP,
   MAX_AVATAR_SIZE_BYTES,
   MAX_BANNER_SIZE_BYTES,
   validateProfileImageFile,
@@ -61,4 +62,14 @@ describe("validateProfileImageFile", () => {
       }
     }
   });
+});
+
+test("distinguishes animated WebP from a static WebP without decoding", () => {
+  const bytes = new Uint8Array(32);
+  bytes.set(new TextEncoder().encode("RIFF"), 0);
+  bytes.set(new TextEncoder().encode("WEBPVP8X"), 8);
+  expect(isAnimatedWebP(bytes)).toBe(false);
+  bytes[20] = 2;
+  expect(isAnimatedWebP(bytes)).toBe(true);
+  expect(isAnimatedWebP(new Uint8Array(0))).toBe(false);
 });

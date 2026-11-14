@@ -56,5 +56,4 @@ anilist-docs/*
 .secrets/*
 !.secrets/*.example
 
-/apps/web/public/media-engine/
 /.playwright-cli/
