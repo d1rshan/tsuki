@@ -130,7 +130,11 @@ export const profilesRoutes = new Elysia({ tags: ["Profiles"] })
         [bannerImage, "banner"],
       ] as const) {
         if (!url) continue;
-        if (!parseImagePath(url, user.id, type)) {
+        const animation = new URLSearchParams(url.split("#")[1]).get("video");
+        if (
+          !parseImagePath(url, user.id, type) ||
+          (animation && !parseImagePath(animation, user.id, type))
+        ) {
           return status(422, { error: `Invalid ${type} image` });
         }
         const verificationError = await verifyUploadedImage(url, type);

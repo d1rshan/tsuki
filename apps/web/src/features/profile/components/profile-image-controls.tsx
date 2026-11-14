@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ImageUp, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -44,9 +44,17 @@ export function ProfileImageControls({
   type,
 }: ProfileImageControlsProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedFileUrl, setSelectedFileUrl] = useState<string | null>(null);
   const [isCropOpen, setIsCropOpen] = useState(false);
+
+  useEffect(
+    () => () => {
+      if (selectedFileUrl) URL.revokeObjectURL(selectedFileUrl);
+    },
+    [selectedFileUrl],
+  );
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -59,6 +67,7 @@ export function ProfileImageControls({
       return;
     }
 
+    setFile(file);
     setSelectedFileUrl(URL.createObjectURL(file));
     setIsCropOpen(true);
   };
@@ -72,7 +81,12 @@ export function ProfileImageControls({
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleConfirmCrop = async (blob: Blob) => {
+  const handleConfirmCrop = async (blob: Blob, poster: Blob | null) => {
+    const validation = validateProfileImageFile(blob, type);
+    if (!validation.valid) {
+      toast.error(validation.error);
+      return;
+    }
     setIsUploading(true);
     try {
       const { data: auth, error } = await apiClient.me.profile["upload-auth"].get({
@@ -84,9 +98,24 @@ export function ProfileImageControls({
         return;
       }
 
-      const uploadResult = await uploadBlobToImageKit({ blob, auth });
+      const uploadResult = await uploadBlobToImageKit({
+        blob,
+        auth: {
+          ...auth,
+          fileName: auth.fileName.replace(/\.webp$/, blob.type === "video/mp4" ? ".mp4" : ".webp"),
+        },
+      });
+      let url = uploadResult.url;
+      if (poster) {
+        const { data: posterAuth, error: posterError } = await apiClient.me.profile[
+          "upload-auth"
+        ].get({ query: { type } });
+        if (posterError || !posterAuth) throw new Error("Could not authorize poster upload.");
+        const result = await uploadBlobToImageKit({ blob: poster, auth: posterAuth });
+        url = `${result.url}#video=${encodeURIComponent(uploadResult.url)}`;
+      }
 
-      onUploadSuccess(uploadResult.url);
+      onUploadSuccess(url);
       handleCancelCrop();
     } catch (err) {
       console.error("Upload error:", err);
@@ -101,7 +130,7 @@ export function ProfileImageControls({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept="image/jpeg,image/png,image/webp,image/gif,video/mp4"
         className="hidden"
         onChange={handleFileChange}
         disabled={isUploading}
@@ -138,6 +167,7 @@ export function ProfileImageControls({
         isOpen={isCropOpen}
         isProcessing={isUploading}
         imageSrc={selectedFileUrl}
+        file={file}
         aspectRatio={aspectRatio}
         cropShape={cropShape}
         title={`Crop ${type === "avatar" ? "Avatar" : "Banner"}`}

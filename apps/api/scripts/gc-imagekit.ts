@@ -43,10 +43,20 @@ for (const row of rows) {
   if (row.image) {
     const path = parseImagePath(row.image, row.userId, "avatar");
     if (path) referenced.add(path);
+    const animation = new URLSearchParams(row.image.split("#")[1]).get("video");
+    if (animation) {
+      const animationPath = parseImagePath(animation, row.userId, "avatar");
+      if (animationPath) referenced.add(animationPath);
+    }
   }
   if (row.bannerImage) {
     const path = parseImagePath(row.bannerImage, row.userId, "banner");
     if (path) referenced.add(path);
+    const animation = new URLSearchParams(row.bannerImage.split("#")[1]).get("video");
+    if (animation) {
+      const animationPath = parseImagePath(animation, row.userId, "banner");
+      if (animationPath) referenced.add(animationPath);
+    }
   }
 }
 

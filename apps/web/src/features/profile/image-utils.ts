@@ -1,4 +1,10 @@
-export const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
+export const ALLOWED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "video/mp4",
+] as const;
 export type AllowedImageType = (typeof ALLOWED_IMAGE_TYPES)[number];
 
 export const MAX_AVATAR_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
@@ -17,7 +23,7 @@ export function validateProfileImageFile(
   if (!ALLOWED_IMAGE_TYPES.includes(file.type as AllowedImageType)) {
     return {
       valid: false,
-      error: "Unsupported file type. Please select a JPEG, PNG, or WebP image.",
+      error: "Unsupported file type. Please select a JPEG, PNG, WebP, GIF, or MP4.",
     };
   }
 

@@ -51,13 +51,7 @@ describe("validateProfileImageFile", () => {
   });
 
   test("rejects unsupported MIME types", () => {
-    const unsupported = [
-      "image/gif",
-      "image/svg+xml",
-      "application/pdf",
-      "text/plain",
-      "video/mp4",
-    ];
+    const unsupported = ["image/svg+xml", "application/pdf", "text/plain"];
 
     for (const type of unsupported) {
       const result = validateProfileImageFile({ size: 1024, type }, "avatar");

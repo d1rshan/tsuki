@@ -55,3 +55,6 @@ anilist-docs/*
 # Explicit production database credentials
 .secrets/*
 !.secrets/*.example
+
+/apps/web/public/media-engine/
+/.playwright-cli/

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { LoaderCircle, ZoomIn, ZoomOut } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -12,16 +13,18 @@ import {
   DialogTitle,
 } from "@/shared/components/ui/dialog";
 
-import { getCroppedImageBlob, type PixelCrop } from "../image-utils";
+import { type PixelCrop } from "../image-utils";
+import { processMedia } from "../process-media";
 
 type ImageCropDialogProps = {
   aspectRatio: number; // e.g. 1 for 1:1 avatar, 3 for 3:1 banner
   cropShape?: "round" | "rect";
   imageSrc: string | null;
+  file: File | null;
   isOpen: boolean;
   isProcessing?: boolean;
   onCancel: () => void;
-  onConfirm: (blob: Blob) => Promise<void> | void;
+  onConfirm: (blob: Blob, poster: Blob | null) => Promise<void> | void;
   title?: string;
 };
 
@@ -29,6 +32,7 @@ export function ImageCropDialog({
   aspectRatio,
   cropShape = "rect",
   imageSrc,
+  file,
   isOpen,
   isProcessing = false,
   onCancel,
@@ -45,6 +49,9 @@ export function ImageCropDialog({
     panY: 0,
   });
 
+  const [start, setStart] = useState(0);
+  const [duration, setDuration] = useState(6);
+  const [videoDuration, setVideoDuration] = useState(6);
   const imageRef = useRef<HTMLImageElement>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [naturalSize, setNaturalSize] = useState({ width: 0, height: 0 });
@@ -54,6 +61,8 @@ export function ImageCropDialog({
   // Reset state whenever a new image is loaded
   useEffect(() => {
     if (isOpen) {
+      setStart(0);
+      setDuration(6);
       setZoom(1);
       setPan({ x: 0, y: 0 });
       setImageLoaded(false);
@@ -134,7 +143,7 @@ export function ImageCropDialog({
   };
 
   const handleApplyCrop = async () => {
-    if (!imageRef.current || !imageLoaded || naturalSize.width === 0) return;
+    if (!file || !imageLoaded || naturalSize.width === 0) return;
 
     // Calculate crop rectangle in natural image pixels
     const cropPixelX = Math.max(0, -clampedPanX / currentScale);
@@ -153,10 +162,15 @@ export function ImageCropDialog({
     // take seconds, and the parent's isProcessing only starts once we hand off.
     setIsSaving(true);
     try {
-      const blob = await getCroppedImageBlob(imageRef.current, pixelCrop, "image/webp", 0.92);
-      await onConfirm(blob);
+      const { blob, poster } = await processMedia(
+        file,
+        pixelCrop,
+        start,
+        Math.min(duration, videoDuration - start),
+      );
+      await onConfirm(blob, poster);
     } catch (err) {
-      console.error("Cropping failed:", err);
+      toast.error(err instanceof Error ? err.message : "Processing failed. Try another file.");
     } finally {
       setIsSaving(false);
     }
@@ -179,7 +193,29 @@ export function ImageCropDialog({
             onPointerUp={handlePointerUp}
             onPointerCancel={handlePointerUp}
           >
-            {imageSrc && (
+            {imageSrc && file?.type === "video/mp4" && (
+              <video
+                src={imageSrc}
+                muted
+                playsInline
+                controls
+                onLoadedMetadata={(e) => {
+                  const video = e.currentTarget;
+                  setVideoDuration(video.duration);
+                  setDuration(Math.min(6, video.duration));
+                  setNaturalSize({ width: video.videoWidth, height: video.videoHeight });
+                  setImageLoaded(true);
+                }}
+                style={{
+                  position: "absolute",
+                  width: displayedWidth || "auto",
+                  height: displayedHeight || "auto",
+                  maxWidth: "none",
+                  transform: `translate(${clampedPanX}px, ${clampedPanY}px)`,
+                }}
+              />
+            )}
+            {imageSrc && file?.type !== "video/mp4" && (
               <img
                 ref={imageRef}
                 src={imageSrc}
@@ -210,6 +246,42 @@ export function ImageCropDialog({
             )}
           </div>
 
+          {file?.type === "video/mp4" && (
+            <div className="flex gap-3">
+              <label>
+                Start (seconds)
+                <input
+                  aria-label="Trim start"
+                  type="number"
+                  min={0}
+                  max={Math.max(0, videoDuration - 0.1)}
+                  step={0.1}
+                  value={start}
+                  disabled={isBusy}
+                  onChange={(e) =>
+                    setStart(Math.max(0, Math.min(videoDuration - 0.1, Number(e.target.value))))
+                  }
+                />
+              </label>
+              <label>
+                Loop (max 6 seconds)
+                <input
+                  aria-label="Loop duration"
+                  type="number"
+                  min={0.1}
+                  max={Math.min(6, videoDuration - start)}
+                  step={0.1}
+                  value={duration}
+                  disabled={isBusy}
+                  onChange={(e) =>
+                    setDuration(
+                      Math.max(0.1, Math.min(6, videoDuration - start, Number(e.target.value))),
+                    )
+                  }
+                />
+              </label>
+            </div>
+          )}
           {/* Zoom Controls */}
           <div className="flex w-full max-w-[320px] items-center gap-3 px-2">
             <ZoomOut className="h-4 w-4 text-muted-foreground shrink-0" />

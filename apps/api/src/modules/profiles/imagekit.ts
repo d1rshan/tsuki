@@ -44,7 +44,7 @@ export function generateImageKitUploadAuth(userId: string, type: ImageUploadType
 
 const filePathPattern = (userId: string, type: ImageUploadType) =>
   new RegExp(
-    `^${folderFor(type)}/image-${userId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}-\\d+-[0-9a-f-]{36}\\.webp$`,
+    `^${folderFor(type)}/image-${userId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}-\\d+-[0-9a-f-]{36}\\.(?:webp|mp4)$`,
   );
 
 /**
@@ -55,12 +55,12 @@ const filePathPattern = (userId: string, type: ImageUploadType) =>
 export function parseImagePath(url: string, userId: string, type: ImageUploadType): string | null {
   const endpoint = (env.IMAGEKIT_URL_ENDPOINT || "https://ik.imagekit.io").replace(/\/$/, "");
   if (!url.startsWith(`${endpoint}/`)) return null;
-  const path = decodeURIComponent(url.slice(endpoint.length));
+  const path = decodeURIComponent(url.split("#")[0]!.slice(endpoint.length));
   return filePathPattern(userId, type).test(path) ? path : null;
 }
 
 const UPLOADED_AT_PATTERN =
-  /-(\d+)-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.webp$/;
+  /-(\d+)-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(?:webp|mp4)$/;
 
 /** Upload epoch (seconds) from a convention-conforming file path, else null. */
 export function uploadedAtFromFilePath(path: string): number | null {
@@ -70,7 +70,7 @@ export function uploadedAtFromFilePath(path: string): number | null {
   return Number.isSafeInteger(seconds) && seconds > 0 ? seconds : null;
 }
 
-const ALLOWED_CONTENT_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const ALLOWED_CONTENT_TYPES = ["image/jpeg", "image/png", "image/webp", "video/mp4"];
 const MAX_IMAGE_BYTES = { avatar: 5 * 1024 * 1024, banner: 10 * 1024 * 1024 };
 
 /**
@@ -82,6 +82,12 @@ export async function verifyUploadedImage(
   url: string,
   type: ImageUploadType,
 ): Promise<string | null> {
+  const video = new URLSearchParams(url.split("#")[1]).get("video");
+  if (video) {
+    if (!video.endsWith(".mp4") || new URL(video).hash) return "Invalid animation.";
+    const error = await verifyUploadedImage(video, type);
+    if (error) return error;
+  }
   let response: Response;
   try {
     response = await fetch(url, { method: "HEAD" });
