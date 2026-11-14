@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 
 import {
   ALLOWED_IMAGE_TYPES,
+  isAnimatedWebP,
   MAX_AVATAR_SIZE_BYTES,
   MAX_BANNER_SIZE_BYTES,
   validateProfileImageFile,
@@ -51,13 +52,7 @@ describe("validateProfileImageFile", () => {
   });
 
   test("rejects unsupported MIME types", () => {
-    const unsupported = [
-      "image/gif",
-      "image/svg+xml",
-      "application/pdf",
-      "text/plain",
-      "video/mp4",
-    ];
+    const unsupported = ["image/svg+xml", "application/pdf", "text/plain"];
 
     for (const type of unsupported) {
       const result = validateProfileImageFile({ size: 1024, type }, "avatar");
@@ -67,4 +62,14 @@ describe("validateProfileImageFile", () => {
       }
     }
   });
+});
+
+test("distinguishes animated WebP from a static WebP without decoding", () => {
+  const bytes = new Uint8Array(32);
+  bytes.set(new TextEncoder().encode("RIFF"), 0);
+  bytes.set(new TextEncoder().encode("WEBPVP8X"), 8);
+  expect(isAnimatedWebP(bytes)).toBe(false);
+  bytes[20] = 2;
+  expect(isAnimatedWebP(bytes)).toBe(true);
+  expect(isAnimatedWebP(new Uint8Array(0))).toBe(false);
 });

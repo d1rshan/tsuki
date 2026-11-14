@@ -25,6 +25,8 @@ const GRACE_SECONDS = 48 * 60 * 60;
 const FOLDERS: Array<{ folder: string; type: ImageUploadType }> = [
   { folder: "/avatars", type: "avatar" },
   { folder: "/banners", type: "banner" },
+  { folder: "/profile-uploads/avatar", type: "avatar" },
+  { folder: "/profile-uploads/banner", type: "banner" },
 ];
 
 const dryRun = process.argv.includes("--dry-run");
@@ -43,10 +45,20 @@ for (const row of rows) {
   if (row.image) {
     const path = parseImagePath(row.image, row.userId, "avatar");
     if (path) referenced.add(path);
+    const animation = new URLSearchParams(row.image.split("#")[1]).get("video");
+    if (animation) {
+      const animationPath = parseImagePath(animation, row.userId, "avatar");
+      if (animationPath) referenced.add(animationPath);
+    }
   }
   if (row.bannerImage) {
     const path = parseImagePath(row.bannerImage, row.userId, "banner");
     if (path) referenced.add(path);
+    const animation = new URLSearchParams(row.bannerImage.split("#")[1]).get("video");
+    if (animation) {
+      const animationPath = parseImagePath(animation, row.userId, "banner");
+      if (animationPath) referenced.add(animationPath);
+    }
   }
 }
 

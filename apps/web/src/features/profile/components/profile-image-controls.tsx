@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ImageUp, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -16,6 +16,8 @@ import {
 
 import {
   type ImageUploadType,
+  type PixelCrop,
+  isAnimatedWebP,
   uploadBlobToImageKit,
   validateProfileImageFile,
 } from "../image-utils";
@@ -44,11 +46,20 @@ export function ProfileImageControls({
   type,
 }: ProfileImageControlsProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [progress, setProgress] = useState("");
   const [selectedFileUrl, setSelectedFileUrl] = useState<string | null>(null);
   const [isCropOpen, setIsCropOpen] = useState(false);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(
+    () => () => {
+      if (selectedFileUrl) URL.revokeObjectURL(selectedFileUrl);
+    },
+    [selectedFileUrl],
+  );
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -59,6 +70,17 @@ export function ProfileImageControls({
       return;
     }
 
+    if (
+      file.type === "image/webp" &&
+      isAnimatedWebP(new Uint8Array(await file.slice(0, 32).arrayBuffer()))
+    ) {
+      toast.error("Animated WebP is not supported. Choose a GIF or MP4 instead.", {
+        position: "top-center",
+      });
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+    setFile(file);
     setSelectedFileUrl(URL.createObjectURL(file));
     setIsCropOpen(true);
   };
@@ -72,27 +94,62 @@ export function ProfileImageControls({
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleConfirmCrop = async (blob: Blob) => {
+  const handleConfirmCrop = async (crop: PixelCrop, start: number, duration: number) => {
+    if (!file) return;
     setIsUploading(true);
+    let fileId: string | undefined;
     try {
+      setProgress("Uploading media…");
+      const extension = (
+        {
+          "image/jpeg": "jpg",
+          "image/png": "png",
+          "image/webp": "webp",
+          "image/gif": "gif",
+          "video/mp4": "mp4",
+        } as const
+      )[file.type as "image/jpeg" | "image/png" | "image/webp" | "image/gif" | "video/mp4"];
       const { data: auth, error } = await apiClient.me.profile["upload-auth"].get({
-        query: { type },
+        query: { type, extension },
       });
-      if (error || !auth) {
-        toast.error("Failed to get upload authorization. Please try again.");
-        setIsUploading(false);
-        return;
+      if (error || !auth) throw new Error("Could not authorize upload. Please retry.");
+      const upload = await uploadBlobToImageKit({ blob: file, auth });
+      fileId = upload.fileId;
+      setProgress("Preparing your media…");
+      const deadline = Date.now() + 180000;
+      while (Date.now() < deadline) {
+        const { data, error: processingError } = await apiClient.me.profile["process-media"].post({
+          fileId,
+          type,
+          crop,
+          start,
+          duration,
+        });
+        if (processingError || !data)
+          throw new Error(
+            processingError?.value && "error" in processingError.value
+              ? String(processingError.value.error)
+              : "Could not process media. Please retry.",
+          );
+        if (data.url) {
+          fileId = undefined;
+          onUploadSuccess(data.url);
+          handleCancelCrop();
+          return;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 2000));
       }
-
-      const uploadResult = await uploadBlobToImageKit({ blob, auth });
-
-      onUploadSuccess(uploadResult.url);
-      handleCancelCrop();
-    } catch (err) {
-      console.error("Upload error:", err);
-      toast.error(err instanceof Error ? err.message : "Upload failed. Please try again.");
+      throw new Error("Processing took too long. Please try again.");
     } finally {
+      if (fileId) {
+        try {
+          await apiClient.me.profile["source-upload"].delete({ fileId, type });
+        } catch {
+          /* GC retries cleanup if the network is unavailable. */
+        }
+      }
       setIsUploading(false);
+      setProgress("");
     }
   };
 
@@ -101,7 +158,7 @@ export function ProfileImageControls({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept="image/jpeg,image/png,image/webp,image/gif,video/mp4"
         className="hidden"
         onChange={handleFileChange}
         disabled={isUploading}
@@ -138,9 +195,12 @@ export function ProfileImageControls({
         isOpen={isCropOpen}
         isProcessing={isUploading}
         imageSrc={selectedFileUrl}
+        file={file}
         aspectRatio={aspectRatio}
         cropShape={cropShape}
-        title={`Crop ${type === "avatar" ? "Avatar" : "Banner"}`}
+        title={`Adjust ${type}`}
+        progress={progress}
+        onReplace={() => fileInputRef.current?.click()}
         onCancel={handleCancelCrop}
         onConfirm={handleConfirmCrop}
       />
