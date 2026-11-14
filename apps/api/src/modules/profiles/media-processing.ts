@@ -58,20 +58,23 @@ export function cropTransformation(
   height: number,
   type: ImageUploadType,
 ) {
-  const x = Math.floor(crop.x / 2) * 2,
-    y = Math.floor(crop.y / 2) * 2;
-  const w = Math.floor(crop.width / 2) * 2,
-    h = Math.floor(crop.height / 2) * 2;
+  const ratio = type === "avatar" ? 1 : 3;
   if (
-    x < 0 ||
-    y < 0 ||
-    w < 2 ||
-    h < 2 ||
-    x + w > width + 1 ||
-    y + h > height + 1 ||
-    Math.abs(w / h - (type === "avatar" ? 1 : 3)) > 0.04
-  )
+    crop.x < 0 ||
+    crop.y < 0 ||
+    crop.width < ratio * 2 ||
+    crop.height < 2 ||
+    crop.x + crop.width > width + 1 ||
+    crop.y + crop.height > height + 1 ||
+    Math.abs(crop.width / crop.height - ratio) > 0.04
+  ) {
     throw new Error("Invalid crop. Please adjust the selection.");
+  }
+  const x = Math.floor(crop.x / 2) * 2;
+  const y = Math.floor(crop.y / 2) * 2;
+  // Keep the aspect ratio exact while giving H.264 even dimensions at every step.
+  const h = Math.floor(Math.min(crop.height, crop.width / ratio) / 2) * 2;
+  const w = h * ratio;
   return `w-${Math.floor((width - x) / 2) * 2},h-${Math.floor((height - y) / 2) * 2},cm-extract,fo-bottom_right:w-${Math.min(w, width - x)},h-${Math.min(h, height - y)},cm-extract,fo-top_left:w-${Math.min(w, type === "avatar" ? 320 : 960)},c-at_max`;
 }
 
@@ -148,8 +151,8 @@ export async function processProfileMedia(
     .at(-1)!
     .replace(/\.[^.]+$/, "");
   const videoSource = extension === "gif" ? `${source.url}/ik-gif-video.mp4` : source.url;
-  const start = Number(input.start.toFixed(3));
-  const duration = Number(input.duration.toFixed(3));
+  const start = Number(input.start.toFixed(2));
+  const duration = Number(input.duration.toFixed(2));
   const transform = animated
     ? `${crop}:so-${start},du-${duration},f-mp4,vc-h264,ac-none${extension === "mp4" ? ",ov-redirect_false" : ""}`
     : `${crop},f-webp`;
@@ -190,6 +193,10 @@ export async function processProfileMedia(
     const poster = await store(posterBytes, posterName, input.type);
     url = `${poster.url}#video=${encodeURIComponent(output.url)}`;
   }
-  await removeSource(input.fileId, userId, input.type);
+  try {
+    await removeSource(input.fileId, userId, input.type);
+  } catch {
+    // Finished assets are independent of the source; GC retries temporary cleanup.
+  }
   return url;
 }

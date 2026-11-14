@@ -48,34 +48,37 @@ test("pending ImageKit processing retains the source and never publishes a repla
   expect(request).toHaveBeenCalledTimes(4);
 });
 
-test("materializes video and poster before deleting the original", async () => {
-  const calls: string[] = [];
-  vi.stubGlobal(
-    "fetch",
-    vi.fn(async (url: string, options?: RequestInit) => {
-      calls.push(`${options?.method ?? "GET"} ${url}`);
-      if (url.endsWith("/details")) return json(details);
-      if (url.endsWith("/metadata")) return json({ metadata: { width: 640, height: 360 } });
-      if (options?.method === "DELETE") return new Response(null, { status: 204 });
-      if (url.includes("files/upload"))
-        return json({
-          url: `https://ik.imagekit.io/test/banners/${calls.length === 6 ? name + ".mp4" : name + ".webp"}`,
-          fileId: "output",
-        });
-      if (url.includes("ik-thumbnail"))
-        return new Response(new Uint8Array(50), { headers: { "content-type": "image/webp" } });
-      if (url.includes("?tr="))
-        return new Response(new Uint8Array(100), { headers: { "content-type": "video/mp4" } });
-      return new Response(new Uint8Array(32));
-    }),
-  );
-  expect(await processProfileMedia("owner", { ...input, duration: 1.9000000000000001 })).toContain(
-    "#video=",
-  );
-  expect(calls.find((call) => call.includes("vc-h264"))).toContain("du-1.9,");
-  expect(calls.at(-1)).toBe("DELETE https://api.imagekit.io/v1/files/source");
-  expect(calls.filter((call) => call.startsWith("POST"))).toHaveLength(2);
-});
+test.each([204, 503])(
+  "returns finished media when source cleanup responds %s",
+  async (cleanupStatus) => {
+    const calls: string[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string, options?: RequestInit) => {
+        calls.push(`${options?.method ?? "GET"} ${url}`);
+        if (url.endsWith("/details")) return json(details);
+        if (url.endsWith("/metadata")) return json({ metadata: { width: 640, height: 360 } });
+        if (options?.method === "DELETE") return new Response(null, { status: cleanupStatus });
+        if (url.includes("files/upload"))
+          return json({
+            url: `https://ik.imagekit.io/test/banners/${calls.length === 6 ? name + ".mp4" : name + ".webp"}`,
+            fileId: "output",
+          });
+        if (url.includes("ik-thumbnail"))
+          return new Response(new Uint8Array(50), { headers: { "content-type": "image/webp" } });
+        if (url.includes("?tr="))
+          return new Response(new Uint8Array(100), { headers: { "content-type": "video/mp4" } });
+        return new Response(new Uint8Array(32));
+      }),
+    );
+    expect(
+      await processProfileMedia("owner", { ...input, duration: 3.8310000000000001 }),
+    ).toContain("#video=");
+    expect(calls.find((call) => call.includes("vc-h264"))).toContain("du-3.83,");
+    expect(calls.at(-1)).toBe("DELETE https://api.imagekit.io/v1/files/source");
+    expect(calls.filter((call) => call.startsWith("POST"))).toHaveLength(2);
+  },
+);
 
 test("rejects an animated WebP even when disguised as an MP4", async () => {
   const bytes = new Uint8Array(32);
@@ -109,4 +112,10 @@ test("rounds video crop stages to even dimensions", () => {
   ).toBe(
     "w-414,h-326,cm-extract,fo-bottom_right:w-290,h-290,cm-extract,fo-top_left:w-290,c-at_max",
   );
+});
+
+test("small valid banners retain 3:1 after even pixel rounding", () => {
+  expect(
+    cropTransformation({ x: 0, y: 0, width: 100, height: 100 / 3 }, 100, 100, "banner"),
+  ).toContain("w-96,h-32,cm-extract,fo-top_left");
 });

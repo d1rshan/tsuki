@@ -14,7 +14,7 @@ export function ProfileAvatar({ className, user }: ProfileAvatarProps) {
     <div className={cn("size-16 shrink-0 rounded-full @min-[48rem]:size-20", className)}>
       <div className="relative size-full overflow-hidden rounded-full bg-card">
         {user.image ? (
-          <ProfileMedia src={user.image} alt={user.name} />
+          <ProfileMedia src={user.image} alt={user.name} sizes="(max-width: 768px) 64px, 80px" />
         ) : (
           <div className="grid h-full w-full place-items-center text-lg font-medium text-muted-foreground @min-[48rem]:text-xl">
             {user.displayUsername.charAt(0).toUpperCase()}

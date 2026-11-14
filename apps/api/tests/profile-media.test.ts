@@ -9,11 +9,16 @@ import {
 afterEach(() => vi.unstubAllGlobals());
 
 test("checks both processed files before accepting an animation", async () => {
-  const request = vi
-    .fn()
-    .mockResolvedValue(
-      new Response(null, { headers: { "content-type": "video/mp4", "content-length": "1024" } }),
-    );
+  const request = vi.fn(async (url: string, options: RequestInit) =>
+    options.method === "HEAD"
+      ? new Response(null, {
+          headers: {
+            "content-type": url.split("#")[0]!.endsWith(".mp4") ? "video/mp4" : "image/webp",
+            "content-length": "1024",
+          },
+        })
+      : new Response(new Uint8Array(32)),
+  );
   vi.stubGlobal("fetch", request);
   const video = "https://ik.imagekit.io/example/loop.mp4";
   expect(
@@ -22,7 +27,7 @@ test("checks both processed files before accepting an animation", async () => {
       "avatar",
     ),
   ).toBeNull();
-  expect(request).toHaveBeenCalledTimes(2);
+  expect(request).toHaveBeenCalledTimes(3);
   expect(request).toHaveBeenCalledWith(video, { method: "HEAD" });
 });
 
@@ -89,4 +94,35 @@ test("GC reports partial deletion as failure", async () => {
       ),
   );
   expect(await bulkDeleteImageKitFiles(["file"])).toBe(false);
+});
+
+test("a bare MP4 cannot occupy the still image position", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi
+      .fn()
+      .mockResolvedValue(
+        new Response(null, { headers: { "content-type": "video/mp4", "content-length": "1024" } }),
+      ),
+  );
+  expect(await verifyUploadedImage("https://ik.imagekit.io/test/avatar.mp4", "avatar")).toBe(
+    "Profile media requires a still image.",
+  );
+});
+
+test("an image cannot occupy the animation position", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi
+      .fn()
+      .mockResolvedValue(
+        new Response(null, { headers: { "content-type": "image/jpeg", "content-length": "1024" } }),
+      ),
+  );
+  expect(
+    await verifyUploadedImage(
+      "https://ik.imagekit.io/test/avatar.webp#video=https%3A%2F%2Fik.imagekit.io%2Ftest%2Fvideo.mp4",
+      "avatar",
+    ),
+  ).toBe("Animation must be an MP4 video.");
 });

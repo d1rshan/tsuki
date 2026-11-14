@@ -81,11 +81,13 @@ const MAX_IMAGE_BYTES = { avatar: 5 * 1024 * 1024, banner: 10 * 1024 * 1024 };
 export async function verifyUploadedImage(
   url: string,
   type: ImageUploadType,
+  position: "image" | "video" = "image",
 ): Promise<string | null> {
   const video = new URLSearchParams(url.split("#")[1]).get("video");
   if (video) {
+    if (position === "video") return "Invalid animation.";
     if (!video.endsWith(".mp4") || new URL(video).hash) return "Invalid animation.";
-    const error = await verifyUploadedImage(video, type);
+    const error = await verifyUploadedImage(video, type, "video");
     if (error) return error;
   }
   let response: Response;
@@ -99,6 +101,12 @@ export async function verifyUploadedImage(
   const contentType = response.headers.get("content-type")?.split(";")[0];
   if (!contentType || !ALLOWED_CONTENT_TYPES.includes(contentType)) {
     return "Unsupported image format. Please upload a JPEG, PNG, or WebP image.";
+  }
+
+  if (position === "video" ? contentType !== "video/mp4" : !contentType.startsWith("image/")) {
+    return position === "video"
+      ? "Animation must be an MP4 video."
+      : "Profile media requires a still image.";
   }
 
   const length = Number(response.headers.get("content-length"));
