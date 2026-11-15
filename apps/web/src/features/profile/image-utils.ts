@@ -1,4 +1,10 @@
-export const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
+export const ALLOWED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "video/mp4",
+] as const;
 export type AllowedImageType = (typeof ALLOWED_IMAGE_TYPES)[number];
 
 export const MAX_AVATAR_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
@@ -17,7 +23,7 @@ export function validateProfileImageFile(
   if (!ALLOWED_IMAGE_TYPES.includes(file.type as AllowedImageType)) {
     return {
       valid: false,
-      error: "Unsupported file type. Please select a JPEG, PNG, or WebP image.",
+      error: "Unsupported file type. Please select a JPEG, PNG, WebP, GIF, or MP4.",
     };
   }
 
@@ -41,39 +47,13 @@ export type PixelCrop = {
   height: number;
 };
 
-/**
- * Creates a cropped Blob from an HTMLImageElement using an offscreen canvas.
- */
-export async function getCroppedImageBlob(
-  image: HTMLImageElement,
-  crop: PixelCrop,
-  outputType: "image/webp" | "image/jpeg" = "image/webp",
-  quality = 0.92,
-): Promise<Blob> {
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.round(crop.width);
-  canvas.height = Math.round(crop.height);
-
-  const ctx = canvas.getContext("2d");
-  if (!ctx) {
-    throw new Error("Could not get canvas 2D context");
-  }
-
-  ctx.drawImage(image, crop.x, crop.y, crop.width, crop.height, 0, 0, canvas.width, canvas.height);
-
-  return new Promise<Blob>((resolve, reject) => {
-    canvas.toBlob(
-      (blob) => {
-        if (blob) {
-          resolve(blob);
-        } else {
-          reject(new Error("Canvas to Blob conversion failed"));
-        }
-      },
-      outputType,
-      quality,
-    );
-  });
+/** WebP animation flag is carried by the VP8X chunk, independently of filename. */
+export function isAnimatedWebP(bytes: Uint8Array) {
+  return (
+    String.fromCharCode(...bytes.slice(0, 4)) === "RIFF" &&
+    String.fromCharCode(...bytes.slice(8, 16)) === "WEBPVP8X" &&
+    Boolean((bytes[20] ?? 0) & 2)
+  );
 }
 
 export type ImageKitUploadAuth = {

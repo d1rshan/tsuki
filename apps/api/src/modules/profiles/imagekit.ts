@@ -44,7 +44,7 @@ export function generateImageKitUploadAuth(userId: string, type: ImageUploadType
 
 const filePathPattern = (userId: string, type: ImageUploadType) =>
   new RegExp(
-    `^${folderFor(type)}/image-${userId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}-\\d+-[0-9a-f-]{36}\\.webp$`,
+    `^${folderFor(type)}/image-${userId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}-\\d+-[0-9a-f-]{36}\\.(?:webp|mp4)$`,
   );
 
 /**
@@ -55,12 +55,12 @@ const filePathPattern = (userId: string, type: ImageUploadType) =>
 export function parseImagePath(url: string, userId: string, type: ImageUploadType): string | null {
   const endpoint = (env.IMAGEKIT_URL_ENDPOINT || "https://ik.imagekit.io").replace(/\/$/, "");
   if (!url.startsWith(`${endpoint}/`)) return null;
-  const path = decodeURIComponent(url.slice(endpoint.length));
+  const path = decodeURIComponent(url.split("#")[0]!.slice(endpoint.length));
   return filePathPattern(userId, type).test(path) ? path : null;
 }
 
 const UPLOADED_AT_PATTERN =
-  /-(\d+)-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.webp$/;
+  /-(\d+)-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(?:webp|mp4|gif|jpg|png)$/;
 
 /** Upload epoch (seconds) from a convention-conforming file path, else null. */
 export function uploadedAtFromFilePath(path: string): number | null {
@@ -70,7 +70,7 @@ export function uploadedAtFromFilePath(path: string): number | null {
   return Number.isSafeInteger(seconds) && seconds > 0 ? seconds : null;
 }
 
-const ALLOWED_CONTENT_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const ALLOWED_CONTENT_TYPES = ["image/jpeg", "image/png", "image/webp", "video/mp4"];
 const MAX_IMAGE_BYTES = { avatar: 5 * 1024 * 1024, banner: 10 * 1024 * 1024 };
 
 /**
@@ -81,7 +81,15 @@ const MAX_IMAGE_BYTES = { avatar: 5 * 1024 * 1024, banner: 10 * 1024 * 1024 };
 export async function verifyUploadedImage(
   url: string,
   type: ImageUploadType,
+  position: "image" | "video" = "image",
 ): Promise<string | null> {
+  const video = new URLSearchParams(url.split("#")[1]).get("video");
+  if (video) {
+    if (position === "video") return "Invalid animation.";
+    if (!video.endsWith(".mp4") || new URL(video).hash) return "Invalid animation.";
+    const error = await verifyUploadedImage(video, type, "video");
+    if (error) return error;
+  }
   let response: Response;
   try {
     response = await fetch(url, { method: "HEAD" });
@@ -95,6 +103,12 @@ export async function verifyUploadedImage(
     return "Unsupported image format. Please upload a JPEG, PNG, or WebP image.";
   }
 
+  if (position === "video" ? contentType !== "video/mp4" : !contentType.startsWith("image/")) {
+    return position === "video"
+      ? "Animation must be an MP4 video."
+      : "Profile media requires a still image.";
+  }
+
   const length = Number(response.headers.get("content-length"));
   if (!Number.isSafeInteger(length) || length <= 0) {
     return "Image size could not be verified. Please try again.";
@@ -103,6 +117,17 @@ export async function verifyUploadedImage(
     return `Image is too large. Maximum size for ${type}s is ${MAX_IMAGE_BYTES[type] / (1024 * 1024)}MB.`;
   }
 
+  if (contentType === "image/webp") {
+    try {
+      const prefix = await fetch(url.split("#")[0]!, { headers: { Range: "bytes=0-31" } });
+      if (!prefix.ok) return "Image could not be verified. Please try again.";
+      const bytes = new Uint8Array(await prefix.arrayBuffer());
+      if (String.fromCharCode(...bytes.slice(12, 16)) === "VP8X" && (bytes[20] ?? 0) & 2)
+        return "Animated WebP is not supported. Use GIF or MP4 instead.";
+    } catch {
+      return "Image could not be verified. Please try again.";
+    }
+  }
   return null;
 }
 
@@ -128,14 +153,20 @@ export async function listImageKitFiles(
 }
 
 export async function bulkDeleteImageKitFiles(fileIds: string[]): Promise<boolean> {
-  if (fileIds.length === 0) return true;
-
-  const response = await fetch("https://api.imagekit.io/v1/files/bulkDelete", {
-    method: "POST",
-    headers: { Authorization: authHeader(), "Content-Type": "application/json" },
-    body: JSON.stringify({ fileIds }),
-  });
-  if (response.ok) return true;
-  console.error("ImageKit bulk delete failed:", await response.text());
-  return false;
+  for (let offset = 0; offset < fileIds.length; offset += 100) {
+    const batch = fileIds.slice(offset, offset + 100);
+    const response = await fetch("https://api.imagekit.io/v1/files/batch/deleteByFileIds", {
+      method: "POST",
+      headers: { Authorization: authHeader(), "Content-Type": "application/json" },
+      body: JSON.stringify({ fileIds: batch }),
+    });
+    if (!response.ok) {
+      console.error("ImageKit bulk delete failed:", response.status);
+      return false;
+    }
+    const result = (await response.json()) as { successfullyDeletedFileIds?: string[] };
+    const deleted = new Set(result.successfullyDeletedFileIds);
+    if (batch.some((id) => !deleted.has(id))) return false;
+  }
+  return true;
 }

@@ -84,8 +84,10 @@ describe("verifyUploadedImage (server-side MIME/size enforcement)", () => {
   test("accepts a conforming image within the size limit", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn(async () =>
-        headResponse({ "content-type": "image/webp", "content-length": String(1024) }),
+      vi.fn(async (_url: string, options?: RequestInit) =>
+        options?.method === "HEAD"
+          ? headResponse({ "content-type": "image/webp", "content-length": String(1024) })
+          : new Response(new Uint8Array(32)),
       ),
     );
 

@@ -40,11 +40,13 @@ function DialogContent({
   className,
   overlayClassName,
   overlayRender,
+  overlayForceRender = false,
   mobileSheet = true,
   children,
   ...props
 }: DialogPrimitive.Popup.Props & {
   overlayClassName?: string;
+  overlayForceRender?: boolean;
   overlayRender?: DialogPrimitive.Backdrop.Props["render"];
   /** Keep the centered dialog presentation on mobile. */
   mobileSheet?: boolean;
@@ -75,7 +77,11 @@ function DialogContent({
 
   return (
     <DialogPortal>
-      <DialogOverlay className={overlayClassName} render={overlayRender} />
+      <DialogOverlay
+        className={overlayClassName}
+        render={overlayRender}
+        forceRender={overlayForceRender}
+      />
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(

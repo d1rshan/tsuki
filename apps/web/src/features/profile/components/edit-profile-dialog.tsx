@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { revalidateLogic, useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -41,6 +40,8 @@ import { updateProfile } from "../actions";
 import { createProfileFormValues, createProfileUpdate, profileFormSchema } from "../schemas";
 import { ProfileImageControls } from "./profile-image-controls";
 import { getSocialPreset, SOCIAL_PRESETS, SocialIcon } from "../social-presets";
+
+import { ProfileMedia } from "./profile-media";
 
 export function EditProfileDialog({
   profile,
@@ -332,7 +333,7 @@ function ProfileImageField({
       <div className="relative w-full">
         <div className="relative h-40 w-full overflow-hidden rounded-2xl border">
           {value ? (
-            <Image src={value} alt="Banner preview" fill unoptimized className="object-cover" />
+            <ProfileMedia src={value} alt="Banner preview" />
           ) : (
             <div className="h-full w-full bg-gradient-to-tr from-muted/50 via-muted/20 to-muted/50" />
           )}
@@ -355,7 +356,7 @@ function ProfileImageField({
     <div className="relative h-24 w-24 shrink-0">
       <div className="relative h-24 w-24 overflow-hidden rounded-full border bg-muted ring-4 ring-background">
         {value ? (
-          <Image src={value} alt="Avatar preview" fill className="object-cover" />
+          <ProfileMedia src={value} alt="Avatar preview" />
         ) : (
           <div className="grid h-full w-full place-items-center text-muted-foreground">
             <User className="h-8 w-8" />
