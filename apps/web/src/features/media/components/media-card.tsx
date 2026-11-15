@@ -75,7 +75,12 @@ function MediaCardContent({ media, className }: MediaCardProps) {
       onKeyDown={(event) => {
         if (event.key === "Escape" && revealed) setRevealed(false);
       }}
-      onFocus={() => {
+      onFocus={(event) => {
+        if (event.target.hasAttribute("data-restoring-modal-focus")) {
+          setHovered(event.currentTarget.matches(":hover"));
+          setFocused(false);
+          return;
+        }
         if (!noHover) {
           setActivated(true);
           setFocused(true);
