@@ -12,14 +12,14 @@
     "db:cleanup-activity:prod": "bun --no-env-file ../../scripts/run.ts db:cleanup-activity:prod"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^1.2.0",
+    "@neondatabase/serverless": "^1.2.1",
     "@tsuki/env": "workspace:*",
     "@tsuki/rich-content": "workspace:*",
     "drizzle-orm": "^0.45.4"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",
-    "drizzle-kit": "0.31.10",
+    "drizzle-kit": "0.31.11",
     "pg": "^8.23.1"
   }
 }
